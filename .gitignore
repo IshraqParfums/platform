@@ -1,0 +1,43 @@
+# dependencies
+node_modules
+
+# pnpm
+.pnpm-debug.log*
+
+# turbo
+.turbo
+
+# build outputs
+dist
+.next
+out
+build
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# typescript
+*.tsbuildinfo
+
+# next.js / deploy
+.vercel
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE (optional — team preference)
+.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json

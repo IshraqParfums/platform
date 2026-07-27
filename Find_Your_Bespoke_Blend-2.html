@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your Bespoke Blend</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink: #3A2418;
+  --ink-soft: #6B4D3B;
+  --bg-light: #F6EAD9;
+  --bg-light-2: #FBF4E9;
+  --bg-deep: #2C1B14;
+  --bg-deep-2: #3D2519;
+  --card: #FFFBF3;
+  --rose: #C6685A;
+  --rose-deep: #A84E42;
+  --gold: #C9963E;
+  --gold-soft: #E0BD84;
+  --sage: #7C8B6F;
+  --paper-line: #E3CDAF;
+  --serif: "Fraunces", serif;
+  --sans: "Manrope", sans-serif;
+  --mono: "JetBrains Mono", monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--sans);
+  background:var(--bg-light);
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+button{font-family:inherit; cursor:pointer;}
+::selection{background:var(--gold-soft); color:var(--ink);}
+:focus-visible{outline:2px solid var(--rose); outline-offset:3px;}
+
+.screen{ display:none; min-height:100vh; }
+.screen.active{ display:flex; flex-direction:column; }
+
+/* ============ VIAL (signature element) ============ */
+.vial-wrap{ display:flex; justify-content:center; align-items:flex-end; }
+.vial{
+  position:relative; width:78px; height:150px;
+  border:2.5px solid var(--ink); border-top:none;
+  border-radius:8px 8px 22px 22px;
+  overflow:hidden; background:rgba(255,255,255,.35);
+}
+.vial::before{ /* neck */
+  content:""; position:absolute; top:-26px; left:50%; transform:translateX(-50%);
+  width:26px; height:26px; border:2.5px solid var(--ink); border-bottom:none;
+  border-radius:4px 4px 0 0; background:rgba(255,255,255,.35);
+}
+.vial::after{ /* cap */
+  content:""; position:absolute; top:-38px; left:50%; transform:translateX(-50%);
+  width:34px; height:14px; background:var(--ink); border-radius:3px;
+}
+.vial-fill{ position:absolute; bottom:0; left:0; width:100%; display:flex; flex-direction:column-reverse; transition:height 1.1s cubic-bezier(.2,.8,.2,1); }
+.vial-band{ width:100%; transition:height 1s cubic-bezier(.2,.8,.2,1); }
+.vial-band.base{ background:linear-gradient(180deg, #8A5A2E, #5E3A1C); }
+.vial-band.heart{ background:linear-gradient(180deg, var(--rose), var(--rose-deep)); }
+.vial-band.top{ background:linear-gradient(180deg, var(--gold-soft), var(--gold)); }
+
+/* ============ INTRO ============ */
+#screen-intro{ justify-content:center; align-items:center; text-align:center; padding:12vh 24px 8vh; }
+.eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--rose-deep); margin-bottom:16px; }
+#screen-intro h1{ font-family:var(--serif); font-weight:600; font-size:clamp(34px,7vw,54px); line-height:1.08; margin:0 0 16px; max-width:560px; }
+#screen-intro h1 em{ font-style:italic; color:var(--rose-deep); font-weight:500; }
+#screen-intro p.sub{ font-size:16px; color:var(--ink-soft); max-width:420px; line-height:1.6; margin:0 0 40px; }
+.vial-intro{ margin-bottom:44px; }
+.begin-btn{
+  font-family:var(--sans); font-weight:700; font-size:16px; color:#fff;
+  background:var(--ink); border:none; padding:16px 38px; border-radius:30px;
+  transition:transform .15s, background .15s; letter-spacing:.02em;
+}
+.begin-btn:hover{ background:var(--rose-deep); transform:translateY(-2px); }
+.meta-note{ margin-top:22px; font-size:13px; color:var(--ink-soft); opacity:.75; }
+
+/* ============ QUIZ ============ */
+#screen-quiz{ padding:24px 22px 40px; max-width:640px; margin:0 auto; width:100%; justify-content:flex-start; }
+.quiz-header-row{ display:flex; align-items:center; gap:14px; margin-bottom:10px; }
+.progress-track{ flex:1; height:5px; background:var(--paper-line); border-radius:3px; overflow:hidden; }
+.progress-fill{ height:100%; background:linear-gradient(90deg, var(--gold), var(--rose)); transition:width .4s ease; border-radius:3px; }
+.mini-vial{ width:14px; height:26px; border:1.5px solid var(--ink); border-radius:3px 3px 6px 6px; overflow:hidden; flex-shrink:0; background:rgba(58,36,24,.05); }
+.mini-vial-fill{ width:100%; background:linear-gradient(180deg, var(--gold-soft), var(--rose)); transition:height .4s ease; }
+.q-counter{ font-family:var(--mono); font-size:12px; color:var(--ink-soft); margin-bottom:28px; letter-spacing:.04em; }
+.q-text{ font-family:var(--serif); font-size:clamp(24px,5vw,32px); font-weight:600; line-height:1.25; margin:0 0 30px; animation:fadeSlideIn .35s ease; }
+.options{ display:flex; flex-direction:column; gap:12px; margin-bottom:14px; animation:fadeSlideIn .4s ease; }
+@keyframes fadeSlideIn{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:translateY(0);} }
+.opt-btn{
+  text-align:left; background:var(--card); border:1.5px solid var(--paper-line); border-radius:14px;
+  padding:18px 20px; font-size:16px; font-weight:600; color:var(--ink);
+  transition:all .15s; box-shadow:0 1px 0 rgba(58,36,24,.04); position:relative;
+}
+.opt-btn:hover{ border-color:var(--rose); transform:translateX(3px); }
+.opt-btn:active{ transform:scale(.98); }
+.opt-btn.selected{ background:var(--ink); color:var(--bg-light-2); border-color:var(--ink); }
+.opt-btn .kbd-num{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); opacity:.55; margin-right:10px; }
+.opt-btn.selected .kbd-num{ color:rgba(251,244,233,.5); }
+.halfway-note{ text-align:center; font-family:var(--serif); font-style:italic; font-size:14px; color:var(--rose-deep); margin-bottom:18px; min-height:18px; }
+.quiz-nav{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.back-btn{ background:none; border:none; color:var(--ink-soft); font-size:14px; font-weight:600; padding:8px 4px; }
+.back-btn:hover{ color:var(--ink); }
+.back-btn:disabled{ opacity:0; pointer-events:none; }
+.kbd-hint{ font-family:var(--mono); font-size:10.5px; color:var(--ink-soft); opacity:.55; }
+@media (max-width:480px){ .kbd-hint{ display:none; } }
+
+/* ============ LOADING ============ */
+#screen-loading{ justify-content:center; align-items:center; text-align:center; background:linear-gradient(180deg, var(--bg-deep), var(--bg-deep-2)); }
+.loading-inner{ display:flex; flex-direction:column; align-items:center; }
+.loading-text{ font-family:var(--serif); font-style:italic; font-size:18px; color:#EDDFC9; margin-top:24px; animation:pulseFade 1.4s ease-in-out infinite; }
+@keyframes pulseFade{ 0%,100%{ opacity:.5; } 50%{ opacity:1; } }
+
+/* ============ RESULT ============ */
+#screen-result{ background:linear-gradient(180deg, var(--bg-deep), var(--bg-deep-2)); color:#F3E7D8; align-items:center; padding:8vh 20px 10vh; }
+.result-inner{ max-width:600px; width:100%; }
+.vial-result{ margin-bottom:8px; }
+.result-eyebrow{ text-align:center; font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold-soft); margin:18px 0 10px; }
+.perfume-name{
+  font-family:var(--serif); font-weight:700; font-size:clamp(36px,8vw,54px); text-align:center;
+  margin:0 0 6px; color:#FBF2E4; background:transparent; border:none; width:100%;
+  text-align:center; border-bottom:1.5px dashed rgba(243,231,216,.3); padding-bottom:8px;
+}
+.perfume-name:focus{ outline:none; border-bottom-color:var(--gold-soft); }
+.rename-hint{ text-align:center; font-size:12px; color:rgba(243,231,216,.5); margin-bottom:28px; }
+.mood-para{ font-family:var(--serif); font-style:italic; font-size:18px; line-height:1.6; text-align:center; color:#EDDFC9; margin:0 0 40px; }
+
+.section-label{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-soft); margin:0 0 14px; display:block; }
+.formula-block{ margin-bottom:38px; }
+.formula-row{ display:flex; justify-content:space-between; align-items:baseline; padding:10px 0; border-bottom:1px solid rgba(243,231,216,.12); }
+.formula-row .role{ font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--rose); width:70px; flex-shrink:0; }
+.formula-row .mats{ flex:1; font-size:15px; color:#F3E7D8; }
+.formula-row .pct{ font-family:var(--mono); font-weight:500; color:var(--gold-soft); font-size:14px; margin-left:12px; }
+
+.why-list{ list-style:none; margin:0 0 40px; padding:0; }
+.why-list li{ font-size:15px; line-height:1.6; color:#EDDFC9; padding-left:22px; position:relative; margin-bottom:12px; }
+.why-list li::before{ content:"—"; position:absolute; left:0; color:var(--rose); }
+
+.inspired-grid{ display:flex; flex-direction:column; gap:10px; margin-bottom:44px; }
+.inspired-card{ background:rgba(243,231,216,.06); border:1px solid rgba(243,231,216,.15); border-radius:10px; padding:14px 18px; }
+.inspired-card .iname{ font-family:var(--serif); font-weight:600; font-size:17px; color:#FBF2E4; margin-bottom:3px; }
+.inspired-card .icat{ font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold-soft); margin-bottom:6px; }
+.inspired-card .imood{ font-size:13.5px; color:rgba(243,231,216,.75); line-height:1.5; }
+
+.result-actions{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.answers-toggle-wrap{ margin-bottom:30px; border-top:1px solid rgba(243,231,216,.12); padding-top:22px; }
+.answers-toggle{ background:none; border:1px solid rgba(243,231,216,.25); color:#F3E7D8; font-weight:700; font-size:13px; padding:10px 18px; border-radius:20px; transition:all .15s; }
+.answers-toggle:hover{ border-color:var(--gold-soft); background:rgba(243,231,216,.06); }
+.answers-toggle-hint{ font-size:12px; color:rgba(243,231,216,.5); margin:10px 0 0; }
+.answers-summary{ display:none; margin-top:18px; }
+.answers-summary.open{ display:grid; grid-template-columns:1fr 1fr; gap:0 24px; }
+.answer-item{ padding:9px 0; border-bottom:1px solid rgba(243,231,216,.1); }
+.answer-item .aq{ font-size:12.5px; font-weight:700; color:#F3E7D8; margin-bottom:2px; }
+.answer-item .aa{ font-size:12.5px; color:rgba(243,231,216,.7); }
+@media (max-width:600px){ .answers-summary.open{ grid-template-columns:1fr; } }
+.action-btn{ font-weight:700; font-size:14px; padding:13px 26px; border-radius:26px; border:1.5px solid rgba(243,231,216,.3); background:transparent; color:#F3E7D8; transition:all .15s; }
+.action-btn:hover{ border-color:var(--gold-soft); background:rgba(243,231,216,.08); }
+.action-btn.primary{ background:var(--gold-soft); color:#2C1B14; border-color:var(--gold-soft); }
+.action-btn.primary:hover{ background:#EDD09A; }
+.copy-confirm{ text-align:center; font-size:12px; color:var(--gold-soft); margin-top:14px; height:14px; }
+
+@media (max-width:480px){
+  .formula-row{ flex-wrap:wrap; }
+  .formula-row .pct{ margin-left:auto; }
+}
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<!-- ============ INTRO ============ -->
+<div class="screen active" id="screen-intro">
+  <div class="eyebrow">A Scent Made For You</div>
+  <h1>Find Your <em>Bespoke</em> Blend</h1>
+  <p class="sub">Answer 10 quick questions, then we'll ask a few more based on your style to get the details just right — all built from a real perfumer's palette.</p>
+  <div class="vial-wrap vial-intro">
+    <div class="vial"><div class="vial-fill" id="intro-vial-fill"></div></div>
+  </div>
+  <button class="begin-btn" onclick="startQuiz()">Begin</button>
+  <div class="meta-note">Takes about 2 minutes · No sign-up needed</div>
+</div>
+
+<!-- ============ QUIZ ============ -->
+<div class="screen" id="screen-quiz">
+  <div class="quiz-header-row">
+    <div class="progress-track" role="progressbar" aria-label="Quiz progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="mini-vial" aria-hidden="true"><div class="mini-vial-fill" id="mini-vial-fill"></div></div>
+  </div>
+  <div class="q-counter" id="q-counter" aria-live="polite">Question 1</div>
+  <div class="q-text" id="q-text" aria-live="polite"></div>
+  <div class="options" id="q-options" role="radiogroup" aria-label="Answer options"></div>
+  <div class="halfway-note" id="halfway-note"></div>
+  <div class="quiz-nav">
+    <button class="back-btn" id="back-btn" onclick="goBack()">&larr; Back</button>
+    <span class="kbd-hint">Tip: press 1–6 to answer, Backspace to go back</span>
+  </div>
+</div>
+
+<!-- ============ RESULT ============ -->
+<div class="screen" id="screen-loading">
+  <div class="loading-inner">
+    <div class="vial-wrap"><div class="vial"><div class="vial-fill" id="loading-vial-fill"></div></div></div>
+    <div class="loading-text" id="loading-text">Composing your blend&hellip;</div>
+  </div>
+</div>
+
+<div class="screen" id="screen-result">
+  <div class="result-inner">
+    <div class="vial-wrap vial-result">
+      <div class="vial"><div class="vial-fill" id="result-vial-fill"></div></div>
+    </div>
+    <div class="result-eyebrow">Your Bespoke Formula</div>
+    <input class="perfume-name" id="perfume-name" value="">
+    <div class="rename-hint">tap the name to make it your own</div>
+    <p class="mood-para" id="mood-para"></p>
+
+    <div class="formula-block">
+      <span class="section-label">The Formula</span>
+      <div id="formula-rows"></div>
+    </div>
+
+    <div>
+      <span class="section-label">Why This Fits You</span>
+      <ul class="why-list" id="why-list"></ul>
+    </div>
+
+    <div>
+      <span class="section-label">Inspired By Your Collection</span>
+      <div class="inspired-grid" id="inspired-grid"></div>
+    </div>
+
+    <div class="answers-toggle-wrap">
+      <button class="answers-toggle" id="answers-toggle" onclick="toggleAnswers()">
+        <span id="answers-toggle-label">Show All Answers</span> <span id="answers-toggle-arrow">&#9662;</span>
+      </button>
+      <p class="answers-toggle-hint">Useful reference for later — see exactly what this person said, question by question.</p>
+      <div class="answers-summary" id="answers-summary"></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="action-btn primary" onclick="downloadImage()">Download Image</button>
+      <button class="action-btn" onclick="copyFormula()">Copy My Formula</button>
+      <button class="action-btn" onclick="retakeQuiz()">Retake Quiz</button>
+    </div>
+    <div class="copy-confirm" id="copy-confirm"></div>
+  </div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+// ============ MATERIAL POOL ============
+const MATERIAL_POOL = [
+  { name:"Bergamot", axis:"citrus", roles:["top"], desc:"bright, sparkling citrus" },
+  { name:"Orange 10 Fold Oil", axis:"citrus", roles:["top"], desc:"sweet, juicy orange peel" },
+  { name:"Petitgrain Oil RC", axis:"citrus", roles:["top"], desc:"dry, sophisticated citrus-leaf" },
+  { name:"Cis-3-Hexenyl Acetate", axis:"green", roles:["top"], desc:"fresh cut-grass realism" },
+  { name:"Pine Essential Oil", axis:"green", roles:["top"], desc:"crisp forest air" },
+  { name:"Clary Sage Oil", axis:"green", roles:["top","heart"], desc:"boozy, herbal depth" },
+  { name:"Peatmoss (Veramoss Equivalent)", axis:"green", roles:["base"], desc:"damp, earthy moss" },
+  { name:"Floralozone", axis:"aquatic", roles:["top","heart"], desc:"cool, watery freshness" },
+  { name:"Dihydromercenol", axis:"aquatic", roles:["top"], desc:"clean, just-showered freshness" },
+  { name:"Linalool", axis:"aquatic", roles:["top","heart"], desc:"soft, clean freshness" },
+  { name:"Pinkpepper", axis:"spicy", roles:["top","heart"], desc:"bright, fruity-fresh spice" },
+  { name:"Black Pepper Oil", axis:"spicy", roles:["top","heart"], desc:"dry, sharp pepper bite" },
+  { name:"Cardamom Oil RCO", axis:"spicy", roles:["top","heart"], desc:"warm, bright spice" },
+  { name:"Cinnamon Bark Oil", axis:"spicy", roles:["heart"], desc:"hot, sweet-spicy warmth" },
+  { name:"Nutmeg EO", axis:"spicy", roles:["heart"], desc:"round, warm spice" },
+  { name:"Hedione", axis:"floral", roles:["heart"], desc:"radiant, weightless florals" },
+  { name:"Jasmine Sambac", axis:"floral", roles:["heart"], desc:"heady, sensual white flowers" },
+  { name:"Phenyl Ethyl Alcohol", axis:"floral", roles:["heart"], desc:"soft classical rose" },
+  { name:"PEME (Phenyl Ethyl Methyl Ether)", axis:"floral", roles:["heart"], desc:"airy, transparent rose" },
+  { name:"Linalyl Acetate", axis:"floral", roles:["top","heart"], desc:"soft floral-aromatic bridge" },
+  { name:"Methyl Ionone Gamma", axis:"powdery", roles:["heart"], desc:"soft, nostalgic violet-powder" },
+  { name:"Benzyl Salicylate", axis:"powdery", roles:["heart"], desc:"soft, powdery fixative" },
+  { name:"Coumarin", axis:"powdery", roles:["heart","base"], desc:"dry, sweet hay warmth" },
+  { name:"Vanillin", axis:"gourmand", roles:["heart","base"], desc:"warm, comforting vanilla" },
+  { name:"Gamma Nonalactone (Aldehyde C18)", axis:"gourmand", roles:["heart"], desc:"creamy, buttery-coconut softness" },
+  { name:"Gamma Undecalactone (Aldehyde C14)", axis:"gourmand", roles:["heart"], desc:"soft, peachy sweetness" },
+  { name:"Coffee CO2", axis:"gourmand", roles:["base"], desc:"dark, roasted depth" },
+  { name:"Cedarwood", axis:"woody", roles:["heart","base"], desc:"gentle, dry pencil-shaving wood" },
+  { name:"Vetiver EO", axis:"woody", roles:["base"], desc:"dry, earthy roots" },
+  { name:"Iso E Super", axis:"woody", roles:["base"], desc:"soft, diffusive woody space" },
+  { name:"Patchouli", axis:"woody", roles:["base"], desc:"dark, earthy depth" },
+  { name:"Vertofix", axis:"woody", roles:["base"], desc:"dense, classic wood" },
+  { name:"Cypriol", axis:"smoky", roles:["base"], desc:"green, smoky wood" },
+  { name:"Guaiacol", axis:"smoky", roles:["base"], desc:"a whisper of campfire smoke" },
+  { name:"Oud Oliffac", axis:"smoky", roles:["base"], desc:"smoky, animalic oud" },
+  { name:"Nirlimbanol", axis:"smoky", roles:["base"], desc:"dark, smoky-leathery wood" },
+  { name:"Safraleine", axis:"smoky", roles:["heart","base"], desc:"leathery, spiced suede" },
+  { name:"Labdanum Resinoid", axis:"amber", roles:["base"], desc:"warm, honeyed amber" },
+  { name:"Ambroxan 10%", axis:"amber", roles:["base"], desc:"radiant, sensual warmth" },
+  { name:"Resinoid Head Benzoin 70 DEP", axis:"amber", roles:["base"], desc:"sweet, honeyed resin" },
+  { name:"Frankincense", axis:"amber", roles:["heart","base"], desc:"cool, spiritual resin" },
+  { name:"Sylvamber", axis:"amber", roles:["base"], desc:"dry, modern amber" },
+  { name:"Cashmeran", axis:"musk", roles:["heart","base"], desc:"cozy, spiced-sweater musk" },
+  { name:"Galaxolide", axis:"musk", roles:["base"], desc:"clean, soft skin-musk" },
+  { name:"Exaltolide® Total", axis:"musk", roles:["base"], desc:"soft, powdery musk" },
+  { name:"Ethylene Brassylate", axis:"musk", roles:["base"], desc:"soft, fruity-clean musk" },
+  { name:"Civet", axis:"musk", roles:["base"], desc:"warm, sensual skin depth (trace)" },
+];
+
+const AXES = ["citrus","green","aquatic","floral","woody","amber","gourmand","spicy","powdery","musk","smoky"];
+
+const AXIS_TO_CATEGORY = {
+  citrus:"Citrus", green:"Top Note", aquatic:"Aqua / Fresh", floral:"Floral",
+  woody:"Woody", amber:"Amber", gourmand:"Gourmand", spicy:"Spicy",
+  powdery:"Nostalgic", musk:"Foundational", smoky:"Arabic Mukhallat",
+};
+
+const NAME_WORDS = {
+  citrus:{adj:["Sunlit","Bright","Zesty"], noun:["Zest","Sunrise","Spark"]},
+  green:{adj:["Verdant","Fresh-Cut","Dewy"], noun:["Leaf","Meadow","Garden"]},
+  aquatic:{adj:["Misty","Cool","Coastal"], noun:["Tide","Breeze","Rain"]},
+  floral:{adj:["Blooming","Velvet","Petal"], noun:["Bloom","Petal","Garden"]},
+  woody:{adj:["Golden","Quiet","Rooted"], noun:["Wood","Grove","Timber"]},
+  amber:{adj:["Golden","Warm","Radiant"], noun:["Amber","Glow","Sunset"]},
+  gourmand:{adj:["Warm","Honeyed","Sweet"], noun:["Vanilla","Honey","Sugar"]},
+  spicy:{adj:["Spiced","Ember","Bold"], noun:["Ember","Spice Trail","Flame"]},
+  powdery:{adj:["Soft","Vintage","Tender"], noun:["Powder","Memory","Veil"]},
+  musk:{adj:["Bare","Quiet","Intimate"], noun:["Skin","Whisper","Hush"]},
+  smoky:{adj:["Smoky","Dusky","Mysterious"], noun:["Ember","Shadow","Smoke"]},
+};
+
+const AXIS_DESC = {
+  citrus:"bright, sun-lit citrus", green:"crisp, garden-fresh green", aquatic:"cool, airy freshness",
+  floral:"soft, radiant florals", woody:"warm, grounded wood", amber:"golden, honeyed amber",
+  gourmand:"sweet, comforting warmth", spicy:"lively, warming spice", powdery:"soft, nostalgic powder",
+  musk:"quiet, skin-close sensuality", smoky:"smoky, mysterious depth",
+};
+const WHY = {
+  citrus:"You're drawn to brightness and energy — citrus gives any blend an instant lift.",
+  green:"You love the feeling of nature up close — green notes bring that realism in.",
+  aquatic:"Clean, fresh air is your happy place — aquatic notes capture exactly that.",
+  floral:"Flowers speak to your romantic side — they're the heart of almost every great perfume.",
+  woody:"You're grounded and understated — wood gives a fragrance quiet, lasting depth.",
+  amber:"You gravitate toward warmth and comfort — amber is the coziest note in perfumery.",
+  gourmand:"You have a sweet tooth, and it shows — gourmand notes add real warmth and comfort.",
+  spicy:"You like a little excitement — spice gives a fragrance real personality.",
+  powdery:"You're drawn to soft, nostalgic comfort — powdery notes feel like a warm memory.",
+  musk:"You prefer something intimate and close to skin — musk is quietly magnetic.",
+  smoky:"You're drawn to a little mystery — smoky notes add intrigue and depth.",
+};
+
+// ============ PHASE 1 — 10 core questions, shown to everyone ============
+// Broad, simple, non-technical. More options than before for finer signal.
+const CORE_QUESTIONS = [
+  { id:1, text:"How would you like your fragrance to feel overall?", options:[
+    { label:"Fresh & Clean", w:{aquatic:3} },
+    { label:"Warm & Cozy", w:{amber:3} },
+    { label:"Bold & Sensual", w:{musk:3} },
+    { label:"Soft & Romantic", w:{floral:3} },
+    { label:"Spiced & Exciting", w:{spicy:3} },
+    { label:"Dark & Mysterious", w:{smoky:3} },
+  ]},
+  { id:2, text:"Pick the season that feels most 'you':", options:[
+    { label:"Spring", w:{floral:3} },
+    { label:"Summer", w:{citrus:3} },
+    { label:"Autumn", w:{spicy:2, woody:1} },
+    { label:"Winter", w:{amber:3} },
+    { label:"Monsoon / rainy season", w:{aquatic:3} },
+    { label:"A misty autumn morning", w:{green:2, powdery:1} },
+  ]},
+  { id:3, text:"Which of these smells makes you happiest?", options:[
+    { label:"Fresh citrus peel", w:{citrus:3} },
+    { label:"Blooming flowers", w:{floral:3} },
+    { label:"Warm vanilla or sweets", w:{gourmand:3} },
+    { label:"Fresh rain", w:{aquatic:3} },
+    { label:"Wood & spice market", w:{woody:2, spicy:1} },
+    { label:"Old books and leather", w:{smoky:2, powdery:1} },
+  ]},
+  { id:4, text:"Pick a place you'd love to be right now:", options:[
+    { label:"A beach", w:{aquatic:3} },
+    { label:"A flower garden", w:{floral:3} },
+    { label:"A mountain forest", w:{woody:3} },
+    { label:"A spice bazaar", w:{spicy:3} },
+    { label:"A cozy cabin by a fire", w:{smoky:2, woody:1} },
+    { label:"A grand old library", w:{powdery:2, smoky:1} },
+  ]},
+  { id:5, text:"Which fabric feels most like 'you'?", options:[
+    { label:"Crisp cotton", w:{aquatic:3} },
+    { label:"Soft cashmere", w:{powdery:3} },
+    { label:"Worn leather", w:{smoky:3} },
+    { label:"Silk", w:{floral:2, musk:1} },
+    { label:"Denim", w:{woody:2, green:1} },
+    { label:"Velvet", w:{musk:2, floral:1} },
+  ]},
+  { id:6, text:"Pick a color that speaks to you:", options:[
+    { label:"White", w:{musk:2, aquatic:1} },
+    { label:"Gold", w:{amber:3} },
+    { label:"Deep Red", w:{spicy:2, musk:1} },
+    { label:"Green", w:{green:3} },
+    { label:"Black", w:{smoky:3} },
+    { label:"Blue", w:{aquatic:2, green:1} },
+  ]},
+  { id:7, text:"Sweet tooth or savory?", options:[
+    { label:"Sweet tooth", w:{gourmand:3} },
+    { label:"Savory & spiced", w:{spicy:3} },
+    { label:"Bitter & dark (coffee, dark chocolate)", w:{woody:2, smoky:1} },
+    { label:"Neither — I like fresh things", w:{aquatic:2} },
+    { label:"Tangy & citrusy", w:{citrus:3} },
+  ]},
+  { id:8, text:"Which weather do you love most?", options:[
+    { label:"A sunny hot day", w:{citrus:3} },
+    { label:"A rainy afternoon", w:{aquatic:3} },
+    { label:"A crisp cold morning", w:{woody:2} },
+    { label:"A golden autumn evening", w:{amber:2, spicy:1} },
+    { label:"A misty, foggy morning", w:{green:2, powdery:1} },
+  ]},
+  { id:9, meta:"intensity", text:"How do you like to be noticed?", options:[
+    { label:"I prefer to be subtle", value:"light" },
+    { label:"Somewhere in between", value:"medium" },
+    { label:"I like a noticeable presence", value:"medium" },
+    { label:"I want people to remember my scent", value:"bold" },
+    { label:"I want it truly unforgettable", value:"bold" },
+  ]},
+  { id:10, meta:"longevity", text:"How long do you want your scent to last?", options:[
+    { label:"A light touch for a couple hours", value:"short" },
+    { label:"I like to reapply through the day", value:"short" },
+    { label:"All day, close to skin", value:"medium" },
+    { label:"Long and noticeable", value:"long" },
+    { label:"Long and powerful, no reapplying", value:"long" },
+  ]},
+];
+
+// ============ PHASE 2 — adaptive pool ============
+// One "which specific style" follow-up per axis (used for whichever 3 axes are
+// leading after Phase 1), plus 2 general precision questions always asked.
+// Follow-up answers set a *specific preferred material* directly, not just an axis score.
+const AXIS_FOLLOWUPS = {
+  citrus: { text:"Within bright citrus, what's more you?", options:[
+    { label:"Sweet, juicy orange", material:"Orange 10 Fold Oil" },
+    { label:"Classic sparkling bergamot", material:"Bergamot" },
+    { label:"Dry, sophisticated citrus-leaf", material:"Petitgrain Oil RC" },
+  ]},
+  green: { text:"Within fresh green, what's more you?", options:[
+    { label:"Crisp, just-cut grass", material:"Cis-3-Hexenyl Acetate" },
+    { label:"Cool forest pine air", material:"Pine Essential Oil" },
+    { label:"Boozy, herbal depth", material:"Clary Sage Oil" },
+  ]},
+  aquatic: { text:"Within cool freshness, what's more you?", options:[
+    { label:"Watery, misty freshness", material:"Floralozone" },
+    { label:"Just-showered clean", material:"Dihydromercenol" },
+    { label:"Soft, airy freshness", material:"Linalool" },
+  ]},
+  floral: { text:"Within soft florals, what's more you?", options:[
+    { label:"Heady white flowers", material:"Jasmine Sambac" },
+    { label:"Soft, classic rose", material:"Phenyl Ethyl Alcohol" },
+    { label:"Radiant, weightless petals", material:"Hedione" },
+    { label:"Airy, transparent rose", material:"PEME (Phenyl Ethyl Methyl Ether)" },
+  ]},
+  woody: { text:"Within warm wood, what's more you?", options:[
+    { label:"Dry, earthy roots", material:"Vetiver EO" },
+    { label:"Soft, diffusive space", material:"Iso E Super" },
+    { label:"Dark, earthy depth", material:"Patchouli" },
+    { label:"Dense, classic wood", material:"Vertofix" },
+  ]},
+  amber: { text:"Within golden amber, what's more you?", options:[
+    { label:"Honeyed & sweet", material:"Labdanum Resinoid" },
+    { label:"Radiant & clean", material:"Ambroxan 10%" },
+    { label:"Cool & resinous", material:"Frankincense" },
+    { label:"Dry & modern", material:"Sylvamber" },
+  ]},
+  gourmand: { text:"Within sweet warmth, what's more you?", options:[
+    { label:"Warm vanilla", material:"Vanillin" },
+    { label:"Creamy, buttery softness", material:"Gamma Nonalactone (Aldehyde C18)" },
+    { label:"Dark, roasted depth", material:"Coffee CO2" },
+    { label:"Soft, peachy sweetness", material:"Gamma Undecalactone (Aldehyde C14)" },
+  ]},
+  spicy: { text:"Within lively spice, what's more you?", options:[
+    { label:"Hot, sweet-spicy warmth", material:"Cinnamon Bark Oil" },
+    { label:"Bright, fruity-fresh spice", material:"Pinkpepper" },
+    { label:"Warm, bright spice", material:"Cardamom Oil RCO" },
+    { label:"Dry, sharp pepper bite", material:"Black Pepper Oil" },
+  ]},
+  powdery: { text:"Within soft, powdery comfort, what's more you?", options:[
+    { label:"Nostalgic violet-powder", material:"Methyl Ionone Gamma" },
+    { label:"Soft powdery fixative", material:"Benzyl Salicylate" },
+    { label:"Dry, sweet hay warmth", material:"Coumarin" },
+  ]},
+  musk: { text:"Within quiet sensuality, what's more you?", options:[
+    { label:"Clean, soft skin-musk", material:"Galaxolide" },
+    { label:"Cozy, spiced-sweater musk", material:"Cashmeran" },
+    { label:"Warm, sensual skin depth", material:"Civet" },
+    { label:"Soft, powdery musk", material:"Exaltolide® Total" },
+  ]},
+  smoky: { text:"Within smoky depth, what's more you?", options:[
+    { label:"Leathery, spiced suede", material:"Safraleine" },
+    { label:"Smoky, animalic oud", material:"Oud Oliffac" },
+    { label:"A whisper of campfire smoke", material:"Guaiacol" },
+    { label:"Dark, smoky-leathery wood", material:"Nirlimbanol" },
+  ]},
+};
+
+// Always asked in Phase 2, regardless of which axes are leading.
+const PRECISION_QUESTIONS = [
+  { key:"exclude", text:"Is there anything you'd rather avoid?", options:[
+    { label:"Nothing too sweet", exclude:"gourmand" },
+    { label:"Nothing too smoky or animalic", exclude:"smoky" },
+    { label:"Nothing too strong overall", forceLight:true },
+    { label:"I'm open to anything", exclude:null },
+  ]},
+  { key:"uniqueness", text:"How unique do you want this to feel?", options:[
+    { label:"Classic & familiar", value:"classic" },
+    { label:"A little unexpected", value:"balanced" },
+    { label:"Truly one-of-a-kind", value:"bold" },
+  ]},
+];
+
+const ACCORD_LIBRARY = [{"id":"skin-musk-halo","name":"Skin Musk Halo","category":"Foundational","mood":"A study in modern transparent musk-woody perfumery — the 'invisible but unmistakable' skin-scent genre.","ingredients":["Iso E Super","Ambroxan 10%","Galaxolide","Hedione"]},{"id":"chypre-reverie","name":"Chypre Reverie","category":"Foundational","mood":"A study in the classical chypre structure — bergamot brightness over a dark, earthy-floral heart.","ingredients":["Bergamot","Peatmoss (Veramoss Equivalent)","Labdanum Resinoid","Patchouli","Jasmine Sambac","Vanillin"]},{"id":"fougere-core","name":"Fougère Core","category":"Foundational","mood":"The 100-year-old skeleton behind every barbershop-fresh masculine: lavender-clean over hay and moss.","ingredients":["Bergamot","Linalool","Linalyl Acetate","Coumarin","Peatmoss (Veramoss Equivalent)"]},{"id":"oriental-amber-triad","name":"Oriental Amber Triad","category":"Foundational","mood":"The classical three-material amber base beneath nearly every oriental fragrance since Shalimar.","ingredients":["Labdanum Resinoid","Resinoid Head Benzoin 70 DEP","Vanillin"]},{"id":"transparent-white-floral","name":"Transparent White Floral","category":"Foundational","mood":"A weightless, radiant white floral built for layering rather than standing alone.","ingredients":["Hedione","Jasmine Sambac","PEME (Phenyl Ethyl Methyl Ether)"]},{"id":"dry-woody-cologne","name":"Dry Woody Cologne","category":"Foundational","mood":"A masculine skeleton built entirely on dryness — no sweetness, no florals, just citrus and dry wood.","ingredients":["Bergamot","Vetiver EO","Iso E Super"]},{"id":"clean-musk-trio","name":"Clean Musk Trio","category":"Foundational","mood":"The invisible 'fabric fresh' backbone found underneath nearly every modern commercial fragrance.","ingredients":["Galaxolide","Ethylene Brassylate","Exaltolide® Total"]},{"id":"modern-sandalwood-base","name":"Modern Sandalwood Base","category":"Foundational","mood":"A creamy, contemporary sandalwood built without a drop of real sandalwood oil.","ingredients":["Bacdanol - IFF","Iso E Super","Ambroxan 10%"]},{"id":"classical-citrus-cologne","name":"Classical Citrus Cologne","category":"Foundational","mood":"The archetypal eau de cologne structure — bright, effervescent, gone within the hour, and glorious for it.","ingredients":["Bergamot","Petitgrain Oil RC","Orange 10 Fold Oil"]},{"id":"modern-fresh-skeleton","name":"Modern Fresh Skeleton","category":"Foundational","mood":"The contemporary 'clean and fresh' structure found in nearly every unisex fragrance launched in the last decade.","ingredients":["Floralozone","Cis-3-Hexenyl Acetate","Iso E Super","Galaxolide"]},{"id":"arabic-bazaar","name":"Attar Bazaar","category":"Arabic Mukhallat","mood":"A crowded souk at dusk — oud smoke, rosewater, leather goods, and warm amber drifting between stalls.","ingredients":["Oud Oliffac","Labdanum Resinoid","Safraleine","Phenyl Ethyl Alcohol","PEME (Phenyl Ethyl Methyl Ether)","Ambroxan 10%","Cardamom Oil RCO"]},{"id":"mukhallat-1","name":"Mukhallat No. 1 — Amber Rose Oud","category":"Arabic Mukhallat","mood":"A classic oil-based Gulf-style mukhallat: dense, sweet, smoky, meant to bloom over hours on skin.","ingredients":["Jojoba Oil","Oud Oliffac","Labdanum Resinoid","Resinoid Head Benzoin 70 DEP","Safraleine","Jasmine Sambac","Civet","Ambroxan 10%"]},{"id":"smoke-over-souk","name":"Smoke Over the Souk","category":"Arabic Mukhallat","mood":"Bakhoor smoke curling from a burner in a majlis — dense, resinous, and deeply woody.","ingredients":["Guaiacol","Oud Oliffac","Frankincense","Cypriol","Labdanum Resinoid"]},{"id":"rose-oud-attar","name":"Rose Oud Attar","category":"Arabic Mukhallat","mood":"Fresh-cut roses laid over a smoky oud base — the most classical Gulf and South Asian attar pairing.","ingredients":["Jojoba Oil","Phenyl Ethyl Alcohol","PEME (Phenyl Ethyl Methyl Ether)","Oud Oliffac","Labdanum Resinoid"]},{"id":"amber-musk-mukhallat","name":"Amber Musk Mukhallat","category":"Arabic Mukhallat","mood":"A softer, more modern mukhallat style — warm amber-musk with none of the smoke or animalic weight of oud attars.","ingredients":["Jojoba Oil","Ambroxan 10%","Labdanum Resinoid","Resinoid Head Benzoin 70 DEP","Galaxolide"]},{"id":"saffron-leather-mukhallat","name":"Saffron Leather Mukhallat","category":"Arabic Mukhallat","mood":"Suede and spice — a dry, tailored mukhallat closer to a leather jacket than a flower garden.","ingredients":["Jojoba Oil","Safraleine","Oud Oliffac","Labdanum Resinoid","Vetiver EO"]},{"id":"jasmine-amber-attar","name":"Jasmine Amber Attar","category":"Arabic Mukhallat","mood":"Heady night-blooming jasmine wrapped in warm amber — sensual, rich, and long-lasting on skin.","ingredients":["Jojoba Oil","Jasmine Sambac","Labdanum Resinoid","Ambroxan 10%","Civet"]},{"id":"spice-market-mukhallat","name":"Spice Market Mukhallat","category":"Arabic Mukhallat","mood":"Sacks of loose spice stacked in a covered market — cardamom, clove, and saffron-leather in warm oil.","ingredients":["Jojoba Oil","Cardamom Oil RCO","Clove Bud EO","Safraleine","Labdanum Resinoid"]},{"id":"royal-oud-mukhallat","name":"Royal Oud Mukhallat","category":"Arabic Mukhallat","mood":"A layered, ceremonial mukhallat combining rose, saffron, amber, and sandalwood around an oud core — built for special occasions.","ingredients":["Jojoba Oil","Oud Oliffac","Phenyl Ethyl Alcohol","Safraleine","Ambroxan 10%","Bacdanol - IFF","Labdanum Resinoid"]},{"id":"white-musk-attar","name":"White Musk Attar","category":"Arabic Mukhallat","mood":"The clean, soft 'musk al abyad' style attar — soap-clean and softly radiant, worn close to the skin.","ingredients":["Jojoba Oil","Galaxolide","Exaltolide® Total","Ethylene Brassylate","Ambroxan 10%"]},{"id":"golden-resin-amber","name":"Golden Resin Amber","category":"Amber","mood":"A bright, honeyed amber built from three natural resins rather than synthetic ambers.","ingredients":["Labdanum Resinoid","Resinoid Head Benzoin 70 DEP","Frankincense","Vanillin"]},{"id":"ambroxan-skin-amber","name":"Ambroxan Skin Amber","category":"Amber","mood":"A clean, modern, nearly weightless amber — the genre popularized by transparent 'molecule' ambers.","ingredients":["Ambroxan 10%","Iso E Super","Galaxolide"]},{"id":"smoky-amber","name":"Smoky Amber","category":"Amber","mood":"A darker, more brooding amber with a whisper of campfire smoke running underneath.","ingredients":["Labdanum Resinoid","Cypriol","Guaiacol","Vanillin"]},{"id":"spiced-amber","name":"Spiced Amber","category":"Amber","mood":"Warm amber threaded with cardamom and cinnamon — an easy bridge into gourmand territory.","ingredients":["Labdanum Resinoid","Cardamom Oil RCO","Cinnamon Bark Oil","Vanillin"]},{"id":"floral-amber","name":"Floral Amber","category":"Amber","mood":"Amber softened and lifted by a heady white floral — closer to a modern oriental fragrance than a raw resin.","ingredients":["Labdanum Resinoid","Jasmine Sambac","Ambroxan 10%","Hedione"]},{"id":"dry-amber-wood","name":"Dry Amber Wood","category":"Amber","mood":"A drier, less sweet amber style leaning into cedar and vetiver rather than resin and honey.","ingredients":["Sylvamber","Cedarwood","Vetiver EO"]},{"id":"sweet-benzoin-amber","name":"Sweet Benzoin Amber","category":"Amber","mood":"The softest, sweetest amber in the collection — vanilla-cinnamon warmth without any leathery labdanum edge.","ingredients":["Resinoid Head Benzoin 70 DEP","Vanillin","Coumarin"]},{"id":"leather-amber","name":"Leather Amber","category":"Amber","mood":"Amber with a suede-leather edge — dry, warm, and a little dangerous.","ingredients":["Labdanum Resinoid","Safraleine","Oud Oliffac"]},{"id":"citrus-amber","name":"Citrus Amber","category":"Amber","mood":"A bright counterpoint amber — warm resin lifted unexpectedly by fresh bergamot.","ingredients":["Labdanum Resinoid","Bergamot","Ambroxan 10%"]},{"id":"incense-amber","name":"Incense Amber","category":"Amber","mood":"A cool, resinous amber built around frankincense's lemony-smoky lift rather than labdanum's honeyed warmth.","ingredients":["Frankincense","Labdanum Resinoid","Guaiacol","Cedarwood"]},{"id":"iso-e-space-wood","name":"Iso E Space Wood","category":"Woody","mood":"A wide, airy, modern wood that feels more like atmosphere than timber.","ingredients":["Iso E Super","Vetiver EO","Cedarwood"]},{"id":"cypriol-oud-wood","name":"Cypriol Oud-Style Wood","category":"Woody","mood":"A green, smoky wood accord that approximates the character of natural oud at a fraction of the intensity.","ingredients":["Cypriol","Oud Oliffac","Patchouli"]},{"id":"sandalwood-cream","name":"Sandalwood Cream","category":"Woody","mood":"A soft, milky, creamy wood built for skin-close warmth rather than projection.","ingredients":["Bacdanol - IFF","Vanillin","Galaxolide"]},{"id":"vertofix-classic-wood","name":"Vertofix Classic Wood","category":"Woody","mood":"A denser, more old-school woody-amber than the transparent Iso E Super genre — closer to 1980s masculine woods.","ingredients":["Vertofix","Cedarwood","Iso E Super"]},{"id":"vetiver-dry-wood","name":"Vetiver Dry Wood","category":"Woody","mood":"A bracing, dry wood built almost entirely around vetiver's root-and-earth character.","ingredients":["Vetiver EO","Bergamot","Iso E Super"]},{"id":"patchouli-earth-wood","name":"Patchouli Earth Wood","category":"Woody","mood":"A dark, damp, forest-floor wood accord built for depth rather than brightness.","ingredients":["Patchouli","Peatmoss (Veramoss Equivalent)","Vetiver EO"]},{"id":"smoky-cypriol-wood","name":"Smoky Cypriol Wood","category":"Woody","mood":"A dark, smoky wood accord leaning further into leather and campfire territory than the standard Cypriol Oud-Style.","ingredients":["Cypriol","Guaiacol","Nirlimbanol"]},{"id":"pine-forest-wood","name":"Pine Forest Wood","category":"Woody","mood":"A fresh, resinous, coniferous wood accord — closer to a walk through a forest than a perfume counter.","ingredients":["Pine Essential Oil","Vetiver EO","Cedarwood"]},{"id":"woody-amber-halo","name":"Woody Amber Halo","category":"Woody","mood":"A dense, warm woody-amber halo that sits between the pure Woody and Amber categories.","ingredients":["Iso E Super","Ambroxan 10%","Vertofix"]},{"id":"nirlimbanol-dark-wood","name":"Nirlimbanol Dark Wood","category":"Woody","mood":"The darkest, most brooding wood in the collection — smoky, leathery, and unapologetically heavy.","ingredients":["Nirlimbanol","Patchouli","Cypriol"]},{"id":"cardamom-bright-spice","name":"Cardamom Bright Spice","category":"Spicy","mood":"A lively, bright spice top note — cardamom pods cracked open over bergamot.","ingredients":["Cardamom Oil RCO","Bergamot","Pinkpepper"]},{"id":"cinnamon-warm-spice","name":"Cinnamon Warm Spice","category":"Spicy","mood":"Mulled-wine warmth — cinnamon, vanilla, and a round nutmeg undertone.","ingredients":["Cinnamon Bark Oil","Vanillin","Nutmeg EO"]},{"id":"clove-carnation-spice","name":"Clove Carnation Spice","category":"Spicy","mood":"The classical carnation accord — clove's phenolic warmth against a powdery violet floral.","ingredients":["Clove Bud EO","Methyl Ionone Gamma","Jasmine Sambac"]},{"id":"black-pepper-dry-spice","name":"Black Pepper Dry Spice","category":"Spicy","mood":"A sharp, dry, slightly woody pepper accord with no sweetness at all.","ingredients":["Black Pepper Oil","Vetiver EO","Bergamot"]},{"id":"pink-pepper-fresh-spice","name":"Pink Pepper Fresh Spice","category":"Spicy","mood":"A soft, fruity-fresh pepper note — much gentler and brighter than black pepper.","ingredients":["Pinkpepper","Hedione","Bergamot"]},{"id":"nutmeg-round-spice","name":"Nutmeg Round Spice","category":"Spicy","mood":"A rounder, warmer spice accord without cardamom's medicinal edge or cinnamon's heat.","ingredients":["Nutmeg EO","Cardamom Oil RCO","Coumarin"]},{"id":"saffron-leather-spice","name":"Saffron Leather Spice","category":"Spicy","mood":"Dry suede with a metallic-spiced saffron edge — the defining note of the modern niche 'leather saffron' genre.","ingredients":["Safraleine","Vetiver EO","Labdanum Resinoid"]},{"id":"chai-spice-blend","name":"Chai Spice Blend","category":"Spicy","mood":"A layered warm spice bouquet — cardamom, cinnamon, black pepper, and nutmeg over a sweet base.","ingredients":["Cardamom Oil RCO","Cinnamon Bark Oil","Black Pepper Oil","Nutmeg EO","Vanillin"]},{"id":"smoky-spice","name":"Smoky Spice","category":"Spicy","mood":"Dry pepper and campfire smoke — an unusual, slightly dangerous spice accord.","ingredients":["Black Pepper Oil","Cypriol","Guaiacol"]},{"id":"warm-cassia-spice","name":"Warm Cassia Spice","category":"Spicy","mood":"A cozy, dry-sweet spice accord built for autumn and nostalgic gourmand compositions.","ingredients":["Cinnamon Bark Oil","Nutmeg EO","Coumarin"]},{"id":"classic-bergamot-cologne","name":"Classic Bergamot Cologne","category":"Citrus","mood":"The archetypal fresh opening — sparkling, clean, and instantly recognizable as 'cologne.'","ingredients":["Bergamot","Petitgrain Oil RC","Dihydromercenol"]},{"id":"bright-orange-zest","name":"Bright Orange Zest","category":"Citrus","mood":"Sweet, juicy orange peel — brighter and sweeter than a bergamot opening.","ingredients":["Orange 10 Fold Oil","Bergamot","Aldehyde C12 MNA"]},{"id":"green-petitgrain","name":"Green Petitgrain","category":"Citrus","mood":"Dry, bitter-green citrus leaf — a more sober, less sweet opening than orange or bergamot alone.","ingredients":["Petitgrain Oil RC","Cis-3-Hexenyl Acetate","Bergamot"]},{"id":"sparkling-aldehydic-citrus","name":"Sparkling Aldehydic Citrus","category":"Citrus","mood":"A classical aldehydic-citrus opening — soapy sparkle layered over bright fruit.","ingredients":["Aldehyde C10","Aldehyde C12 MNA","Bergamot"]},{"id":"citrus-chypre-opening","name":"Citrus Chypre Opening","category":"Citrus","mood":"The classical opening move of a chypre fragrance — bergamot with a whisper of the mossy base to come.","ingredients":["Bergamot","Petitgrain Oil RC","Peatmoss (Veramoss Equivalent)"]},{"id":"citrus-musk","name":"Citrus Musk","category":"Citrus","mood":"Bright citrus given unusual longevity by a clean musk foundation underneath.","ingredients":["Bergamot","Galaxolide","Iso E Super"]},{"id":"citrus-pepper-cologne","name":"Citrus Pepper Cologne","category":"Citrus","mood":"A spiced update on a classical cologne — bergamot and orange with a fresh pink pepper edge.","ingredients":["Bergamot","Pinkpepper","Petitgrain Oil RC"]},{"id":"herbal-citrus","name":"Herbal Citrus","category":"Citrus","mood":"Bergamot softened by clary sage's boozy, tea-like herbal quality — sophisticated rather than simply fresh.","ingredients":["Bergamot","Clary Sage Oil","Linalool"]},{"id":"citrus-floral","name":"Citrus Floral","category":"Citrus","mood":"Bergamot lifted by a radiant, transparent floral heart rather than fading alone.","ingredients":["Bergamot","Hedione","Linalyl Acetate"]},{"id":"deep-orange-amber","name":"Deep Orange Amber","category":"Citrus","mood":"Bright orange peel deepening unexpectedly into a trace of amber warmth beneath.","ingredients":["Orange 10 Fold Oil","Labdanum Resinoid","Vanillin"]},{"id":"aldehydic-sparkle","name":"Aldehydic Sparkle","category":"Top Note","mood":"The classical 'Chanel No. 5-style' soapy sparkle that opens a fragrance before anything else is perceived.","ingredients":["Aldehyde C10","Aldehyde C12 MNA","Bergamot"]},{"id":"green-cut-stem","name":"Green Cut Stem","category":"Top Note","mood":"The exact smell of snapping a green stem — sharp, vegetal, and instantly realistic.","ingredients":["Cis-3-Hexenyl Acetate","Petitgrain Oil RC","Bergamot"]},{"id":"fresh-cologne-burst","name":"Fresh Cologne Burst","category":"Top Note","mood":"The unmistakable 'just showered' freshness found at the top of nearly every modern masculine fragrance.","ingredients":["Dihydromercenol","Bergamot","Petitgrain Oil RC"]},{"id":"herbal-lift","name":"Herbal Lift","category":"Top Note","mood":"A soft, aromatic lift with a faintly boozy herbal quality — sophisticated rather than sweet.","ingredients":["Clary Sage Oil","Linalool","Bergamot"]},{"id":"spiced-top","name":"Spiced Top","category":"Top Note","mood":"A quick, bright spice lift meant to fade within minutes into whatever heart note follows.","ingredients":["Pinkpepper","Cardamom Oil RCO","Bergamot"]},{"id":"ozonic-top","name":"Ozonic Top","category":"Top Note","mood":"Cool, watery, abstract freshness — the sensation of stepping outside on a clear day.","ingredients":["Floralozone","Cis-3-Hexenyl Acetate","Bergamot"]},{"id":"citrus-peel-top","name":"Citrus Peel Top","category":"Top Note","mood":"A juicy, zesty citrus-peel burst — brighter and sweeter than a classical bergamot opening.","ingredients":["Orange 10 Fold Oil","Bergamot","Petitgrain Oil RC"]},{"id":"bright-floral-top","name":"Bright Floral Top","category":"Top Note","mood":"A soft floral-aromatic lift meant to bridge a citrus opening into a fuller floral heart.","ingredients":["Linalyl Acetate","Linalool","Bergamot"]},{"id":"pine-forest-top","name":"Pine Forest Top","category":"Top Note","mood":"A fresh, resinous, coniferous opening — closer to a walk through pines than a perfume counter.","ingredients":["Pine Essential Oil","Bergamot","Cis-3-Hexenyl Acetate"]},{"id":"sparkling-fruit-top","name":"Sparkling Fruit Top","category":"Top Note","mood":"A soft, peachy-fruity sparkle — sweeter and rounder than a classical citrus opening.","ingredients":["Gamma Undecalactone (Aldehyde C14)","Bergamot","Aldehyde C12 MNA"]},{"id":"rain-petrichor","name":"Rain on Hot Pavement","category":"Aqua / Fresh","mood":"The exact five minutes after a summer storm breaks — wet stone, torn leaves, and cool electric air.","ingredients":["Floralozone","Cis-3-Hexenyl Acetate","Vetiver EO","Iso E Super","Bergamot"]},{"id":"sea-breeze","name":"Sea Breeze","category":"Aqua / Fresh","mood":"Open ocean air — clean, weightless, and slightly salty without any literal marine note.","ingredients":["Floralozone","Bergamot","Iso E Super"]},{"id":"wet-stone-petrichor","name":"Wet Stone Petrichor","category":"Aqua / Fresh","mood":"The mineral, earthy smell of rain hitting dry stone and soil — heavier and less floral than a typical marine accord.","ingredients":["Floralozone","Vetiver EO","Cis-3-Hexenyl Acetate","Peatmoss (Veramoss Equivalent)"]},{"id":"cool-linen","name":"Cool Linen","category":"Aqua / Fresh","mood":"Crisp, clean bedsheets and fresh laundry — soft, radiant, and comforting rather than aquatic.","ingredients":["Floralozone","Galaxolide","Hedione"]},{"id":"ocean-air-musk","name":"Ocean Air Musk","category":"Aqua / Fresh","mood":"Marine freshness given real staying power by an amber-musk foundation underneath.","ingredients":["Floralozone","Ambroxan 10%","Iso E Super"]},{"id":"fresh-green-water","name":"Fresh Green Water","category":"Aqua / Fresh","mood":"Watery freshness with a sharp, torn-leaf green edge — more garden hose than ocean.","ingredients":["Cis-3-Hexenyl Acetate","Floralozone","Petitgrain Oil RC"]},{"id":"aquatic-citrus","name":"Aquatic Citrus","category":"Aqua / Fresh","mood":"A 1990s-style aquatic-citrus cologne accord — clean, bright, and instantly recognizable as 'fresh.'","ingredients":["Floralozone","Bergamot","Dihydromercenol"]},{"id":"morning-dew-floral","name":"Morning Dew Floral","category":"Aqua / Fresh","mood":"Dew-covered petals at dawn — soft, watery, and gently floral without heaviness.","ingredients":["Floralozone","Hedione","Linalool"]},{"id":"herbal-aqua","name":"Herbal Aqua","category":"Aqua / Fresh","mood":"Cool, watery freshness given an unexpected herbal-tea depth by clary sage.","ingredients":["Floralozone","Clary Sage Oil","Bergamot"]},{"id":"fresh-woody-aqua","name":"Fresh Woody Aqua","category":"Aqua / Fresh","mood":"Marine freshness grounded by dry vetiver and diffusive wood — a genuinely modern unisex structure.","ingredients":["Floralozone","Vetiver EO","Iso E Super"]},{"id":"foundational-woody-musk-base","name":"Foundational Woody-Musk Base","category":"Base","mood":"A near-universal base layer — warm, clean, and diffusive without a strong specific identity.","ingredients":["Iso E Super","Galaxolide","Ambroxan 10%"]},{"id":"oriental-amber-base","name":"Oriental Amber Base","category":"Base","mood":"The classical honeyed-resin base beneath every oriental fragrance since Shalimar.","ingredients":["Labdanum Resinoid","Resinoid Head Benzoin 70 DEP","Vanillin"]},{"id":"woody-musk-base","name":"Woody-Musk Base","category":"Base","mood":"A denser, more classical woody base than the transparent Iso E Super genre.","ingredients":["Vertofix","Galaxolide","Iso E Super"]},{"id":"oud-leather-base","name":"Oud Leather Base","category":"Base","mood":"A dark, smoky-leathery base built for Arabic and niche oud-genre compositions.","ingredients":["Oud Oliffac","Safraleine","Labdanum Resinoid"]},{"id":"sweet-vanilla-base","name":"Sweet Vanilla Base","category":"Base","mood":"A warm, comforting gourmand base — the anchor beneath nearly every dessert-inspired composition.","ingredients":["Vanillin","Resinoid Head Benzoin 70 DEP","Coumarin"]},{"id":"mossy-earth-base","name":"Mossy Earth Base","category":"Base","mood":"A dark, damp, earthy base built for chypre and classical structures.","ingredients":["Peatmoss (Veramoss Equivalent)","Patchouli","Vetiver EO"]},{"id":"smoky-resin-base","name":"Smoky Resin Base","category":"Base","mood":"A cool, resinous, incense-adjacent base with a whisper of true smoke.","ingredients":["Frankincense","Labdanum Resinoid","Guaiacol","Cedarwood"]},{"id":"clean-musk-base","name":"Clean Musk Base","category":"Base","mood":"The invisible, near-universal 'clean' foundation found beneath most commercial fragrances.","ingredients":["Galaxolide","Exaltolide® Total","Ethylene Brassylate"]},{"id":"animalic-amber-base","name":"Animalic Amber Base","category":"Base","mood":"A sensual, vintage-style amber base with a trace of civet warmth beneath the resin.","ingredients":["Labdanum Resinoid","Ambroxan 10%","Civet"]},{"id":"dry-wood-base","name":"Dry Wood Base","category":"Base","mood":"A bracing, dry, masculine wood base with no sweetness or resin at all.","ingredients":["Vetiver EO","Cedarwood","Iso E Super"]},{"id":"cashmere-musk-base","name":"Cashmere Musk Base","category":"Base","mood":"A cozy, spiced-musk base — softer and warmer than a purely clean musk.","ingredients":["Cashmeran","Galaxolide","Vanillin"]},{"id":"creamy-sandalwood-base","name":"Creamy Sandalwood Base","category":"Base","mood":"A soft, milky wood base built for skin-close warmth.","ingredients":["Bacdanol - IFF","Ambroxan 10%","Galaxolide"]},{"id":"dark-patchouli-base","name":"Dark Patchouli Base","category":"Base","mood":"A dense, dark, earthy-sweet base built around patchouli's full complexity.","ingredients":["Patchouli","Labdanum Resinoid","Vanillin"]},{"id":"incense-wood-base","name":"Incense Wood Base","category":"Base","mood":"A cool, resinous, woody base evoking a chapel or temple rather than a perfume bottle.","ingredients":["Frankincense","Cedarwood","Vetiver EO"]},{"id":"honeyed-resin-base","name":"Honeyed Resin Base","category":"Base","mood":"A rich, sweet, honey-like resinous base — softer and less leathery than a classical labdanum amber.","ingredients":["Resinoid Head Benzoin 70 DEP","Labdanum Resinoid","Vanillin"]},{"id":"leathered-oud-base","name":"Leathered Oud Base","category":"Base","mood":"A dry, smoky, leather-forward base built around oud and vetiver rather than amber.","ingredients":["Oud Oliffac","Cypriol","Safraleine"]},{"id":"powdery-musk-base","name":"Powdery Musk Base","category":"Base","mood":"A soft, nostalgic, powdery base — closer to fine face powder than clean laundry.","ingredients":["Methyl Ionone Gamma","Galaxolide","Benzyl Salicylate"]},{"id":"spiced-amber-base","name":"Spiced Amber Base","category":"Base","mood":"A warm amber base threaded through with a whisper of cardamom.","ingredients":["Labdanum Resinoid","Cardamom Oil RCO","Vanillin"]},{"id":"green-mossy-base","name":"Green Mossy Base","category":"Base","mood":"A fresher, greener take on the classical mossy base — closer to a forest floor after rain.","ingredients":["Peatmoss (Veramoss Equivalent)","Vetiver EO","Cis-3-Hexenyl Acetate"]},{"id":"golden-amber-musk-base","name":"Golden Amber Musk Base","category":"Base","mood":"A bright, radiant amber-musk base — warmer than a clean musk, lighter than a full oriental amber.","ingredients":["Ambroxan 10%","Sylvamber","Galaxolide"]},{"id":"radiant-jasmine-accord","name":"Radiant Jasmine","category":"Floral","mood":"Heady jasmine given weightless radiance rather than heaviness.","ingredients":["Jasmine Sambac","Hedione","Benzyl Salicylate"]},{"id":"soft-rose-accord","name":"Soft Rose","category":"Floral","mood":"A gentle, classical rose built from alcohol and ether rather than rose oil.","ingredients":["Phenyl Ethyl Alcohol","PEME (Phenyl Ethyl Methyl Ether)","Hedione"]},{"id":"powdery-violet-accord","name":"Powdery Violet","category":"Floral","mood":"Soft, nostalgic, face-powder floral — closer to a vintage compact than a fresh bloom.","ingredients":["Methyl Ionone Gamma","Coumarin","Benzyl Salicylate"]},{"id":"white-floral-bouquet","name":"White Floral Bouquet","category":"Floral","mood":"A fuller, richer white floral bouquet than a single jasmine note alone.","ingredients":["Jasmine Sambac","Hedione","Linalool","Phenyl Ethyl Alcohol"]},{"id":"green-floral-accord","name":"Green Floral","category":"Floral","mood":"A floral with a sharp, realistic green edge — closer to cut stems than a bouquet.","ingredients":["Hedione","Cis-3-Hexenyl Acetate","Linalyl Acetate"]},{"id":"transparent-floral-musk","name":"Transparent Floral Musk","category":"Floral","mood":"A weightless, modern floral built for longevity through musk rather than raw floral concentration.","ingredients":["Hedione","Galaxolide","Iso E Super"]},{"id":"rose-oud-floral","name":"Rose Oud Floral","category":"Floral","mood":"Classical rose given unexpected depth by a trace of smoky oud beneath.","ingredients":["Phenyl Ethyl Alcohol","Oud Oliffac","Labdanum Resinoid"]},{"id":"jasmine-amber-floral","name":"Jasmine Amber Floral","category":"Floral","mood":"Heady jasmine deepened by warm amber — sensual, rich, and long-lasting.","ingredients":["Jasmine Sambac","Ambroxan 10%","Vanillin"]},{"id":"aldehydic-floral","name":"Aldehydic Floral","category":"Floral","mood":"A classical, soapy-clean floral in the tradition of the great aldehydic florals of the 20th century.","ingredients":["Aldehyde C12 MNA","Phenyl Ethyl Alcohol","Hedione"]},{"id":"spiced-floral","name":"Spiced Floral","category":"Floral","mood":"A rich floral heart with a warm carnation-like spice threaded through it.","ingredients":["Jasmine Sambac","Clove Bud EO","Methyl Ionone Gamma"]},{"id":"village-hearth","name":"Old Village Hearth","category":"Nostalgic","mood":"A wood fire in a stone hearth on a cold evening, smoke drifting past drying herbs and old timber.","ingredients":["Guaiacol","Cedarwood","Frankincense","Labdanum Resinoid","Cypriol","Vanillin","Peatmoss (Veramoss Equivalent)"]},{"id":"grandmothers-closet","name":"Grandmother's Linen Closet","category":"Nostalgic","mood":"A cedar-lined closet full of pressed linens, old face powder, and a hint of her favourite soap.","ingredients":["Methyl Ionone Gamma","Coumarin","Benzyl Salicylate","Galaxolide","Cedarwood","Civet","Phenyl Ethyl Alcohol"]},{"id":"barbershop-1975","name":"Barbershop, 1975","category":"Nostalgic","mood":"Aftershave and talc in a barbershop with a leather chair, a ticking clock, and bay rum on the shelf.","ingredients":["Dihydromercenol","Linalool","Coumarin","Peatmoss (Veramoss Equivalent)","Bergamot","Cedarwood","Clove Bud EO"]},{"id":"seaside-boardwalk","name":"Seaside Boardwalk","category":"Nostalgic","mood":"Salt air, sun-warmed wood planks, and the sweet smell of a nearby ice cream stand.","ingredients":["Floralozone","Orange 10 Fold Oil","Galaxolide","Vanillin"]},{"id":"childhood-bakery","name":"Childhood Bakery","category":"Nostalgic","mood":"Warm bread and sugar drifting from an open bakery door on a cold morning.","ingredients":["Vanillin","Coumarin","Gamma Nonalactone (Aldehyde C18)"]},{"id":"rainy-school-library","name":"Rainy School Library","category":"Nostalgic","mood":"Old books, wooden shelves, and rain against tall windows on a quiet afternoon.","ingredients":["Cedarwood","Peatmoss (Veramoss Equivalent)","Coumarin","Floralozone"]},{"id":"grandfathers-study","name":"Grandfather's Study","category":"Nostalgic","mood":"Pipe tobacco, old leather chairs, and a half-open window letting in pine-scented air.","ingredients":["Patchouli","Vetiver EO","Pine Essential Oil","Labdanum Resinoid"]},{"id":"souk-spice-alley","name":"Souk Spice Alley","category":"Nostalgic","mood":"Walking past open sacks of spice in a narrow market alley, the air thick with cardamom and clove.","ingredients":["Cardamom Oil RCO","Clove Bud EO","Cypriol","Labdanum Resinoid"]},{"id":"autumn-bonfire","name":"Autumn Bonfire","category":"Nostalgic","mood":"Burning leaves on a cold October evening, sweaters, and the first frost of the year.","ingredients":["Guaiacol","Cedarwood","Vanillin","Cashmeran","Vetiver EO"]},{"id":"summer-garden-after-rain","name":"Summer Garden After Rain","category":"Nostalgic","mood":"A garden in full bloom, freshly rained on, the flowers heavy with water and the air electric.","ingredients":["Floralozone","Jasmine Sambac","Cis-3-Hexenyl Acetate","Hedione"]},{"id":"restaurant-biryani","name":"Restaurant Biryani","category":"Gourmand","mood":"Steam rising off a pot of biryani — basmati rice, warm spice, and a whisper of smoke and ghee, played as a wearable gourmand-spice accord rather than literally food.","ingredients":["Cardamom Oil RCO","Cinnamon Bark Oil","Nutmeg EO","Black Pepper Oil","Coffee CO2","Vanillin","Guaiacol","Labdanum Resinoid"]},{"id":"vanilla-custard","name":"Vanilla Custard","category":"Gourmand","mood":"Rich, eggy, creamy vanilla custard — smooth and comforting.","ingredients":["Vanillin","Gamma Nonalactone (Aldehyde C18)","Coumarin"]},{"id":"coconut-cream","name":"Coconut Cream","category":"Gourmand","mood":"Tropical, milky-sweet coconut — bright and creamy rather than heavy.","ingredients":["Gamma Nonalactone (Aldehyde C18)","Vanillin","Hedione"]},{"id":"peach-nectar","name":"Peach Nectar","category":"Gourmand","mood":"Ripe, juicy peach skin — soft, fuzzy, and gently fruity.","ingredients":["Gamma Undecalactone (Aldehyde C14)","Bergamot","Vanillin"]},{"id":"coffee-bean","name":"Coffee Bean","category":"Gourmand","mood":"Freshly ground coffee — dark, roasted, and slightly bitter.","ingredients":["Coffee CO2","Vanillin","Patchouli"]},{"id":"spiced-chai-latte","name":"Spiced Chai Latte","category":"Gourmand","mood":"Warm milky tea with cardamom, cinnamon, and clove — cozy and aromatic.","ingredients":["Cardamom Oil RCO","Cinnamon Bark Oil","Coffee CO2","Vanillin"]},{"id":"honeyed-amber-dessert","name":"Honeyed Amber Dessert","category":"Gourmand","mood":"A sweet, sticky, honey-like dessert accord built from resin rather than literal honey.","ingredients":["Resinoid Head Benzoin 70 DEP","Vanillin","Coumarin"]},{"id":"toasted-almond","name":"Toasted Almond","category":"Gourmand","mood":"Warm, nutty, slightly sweet toasted almond — cozy and comforting.","ingredients":["Coumarin","Gamma Undecalactone (Aldehyde C14)","Vanillin"]},{"id":"mulled-wine","name":"Mulled Wine","category":"Gourmand","mood":"Warm spiced wine — cinnamon, clove, and orange peel simmering together.","ingredients":["Cinnamon Bark Oil","Clove Bud EO","Orange 10 Fold Oil","Vanillin"]},{"id":"caramelized-sugar","name":"Caramelized Sugar","category":"Gourmand","mood":"Sugar melted and browned in a pan — deep, warm, and slightly bitter-sweet.","ingredients":["Vanillin","Resinoid Head Benzoin 70 DEP","Coffee CO2"]},{"id":"roasted-coffee-spice","name":"Roasted Coffee Spice","category":"Gourmand","mood":"Dark roasted coffee with a warm spiced edge — bold and slightly bitter.","ingredients":["Coffee CO2","Cardamom Oil RCO","Black Pepper Oil"]},{"id":"tonka-bean-warmth","name":"Tonka Bean Warmth","category":"Gourmand","mood":"Sweet, dry, almond-vanilla tonka bean — the classical hay-sweet gourmand note.","ingredients":["Coumarin","Vanillin","Resinoid Head Benzoin 70 DEP"]},{"id":"spiced-cookie","name":"Spiced Cookie","category":"Gourmand","mood":"Warm baked spice cookies — cinnamon, nutmeg, and clove in a buttery dough.","ingredients":["Cinnamon Bark Oil","Nutmeg EO","Clove Bud EO","Vanillin","Gamma Nonalactone (Aldehyde C18)"]},{"id":"praline-nut","name":"Praline Nut","category":"Gourmand","mood":"Caramelized nuts and sugar — warm, toasted, and slightly buttery.","ingredients":["Coumarin","Gamma Nonalactone (Aldehyde C18)","Vanillin"]},{"id":"rice-pudding","name":"Rice Pudding","category":"Gourmand","mood":"Soft, milky, lightly spiced rice pudding — gentle and comforting.","ingredients":["Vanillin","Cardamom Oil RCO","Gamma Nonalactone (Aldehyde C18)"]},{"id":"dark-chocolate-patchouli","name":"Dark Chocolate Patchouli","category":"Gourmand","mood":"Bitter dark chocolate with an earthy, almost tobacco-like undertone.","ingredients":["Patchouli","Vanillin","Coffee CO2"]},{"id":"buttery-pastry","name":"Buttery Pastry","category":"Gourmand","mood":"Warm, flaky, buttery pastry fresh from the oven.","ingredients":["Gamma Nonalactone (Aldehyde C18)","Coumarin","Vanillin"]},{"id":"saffron-rice-dessert","name":"Saffron Rice Dessert","category":"Gourmand","mood":"Sweet saffron-infused rice — a warm, fragrant, slightly exotic dessert note.","ingredients":["Safraleine","Cardamom Oil RCO","Vanillin","Gamma Nonalactone (Aldehyde C18)"]},{"id":"cinnamon-bun","name":"Cinnamon Bun","category":"Gourmand","mood":"Warm cinnamon rolls with sweet icing — one of the most universally comforting gourmand accords.","ingredients":["Cinnamon Bark Oil","Vanillin","Coumarin","Gamma Nonalactone (Aldehyde C18)"]},{"id":"warm-milk-musk-gourmand","name":"Warm Milk Musk Gourmand","category":"Gourmand","mood":"Soft, milky warmth against skin — a gentle, comforting 'skin food' gourmand.","ingredients":["Vanillin","Galaxolide","Gamma Nonalactone (Aldehyde C18)"]},{"id":"citrus-aromatic-base","name":"Citrus-Aromatic Cologne Base","category":"Foundational","mood":"A simple, timeless skeleton behind countless everyday colognes — bright citrus softened by clean aromatics.","ingredients":["Bergamot","Linalool","Dihydromercenol"]},{"id":"musk-amber-skin-base","name":"Musk-Amber Skin Base","category":"Foundational","mood":"A warm, radiant skin-scent foundation built for longevity above all else.","ingredients":["Galaxolide","Ambroxan 10%","Cashmeran"]},{"id":"green-floral-skeleton","name":"Green Floral Skeleton","category":"Foundational","mood":"The bare structure behind any modern green floral — radiant, leafy, and alive.","ingredients":["Hedione","Cis-3-Hexenyl Acetate","Linalyl Acetate"]},{"id":"spicy-woody-base","name":"Spicy-Woody Base","category":"Foundational","mood":"A dry, warm masculine skeleton pairing bright spice against dry wood.","ingredients":["Cardamom Oil RCO","Vetiver EO","Iso E Super"]},{"id":"powdery-floral-base","name":"Powdery Floral Base","category":"Foundational","mood":"The nostalgic, soft-focus floral skeleton behind vintage-style powdery fragrances.","ingredients":["Methyl Ionone Gamma","Benzyl Salicylate","Coumarin"]},{"id":"resinous-duo-base","name":"Resinous Base Duo","category":"Foundational","mood":"The simplest possible amber foundation — two resins, nothing else.","ingredients":["Labdanum Resinoid","Resinoid Head Benzoin 70 DEP"]},{"id":"aldehydic-floral-skeleton","name":"Aldehydic Floral Skeleton","category":"Foundational","mood":"The bare bones of a classical aldehydic floral, stripped to its three essential roles.","ingredients":["Aldehyde C12 MNA","Phenyl Ethyl Alcohol","Hedione"]},{"id":"ozonic-woody-skeleton","name":"Ozonic-Woody Skeleton","category":"Foundational","mood":"A modern, minimal skeleton pairing marine transparency against dry wood.","ingredients":["Floralozone","Iso E Super","Vetiver EO"]},{"id":"gourmand-amber-base","name":"Gourmand-Amber Base","category":"Foundational","mood":"The skeleton behind nearly every warm, edible-adjacent amber composition.","ingredients":["Vanillin","Labdanum Resinoid","Coumarin"]},{"id":"chypre-musk-hybrid-base","name":"Chypre-Musk Hybrid Base","category":"Foundational","mood":"A modern reinterpretation of the classical chypre, softened with a clean musk foundation.","ingredients":["Peatmoss (Veramoss Equivalent)","Bergamot","Galaxolide"]},{"id":"vanilla-oud-mukhallat","name":"Vanilla Oud Mukhallat","category":"Arabic Mukhallat","mood":"Smoky oud softened by warm vanilla — an approachable, dessert-adjacent take on the oud mukhallat.","ingredients":["Jojoba Oil","Oud Oliffac","Vanillin","Labdanum Resinoid"]},{"id":"green-cardamom-attar","name":"Green Cardamom Attar","category":"Arabic Mukhallat","mood":"Bright cardamom over dry vetiver root — a fresher, greener mukhallat style.","ingredients":["Jojoba Oil","Cardamom Oil RCO","Vetiver EO"]},{"id":"musk-rose-mukhallat","name":"Musk Rose Mukhallat","category":"Arabic Mukhallat","mood":"Classical rose wrapped in soft white musk — clean, soft, and traditionally feminine.","ingredients":["Jojoba Oil","Phenyl Ethyl Alcohol","Galaxolide"]},{"id":"smoky-patchouli-mukhallat","name":"Smoky Patchouli Mukhallat","category":"Arabic Mukhallat","mood":"Dark, earthy patchouli deepened by a trace of campfire smoke.","ingredients":["Jojoba Oil","Patchouli","Cypriol","Guaiacol"]},{"id":"golden-frankincense-attar","name":"Golden Frankincense Attar","category":"Arabic Mukhallat","mood":"Cool, resinous frankincense warmed by amber — a spiritual, temple-like attar.","ingredients":["Jojoba Oil","Frankincense","Labdanum Resinoid","Ambroxan 10%"]},{"id":"cinnamon-oud-mukhallat","name":"Cinnamon Oud Mukhallat","category":"Arabic Mukhallat","mood":"Warm cinnamon spice threaded through smoky oud and amber.","ingredients":["Jojoba Oil","Oud Oliffac","Cinnamon Bark Oil","Labdanum Resinoid"]},{"id":"jasmine-musk-attar","name":"Jasmine Musk Attar","category":"Arabic Mukhallat","mood":"Heady jasmine wrapped in soft, radiant musk — sensual but wearable.","ingredients":["Jojoba Oil","Jasmine Sambac","Galaxolide","Ambroxan 10%"]},{"id":"black-pepper-oud-mukhallat","name":"Black Pepper Oud","category":"Arabic Mukhallat","mood":"Dry, sharp pepper cutting through smoky oud and dry vetiver — a masculine, tailored mukhallat.","ingredients":["Jojoba Oil","Oud Oliffac","Black Pepper Oil","Vetiver EO"]},{"id":"sweet-benzoin-mukhallat","name":"Sweet Benzoin Mukhallat","category":"Arabic Mukhallat","mood":"Warm, honeyed benzoin resin softened with vanilla and amber — comforting rather than smoky.","ingredients":["Jojoba Oil","Resinoid Head Benzoin 70 DEP","Vanillin","Ambroxan 10%"]},{"id":"vetiver-saffron-mukhallat","name":"Vetiver Saffron Mukhallat","category":"Arabic Mukhallat","mood":"Dry vetiver root threaded with leathery saffron — austere, tailored, and distinctly masculine.","ingredients":["Jojoba Oil","Vetiver EO","Safraleine","Labdanum Resinoid"]},{"id":"vanilla-amber-cream","name":"Vanilla Amber Cream","category":"Amber","mood":"A soft, creamy amber built for comfort rather than intensity.","ingredients":["Labdanum Resinoid","Vanillin","Bacdanol - IFF"]},{"id":"musky-amber-glow","name":"Musky Amber Glow","category":"Amber","mood":"A radiant, weightless amber built almost entirely from musks rather than resins.","ingredients":["Ambroxan 10%","Galaxolide","Exaltolide® Total"]},{"id":"cardamom-amber","name":"Cardamom Amber","category":"Amber","mood":"Warm amber lifted by bright cardamom — a spiced, market-adjacent amber.","ingredients":["Labdanum Resinoid","Cardamom Oil RCO","Ambroxan 10%"]},{"id":"patchouli-amber","name":"Patchouli Amber","category":"Amber","mood":"Dark, earthy patchouli deepening a classical honeyed amber base.","ingredients":["Labdanum Resinoid","Patchouli","Vanillin"]},{"id":"green-amber","name":"Green Amber","category":"Amber","mood":"An unusual amber lifted by a trace of dry vetiver and citrus rather than sweetness.","ingredients":["Labdanum Resinoid","Vetiver EO","Bergamot"]},{"id":"coumarin-amber-fougere","name":"Coumarin Amber Fougère","category":"Amber","mood":"Amber given a dry, hay-like fougère twist rather than classical sweetness.","ingredients":["Labdanum Resinoid","Coumarin","Vetiver EO"]},{"id":"rose-amber","name":"Rose Amber","category":"Amber","mood":"Classical rose deepened by warm amber — a soft, sensual pairing.","ingredients":["Labdanum Resinoid","Phenyl Ethyl Alcohol","Ambroxan 10%"]},{"id":"woody-amber-sand","name":"Woody Amber Sand","category":"Amber","mood":"A dry, sandy amber-wood built entirely from synthetic materials for a clean, modern character.","ingredients":["Sylvamber","Bacdanol - IFF","Cedarwood"]},{"id":"honey-tobacco-amber","name":"Honey Tobacco Amber","category":"Amber","mood":"Sweet, honeyed resin deepened by a trace of dark roasted bitterness, evoking pipe tobacco.","ingredients":["Resinoid Head Benzoin 70 DEP","Labdanum Resinoid","Coffee CO2"]},{"id":"amber-musk-powder","name":"Amber Musk Powder","category":"Amber","mood":"A soft, powdery amber-musk built for a nostalgic, vintage-adjacent finish.","ingredients":["Ambroxan 10%","Methyl Ionone Gamma","Galaxolide"]},{"id":"cypriol-vetiver-wood","name":"Cypriol Vetiver Wood","category":"Woody","mood":"A dark, smoky-green wood combining two of the palette's earthiest natural materials.","ingredients":["Cypriol","Vetiver EO","Iso E Super"]},{"id":"sandalwood-musk-wood","name":"Sandalwood Musk Wood","category":"Woody","mood":"Creamy sandalwood extended by a soft, radiant musk base.","ingredients":["Bacdanol - IFF","Galaxolide","Ambroxan 10%"]},{"id":"guaiac-smoke-wood","name":"Guaiac Smoke Wood","category":"Woody","mood":"Dry cedar deepened by a whisper of true phenolic smoke.","ingredients":["Nirlimbanol","Guaiacol","Cedarwood"]},{"id":"green-vetiver-wood","name":"Green Vetiver Wood","category":"Woody","mood":"Dry vetiver root lifted by a sharp, realistic green top note.","ingredients":["Vetiver EO","Cis-3-Hexenyl Acetate","Bergamot"]},{"id":"patchouli-vertofix-wood","name":"Patchouli Vertofix Wood","category":"Woody","mood":"Dark, earthy patchouli reinforced by a dense, classic synthetic wood.","ingredients":["Patchouli","Vertofix","Iso E Super"]},{"id":"dry-cedar-citrus-wood","name":"Dry Cedar Citrus Wood","category":"Woody","mood":"A bright, dry wood-citrus hybrid built for a sober, masculine freshness.","ingredients":["Cedarwood","Petitgrain Oil RC","Bergamot"]},{"id":"oud-cedar-wood","name":"Oud Cedar Wood","category":"Woody","mood":"A trace of smoky oud deepening an otherwise gentle, dry cedar accord.","ingredients":["Oud Oliffac","Cedarwood","Vetiver EO"]},{"id":"spiced-wood-base","name":"Spiced Wood Base","category":"Woody","mood":"Dry wood given a peppery lift — masculine and slightly severe.","ingredients":["Vetiver EO","Black Pepper Oil","Cedarwood"]},{"id":"ambery-vetiver-wood","name":"Ambery Vetiver Wood","category":"Woody","mood":"Dry vetiver softened and warmed by a modern synthetic amber.","ingredients":["Vetiver EO","Ambroxan 10%","Sylvamber"]},{"id":"woody-musk-halo-2","name":"Woody Musk Halo","category":"Woody","mood":"A cozy, diffusive wood-musk halo built for everyday, all-purpose wear.","ingredients":["Iso E Super","Cashmeran","Galaxolide"]},{"id":"peppery-cardamom-spice","name":"Peppery Cardamom Spice","category":"Spicy","mood":"Bright cardamom sharpened by dry black pepper — lively and masculine.","ingredients":["Cardamom Oil RCO","Black Pepper Oil","Bergamot"]},{"id":"clove-amber-spice","name":"Clove Amber Spice","category":"Spicy","mood":"Warm clove threaded through sweet amber — a cozy, carnation-adjacent spice.","ingredients":["Clove Bud EO","Labdanum Resinoid","Vanillin"]},{"id":"saffron-spice-blend","name":"Saffron Spice Blend","category":"Spicy","mood":"Leather-saffron warmed by bright cardamom and grounded in dry vetiver.","ingredients":["Safraleine","Cardamom Oil RCO","Vetiver EO"]},{"id":"pink-pepper-rose-spice","name":"Pink Pepper Rose Spice","category":"Spicy","mood":"Fresh pink pepper lifting a classical rose — modern and unisex.","ingredients":["Pinkpepper","Phenyl Ethyl Alcohol","Hedione"]},{"id":"nutmeg-vanilla-spice","name":"Nutmeg Vanilla Spice","category":"Spicy","mood":"Round, warm nutmeg deepened by creamy vanilla and dry hay.","ingredients":["Nutmeg EO","Vanillin","Coumarin"]},{"id":"smoked-pepper-spice","name":"Smoked Pepper Spice","category":"Spicy","mood":"Dry pepper deepened by green smoky wood — an unusual, slightly severe spice accord.","ingredients":["Black Pepper Oil","Cypriol","Guaiacol"]},{"id":"cardamom-coffee-spice","name":"Cardamom Coffee Spice","category":"Spicy","mood":"Bright cardamom against dark roasted coffee — a lively, market-adjacent spice pairing.","ingredients":["Cardamom Oil RCO","Coffee CO2","Vanillin"]},{"id":"cinnamon-citrus-spice","name":"Cinnamon Citrus Spice","category":"Spicy","mood":"Warm cinnamon brightened by sweet orange peel — a mulled, festive spice accord.","ingredients":["Cinnamon Bark Oil","Orange 10 Fold Oil","Bergamot"]},{"id":"clove-pepper-spice","name":"Clove Pepper Spice","category":"Spicy","mood":"Two of the palette's hottest spices paired for maximum warmth — use with real restraint.","ingredients":["Clove Bud EO","Black Pepper Oil","Cardamom Oil RCO"]},{"id":"warm-saffron-amber-spice","name":"Warm Saffron Amber Spice","category":"Spicy","mood":"Leathery saffron deepened by warm amber and a whisper of bright cardamom.","ingredients":["Safraleine","Labdanum Resinoid","Cardamom Oil RCO"]},{"id":"bergamot-petitgrain-duo","name":"Bergamot Petitgrain Duo","category":"Citrus","mood":"The simplest possible citrus pairing — sweet bergamot against dry green petitgrain.","ingredients":["Bergamot","Petitgrain Oil RC"]},{"id":"orange-vanilla-citrus","name":"Orange Vanilla Citrus","category":"Citrus","mood":"Sweet orange peel warmed by a whisper of vanilla beneath.","ingredients":["Orange 10 Fold Oil","Bergamot","Vanillin"]},{"id":"aldehydic-orange-citrus","name":"Aldehydic Orange Citrus","category":"Citrus","mood":"Sweet orange given a classical aldehydic sparkle.","ingredients":["Aldehyde C10","Orange 10 Fold Oil","Bergamot"]},{"id":"green-bergamot-citrus","name":"Green Bergamot Citrus","category":"Citrus","mood":"Classical bergamot sharpened by a realistic torn-leaf green edge.","ingredients":["Bergamot","Cis-3-Hexenyl Acetate","Petitgrain Oil RC"]},{"id":"spiced-bergamot-citrus","name":"Spiced Bergamot Citrus","category":"Citrus","mood":"Bright bergamot lifted by a whisper of fresh pink pepper and warm cardamom.","ingredients":["Bergamot","Pinkpepper","Cardamom Oil RCO"]},{"id":"woody-citrus-cologne","name":"Woody Citrus Cologne","category":"Citrus","mood":"Classical citrus extended by a dry, diffusive wood base.","ingredients":["Bergamot","Vetiver EO","Iso E Super"]},{"id":"citrus-ambergris","name":"Citrus Ambergris","category":"Citrus","mood":"Bright bergamot deepening unexpectedly into a soft, radiant amber-musk beneath.","ingredients":["Bergamot","Ambroxan 10%","Exaltolide® Total"]},{"id":"herbal-bergamot-citrus","name":"Herbal Bergamot Citrus","category":"Citrus","mood":"Classical bergamot softened by a boozy, tea-like herbal depth.","ingredients":["Bergamot","Clary Sage Oil","Linalool"]},{"id":"citrus-musk-cologne","name":"Citrus Musk Cologne","category":"Citrus","mood":"Bright citrus extended into a soft, clean musk dry-down for genuine all-day wear.","ingredients":["Bergamot","Petitgrain Oil RC","Galaxolide"]},{"id":"petitgrain-herbal-citrus","name":"Petitgrain Herbal Citrus","category":"Citrus","mood":"Dry, bitter-green petitgrain deepened by a boozy herbal note.","ingredients":["Petitgrain Oil RC","Clary Sage Oil","Bergamot"]},{"id":"citrus-pepper-top","name":"Citrus Pepper Top","category":"Top Note","mood":"A lively, spiced citrus burst meant to fade quickly into a fuller heart.","ingredients":["Bergamot","Pinkpepper","Petitgrain Oil RC"]},{"id":"green-herbal-top","name":"Green Herbal Top","category":"Top Note","mood":"A sharp, herbal-green opening with a boozy tea-like undertone.","ingredients":["Clary Sage Oil","Linalool","Cis-3-Hexenyl Acetate"]},{"id":"aldehydic-citrus-top","name":"Aldehydic Citrus Top","category":"Top Note","mood":"Sharp aldehydic sparkle over bright citrus — a classical opening move.","ingredients":["Aldehyde C10","Bergamot","Aldehyde C12 MNA"]},{"id":"fruity-sparkle-top","name":"Fruity Sparkle Top","category":"Top Note","mood":"A soft, peachy-fruity sparkle brighter and sweeter than plain citrus.","ingredients":["Orange 10 Fold Oil","Aldehyde C12 MNA","Bergamot"]},{"id":"woody-citrus-top","name":"Woody Citrus Top","category":"Top Note","mood":"Bright citrus given immediate depth by a diffusive wood undertone.","ingredients":["Bergamot","Iso E Super","Petitgrain Oil RC"]},{"id":"spiced-orange-top","name":"Spiced Orange Top","category":"Top Note","mood":"Sweet orange peel warmed by a bright cardamom accent.","ingredients":["Orange 10 Fold Oil","Cardamom Oil RCO","Bergamot"]},{"id":"marine-citrus-top","name":"Marine Citrus Top","category":"Top Note","mood":"Cool marine transparency layered with bright citrus.","ingredients":["Floralozone","Bergamot","Petitgrain Oil RC"]},{"id":"peppery-green-top","name":"Peppery Green Top","category":"Top Note","mood":"Sharp dry pepper cutting through a realistic green accord.","ingredients":["Black Pepper Oil","Cis-3-Hexenyl Acetate","Bergamot"]},{"id":"floral-citrus-top","name":"Floral Citrus Top","category":"Top Note","mood":"Bright citrus softened by a gentle floral-aromatic bridge into the heart.","ingredients":["Bergamot","Linalyl Acetate","Hedione"]},{"id":"coniferous-citrus-top","name":"Coniferous Citrus Top","category":"Top Note","mood":"Fresh pine forest brightness paired with classical bergamot.","ingredients":["Pine Essential Oil","Bergamot","Petitgrain Oil RC"]},{"id":"garden-hose-water","name":"Garden Hose Water","category":"Aqua / Fresh","mood":"The specific smell of a garden hose running on a hot day — green, watery, and slightly rubbery-fresh.","ingredients":["Cis-3-Hexenyl Acetate","Floralozone","Petitgrain Oil RC"]},{"id":"marine-musk-fresh","name":"Marine Musk Fresh","category":"Aqua / Fresh","mood":"Cool marine air extended by a soft, clean musk base for genuine longevity.","ingredients":["Floralozone","Galaxolide","Iso E Super"]},{"id":"bright-marine-citrus","name":"Bright Marine Citrus","category":"Aqua / Fresh","mood":"A brighter, more citrus-forward take on the classical aquatic-cologne genre.","ingredients":["Floralozone","Bergamot","Dihydromercenol"]},{"id":"woody-marine-fresh","name":"Woody Marine Fresh","category":"Aqua / Fresh","mood":"Cool marine transparency grounded by dry cedar rather than vetiver.","ingredients":["Floralozone","Vetiver EO","Cedarwood"]},{"id":"floral-marine-fresh","name":"Floral Marine Fresh","category":"Aqua / Fresh","mood":"Cool marine air softened by a trace of heady jasmine beneath.","ingredients":["Floralozone","Hedione","Jasmine Sambac"]},{"id":"sage-sea-mist","name":"Sage Sea Mist","category":"Aqua / Fresh","mood":"Cool marine freshness given an unexpected herbal-tea depth.","ingredients":["Floralozone","Clary Sage Oil","Bergamot"]},{"id":"rain-forest-fresh","name":"Rain Forest Fresh","category":"Aqua / Fresh","mood":"Marine freshness combined with coniferous pine for a genuine 'forest after rain' effect.","ingredients":["Floralozone","Pine Essential Oil","Vetiver EO"]},{"id":"clean-sheets-fresh","name":"Clean Sheets Fresh","category":"Aqua / Fresh","mood":"Crisp laundry-fresh musk brightened by a touch of marine air.","ingredients":["Galaxolide","Floralozone","Linalool"]},{"id":"petrichor-green-fresh","name":"Petrichor Green Fresh","category":"Aqua / Fresh","mood":"The mineral smell of rain on dry earth, sharpened by a torn-leaf green edge.","ingredients":["Floralozone","Cis-3-Hexenyl Acetate","Peatmoss (Veramoss Equivalent)"]},{"id":"misty-amber-shore","name":"Misty Amber Shore","category":"Aqua / Fresh","mood":"Marine freshness deepening unexpectedly into a soft amber-musk beneath.","ingredients":["Floralozone","Ambroxan 10%","Exaltolide® Total"]},{"id":"iris-violet-floral","name":"Iris Violet Floral","category":"Floral","mood":"Soft, powdery violet-iris deepened by radiant transparency.","ingredients":["Methyl Ionone Gamma","Benzyl Salicylate","Hedione"]},{"id":"rose-jasmine-floral","name":"Rose Jasmine Floral","category":"Floral","mood":"Classical rose and heady jasmine combined into a fuller, richer white-pink floral.","ingredients":["Phenyl Ethyl Alcohol","Jasmine Sambac","Hedione"]},{"id":"musk-floral-halo","name":"Musk Floral Halo","category":"Floral","mood":"A radiant floral extended into a soft, skin-close musk dry-down.","ingredients":["Hedione","Galaxolide","Jasmine Sambac"]},{"id":"citrus-floral-bouquet","name":"Citrus Floral Bouquet","category":"Floral","mood":"Bright citrus opening into a soft, classical floral heart.","ingredients":["Bergamot","Hedione","Phenyl Ethyl Alcohol"]},{"id":"spiced-jasmine-floral","name":"Spiced Jasmine Floral","category":"Floral","mood":"Heady jasmine warmed by a trace of clove-like spice — a modern carnation-jasmine hybrid.","ingredients":["Jasmine Sambac","Clove Bud EO","Coumarin"]},{"id":"green-jasmine-floral","name":"Green Jasmine Floral","category":"Floral","mood":"Heady jasmine sharpened by a realistic torn-leaf green edge.","ingredients":["Jasmine Sambac","Cis-3-Hexenyl Acetate","Hedione"]},{"id":"powdery-rose-floral","name":"Powdery Rose Floral","category":"Floral","mood":"Classical rose given a soft, nostalgic powdery finish.","ingredients":["Phenyl Ethyl Alcohol","Methyl Ionone Gamma","Coumarin"]},{"id":"golden-jasmine-veil","name":"Golden Jasmine Veil","category":"Floral","mood":"Heady jasmine wrapped in a soft golden amber veil.","ingredients":["Jasmine Sambac","Ambroxan 10%","Labdanum Resinoid"]},{"id":"fruity-floral-bouquet","name":"Fruity Floral Bouquet","category":"Floral","mood":"A radiant floral heart softened by a whisper of peach-skin fruitiness.","ingredients":["Hedione","Jasmine Sambac","Gamma Undecalactone (Aldehyde C14)"]},{"id":"vintage-rose-sparkle","name":"Vintage Rose Sparkle","category":"Floral","mood":"Classical rose given a nostalgic aldehydic sparkle in the tradition of mid-century florals.","ingredients":["Aldehyde C12 MNA","Phenyl Ethyl Alcohol","Hedione"]},{"id":"first-day-of-school","name":"First Day of School","category":"Nostalgic","mood":"New pencils, a freshly waxed hallway floor, and the particular nervous-excited feeling of September.","ingredients":["Coumarin","Galaxolide","Cedarwood"]},{"id":"sunday-roast-kitchen","name":"Sunday Roast Kitchen","category":"Nostalgic","mood":"A warm kitchen full of roasting spices and the smell of coffee brewing nearby.","ingredients":["Nutmeg EO","Vanillin","Coffee CO2"]},{"id":"beach-bonfire-night","name":"Beach Bonfire Night","category":"Nostalgic","mood":"Salt air and a beach bonfire at night, marshmallows and driftwood smoke.","ingredients":["Guaiacol","Floralozone","Vanillin"]},{"id":"old-bookstore","name":"Old Bookstore","category":"Nostalgic","mood":"Old paper, wooden shelving, and a faint sweetness from decades of stored books.","ingredients":["Cedarwood","Peatmoss (Veramoss Equivalent)","Vanillin"]},{"id":"grandfathers-car","name":"Grandfather's Car","category":"Nostalgic","mood":"Worn leather seats, a hint of tobacco, and the smell of a car that's been in the family for decades.","ingredients":["Patchouli","Vetiver EO","Cedarwood"]},{"id":"christmas-morning","name":"Christmas Morning","category":"Nostalgic","mood":"Warm cinnamon and orange peel, the specific smell of a household on a winter holiday morning.","ingredients":["Cinnamon Bark Oil","Orange 10 Fold Oil","Vanillin"]},{"id":"summer-camp-campfire","name":"Summer Camp Campfire","category":"Nostalgic","mood":"Pine trees, a crackling campfire, and the cool night air of a summer camp evening.","ingredients":["Guaiacol","Cypriol","Pine Essential Oil"]},{"id":"mothers-perfume-drawer","name":"Mother's Perfume Drawer","category":"Nostalgic","mood":"Opening a drawer of old perfume bottles — soft rose, powder, and dried florals.","ingredients":["Phenyl Ethyl Alcohol","Methyl Ionone Gamma","Coumarin"]},{"id":"rainy-sunday-afternoon","name":"Rainy Sunday Afternoon","category":"Nostalgic","mood":"Watching rain against the window with nowhere to be — quiet, dry, and a little sleepy.","ingredients":["Floralozone","Coumarin","Cedarwood"]},{"id":"village-bakery-morning","name":"Village Bakery Morning","category":"Nostalgic","mood":"Walking past a small bakery early in the morning, warm bread and sugar in the air.","ingredients":["Vanillin","Coumarin","Gamma Nonalactone (Aldehyde C18)"]}];
+
+/* ===================== STATE ===================== */
+let currentQ = 0;
+let answers = [];
+let history = [];
+let isTransitioning = false;
+let activeQuestions = [];
+
+function startQuiz(){
+  showScreen('quiz');
+  currentQ = 0;
+  answers = [];
+  history = [];
+  isTransitioning = false;
+  activeQuestions = CORE_QUESTIONS.slice();
+  renderQuestion();
+}
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+const TOTAL_Q = CORE_QUESTIONS.length + 5; // 10 core + 5 adaptive, always
+const HALFWAY_MESSAGES = ["Halfway there — your blend is taking shape.", "Nice choices so far.", "Almost done — a few more to go."];
+
+function renderQuestion(){
+  const q = activeQuestions[currentQ];
+  const pct = (currentQ/TOTAL_Q*100);
+  document.getElementById('q-counter').textContent = `Question ${currentQ+1} of ${TOTAL_Q}`;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-track').setAttribute('aria-valuenow', Math.round(pct));
+  document.getElementById('mini-vial-fill').style.height = pct + '%';
+  document.getElementById('q-text').textContent = q.text;
+
+  const optsWrap = document.getElementById('q-options');
+  optsWrap.innerHTML = q.options.map((opt,i)=>
+    `<button class="opt-btn" data-i="${i}" role="radio" aria-checked="false" onclick="selectOption(${i})">
+      <span class="kbd-num">${i+1}</span>${opt.label}
+    </button>`
+  ).join('');
+  document.getElementById('back-btn').disabled = history.length === 0;
+
+  const halfway = document.getElementById('halfway-note');
+  if (currentQ === CORE_QUESTIONS.length){
+    halfway.textContent = "Great — now let's get specific about your top styles.";
+  } else if (currentQ === Math.floor(TOTAL_Q/2)){
+    halfway.textContent = HALFWAY_MESSAGES[0];
+  } else if (currentQ === TOTAL_Q - 2){
+    halfway.textContent = HALFWAY_MESSAGES[2];
+  } else {
+    halfway.textContent = '';
+  }
+  isTransitioning = false;
+}
+
+function selectOption(i){
+  if (isTransitioning) return; // guard against double-tap skipping/duplicating a question
+  isTransitioning = true;
+
+  const q = activeQuestions[currentQ];
+  const opt = q.options[i];
+  document.querySelectorAll('.opt-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-checked','false'); });
+  const chosen = document.querySelector(`.opt-btn[data-i="${i}"]`);
+  chosen.classList.add('selected');
+  chosen.setAttribute('aria-checked','true');
+
+  let entry = { qText:q.text, label:opt.label };
+  if (q.meta){ entry.meta = q.meta; entry.value = opt.value; }
+  else if (q.dynType === 'followup'){ entry.dynType='followup'; entry.forAxis=q.forAxis; entry.material=opt.material; }
+  else if (q.dynType === 'exclude'){ entry.dynType='exclude'; entry.exclude=opt.exclude||null; entry.forceLight=!!opt.forceLight; }
+  else if (q.dynType === 'uniqueness'){ entry.dynType='uniqueness'; entry.value=opt.value; }
+  else { entry.w = opt.w || {}; }
+  answers[currentQ] = entry;
+
+  history.push(currentQ);
+  setTimeout(()=>{
+    if (currentQ === CORE_QUESTIONS.length - 1 && activeQuestions.length === CORE_QUESTIONS.length){
+      buildPhase2Questions();
+    }
+    if (currentQ < activeQuestions.length - 1){
+      currentQ++;
+      renderQuestion();
+    } else {
+      document.getElementById('progress-fill').style.width = '100%';
+      document.getElementById('mini-vial-fill').style.height = '100%';
+      runLoadingCeremony();
+    }
+  }, 280);
+}
+
+/* Build the 5 adaptive Phase 2 questions from Phase 1's interim leaders. */
+function buildPhase2Questions(){
+  const scores = {}; AXES.forEach(a=>scores[a]=0);
+  answers.slice(0, CORE_QUESTIONS.length).forEach(a=>{
+    if (!a || a.meta || !a.w) return;
+    Object.entries(a.w).forEach(([axis,val])=>{ scores[axis]=(scores[axis]||0)+val; });
+  });
+  const norm = {}; AXES.forEach(a => norm[a] = AXIS_MAX[a] ? scores[a]/AXIS_MAX[a] : 0);
+  const shuffled = AXES.slice().sort(()=>Math.random()-0.5);
+  const ranked = shuffled.sort((a,b)=> norm[b]-norm[a]);
+  window._interimRanked = ranked; // reused by final scoring so Phase 2 questions match the result
+
+  const top3 = ranked.slice(0,3);
+  const dynQs = top3.map(axis => ({
+    text: AXIS_FOLLOWUPS[axis].text,
+    options: AXIS_FOLLOWUPS[axis].options,
+    dynType: 'followup',
+    forAxis: axis,
+  }));
+  dynQs.push({ text: PRECISION_QUESTIONS[0].text, options: PRECISION_QUESTIONS[0].options, dynType:'exclude' });
+  dynQs.push({ text: PRECISION_QUESTIONS[1].text, options: PRECISION_QUESTIONS[1].options, dynType:'uniqueness' });
+  activeQuestions.push(...dynQs);
+}
+
+function goBack(){
+  if (history.length === 0 || isTransitioning) return;
+  currentQ = history.pop();
+  renderQuestion();
+  const prev = answers[currentQ];
+  if (prev){
+    const q = activeQuestions[currentQ];
+    const idx = q.options.findIndex(o => {
+      if (q.meta) return o.value===prev.value;
+      if (q.dynType==='followup') return o.material===prev.material;
+      if (q.dynType==='exclude') return (o.exclude||null)===prev.exclude && !!o.forceLight===!!prev.forceLight;
+      if (q.dynType==='uniqueness') return o.value===prev.value;
+      return JSON.stringify(o.w||{})===JSON.stringify(prev.w||{});
+    });
+    if (idx>=0){
+      const btn = document.querySelector(`.opt-btn[data-i="${idx}"]`);
+      if (btn){ btn.classList.add('selected'); btn.setAttribute('aria-checked','true'); }
+    }
+  }
+}
+
+/* Keyboard navigation: 1–6 to answer, Backspace to go back */
+document.addEventListener('keydown', (e)=>{
+  if (!document.getElementById('screen-quiz').classList.contains('active')) return;
+  if (e.key === 'Backspace'){ e.preventDefault(); goBack(); return; }
+  const num = parseInt(e.key, 10);
+  if (!isNaN(num) && num >= 1 && num <= 6){
+    const btn = document.querySelector(`.opt-btn[data-i="${num-1}"]`);
+    if (btn) btn.click();
+  }
+});
+
+/* Brief "composing" ceremony before the reveal — real content is already computed,
+   this is a deliberate pause so the result feels crafted rather than instant. */
+function runLoadingCeremony(){
+  showScreen('loading');
+  const fill = document.getElementById('loading-vial-fill');
+  fill.innerHTML = `<div class="vial-band base" style="height:0%"></div><div class="vial-band heart" style="height:0%"></div><div class="vial-band top" style="height:0%"></div>`;
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      const bands = fill.querySelectorAll('.vial-band');
+      bands[0].style.height='55%'; bands[1].style.height='30%'; bands[2].style.height='15%';
+    }, 80);
+  });
+  setTimeout(computeAndShowResult, 1100);
+}
+
+/* ===================== SCORING ===================== */
+// Max achievable weight per axis across Phase 1 only — Phase 2 questions select
+// specific materials/exclusions rather than contributing to axis ranking.
+const AXIS_MAX = (function(){
+  const max = {}; AXES.forEach(a=>max[a]=0);
+  CORE_QUESTIONS.forEach(q=>{
+    if (q.meta) return;
+    const perAxisBest = {};
+    q.options.forEach(opt=>{
+      Object.entries(opt.w||{}).forEach(([axis,val])=>{
+        perAxisBest[axis] = Math.max(perAxisBest[axis]||0, val);
+      });
+    });
+    Object.entries(perAxisBest).forEach(([axis,val])=>{ max[axis]+=val; });
+  });
+  return max;
+})();
+
+function computeAndShowResult(){
+  let intensity = 'medium', longevity = 'medium', uniqueness = 'balanced';
+  let excludedAxis = null, forceLight = false;
+  const preferredMaterial = {};
+
+  answers.forEach(a=>{
+    if (!a) return;
+    if (a.meta === 'intensity') intensity = a.value;
+    else if (a.meta === 'longevity') longevity = a.value;
+    else if (a.dynType === 'followup') preferredMaterial[a.forAxis] = a.material;
+    else if (a.dynType === 'exclude'){ excludedAxis = a.exclude; forceLight = a.forceLight; }
+    else if (a.dynType === 'uniqueness') uniqueness = a.value;
+  });
+  if (forceLight) intensity = 'light';
+
+  // Reuse the same ranked list Phase 2's follow-up questions were built from,
+  // so the result matches the specific questions the person just answered.
+  let ranked = (window._interimRanked || AXES.slice()).filter(a => a !== excludedAxis);
+  const top1 = ranked[0], top2 = ranked[1], top3 = ranked[2], top4 = ranked[3];
+
+  // ---- pick materials ----
+  // Stage 1: honor each top axis's explicit Phase 2 choice first, so a specific
+  // answer the person just gave reliably shows up somewhere in the result.
+  // Stage 2: fill any remaining slots by walking the ranked axis list, so the
+  // overall dominant axis still shapes the formula.
+  const priorityAxes = [top1, top2, top3].filter(Boolean);
+  function placePreferredFirst(role, count, exclude, picks){
+    for (const axis of priorityAxes){
+      if (picks.length >= count) break;
+      const pref = preferredMaterial[axis];
+      if (!pref || exclude.includes(pref) || picks.some(p=>p.name===pref)) continue;
+      const m = MATERIAL_POOL.find(mm => mm.name===pref && mm.roles.includes(role));
+      if (m) picks.push(m);
+    }
+    return picks;
+  }
+  function fillByAxisWalk(role, count, exclude, picks){
+    for (const axis of ranked){
+      if (picks.length >= count) break;
+      const candidates = MATERIAL_POOL.filter(m =>
+        m.roles.includes(role) && m.axis===axis && !exclude.includes(m.name) && !picks.some(p=>p.name===m.name)
+      );
+      for (const c of candidates){
+        if (picks.length >= count) break;
+        picks.push(c);
+      }
+    }
+    return picks;
+  }
+  function pickForRole(role, count, exclude){
+    let picks = [];
+    picks = placePreferredFirst(role, count, exclude, picks);
+    picks = fillByAxisWalk(role, count, exclude.concat(picks.map(p=>p.name)), picks);
+    return picks;
+  }
+  const used = [];
+  const topPicks = pickForRole('top', 1, used);
+  const topPick = topPicks[0] || MATERIAL_POOL.find(m=>m.name==='Bergamot');
+  used.push(topPick.name);
+  const heartPicks = pickForRole('heart', 2, used);
+  heartPicks.forEach(m=>used.push(m.name));
+  let basePicks = pickForRole('base', 2, used);
+  if (basePicks.length===0){
+    basePicks = [MATERIAL_POOL.find(m=>m.name==='Iso E Super'), MATERIAL_POOL.find(m=>m.name==='Galaxolide')];
+  }
+  basePicks.forEach(m=>used.push(m.name));
+
+  // ---- percentages, adjusted by intensity & longevity ----
+  let topPct = 20, heartPct = 40, basePct = 40;
+  if (intensity==='light'){ topPct=32; heartPct=36; basePct=32; }
+  if (intensity==='bold'){ topPct=10; heartPct=35; basePct=55; }
+  if (longevity==='short'){ topPct+=6; basePct-=6; }
+  if (longevity==='long'){ topPct-=6; basePct+=6; }
+  topPct = Math.max(6, topPct); basePct = Math.max(20, basePct);
+
+  const formula = [];
+  let accentMat = null;
+  if (uniqueness === 'bold' && top4){
+    const accentCands = MATERIAL_POOL.filter(m => m.axis===top4 && !used.includes(m.name));
+    if (accentCands.length) accentMat = accentCands[0];
+  }
+  const accentPct = accentMat ? 8 : 0;
+  const total = topPct+heartPct+basePct;
+  topPct = Math.round(topPct/total*(100-accentPct));
+  heartPct = Math.round(heartPct/total*(100-accentPct));
+  basePct = 100 - accentPct - topPct - heartPct;
+
+  formula.push({ role:'Top', materials:[topPick], pct:topPct });
+  formula.push({ role:'Heart', materials:heartPicks, pct:heartPct });
+  formula.push({ role:'Base', materials:basePicks, pct:basePct });
+  if (accentMat){ formula.push({ role:'Accent', materials:[accentMat], pct:accentPct }); used.push(accentMat.name); }
+
+  // ---- name ----
+  const nb1 = NAME_WORDS[top1], nb2 = NAME_WORDS[top2] || NAME_WORDS[top1];
+  const perfumeName = `${nb1.adj[Math.floor(Math.random()*nb1.adj.length)]} ${nb2.noun[Math.floor(Math.random()*nb2.noun.length)]}`;
+
+  // ---- mood paragraph ----
+  const moodPara = `A fragrance built around ${AXIS_DESC[top1]}, softened with a touch of ${AXIS_DESC[top2]}. ${
+    intensity==='bold' ? "Composed to be felt across the room." : intensity==='light' ? "Composed to stay close and quiet." : "Composed to last, without shouting."
+  }`;
+
+  // ---- why this fits you: cite the specific answers that drove the result ----
+  function bestAnswerFor(axis){
+    let best = null, bestVal = 0;
+    answers.forEach(a=>{
+      if (!a || !a.w) return;
+      const v = a.w[axis] || 0;
+      if (v > bestVal){ bestVal = v; best = a; }
+    });
+    return best;
+  }
+  const whyItems = [top1, top2].filter(Boolean).map(axis=>{
+    const src = bestAnswerFor(axis);
+    const base = WHY[axis];
+    return src ? `"${src.label}" was your strongest signal here — ${base}` : base;
+  });
+  const top1FollowupAnswer = answers.find(a => a && a.dynType==='followup' && a.forAxis===top1);
+  if (top1FollowupAnswer){
+    whyItems.push(`For the ${top1} in your blend, you chose "${top1FollowupAnswer.label}" — so it's built around ${top1FollowupAnswer.material}.`);
+  }
+
+  // ---- inspired by existing accords ----
+  const usedNamesSet = new Set(used);
+  const candidateCats = new Set([AXIS_TO_CATEGORY[top1], AXIS_TO_CATEGORY[top2], AXIS_TO_CATEGORY[top3]].filter(Boolean));
+  let inspired = ACCORD_LIBRARY.filter(a => candidateCats.has(a.category)).map(a=>{
+    const overlap = a.ingredients.filter(n => usedNamesSet.has(n)).length;
+    return { ...a, overlap };
+  }).sort((a,b)=> b.overlap - a.overlap);
+  const picked = inspired.slice(0,3);
+
+  renderResult({ perfumeName, moodPara, formula, whyItems, inspired: picked, topPct, heartPct, basePct, top1, top2, intensity, longevity });
+}
+
+/* ===================== RENDER RESULT ===================== */
+function renderResult(r){
+  showScreen('result');
+  document.getElementById('perfume-name').value = r.perfumeName;
+  document.getElementById('mood-para').textContent = r.moodPara;
+
+  document.getElementById('formula-rows').innerHTML = r.formula.map(f => `
+    <div class="formula-row">
+      <span class="role">${f.role}</span>
+      <span class="mats">${f.materials.map(m=>m.name).join(', ')}</span>
+      <span class="pct">${f.pct}%</span>
+    </div>
+  `).join('');
+
+  document.getElementById('why-list').innerHTML = r.whyItems.map(w=>`<li>${w}</li>`).join('');
+
+  document.getElementById('inspired-grid').innerHTML = r.inspired.length
+    ? r.inspired.map(a=>`
+      <div class="inspired-card">
+        <div class="iname">${a.name}</div>
+        <div class="icat">${a.category}</div>
+        <div class="imood">${a.mood}</div>
+      </div>
+    `).join('')
+    : `<div class="inspired-card"><div class="imood">Your blend is unusual enough that nothing in the existing collection is a close match — which makes it even more yours.</div></div>`;
+
+  // animate vial fill
+  const fillEl = document.getElementById('result-vial-fill');
+  fillEl.innerHTML = `
+    <div class="vial-band base" style="height:0%"></div>
+    <div class="vial-band heart" style="height:0%"></div>
+    <div class="vial-band top" style="height:0%"></div>
+  `;
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      const bands = fillEl.querySelectorAll('.vial-band');
+      bands[0].style.height = r.basePct + '%';
+      bands[1].style.height = r.heartPct + '%';
+      bands[2].style.height = r.topPct + '%';
+    }, 100);
+  });
+
+  document.getElementById('answers-summary').innerHTML = answers.filter(Boolean).map((a,i)=>`
+    <div class="answer-item">
+      <div class="aq">${i+1}. ${a.qText}</div>
+      <div class="aa">${a.label}</div>
+    </div>
+  `).join('');
+  document.getElementById('answers-summary').classList.remove('open');
+  document.getElementById('answers-toggle-label').textContent = 'Show All Answers';
+  document.getElementById('answers-toggle-arrow').textContent = '\u25be';
+
+  window._lastResult = r;
+}
+
+function toggleAnswers(){
+  const el = document.getElementById('answers-summary');
+  const open = el.classList.toggle('open');
+  document.getElementById('answers-toggle-label').textContent = open ? 'Hide All Answers' : 'Show All Answers';
+  document.getElementById('answers-toggle-arrow').textContent = open ? '\u25b4' : '\u25be';
+}
+
+function copyFormula(){
+  const r = window._lastResult;
+  if (!r) return;
+  const name = document.getElementById('perfume-name').value || r.perfumeName;
+  const text = `${name}\n\n${r.moodPara}\n\nTHE FORMULA\n` +
+    r.formula.map(f=>`${f.role} (${f.pct}%): ${f.materials.map(m=>m.name).join(', ')}`).join('\n') +
+    `\n\nInspired by: ${r.inspired.map(a=>a.name).join(', ')}`;
+  navigator.clipboard.writeText(text).then(()=>{
+    document.getElementById('copy-confirm').textContent = 'Copied to clipboard';
+    setTimeout(()=>{ document.getElementById('copy-confirm').textContent=''; }, 2200);
+  }).catch(()=>{
+    document.getElementById('copy-confirm').textContent = 'Could not copy — select and copy manually.';
+  });
+}
+
+function retakeQuiz(){
+  startQuiz();
+}
+
+/* ===================== DOWNLOAD IMAGE ===================== */
+async function downloadImage(){
+  const r = window._lastResult;
+  if (!r) return;
+  if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch(e){} }
+
+  const displayName = document.getElementById('perfume-name').value || r.perfumeName;
+  const W = 900, PAD = 56;
+  const contentW = W - PAD*2;
+
+  const mctx = document.createElement('canvas').getContext('2d');
+  function wrapLines(text, font, maxWidth){
+    mctx.font = font;
+    const words = String(text).split(' ');
+    const lines = []; let line = '';
+    words.forEach(w=>{
+      const test = line ? line+' '+w : w;
+      if (mctx.measureText(test).width > maxWidth && line){ lines.push(line); line = w; }
+      else { line = test; }
+    });
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  const goldSoft='#E0BD84', ink='#F3E7D8', inkDim='rgba(243,231,216,.75)';
+  const blocks = [];
+  function addSpace(h){ blocks.push({h, draw:()=>{}}); }
+  function addText(text, font, color, lineHeight, maxWidth, align){
+    align = align || 'left';
+    const lines = wrapLines(text, font, maxWidth);
+    const h = Math.max(lines.length,1)*lineHeight;
+    blocks.push({h, draw:(ctx,x,y,w)=>{
+      ctx.font=font; ctx.fillStyle=color; ctx.textAlign=align;
+      lines.forEach((ln,i)=>{
+        const drawX = align==='center' ? x+w/2 : x;
+        ctx.fillText(ln, drawX, y + (i+1)*lineHeight - lineHeight*0.28);
+      });
+    }});
+  }
+  function addDivider(){
+    blocks.push({h:20, draw:(ctx,x,y,w)=>{
+      ctx.strokeStyle='rgba(243,231,216,.22)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(x,y+10); ctx.lineTo(x+w,y+10); ctx.stroke();
+    }});
+  }
+
+  addSpace(40);
+  addText('MY BESPOKE BLEND', '600 13px Manrope, sans-serif', goldSoft, 18, contentW, 'center');
+  addSpace(6);
+  addText(displayName, '700 42px Fraunces, serif', ink, 50, contentW, 'center');
+  addSpace(12);
+  addText(r.moodPara, 'italic 500 16px Fraunces, serif', '#EDDFC9', 25, contentW*0.85, 'center');
+  addSpace(34);
+
+  addText('THE FORMULA', '700 13px Manrope, sans-serif', goldSoft, 18, contentW, 'left');
+  addSpace(8);
+  r.formula.forEach(f=>{
+    addText(`${f.role.toUpperCase()}  —  ${f.materials.map(m=>m.name).join(', ')}   (${f.pct}%)`,
+      '600 14px Manrope, sans-serif', ink, 23, contentW, 'left');
+  });
+  addSpace(26);
+
+  addText('WHY THIS FITS YOU', '700 13px Manrope, sans-serif', goldSoft, 18, contentW, 'left');
+  addSpace(6);
+  r.whyItems.forEach(w=> addText('— '+w, '500 13px Manrope, sans-serif', inkDim, 20, contentW, 'left'));
+  addSpace(26);
+
+  if (r.inspired.length){
+    addText('INSPIRED BY YOUR COLLECTION', '700 13px Manrope, sans-serif', goldSoft, 18, contentW, 'left');
+    addSpace(6);
+    r.inspired.forEach(a=> addText(`${a.name} — ${a.category}`, '600 13px Manrope, sans-serif', ink, 21, contentW, 'left'));
+    addSpace(26);
+  }
+
+  addDivider();
+  addSpace(16);
+  addText(`YOUR ANSWERS  (${answers.filter(Boolean).length} of ${TOTAL_Q})`, '700 13px Manrope, sans-serif', goldSoft, 18, contentW, 'left');
+  addSpace(8);
+  answers.forEach((a,i)=>{
+    if (!a) return;
+    addText(`${i+1}. ${a.qText}`, '600 12.5px Manrope, sans-serif', ink, 18, contentW, 'left');
+    addText(`    ${a.label}`, '400 12.5px Manrope, sans-serif', inkDim, 18, contentW, 'left');
+  });
+  addSpace(26);
+  addText('Generated from a personal perfumery palette · ' + new Date().toLocaleDateString(),
+    '400 11px Manrope, sans-serif', 'rgba(243,231,216,.45)', 16, contentW, 'center');
+  addSpace(30);
+
+  const totalH = blocks.reduce((s,b)=>s+b.h,0) + PAD*2;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = totalH;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,0,totalH);
+  grad.addColorStop(0,'#2C1B14'); grad.addColorStop(1,'#3D2519');
+  ctx.fillStyle = grad; ctx.fillRect(0,0,W,totalH);
+
+  let y = PAD;
+  blocks.forEach(b=>{ b.draw(ctx, PAD, y, contentW); y += b.h; });
+
+  canvas.toBlob(blob=>{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = displayName.replace(/[^a-z0-9]+/gi,'_') + '_Bespoke_Blend.png';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    document.getElementById('copy-confirm').textContent = 'Image downloaded';
+    setTimeout(()=>{ document.getElementById('copy-confirm').textContent=''; }, 2200);
+  }, 'image/png');
+}
+
+/* intro vial: gentle idle animation (empty, waiting) */
+document.getElementById('intro-vial-fill').innerHTML = `<div class="vial-band base" style="height:6%"></div>`;
+</script>
+</body>
+</html>
