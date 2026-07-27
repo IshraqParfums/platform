@@ -156,7 +156,7 @@ Each product should support the following information.
 * Stock Availability
 * Product Rating
 * Customer Reviews
-* Product Status (Draft / Active / Archived)
+* Product Status (Draft / Active / Archived / Deleted)
 
 Each product may support one or more bottle sizes.
 
@@ -169,11 +169,12 @@ Examples include:
 
 Administrators should be able to select which predefined bottle sizes are available for a product.
 
-Product lifecycle:
+Product lifecycle (status only — rows are not physically deleted):
 
-* **Draft** — Not visible to customers. Can be edited and later published as Active.
-* **Active** — Visible and available for purchase. Can be returned to Draft if needed.
-* **Archived** — Permanently removed from the catalog. Retained for historical order records only and cannot be restored to Draft or Active.
+* **Draft** — Never released. Not visible to customers. Can be published as Active or soft-deleted.
+* **Active** — Visible and available for purchase. Can be returned to Draft, taken down as Archived, or soft-deleted.
+* **Archived** — Taken down from the selling catalog. Row retained. Can return to Active, or be soft-deleted.
+* **Deleted** — Soft-removed. Row retained for history; not shown on the storefront.
 
 ---
 
@@ -428,7 +429,7 @@ Administrators should be able to:
 * Login with email and password
 * Add products
 * Edit products
-* Manage product variants and lifecycle (Draft / Active / Archived)
+* Manage product variants and lifecycle (Draft / Active / Archived / Deleted)
 * Upload product images
 * Manage inventory
 * View basic customer information

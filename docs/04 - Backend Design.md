@@ -379,7 +379,8 @@ Examples:
 * Mixed carts are supported.
 * Bespoke V1 price is ₹1,000 for 100 ml.
 * Flat shipping is ₹50 per order.
-* Archived products cannot return to Draft or Active.
+* Deleted products cannot return to Draft or Active without an explicit admin restore policy (future).
+* Archived products may return to Active.
 * Orders cannot be cancelled in Version 1.
 
 Repositories and controllers must not enforce business rules beyond basic validation.

@@ -361,17 +361,18 @@ The exact lifecycle may evolve as business requirements grow.
 
 # 10. Product Lifecycle
 
-Products support three states.
+Products support four statuses. Physical deletion is not part of the product workflow.
 
 ```
-Draft  ←→  Active
-              ↓
-          Archived
+Draft  ←→  Active  ←→  Archived
+  │          │            │
+  └──────────┴────────────┴──→ Deleted
 ```
 
-* **Draft** — Not customer-visible. Can be published to Active later.
-* **Active** — Live in the catalog. Can be returned to Draft.
-* **Archived** — Permanently removed from the selling catalog. Kept only for historical order references and cannot be restored to Draft or Active.
+* **Draft** — Never released. Not customer-visible. Can be published to Active or soft-deleted.
+* **Active** — Live in the catalog. Can return to Draft, move to Archived, or be soft-deleted.
+* **Archived** — Taken down from sale. Kept in the database. Can return to Active or be soft-deleted.
+* **Deleted** — Soft-removed. Row retained for historical reference; excluded from selling catalog.
 
 Physical deletion is not part of Version 1.
 

@@ -382,7 +382,7 @@ Settled Version 1 decisions that engineers should treat as given:
 * Shipping: flat ₹50.
 * Bespoke offer: ₹1,000 / 100 ml.
 * Guest cart + recommendation: browser local storage, merge on login.
-* Product lifecycle: Draft ↔ Active; Archived is terminal.
+* Product lifecycle: Draft ↔ Active ↔ Archived; Deleted is soft-remove (row retained).
 * No order cancellation in Version 1.
 * Inventory lives on product variants inside the Product module.
 * Bespoke questionnaire/scoring remains application code for Version 1 (ported from the existing HTML prototype), not a database CMS.

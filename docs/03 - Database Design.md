@@ -139,14 +139,14 @@ Contains:
 * Collection
 * Short description
 * Detailed description
-* Product status (Draft / Active / Archived)
+* Product status (Draft / Active / Archived / Deleted)
 
 Products do not directly store stock.
 
 Lifecycle rules:
 
-* Draft and Active may move between each other.
-* Archived is terminal for catalog purposes and cannot return to Draft or Active.
+* Draft, Active, and Archived may move between one another as allowed by business rules (including Archived → Active).
+* Deleted is the soft-delete state. The row remains; products are not physically removed in Version 1.
 
 ---
 
@@ -360,9 +360,10 @@ Responsibilities:
 
 ## Product
 
-* Draft — editable, not customer-visible; may become Active
-* Active — live in catalog; may return to Draft
-* Archived — terminal catalog state; retained for history; cannot return to Draft or Active
+* Draft — never released; not customer-visible; may become Active or Deleted
+* Active — live in catalog; may return to Draft, move to Archived, or become Deleted
+* Archived — taken down from sale; may return to Active or become Deleted
+* Deleted — soft-removed; row retained; not sold
 
 ---
 
@@ -403,7 +404,8 @@ The following business rules should be enforced by the database where practical:
 * A bespoke perfume belongs to exactly one customer after authentication.
 * Product variants cannot exist without a product.
 * Product images cannot exist without a product.
-* Archived products must not be sold as new catalog items.
+* Deleted products must not be sold as new catalog items.
+* Archived products must not be sold until returned to Active.
 * Order items snapshot commercial details at purchase time.
 
 ---
@@ -412,12 +414,13 @@ The following business rules should be enforced by the database where practical:
 
 Soft delete / retention approach for Version 1:
 
-* Products use explicit status (**Archived**) rather than a separate soft-delete flag for removal from catalog.
+* Products use explicit status (**Deleted**) for soft removal rather than physical row deletion.
+* **Archived** means taken down from sale and may return to Active.
 * Reviews may support soft delete if needed later.
 * Bespoke perfumes remain retained once owned by a customer.
 * Orders and payments are retained as historical records.
 
-Archived products remain available for historical order reference.
+Archived and Deleted products remain available for historical order reference.
 
 ---
 
