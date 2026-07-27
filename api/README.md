@@ -6,6 +6,7 @@ NestJS backend for Ishraq Parfums.
 
 - NestJS 11
 - TypeScript
+- Prisma 6 + PostgreSQL (Supabase)
 - `@ishraqparfums/shared` for API contracts
 
 ## Prerequisites
@@ -15,6 +16,14 @@ Install dependencies from the monorepo root:
 ```bash
 pnpm install
 ```
+
+Copy environment variables:
+
+```bash
+cp .env.example .env
+```
+
+Fill in Supabase `DATABASE_URL` and `DIRECT_URL` before running the API or migrations.
 
 ## Scripts
 
@@ -33,11 +42,29 @@ pnpm dev
 pnpm build
 pnpm start:prod
 pnpm lint
+pnpm prisma:generate
+pnpm prisma:migrate
+pnpm prisma:seed
+pnpm prisma:studio
+```
+
+## Database
+
+Catalog prices are stored as **paise** (`pricePaise`, INR × 100). Example: ₹2,499 → `249900`.
+
+Product status values: `DRAFT`, `ACTIVE`, `ARCHIVED`, `DELETED` (soft delete; rows are not physically removed).
+
+Apply schema and seed demo catalog data:
+
+```bash
+pnpm prisma:migrate
+pnpm prisma:seed
 ```
 
 ## Development
 
 ```bash
+pnpm prisma:generate
 pnpm dev
 ```
 
@@ -45,18 +72,27 @@ Default URL: http://localhost:3001
 
 ## Environment variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `3001` | HTTP server port |
+| Variable | Description |
+|----------|-------------|
+| `PORT` | HTTP server port (default `3001`) |
+| `DATABASE_URL` | Pooled Postgres URL used by the running app |
+| `DIRECT_URL` | Direct Postgres URL used by Prisma Migrate |
 
 ## Project structure
 
 ```text
-api/src/
-├── main.ts           App bootstrap
-├── app.module.ts     Root module
-└── modules/
-    └── health/       Health check module
+api/
+├── prisma/
+│   ├── schema.prisma
+│   ├── seed.ts
+│   └── migrations/
+├── src/
+│   ├── main.ts
+│   ├── app.module.ts
+│   └── modules/
+│       ├── health/
+│       └── prisma/
+└── package.json
 ```
 
 ## API
@@ -66,16 +102,6 @@ Global prefix: `/api/v1`
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/api/v1/health` | Service health check |
-
-Example response:
-
-```json
-{
-  "status": "healthy",
-  "service": "ishraqparfums-api",
-  "timestamp": "2026-07-06T17:05:55.344Z"
-}
-```
 
 ## Shared package
 
