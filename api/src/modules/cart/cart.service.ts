@@ -96,7 +96,7 @@ export class CartService {
         continue;
       }
 
-      if (variant.stockQty < 1) {
+      if (this.productService.availableQty(variant) < 1) {
         warnings.push(
           `Skipped ${variant.product.name} (${variant.sizeMl}ml): out of stock`,
         );
@@ -109,11 +109,12 @@ export class CartService {
       );
       const desiredQuantity = (existing?.quantity ?? 0) + normalizedQuantity;
       let finalQuantity = desiredQuantity;
+      const available = this.productService.availableQty(variant);
 
-      if (desiredQuantity > variant.stockQty) {
-        finalQuantity = variant.stockQty;
+      if (desiredQuantity > available) {
+        finalQuantity = available;
         warnings.push(
-          `Quantity for ${variant.product.name} (${variant.sizeMl}ml) reduced to ${variant.stockQty} (stock limit)`,
+          `Quantity for ${variant.product.name} (${variant.sizeMl}ml) reduced to ${available} (stock limit)`,
         );
       }
 
@@ -179,5 +180,15 @@ export class CartService {
     }
 
     return toCartResponse(cart);
+  }
+
+  async clearCart(customerId: string): Promise<void> {
+    const cart = await this.cartRepository.findByCustomerId(customerId);
+
+    if (!cart) {
+      return;
+    }
+
+    await this.cartRepository.clearItems(cart.id);
   }
 }

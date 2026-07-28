@@ -15,6 +15,29 @@ enum ProductStatus {
   DELETED
 }
 
+enum OrderStatus {
+  PENDING_PAYMENT
+  EXPIRED
+  FAILED
+  NEEDS_REVIEW
+  ORDER_RECEIVED
+  CONFIRMED
+  IN_PRODUCTION
+  READY_FOR_DISPATCH
+  DISPATCHED
+  DELIVERED
+}
+
+enum PaymentStatus {
+  CREATED
+  PAID
+  FAILED
+}
+
+enum PaymentProvider {
+  RAZORPAY
+}
+
 model Collection {
   id          String    @id @default(uuid())
   name        String
@@ -48,18 +71,20 @@ model Product {
 }
 
 model ProductVariant {
-  id                  String   @id @default(uuid())
+  id                  String      @id @default(uuid())
   productId           String
   sizeMl              Int
   pricePaise          Int
   compareAtPricePaise Int?
-  stockQty            Int      @default(0)
+  stockQty            Int         @default(0)
+  reservedQty         Int         @default(0)
   sku                 String?
-  isAvailable         Boolean  @default(true)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime   @updatedAt
-  product             Product    @relation(fields: [productId], references: [id], onDelete: Restrict)
+  isAvailable         Boolean     @default(true)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  product             Product     @relation(fields: [productId], references: [id], onDelete: Restrict)
   cartItems           CartItem[]
+  orderItems          OrderItem[]
 
   @@unique([productId, sizeMl])
   @@index([productId])
@@ -81,15 +106,36 @@ model ProductImage {
 }
 
 model Customer {
-  id        String   @id @default(uuid())
-  phone     String   @unique
-  email     String?  @unique
+  id        String            @id @default(uuid())
+  phone     String            @unique
+  email     String?           @unique
   name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
   cart      Cart?
+  addresses CustomerAddress[]
+  orders    Order[]
 
   @@map("customers")
+}
+
+model CustomerAddress {
+  id         String   @id @default(uuid())
+  customerId String
+  name       String
+  phone      String
+  line1      String
+  line2      String?
+  city       String
+  state      String
+  pincode    String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  @@index([customerId])
+  @@map("customer_addresses")
 }
 
 model Cart {
@@ -116,6 +162,71 @@ model CartItem {
   @@unique([cartId, productVariantId])
   @@index([cartId])
   @@map("cart_items")
+}
+
+model Order {
+  id                 String      @id @default(uuid())
+  customerId         String
+  status             OrderStatus @default(PENDING_PAYMENT)
+  customerName       String
+  customerEmail      String
+  shippingName       String
+  shippingPhone      String
+  shippingLine1      String
+  shippingLine2      String?
+  shippingCity       String
+  shippingState      String
+  shippingPincode    String
+  subtotalPaise      Int
+  shippingPaise      Int
+  totalPaise         Int
+  expiresAt          DateTime
+  razorpayOrderId    String?     @unique
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  customer           Customer    @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  items              OrderItem[]
+  payment            Payment?
+
+  @@index([customerId, createdAt])
+  @@index([status, expiresAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id               String         @id @default(uuid())
+  orderId          String
+  productVariantId String
+  productName      String
+  productSlug      String
+  sizeMl           Int
+  unitPricePaise   Int
+  quantity         Int
+  lineTotalPaise   Int
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model Payment {
+  id                String          @id @default(uuid())
+  orderId           String          @unique
+  provider          PaymentProvider @default(RAZORPAY)
+  razorpayOrderId   String
+  razorpayPaymentId String?         @unique
+  amountPaise       Int
+  status            PaymentStatus   @default(CREATED)
+  rawPayload        Json?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  order             Order           @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([razorpayOrderId])
+  @@map("payments")
 }
 
 model OtpChallenge {

@@ -17,7 +17,7 @@ function toCartItemResponse(item: CartItemWithVariant): CartItemResponse {
       variant.pricePaise,
       variant.compareAtPricePaise,
     ),
-    stockQty: variant.stockQty,
+    stockQty: Math.max(0, variant.stockQty - variant.reservedQty),
     isAvailable: variant.isAvailable,
     productName: product.name,
     productSlug: product.slug,

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { CustomerSummary } from '@ishraqparfums/shared';
 import type { Customer } from '@prisma/client';
 import { CustomerRepository } from './customer.repository';
@@ -24,5 +28,21 @@ export class CustomerService {
 
   toSummary(customer: Customer): CustomerSummary {
     return toCustomerSummary(customer);
+  }
+
+  async updateCheckoutProfile(
+    customerId: string,
+    name: string,
+    email: string,
+  ): Promise<Customer> {
+    const existing = await this.customerRepository.findByEmail(email);
+
+    if (existing && existing.id !== customerId) {
+      throw new ConflictException(
+        'This email is already associated with another account.',
+      );
+    }
+
+    return this.customerRepository.updateProfile(customerId, { name, email });
   }
 }

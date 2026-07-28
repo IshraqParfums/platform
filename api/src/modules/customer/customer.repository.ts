@@ -21,4 +21,21 @@ export class CustomerRepository {
       update: {},
     });
   }
+
+  findByEmail(email: string): Promise<Customer | null> {
+    return this.prisma.customer.findUnique({ where: { email } });
+  }
+
+  updateProfile(
+    id: string,
+    data: { name: string; email: string },
+  ): Promise<Customer> {
+    return this.prisma.customer.update({
+      where: { id },
+      data: {
+        name: data.name,
+        email: data.email,
+      },
+    });
+  }
 }
