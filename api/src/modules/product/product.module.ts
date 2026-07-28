@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AdminModule } from '../admin/admin.module';
+import { MediaModule } from '../media/media.module';
 import { AdminCollectionsController } from './admin-collections.controller';
 import { AdminProductsController } from './admin-products.controller';
 import { CollectionRepository } from './collection.repository';
@@ -10,7 +11,7 @@ import { ProductService } from './product.service';
 import { ProductsController } from './products.controller';
 
 @Module({
-  imports: [AdminModule],
+  imports: [AdminModule, MediaModule],
   controllers: [
     CollectionsController,
     ProductsController,

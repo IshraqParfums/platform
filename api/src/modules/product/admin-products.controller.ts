@@ -2,15 +2,21 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   HttpCode,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   ParseUUIDPipe,
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import type {
   AdminProductDetail,
   AdminProductImage,
@@ -19,6 +25,10 @@ import type {
   PaginatedResponse,
 } from '@ishraqparfums/shared';
 import { AdminJwtGuard } from '../admin/guards/admin-jwt.guard';
+import {
+  ALLOWED_IMAGE_MIME_TYPES,
+  MAX_IMAGE_BYTES,
+} from '../media/media.constants';
 import { AdjustStockDto } from './dto/adjust-stock.dto';
 import { AdminListProductsQueryDto } from './dto/admin-list-products.query.dto';
 import { CreateProductDto, UpdateProductDto } from './dto/admin-product.dto';
@@ -83,11 +93,23 @@ export class AdminProductsController {
   }
 
   @Post(':productId/images')
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: MAX_IMAGE_BYTES } }),
+  )
   addImage(
     @Param('productId', ParseUUIDPipe) productId: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: ALLOWED_IMAGE_MIME_TYPES }),
+          new MaxFileSizeValidator({ maxSize: MAX_IMAGE_BYTES }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
     @Body() body: CreateImageDto,
   ): Promise<AdminProductImage> {
-    return this.productService.addImage(productId, body);
+    return this.productService.addImage(productId, file, body);
   }
 
   @Patch(':productId/images/:imageId')

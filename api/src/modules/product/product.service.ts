@@ -16,6 +16,7 @@ import type {
 import type { ProductVariant } from '@prisma/client';
 import { Prisma, ProductStatus } from '@prisma/client';
 import { toPaginatedResponse, toSkipTake } from '../../common/pagination';
+import { MediaService } from '../media/media.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { buildRatingSummaryMap } from '../review/rating-summary';
 import { CollectionRepository } from './collection.repository';
@@ -52,6 +53,7 @@ export class ProductService {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly collectionRepository: CollectionRepository,
+    private readonly mediaService: MediaService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -536,17 +538,29 @@ export class ProductService {
 
   async addImage(
     productId: string,
+    file: Express.Multer.File,
     input: CreateImageDto,
   ): Promise<AdminProductImage> {
     await this.requireAdminById(productId);
 
-    const image = await this.productRepository.createImage(productId, {
-      url: input.url,
-      altText: input.altText ?? null,
-      displayOrder: input.displayOrder ?? 0,
-    });
+    const uploaded = await this.mediaService.uploadProductImage(
+      productId,
+      file,
+    );
 
-    return toAdminImage(image);
+    try {
+      const image = await this.productRepository.createImage(productId, {
+        url: uploaded.url,
+        storagePath: uploaded.storagePath,
+        altText: input.altText ?? null,
+        displayOrder: input.displayOrder ?? 0,
+      });
+
+      return toAdminImage(image);
+    } catch (error) {
+      await this.mediaService.remove(uploaded.storagePath);
+      throw error;
+    }
   }
 
   async updateImage(
@@ -567,7 +581,8 @@ export class ProductService {
   }
 
   async removeImage(productId: string, imageId: string): Promise<void> {
-    await this.requireImageOfProduct(productId, imageId);
+    const image = await this.requireImageOfProduct(productId, imageId);
+    await this.mediaService.remove(image.storagePath);
     await this.productRepository.deleteImage(imageId);
   }
 

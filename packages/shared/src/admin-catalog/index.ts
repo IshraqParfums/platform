@@ -4,7 +4,6 @@ export type {
   AdminProductImage,
   AdminProductListItem,
   AdminProductVariant,
-  CreateImageBody,
   CreateProductBody,
   CreateVariantBody,
   ProductStatus,

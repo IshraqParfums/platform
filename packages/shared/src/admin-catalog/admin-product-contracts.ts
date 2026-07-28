@@ -86,12 +86,10 @@ export interface AdjustStockBody {
   stockQty?: number;
 }
 
-export interface CreateImageBody {
-  url: string;
-  altText?: string | null;
-  displayOrder?: number;
-}
-
+/**
+ * Image creation is `multipart/form-data` (a `file` field + these as text fields),
+ * not a JSON body — there is no `CreateImageBody` type. See api/README.md.
+ */
 export interface UpdateImageBody {
   altText?: string | null;
   displayOrder?: number;

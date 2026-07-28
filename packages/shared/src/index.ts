@@ -47,7 +47,6 @@ export type {
   AdminProductListItem,
   AdminProductVariant,
   CreateCollectionBody,
-  CreateImageBody,
   CreateProductBody,
   CreateVariantBody,
   ProductStatus,

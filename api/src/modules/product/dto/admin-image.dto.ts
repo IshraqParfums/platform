@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsInt,
   IsOptional,
@@ -7,11 +8,8 @@ import {
   ValidateIf,
 } from 'class-validator';
 
+/** Multipart request — the file itself arrives via `@UploadedFile()`, not this DTO. */
 export class CreateImageDto {
-  @IsString()
-  @MinLength(1)
-  url!: string;
-
   @IsOptional()
   @ValidateIf((_, value) => value !== null)
   @IsString()
@@ -19,6 +17,7 @@ export class CreateImageDto {
   altText?: string | null;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(0)
   displayOrder?: number;
