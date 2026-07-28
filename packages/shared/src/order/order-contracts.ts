@@ -30,15 +30,21 @@ export interface CheckoutResponse {
   totalPaise: number;
 }
 
+export type OrderLineKind = 'catalog' | 'bespoke';
+
 export interface OrderItemResponse {
   id: string;
-  variantId: string;
+  kind: OrderLineKind;
+  variantId: string | null;
+  bespokePerfumeId: string | null;
   productName: string;
   productSlug: string;
   sizeMl: number;
   unitPricePaise: number;
   quantity: number;
   lineTotalPaise: number;
+  /** Present for bespoke lines — formula snapshot at purchase. */
+  formulaJson?: unknown;
 }
 
 export interface OrderShippingAddress {

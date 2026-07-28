@@ -3,6 +3,7 @@ export type {
   CheckoutResponse,
   OrderDetail,
   OrderItemResponse,
+  OrderLineKind,
   OrderPaymentSummary,
   OrderShippingAddress,
   OrderStatus,

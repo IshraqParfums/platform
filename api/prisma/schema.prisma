@@ -107,16 +107,17 @@ model ProductImage {
 }
 
 model Customer {
-  id        String            @id @default(uuid())
-  phone     String            @unique
-  email     String?           @unique
-  name      String?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  cart      Cart?
-  addresses CustomerAddress[]
-  orders    Order[]
-  reviews   Review[]
+  id              String           @id @default(uuid())
+  phone           String           @unique
+  email           String?          @unique
+  name            String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  cart            Cart?
+  addresses       CustomerAddress[]
+  orders          Order[]
+  reviews         Review[]
+  bespokePerfumes BespokePerfume[]
 
   @@map("customers")
 }
@@ -152,17 +153,22 @@ model Cart {
 }
 
 model CartItem {
-  id               String         @id @default(uuid())
+  id               String          @id @default(uuid())
   cartId           String
-  productVariantId String
+  productVariantId String?
+  bespokePerfumeId String?
+  bespokeSizeMl    Int?
   quantity         Int
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Restrict)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  cart             Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id], onDelete: Restrict)
+  bespokePerfume   BespokePerfume? @relation(fields: [bespokePerfumeId], references: [id], onDelete: Cascade)
 
   @@unique([cartId, productVariantId])
+  @@unique([cartId, bespokePerfumeId, bespokeSizeMl])
   @@index([cartId])
+  @@index([bespokePerfumeId])
   @@map("cart_items")
 }
 
@@ -196,22 +202,48 @@ model Order {
 }
 
 model OrderItem {
-  id               String         @id @default(uuid())
+  id               String          @id @default(uuid())
   orderId          String
-  productVariantId String
+  productVariantId String?
+  bespokePerfumeId String?
   productName      String
   productSlug      String
   sizeMl           Int
   unitPricePaise   Int
   quantity         Int
   lineTotalPaise   Int
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  order            Order          @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Restrict)
+  formulaJson      Json?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  order            Order           @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id], onDelete: Restrict)
+  bespokePerfume   BespokePerfume? @relation(fields: [bespokePerfumeId], references: [id], onDelete: SetNull)
 
   @@index([orderId])
+  @@index([bespokePerfumeId])
   @@map("order_items")
+}
+
+model BespokePerfume {
+  id            String     @id @default(uuid())
+  customerId    String
+  name          String
+  formulaJson   Json
+  answersJson   Json
+  moodText      String
+  whyJson       Json
+  inspiredJson  Json?
+  engineVersion String
+  clientKey     String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  customer      Customer   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+
+  @@unique([customerId, clientKey])
+  @@index([customerId, createdAt])
+  @@map("bespoke_perfumes")
 }
 
 model Payment {

@@ -132,13 +132,15 @@ export class OrderRepository {
       totalPaise: number;
       expiresAt: Date;
       items: Array<{
-        productVariantId: string;
+        productVariantId?: string | null;
+        bespokePerfumeId?: string | null;
         productName: string;
         productSlug: string;
         sizeMl: number;
         unitPricePaise: number;
         quantity: number;
         lineTotalPaise: number;
+        formulaJson?: Prisma.InputJsonValue | null;
       }>;
     },
     tx: Prisma.TransactionClient = this.prisma,
@@ -161,7 +163,17 @@ export class OrderRepository {
         totalPaise: data.totalPaise,
         expiresAt: data.expiresAt,
         items: {
-          create: data.items,
+          create: data.items.map((item) => ({
+            productVariantId: item.productVariantId ?? null,
+            bespokePerfumeId: item.bespokePerfumeId ?? null,
+            productName: item.productName,
+            productSlug: item.productSlug,
+            sizeMl: item.sizeMl,
+            unitPricePaise: item.unitPricePaise,
+            quantity: item.quantity,
+            lineTotalPaise: item.lineTotalPaise,
+            formulaJson: item.formulaJson ?? undefined,
+          })),
         },
       },
       include: {

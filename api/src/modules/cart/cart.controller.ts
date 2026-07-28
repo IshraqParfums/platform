@@ -15,6 +15,7 @@ import { CustomerJwtGuard } from '../auth/guards/customer-jwt.guard';
 import type { RequestWithCustomer } from '../auth/types/request-with-customer';
 import { CartService } from './cart.service';
 import {
+  AddBespokeCartItemDto,
   AddCartItemDto,
   MergeCartDto,
   UpdateCartItemDto,
@@ -38,6 +39,19 @@ export class CartController {
     return this.cartService.addItem(
       request.user.customerId,
       body.variantId,
+      body.quantity,
+    );
+  }
+
+  @Post('items/bespoke')
+  addBespokeItem(
+    @Req() request: RequestWithCustomer,
+    @Body() body: AddBespokeCartItemDto,
+  ): Promise<CartResponse> {
+    return this.cartService.addBespokeItem(
+      request.user.customerId,
+      body.bespokePerfumeId,
+      body.sizeMl,
       body.quantity,
     );
   }

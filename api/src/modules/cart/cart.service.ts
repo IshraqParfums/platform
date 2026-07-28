@@ -4,6 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { CartMergeResponse, CartResponse } from '@ishraqparfums/shared';
+import { BespokePricingService } from '../bespoke/bespoke-pricing.service';
+import { BespokeService } from '../bespoke/bespoke.service';
 import { ProductService } from '../product/product.service';
 import { CartRepository } from './cart.repository';
 import { toCartResponse } from './mappers/cart.mapper';
@@ -13,11 +15,13 @@ export class CartService {
   constructor(
     private readonly cartRepository: CartRepository,
     private readonly productService: ProductService,
+    private readonly bespokeService: BespokeService,
+    private readonly bespokePricing: BespokePricingService,
   ) {}
 
   async getCart(customerId: string): Promise<CartResponse> {
     const cart = await this.cartRepository.findOrCreateByCustomerId(customerId);
-    return toCartResponse(cart);
+    return this.mapCart(cart);
   }
 
   async addItem(
@@ -40,12 +44,53 @@ export class CartService {
     return this.reloadCart(cart.id);
   }
 
+  async addBespokeItem(
+    customerId: string,
+    bespokePerfumeId: string,
+    sizeMl: number,
+    quantity: number,
+  ): Promise<CartResponse> {
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      throw new BadRequestException('quantity must be at least 1');
+    }
+
+    this.bespokePricing.assertAllowedSize(sizeMl);
+    await this.bespokeService.requireOwned(customerId, bespokePerfumeId);
+
+    const cart = await this.cartRepository.findOrCreateByCustomerId(customerId);
+    const existing = await this.cartRepository.findItemByCartBespokeSize(
+      cart.id,
+      bespokePerfumeId,
+      sizeMl,
+    );
+
+    const desiredQuantity = (existing?.quantity ?? 0) + quantity;
+    await this.cartRepository.upsertBespokeItem(
+      cart.id,
+      bespokePerfumeId,
+      sizeMl,
+      desiredQuantity,
+    );
+
+    return this.reloadCart(cart.id);
+  }
+
   async updateItem(
     customerId: string,
     itemId: string,
     quantity: number,
   ): Promise<CartResponse> {
     const item = await this.findCustomerItemOrThrow(customerId, itemId);
+
+    if (item.bespokePerfumeId) {
+      await this.cartRepository.updateItemQuantity(itemId, quantity);
+      return this.reloadCart(item.cartId);
+    }
+
+    if (!item.productVariantId) {
+      throw new BadRequestException('Cart item is invalid');
+    }
+
     const variant = await this.productService.findPurchasableVariant(
       item.productVariantId,
     );
@@ -156,7 +201,12 @@ export class CartService {
   private async findCustomerItemOrThrow(
     customerId: string,
     itemId: string,
-  ): Promise<{ id: string; cartId: string; productVariantId: string }> {
+  ): Promise<{
+    id: string;
+    cartId: string;
+    productVariantId: string | null;
+    bespokePerfumeId: string | null;
+  }> {
     const item = await this.cartRepository.findItemById(itemId);
 
     if (!item) {
@@ -172,14 +222,20 @@ export class CartService {
     return item;
   }
 
-  private async reloadCart(cartId: string): Promise<CartResponse> {
-    const cart = await this.cartRepository.findByIdWithItems(cartId);
-
+  private mapCart(
+    cart: Awaited<ReturnType<CartRepository['findByIdWithItems']>>,
+  ): CartResponse {
     if (!cart) {
       throw new NotFoundException('Cart not found');
     }
+    return toCartResponse(cart, (sizeMl) =>
+      this.bespokePricing.unitPricePaise(sizeMl),
+    );
+  }
 
-    return toCartResponse(cart);
+  private async reloadCart(cartId: string): Promise<CartResponse> {
+    const cart = await this.cartRepository.findByIdWithItems(cartId);
+    return this.mapCart(cart);
   }
 
   async clearCart(customerId: string): Promise<void> {

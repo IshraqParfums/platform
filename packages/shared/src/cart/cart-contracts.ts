@@ -1,4 +1,7 @@
-export interface CartItemResponse {
+export type CartLineKind = 'catalog' | 'bespoke';
+
+export interface CatalogCartItemResponse {
+  kind: 'catalog';
   id: string;
   variantId: string;
   quantity: number;
@@ -12,6 +15,23 @@ export interface CartItemResponse {
   primaryImageUrl: string | null;
   lineTotalPaise: number;
 }
+
+export interface BespokeCartItemResponse {
+  kind: 'bespoke';
+  id: string;
+  bespokePerfumeId: string;
+  quantity: number;
+  sizeMl: number;
+  pricePaise: number;
+  productName: string;
+  productSlug: 'bespoke';
+  primaryImageUrl: null;
+  lineTotalPaise: number;
+}
+
+export type CartItemResponse =
+  | CatalogCartItemResponse
+  | BespokeCartItemResponse;
 
 export interface CartResponse {
   id: string;
@@ -27,6 +47,12 @@ export interface CartMergeResponse {
 
 export interface AddCartItemBody {
   variantId: string;
+  quantity: number;
+}
+
+export interface AddBespokeCartItemBody {
+  bespokePerfumeId: string;
+  sizeMl: number;
   quantity: number;
 }
 

@@ -16,6 +16,8 @@ import type {
 import { OrderStatus, type Prisma } from '@prisma/client';
 import { toPaginatedResponse, toSkipTake } from '../../common/pagination';
 import { AddressService } from '../address/address.service';
+import { BespokePricingService } from '../bespoke/bespoke-pricing.service';
+import { BespokeService } from '../bespoke/bespoke.service';
 import { CartService } from '../cart/cart.service';
 import { CustomerService } from '../customer/customer.service';
 import { PaymentService } from '../payment/payment.service';
@@ -34,6 +36,8 @@ export class OrderService {
     private readonly cartService: CartService,
     private readonly customerService: CustomerService,
     private readonly productService: ProductService,
+    private readonly bespokeService: BespokeService,
+    private readonly bespokePricing: BespokePricingService,
     @Inject(forwardRef(() => PaymentService))
     private readonly paymentService: PaymentService,
     private readonly configService: ConfigService,
@@ -129,18 +133,44 @@ export class OrderService {
     }
 
     const lineSnapshots: Array<{
-      productVariantId: string;
+      productVariantId?: string | null;
+      bespokePerfumeId?: string | null;
       productName: string;
       productSlug: string;
       sizeMl: number;
       unitPricePaise: number;
       quantity: number;
       lineTotalPaise: number;
+      formulaJson?: Prisma.InputJsonValue | null;
     }> = [];
 
     let subtotalPaise = 0;
 
     for (const item of cart.items) {
+      if (item.kind === 'bespoke') {
+        const perfume = await this.bespokeService.requireOwned(
+          customerId,
+          item.bespokePerfumeId,
+        );
+        this.bespokePricing.assertAllowedSize(item.sizeMl);
+        const unitPricePaise = this.bespokePricing.unitPricePaise(item.sizeMl);
+        const lineTotalPaise = unitPricePaise * item.quantity;
+        subtotalPaise += lineTotalPaise;
+
+        lineSnapshots.push({
+          productVariantId: null,
+          bespokePerfumeId: perfume.id,
+          productName: perfume.name,
+          productSlug: 'bespoke',
+          sizeMl: item.sizeMl,
+          unitPricePaise,
+          quantity: item.quantity,
+          lineTotalPaise,
+          formulaJson: perfume.formulaJson as Prisma.InputJsonValue,
+        });
+        continue;
+      }
+
       const variant = await this.productService.findPurchasableVariant(
         item.variantId,
       );
@@ -151,6 +181,7 @@ export class OrderService {
 
       lineSnapshots.push({
         productVariantId: variant.id,
+        bespokePerfumeId: null,
         productName: variant.product.name,
         productSlug: variant.product.slug,
         sizeMl: variant.sizeMl,
@@ -170,6 +201,9 @@ export class OrderService {
 
     const order = await this.orderRepository.client.$transaction(async (tx) => {
       for (const line of lineSnapshots) {
+        if (!line.productVariantId) {
+          continue;
+        }
         await this.productService.reserveStock(
           line.productVariantId,
           line.quantity,
@@ -284,6 +318,9 @@ export class OrderService {
           }
 
           for (const item of order.items) {
+            if (!item.productVariantId) {
+              continue;
+            }
             await this.productService.commitReservation(
               item.productVariantId,
               item.quantity,
@@ -396,6 +433,9 @@ export class OrderService {
   private async releaseAndExpire(order: OrderWithRelations): Promise<void> {
     await this.orderRepository.client.$transaction(async (tx) => {
       for (const item of order.items) {
+        if (!item.productVariantId) {
+          continue;
+        }
         await this.productService.releaseReservation(
           item.productVariantId,
           item.quantity,

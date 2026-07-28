@@ -8,15 +8,22 @@ import type { OrderWithRelations } from '../order.repository';
 function toOrderItemResponse(
   item: OrderWithRelations['items'][number],
 ): OrderItemResponse {
+  const isBespoke = item.bespokePerfumeId != null || item.productVariantId == null;
+
   return {
     id: item.id,
+    kind: isBespoke ? 'bespoke' : 'catalog',
     variantId: item.productVariantId,
+    bespokePerfumeId: item.bespokePerfumeId,
     productName: item.productName,
     productSlug: item.productSlug,
     sizeMl: item.sizeMl,
     unitPricePaise: item.unitPricePaise,
     quantity: item.quantity,
     lineTotalPaise: item.lineTotalPaise,
+    ...(isBespoke && item.formulaJson != null
+      ? { formulaJson: item.formulaJson }
+      : {}),
   };
 }
 

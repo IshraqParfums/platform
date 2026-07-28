@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { AddressModule } from '../address/address.module';
 import { AuthModule } from '../auth/auth.module';
+import { BespokeModule } from '../bespoke/bespoke.module';
 import { CartModule } from '../cart/cart.module';
 import { CustomerModule } from '../customer/customer.module';
 import { PaymentModule } from '../payment/payment.module';
@@ -17,6 +18,7 @@ import { OrderService } from './order.service';
     CartModule,
     CustomerModule,
     ProductModule,
+    BespokeModule,
     forwardRef(() => PaymentModule),
   ],
   controllers: [OrderController],

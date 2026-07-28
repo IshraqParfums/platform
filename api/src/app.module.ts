@@ -4,6 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AddressModule } from './modules/address/address.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { BespokeModule } from './modules/bespoke/bespoke.module';
 import { CartModule } from './modules/cart/cart.module';
 import { CustomerModule } from './modules/customer/customer.module';
 import { HealthModule } from './modules/health/health.module';
@@ -23,6 +24,7 @@ import { ReviewModule } from './modules/review/review.module';
     PrismaModule,
     HealthModule,
     ProductModule,
+    BespokeModule,
     CartModule,
     CustomerModule,
     AddressModule,

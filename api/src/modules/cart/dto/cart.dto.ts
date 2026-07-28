@@ -10,6 +10,19 @@ export class AddCartItemDto {
   quantity!: number;
 }
 
+export class AddBespokeCartItemDto {
+  @IsUUID()
+  bespokePerfumeId!: string;
+
+  @IsInt()
+  @Min(1)
+  sizeMl!: number;
+
+  @IsInt()
+  @Min(1)
+  quantity!: number;
+}
+
 export class UpdateCartItemDto {
   @IsInt()
   @Min(1)

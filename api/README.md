@@ -97,7 +97,7 @@ Query params: `?page=1&pageSize=20`
 | Default page size | `20` |
 | Max page size | `100` |
 
-Paginated today: `GET /products`, `GET /orders`, `GET /products/:slug/reviews`, `GET /reviews/me`.
+Paginated today: `GET /products`, `GET /orders`, `GET /products/:slug/reviews`, `GET /reviews/me`, `GET /bespoke`.
 
 Not paginated: cart, addresses, collections.
 
@@ -126,6 +126,8 @@ Not paginated: cart, addresses, collections.
 | `RAZORPAY_KEY_ID` | Razorpay key id (test or live) |
 | `RAZORPAY_KEY_SECRET` | Razorpay key secret |
 | `RAZORPAY_WEBHOOK_SECRET` | Razorpay webhook signing secret |
+| `BESPOKE_PAISE_PER_ML` | Bespoke price in paise per ml (default `1000` = ₹10/ml) |
+| `BESPOKE_ALLOWED_SIZES_ML` | Comma-separated bottle sizes (default `30,50,100`) |
 
 ## Auth notes
 
@@ -151,7 +153,7 @@ Pass the Supabase access token as `Authorization: Bearer <token>` to admin route
 
 1. Customer JWT required (guests cannot checkout).
 2. Save a delivery address via `/customers/addresses`.
-3. `POST /checkout` with `{ addressId, name, email }` validates the cart, snapshots prices/address/identity, reserves stock, creates a `PENDING_PAYMENT` order, and returns Razorpay pay payload.
+3. `POST /checkout` with `{ addressId, name, email }` validates the cart (catalog + bespoke), snapshots prices/address/identity/formula, **reserves stock only for catalog lines**, creates a `PENDING_PAYMENT` order, and returns Razorpay pay payload.
 4. Customer pays in Razorpay (10 min window).
 5. FE calls `POST /payments/razorpay/verify` **and/or** Razorpay posts to `POST /webhooks/razorpay`. Both use the same idempotent finalize path.
 6. On success: order → `ORDER_RECEIVED`, stock commit, cart cleared.
@@ -169,6 +171,17 @@ Configure the webhook URL in Razorpay dashboard to: `https://<your-host>/api/v1/
 - Product list/detail include `ratingAverage` / `reviewCount` (null / 0 when none).
 - No moderation or delete in V1.
 
+## Bespoke
+
+Engine + quiz data live in `@ishraqparfums/shared` (`packages/shared/src/bespoke`) — exact port of `Find_Your_Bespoke_Blend-2.html`. The API does **not** re-run scoring on save (HTML uses RNG).
+
+- **Save only on explicit Save:** guests keep formulas in FE localStorage; logged-in `POST /bespoke` persists to DB.
+- After login, FE should `POST /bespoke/merge` with local saved payloads (`clientKey` makes merge idempotent).
+- Owner-only list/get/rename/delete. Delete also removes cart lines for that formula.
+- Price: `sizeMl × BESPOKE_PAISE_PER_ML`, size chosen at **add-to-cart** (`POST /cart/items/bespoke`). Server stamps price; never trust client unit prices.
+- No inventory reservation for bespoke. Mixed carts checkout normally; expiry/finalize only touch catalog stock.
+- Optional `POST /bespoke/preview` runs `computeResult` without persisting (handy for Postman).
+
 ## Project structure
 
 ```text
@@ -185,6 +198,7 @@ api/
 │       ├── health/
 │       ├── prisma/
 │       ├── product/
+│       ├── bespoke/
 │       ├── cart/
 │       ├── address/
 │       ├── order/
@@ -195,7 +209,6 @@ api/
 │       └── admin/
 └── package.json
 ```
-
 ## API
 
 Global prefix: `/api/v1`
@@ -219,10 +232,18 @@ Global prefix: `/api/v1`
 | `PATCH` | `/api/v1/customers/addresses/:id` | Update address / set default |
 | `DELETE` | `/api/v1/customers/addresses/:id` | Delete address |
 | `GET` | `/api/v1/cart` | Get or create cart (Bearer customer JWT) |
-| `POST` | `/api/v1/cart/items` | Add or increment line `{ variantId, quantity }` |
+| `POST` | `/api/v1/cart/items` | Add or increment catalog line `{ variantId, quantity }` |
+| `POST` | `/api/v1/cart/items/bespoke` | Add bespoke line `{ bespokePerfumeId, sizeMl, quantity }` |
 | `PATCH` | `/api/v1/cart/items/:itemId` | Set line quantity `{ quantity }` (≥ 1) |
 | `DELETE` | `/api/v1/cart/items/:itemId` | Remove cart line |
-| `POST` | `/api/v1/cart/merge` | Merge guest cart `{ items: [{ variantId, quantity }] }` → `{ cart, warnings }` |
+| `POST` | `/api/v1/cart/merge` | Merge guest **catalog** cart `{ items: [{ variantId, quantity }] }` → `{ cart, warnings }` |
+| `POST` | `/api/v1/bespoke/preview` | Run engine preview (no persist) |
+| `POST` | `/api/v1/bespoke` | Save formula (customer JWT) |
+| `POST` | `/api/v1/bespoke/merge` | Merge guest-saved formulas (customer JWT) |
+| `GET` | `/api/v1/bespoke` | Paginated own formulas |
+| `GET` | `/api/v1/bespoke/:id` | Get own formula |
+| `PATCH` | `/api/v1/bespoke/:id` | Rename `{ name }` |
+| `DELETE` | `/api/v1/bespoke/:id` | Delete formula (+ cart lines) |
 | `POST` | `/api/v1/checkout` | `{ addressId, name, email }` → Razorpay pay payload |
 | `POST` | `/api/v1/payments/razorpay/verify` | Verify client payment signature → finalize order |
 | `POST` | `/api/v1/webhooks/razorpay` | Razorpay webhook (signature header; no JWT) |
@@ -232,12 +253,12 @@ Global prefix: `/api/v1`
 
 Catalog routes stay public. Customer email is not required for OTP.
 
-Cart routes require a customer JWT. Prices in cart responses are live from variants (not snapshotted until checkout).
+Cart routes require a customer JWT. Cart lines are `kind: 'catalog' | 'bespoke'`. Catalog prices are live from variants; bespoke prices are live from `sizeMl × BESPOKE_PAISE_PER_ML` (snapshotted at checkout).
 
-**Guest cart merge:** OTP verify does **not** merge a guest cart. After login, the FE should call `POST /api/v1/cart/merge` with localStorage lines. Unsellable lines are skipped with a warning; over-stock quantities are clamped with a warning.
+**Guest cart merge:** OTP verify does **not** merge a guest cart. After login, the FE should call `POST /api/v1/cart/merge` with localStorage **catalog** lines, and `POST /api/v1/bespoke/merge` for saved formulas. Unsellable catalog lines are skipped with a warning; over-stock quantities are clamped with a warning.
 
 ## Shared package
 
-This app depends on `@ishraqparfums/shared` for catalog, auth, cart, address, order, payment, review, and pagination contracts.
+This app depends on `@ishraqparfums/shared` for catalog, auth, cart, address, order, payment, review, bespoke, and pagination contracts.
 
 Build `packages/shared` before building api if you are not using Turbo from the repo root.

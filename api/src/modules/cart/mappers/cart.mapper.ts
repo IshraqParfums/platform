@@ -1,13 +1,37 @@
 import type { CartItemResponse, CartResponse } from '@ishraqparfums/shared';
 import { displayCompareAtPricePaise } from '../../product/mappers/product.mapper';
-import type { CartItemWithVariant, CartWithItems } from '../cart.repository';
+import type { CartItemWithRelations, CartWithItems } from '../cart.repository';
 
-function toCartItemResponse(item: CartItemWithVariant): CartItemResponse {
+function toCartItemResponse(
+  item: CartItemWithRelations,
+  bespokeUnitPricePaise?: number,
+): CartItemResponse {
+  if (item.bespokePerfumeId && item.bespokePerfume && item.bespokeSizeMl != null) {
+    const pricePaise = bespokeUnitPricePaise ?? 0;
+    return {
+      kind: 'bespoke',
+      id: item.id,
+      bespokePerfumeId: item.bespokePerfumeId,
+      quantity: item.quantity,
+      sizeMl: item.bespokeSizeMl,
+      pricePaise,
+      productName: item.bespokePerfume.name,
+      productSlug: 'bespoke',
+      primaryImageUrl: null,
+      lineTotalPaise: pricePaise * item.quantity,
+    };
+  }
+
   const variant = item.productVariant;
+  if (!variant) {
+    throw new Error(`Cart item ${item.id} has neither catalog nor bespoke line`);
+  }
+
   const product = variant.product;
   const primaryImage = product.images[0];
 
   return {
+    kind: 'catalog',
     id: item.id,
     variantId: variant.id,
     quantity: item.quantity,
@@ -26,8 +50,19 @@ function toCartItemResponse(item: CartItemWithVariant): CartItemResponse {
   };
 }
 
-export function toCartResponse(cart: CartWithItems): CartResponse {
-  const items = cart.items.map(toCartItemResponse);
+export function toCartResponse(
+  cart: CartWithItems,
+  bespokePriceBySizeMl: (sizeMl: number) => number,
+): CartResponse {
+  const items = cart.items.map((item) => {
+    if (item.bespokePerfumeId && item.bespokeSizeMl != null) {
+      return toCartItemResponse(
+        item,
+        bespokePriceBySizeMl(item.bespokeSizeMl),
+      );
+    }
+    return toCartItemResponse(item);
+  });
 
   return {
     id: cart.id,

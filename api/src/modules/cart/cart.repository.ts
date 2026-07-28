@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type {
+  BespokePerfume,
   Cart,
   CartItem,
   Product,
@@ -20,22 +21,29 @@ const cartInclude = {
           },
         },
       },
+      bespokePerfume: true,
     },
     orderBy: { createdAt: 'asc' as const },
   },
 };
 
-export type CartItemWithVariant = CartItem & {
-  productVariant: ProductVariant & {
-    product: Product & {
-      images: ProductImage[];
-    };
-  };
+export type CartItemWithRelations = CartItem & {
+  productVariant:
+    | (ProductVariant & {
+        product: Product & {
+          images: ProductImage[];
+        };
+      })
+    | null;
+  bespokePerfume: BespokePerfume | null;
 };
 
 export type CartWithItems = Cart & {
-  items: CartItemWithVariant[];
+  items: CartItemWithRelations[];
 };
+
+/** @deprecated Prefer CartItemWithRelations */
+export type CartItemWithVariant = CartItemWithRelations;
 
 @Injectable()
 export class CartRepository {
@@ -81,6 +89,22 @@ export class CartRepository {
     });
   }
 
+  findItemByCartBespokeSize(
+    cartId: string,
+    bespokePerfumeId: string,
+    bespokeSizeMl: number,
+  ): Promise<CartItem | null> {
+    return this.prisma.cartItem.findUnique({
+      where: {
+        cartId_bespokePerfumeId_bespokeSizeMl: {
+          cartId,
+          bespokePerfumeId,
+          bespokeSizeMl,
+        },
+      },
+    });
+  }
+
   async upsertItem(
     cartId: string,
     productVariantId: string,
@@ -96,6 +120,32 @@ export class CartRepository {
       create: {
         cartId,
         productVariantId,
+        quantity,
+      },
+      update: {
+        quantity,
+      },
+    });
+  }
+
+  async upsertBespokeItem(
+    cartId: string,
+    bespokePerfumeId: string,
+    bespokeSizeMl: number,
+    quantity: number,
+  ): Promise<void> {
+    await this.prisma.cartItem.upsert({
+      where: {
+        cartId_bespokePerfumeId_bespokeSizeMl: {
+          cartId,
+          bespokePerfumeId,
+          bespokeSizeMl,
+        },
+      },
+      create: {
+        cartId,
+        bespokePerfumeId,
+        bespokeSizeMl,
         quantity,
       },
       update: {
