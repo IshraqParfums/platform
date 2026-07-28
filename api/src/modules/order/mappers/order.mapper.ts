@@ -1,14 +1,20 @@
 import type {
+  AdminOrderDetail,
+  AdminOrderSummary,
   OrderDetail,
   OrderItemResponse,
   OrderSummary,
 } from '@ishraqparfums/shared';
-import type { OrderWithRelations } from '../order.repository';
+import type {
+  OrderWithCustomer,
+  OrderWithRelations,
+} from '../order.repository';
 
 function toOrderItemResponse(
   item: OrderWithRelations['items'][number],
 ): OrderItemResponse {
-  const isBespoke = item.bespokePerfumeId != null || item.productVariantId == null;
+  const isBespoke =
+    item.bespokePerfumeId != null || item.productVariantId == null;
 
   return {
     id: item.id,
@@ -64,5 +70,23 @@ export function toOrderDetail(order: OrderWithRelations): OrderDetail {
           amountPaise: order.payment.amountPaise,
         }
       : null,
+  };
+}
+
+export function toAdminOrderSummary(
+  order: OrderWithCustomer,
+): AdminOrderSummary {
+  return {
+    ...toOrderSummary(order),
+    customerId: order.customer.id,
+    customerPhone: order.customer.phone,
+  };
+}
+
+export function toAdminOrderDetail(order: OrderWithCustomer): AdminOrderDetail {
+  return {
+    ...toOrderDetail(order),
+    customerId: order.customer.id,
+    customerPhone: order.customer.phone,
   };
 }

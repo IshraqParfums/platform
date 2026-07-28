@@ -1,11 +1,7 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import type { AdminSummary } from '@ishraqparfums/shared';
-import type { Request } from 'express';
 import { AdminJwtGuard } from './guards/admin-jwt.guard';
-
-type RequestWithAdmin = Request & {
-  admin: AdminSummary;
-};
+import type { RequestWithAdmin } from './types/request-with-admin';
 
 @Controller('admin')
 export class AdminController {

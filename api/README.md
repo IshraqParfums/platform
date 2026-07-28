@@ -97,7 +97,7 @@ Query params: `?page=1&pageSize=20`
 | Default page size | `20` |
 | Max page size | `100` |
 
-Paginated today: `GET /products`, `GET /orders`, `GET /products/:slug/reviews`, `GET /reviews/me`, `GET /bespoke`.
+Paginated today: `GET /products`, `GET /orders`, `GET /products/:slug/reviews`, `GET /reviews/me`, `GET /bespoke`, `GET /admin/products`, `GET /admin/orders`, `GET /admin/customers`.
 
 Not paginated: cart, addresses, collections.
 
@@ -182,6 +182,20 @@ Engine + quiz data live in `@ishraqparfums/shared` (`packages/shared/src/bespoke
 - No inventory reservation for bespoke. Mixed carts checkout normally; expiry/finalize only touch catalog stock.
 - Optional `POST /bespoke/preview` runs `computeResult` without persisting (handy for Postman).
 
+## Admin
+
+All `/admin/*` routes (except `GET /admin/me`) require `Authorization: Bearer <Supabase access token>` for a user with a matching row in `admins` — see [Auth notes](#auth-notes) for bootstrapping one.
+
+- **Product status transitions:** `DRAFT ↔ ACTIVE`, `ACTIVE ↔ ARCHIVED`, either → `DELETED`. `DELETED` is terminal (no restore in V1). Same-status PATCH is a no-op. Invalid transitions → `400`.
+- **Product/collection `slug`** is editable via PATCH — safe because `OrderItem.productName` / `productSlug` are snapshot columns, not live joins, so past orders are unaffected.
+- **Variants have no hard delete** — a variant that was ever ordered/carted can't be removed (`onDelete: Restrict`). Use `PATCH .../variants/:id { isAvailable: false }` to take it off sale instead.
+- **Images**: `url` is immutable after creation (delete + recreate to swap the picture); admin supplies an already-hosted URL — there is no upload endpoint (a Media/storage module is planned separately).
+- **Inventory adjustment** (`PATCH .../variants/:id/stock`) accepts exactly one of `{ adjustment: number }` (delta — positive to restock, negative for damage/shrinkage) or `{ stockQty: number }` (absolute set, e.g. after a physical count). Sending both or neither → `400`. Resulting stock can't go negative or below the variant's `reservedQty` (units already held by in-flight checkouts).
+- **Order status** is admin-driven, strictly forward, one step at a time, through the V1 fulfillment pipeline: `ORDER_RECEIVED → CONFIRMED → IN_PRODUCTION → READY_FOR_DISPATCH → DISPATCHED → DELIVERED`. No skipping, no going back, no cancellation (per spec). `PENDING_PAYMENT` / `EXPIRED` / `NEEDS_REVIEW` / `FAILED` are system-managed and rejected if set via this endpoint; an order must first reach `ORDER_RECEIVED` (via payment finalize) before an admin can advance it.
+- **Customer management** is basic: search/list, view detail with `orderCount`, edit `name`/`email` (same validation as the customer-facing `PATCH /customers/me`, just without the ownership check).
+
+As with the rest of the API, admin write paths have **no automated test coverage** yet — verify manually via curl/Postman.
+
 ## Project structure
 
 ```text
@@ -250,6 +264,24 @@ Global prefix: `/api/v1`
 | `GET` | `/api/v1/orders` | Paginated customer order history |
 | `GET` | `/api/v1/orders/:id` | Order detail (poll while confirming payment) |
 | `GET` | `/api/v1/admin/me` | Current admin (Bearer Supabase JWT + `admins` row) |
+| `POST` | `/api/v1/admin/collections` | Create collection `{ name, slug, description? }` |
+| `PATCH` | `/api/v1/admin/collections/:id` | Update collection |
+| `GET` | `/api/v1/admin/products` | Paginated products, any status; `?status=&collectionId=&search=&page=&pageSize=` |
+| `GET` | `/api/v1/admin/products/:id` | Product detail, any status |
+| `POST` | `/api/v1/admin/products` | Create product `{ collectionId, name, slug, shortDescription, detailedDescription, status? }` |
+| `PATCH` | `/api/v1/admin/products/:id` | Update product, incl. status transitions |
+| `POST` | `/api/v1/admin/products/:productId/variants` | Create variant `{ sizeMl, pricePaise, compareAtPricePaise?, sku?, stockQty? }` |
+| `PATCH` | `/api/v1/admin/products/:productId/variants/:variantId` | Update price / `compareAtPricePaise` / `sku` / `isAvailable` |
+| `PATCH` | `/api/v1/admin/products/:productId/variants/:variantId/stock` | Adjust stock — exactly one of `{ adjustment }` or `{ stockQty }` |
+| `POST` | `/api/v1/admin/products/:productId/images` | Add image `{ url, altText?, displayOrder? }` |
+| `PATCH` | `/api/v1/admin/products/:productId/images/:imageId` | Update `altText` / `displayOrder` |
+| `DELETE` | `/api/v1/admin/products/:productId/images/:imageId` | Remove image |
+| `GET` | `/api/v1/admin/orders` | Paginated orders, all customers; `?status=&customerId=&page=&pageSize=` |
+| `GET` | `/api/v1/admin/orders/:id` | Order detail, no ownership restriction |
+| `PATCH` | `/api/v1/admin/orders/:id/status` | Advance fulfillment status `{ status }` |
+| `GET` | `/api/v1/admin/customers` | Paginated customers; `?search=&page=&pageSize=` (matches phone/email/name) |
+| `GET` | `/api/v1/admin/customers/:id` | Customer detail incl. `orderCount` |
+| `PATCH` | `/api/v1/admin/customers/:id` | Update `{ name?, email? }` |
 
 Catalog routes stay public. Customer email is not required for OTP.
 
@@ -259,6 +291,6 @@ Cart routes require a customer JWT. Cart lines are `kind: 'catalog' | 'bespoke'`
 
 ## Shared package
 
-This app depends on `@ishraqparfums/shared` for catalog, auth, cart, address, order, payment, review, bespoke, and pagination contracts.
+This app depends on `@ishraqparfums/shared` for catalog, auth, cart, address, order, payment, review, bespoke, admin (product/order/customer write), and pagination contracts.
 
 Build `packages/shared` before building api if you are not using Turbo from the repo root.

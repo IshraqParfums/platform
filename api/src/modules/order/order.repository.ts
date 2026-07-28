@@ -8,6 +8,15 @@ export type OrderWithRelations = Order & {
   payment: Payment | null;
 };
 
+export type OrderWithCustomer = OrderWithRelations & {
+  customer: { id: string; phone: string };
+};
+
+export interface AdminOrderFilters {
+  status?: OrderStatus;
+  customerId?: string;
+}
+
 @Injectable()
 export class OrderRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -261,6 +270,61 @@ export class OrderRepository {
         status: PaymentStatus.PAID,
         razorpayPaymentId,
         rawPayload,
+      },
+    });
+  }
+
+  private adminWhere(filters?: AdminOrderFilters): Prisma.OrderWhereInput {
+    return {
+      ...(filters?.status ? { status: filters.status } : {}),
+      ...(filters?.customerId ? { customerId: filters.customerId } : {}),
+    };
+  }
+
+  findAdminMany(options?: {
+    filters?: AdminOrderFilters;
+    skip?: number;
+    take?: number;
+  }): Promise<OrderWithCustomer[]> {
+    return this.prisma.order.findMany({
+      where: this.adminWhere(options?.filters),
+      include: {
+        items: { orderBy: { createdAt: 'asc' } },
+        payment: true,
+        customer: { select: { id: true, phone: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      ...(options?.skip !== undefined ? { skip: options.skip } : {}),
+      ...(options?.take !== undefined ? { take: options.take } : {}),
+    });
+  }
+
+  countAdmin(filters?: AdminOrderFilters): Promise<number> {
+    return this.prisma.order.count({ where: this.adminWhere(filters) });
+  }
+
+  findAdminById(id: string): Promise<OrderWithCustomer | null> {
+    return this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: { orderBy: { createdAt: 'asc' } },
+        payment: true,
+        customer: { select: { id: true, phone: true } },
+      },
+    });
+  }
+
+  async updateStatus(
+    orderId: string,
+    status: OrderStatus,
+  ): Promise<OrderWithCustomer> {
+    return this.prisma.order.update({
+      where: { id: orderId },
+      data: { status },
+      include: {
+        items: { orderBy: { createdAt: 'asc' } },
+        payment: true,
+        customer: { select: { id: true, phone: true } },
       },
     });
   }

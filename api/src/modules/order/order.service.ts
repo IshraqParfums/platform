@@ -8,6 +8,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type {
+  AdminOrderDetail,
+  AdminOrderSummary,
   CheckoutResponse,
   OrderDetail,
   OrderSummary,
@@ -22,8 +24,15 @@ import { CartService } from '../cart/cart.service';
 import { CustomerService } from '../customer/customer.service';
 import { PaymentService } from '../payment/payment.service';
 import { ProductService } from '../product/product.service';
-import { toOrderDetail, toOrderSummary } from './mappers/order.mapper';
+import type { AdminListOrdersQueryDto } from './dto/admin-list-orders.query.dto';
+import {
+  toAdminOrderDetail,
+  toAdminOrderSummary,
+  toOrderDetail,
+  toOrderSummary,
+} from './mappers/order.mapper';
 import { OrderRepository, type OrderWithRelations } from './order.repository';
+import { assertValidOrderStatusTransition } from './order-status-transitions';
 import { VERIFIED_BUYER_ORDER_STATUSES } from './verified-buyer-statuses';
 
 @Injectable()
@@ -48,10 +57,12 @@ export class OrderService {
     page?: number,
     pageSize?: number,
   ): Promise<PaginatedResponse<OrderSummary>> {
-    const { skip, take, page: safePage, pageSize: safePageSize } = toSkipTake(
-      page,
-      pageSize,
-    );
+    const {
+      skip,
+      take,
+      page: safePage,
+      pageSize: safePageSize,
+    } = toSkipTake(page, pageSize);
 
     const [orders, total] = await Promise.all([
       this.orderRepository.findByCustomerId(customerId, { skip, take }),
@@ -166,7 +177,7 @@ export class OrderService {
           unitPricePaise,
           quantity: item.quantity,
           lineTotalPaise,
-          formulaJson: perfume.formulaJson as Prisma.InputJsonValue,
+          formulaJson: perfume.formulaJson,
         });
         continue;
       }
@@ -445,6 +456,56 @@ export class OrderService {
 
       await this.orderRepository.markExpired(order.id, tx);
     });
+  }
+
+  // --- Admin ---
+
+  async listAdmin(
+    query: AdminListOrdersQueryDto,
+  ): Promise<PaginatedResponse<AdminOrderSummary>> {
+    const { skip, take, page, pageSize } = toSkipTake(
+      query.page,
+      query.pageSize,
+    );
+    const filters = { status: query.status, customerId: query.customerId };
+
+    const [orders, total] = await Promise.all([
+      this.orderRepository.findAdminMany({ filters, skip, take }),
+      this.orderRepository.countAdmin(filters),
+    ]);
+
+    return toPaginatedResponse(
+      orders.map(toAdminOrderSummary),
+      total,
+      page,
+      pageSize,
+    );
+  }
+
+  async getAdminById(id: string): Promise<AdminOrderDetail> {
+    const order = await this.orderRepository.findAdminById(id);
+
+    if (!order) {
+      throw new NotFoundException(`Order with id "${id}" not found`);
+    }
+
+    return toAdminOrderDetail(order);
+  }
+
+  async updateStatusAsAdmin(
+    id: string,
+    status: OrderStatus,
+  ): Promise<AdminOrderDetail> {
+    const order = await this.orderRepository.findAdminById(id);
+
+    if (!order) {
+      throw new NotFoundException(`Order with id "${id}" not found`);
+    }
+
+    assertValidOrderStatusTransition(order.status, status);
+
+    const updated = await this.orderRepository.updateStatus(id, status);
+    return toAdminOrderDetail(updated);
   }
 
   private readPositiveInt(key: string, fallback: number): number {

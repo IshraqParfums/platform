@@ -40,6 +40,32 @@ export type {
 export type { RazorpayVerifyRequest } from "./payment/index.js";
 export type { AdminSummary } from "./admin/index.js";
 export type {
+  AdjustStockBody,
+  AdminCollectionResponse,
+  AdminProductDetail,
+  AdminProductImage,
+  AdminProductListItem,
+  AdminProductVariant,
+  CreateCollectionBody,
+  CreateImageBody,
+  CreateProductBody,
+  CreateVariantBody,
+  ProductStatus,
+  UpdateCollectionBody,
+  UpdateImageBody,
+  UpdateProductBody,
+  UpdateVariantBody,
+} from "./admin-catalog/index.js";
+export type {
+  AdminOrderDetail,
+  AdminOrderSummary,
+  UpdateOrderStatusBody,
+} from "./admin-order/index.js";
+export type {
+  AdminCustomerSummary,
+  AdminUpdateCustomerBody,
+} from "./admin-customer/index.js";
+export type {
   AddBespokeCartItemBody,
   AddCartItemBody,
   BespokeCartItemResponse,

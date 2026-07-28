@@ -1,4 +1,8 @@
 import type {
+  AdminProductDetail,
+  AdminProductImage,
+  AdminProductListItem,
+  AdminProductVariant,
   ProductDetail,
   ProductDetailImage,
   ProductDetailVariant,
@@ -128,5 +132,66 @@ export function toProductDetail(
     images: product.images.map(toDetailImage),
     ratingAverage,
     reviewCount,
+  };
+}
+
+export function toAdminVariant(variant: ProductVariant): AdminProductVariant {
+  return {
+    id: variant.id,
+    sizeMl: variant.sizeMl,
+    pricePaise: variant.pricePaise,
+    compareAtPricePaise: variant.compareAtPricePaise,
+    stockQty: variant.stockQty,
+    reservedQty: variant.reservedQty,
+    sku: variant.sku,
+    isAvailable: variant.isAvailable,
+  };
+}
+
+export function toAdminImage(image: ProductImage): AdminProductImage {
+  return {
+    id: image.id,
+    url: image.url,
+    altText: image.altText,
+    displayOrder: image.displayOrder,
+  };
+}
+
+export function toAdminProductListItem(
+  product: ProductWithCatalogRelations,
+): AdminProductListItem {
+  const cheapest = findCheapestVariant(product.variants);
+
+  return {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    status: product.status,
+    collectionId: product.collectionId,
+    collectionName: product.collection.name,
+    primaryImageUrl: product.images[0]?.url ?? null,
+    variantCount: product.variants.length,
+    fromPricePaise: cheapest?.pricePaise ?? null,
+    createdAt: product.createdAt.toISOString(),
+    updatedAt: product.updatedAt.toISOString(),
+  };
+}
+
+export function toAdminProductDetail(
+  product: ProductWithCatalogRelations,
+): AdminProductDetail {
+  return {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    shortDescription: product.shortDescription,
+    detailedDescription: product.detailedDescription,
+    status: product.status,
+    collectionId: product.collectionId,
+    collectionName: product.collection.name,
+    variants: product.variants.map(toAdminVariant),
+    images: product.images.map(toAdminImage),
+    createdAt: product.createdAt.toISOString(),
+    updatedAt: product.updatedAt.toISOString(),
   };
 }

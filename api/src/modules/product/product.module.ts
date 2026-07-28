@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { AdminModule } from '../admin/admin.module';
+import { AdminCollectionsController } from './admin-collections.controller';
+import { AdminProductsController } from './admin-products.controller';
 import { CollectionRepository } from './collection.repository';
 import { CollectionService } from './collection.service';
 import { CollectionsController } from './collections.controller';
@@ -7,7 +10,13 @@ import { ProductService } from './product.service';
 import { ProductsController } from './products.controller';
 
 @Module({
-  controllers: [CollectionsController, ProductsController],
+  imports: [AdminModule],
+  controllers: [
+    CollectionsController,
+    ProductsController,
+    AdminCollectionsController,
+    AdminProductsController,
+  ],
   providers: [
     CollectionRepository,
     ProductRepository,
