@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ProductStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import type { ProductWithCatalogRelations } from './mappers/product.mapper';
+import type {
+  ProductWithCatalogRelations,
+  PurchasableVariantWithProduct,
+} from './mappers/product.mapper';
 
 const catalogInclude = {
   collection: true,
@@ -35,6 +38,21 @@ export class ProductRepository {
         status: ProductStatus.ACTIVE,
       },
       include: catalogInclude,
+    });
+  }
+
+  findVariantByIdWithProduct(
+    variantId: string,
+  ): Promise<PurchasableVariantWithProduct | null> {
+    return this.prisma.productVariant.findUnique({
+      where: { id: variantId },
+      include: {
+        product: {
+          include: {
+            images: { orderBy: { displayOrder: 'asc' } },
+          },
+        },
+      },
     });
   }
 }

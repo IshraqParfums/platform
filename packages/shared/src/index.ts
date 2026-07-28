@@ -18,3 +18,12 @@ export type {
 } from "./auth";
 export type { CustomerSummary } from "./customer";
 export type { AdminSummary } from "./admin";
+export type {
+  AddCartItemBody,
+  CartItemResponse,
+  CartMergeResponse,
+  CartResponse,
+  MergeCartBody,
+  MergeCartItemBody,
+  UpdateCartItemBody,
+} from "./cart";

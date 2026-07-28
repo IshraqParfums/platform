@@ -1,9 +1,5 @@
 import { createHash, randomInt } from 'crypto';
-import {
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { RequestOtpResponse } from '@ishraqparfums/shared';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -47,9 +43,7 @@ export class OtpService {
   }
 
   private hashCode(code: string): string {
-    return createHash('sha256')
-      .update(`${this.pepper}:${code}`)
-      .digest('hex');
+    return createHash('sha256').update(`${this.pepper}:${code}`).digest('hex');
   }
 
   private generateCode(): string {
@@ -144,9 +138,7 @@ export class OtpService {
       const latest = await this.otpRepository.findLatestAny(phone);
 
       if (latest?.consumedAt) {
-        throw new UnauthorizedException(
-          'OTP already used. Request a new one.',
-        );
+        throw new UnauthorizedException('OTP already used. Request a new one.');
       }
 
       throw new UnauthorizedException('No OTP found. Request a new one.');
@@ -159,9 +151,7 @@ export class OtpService {
 
     if (challenge.attempts >= this.maxVerifyAttempts) {
       await this.otpRepository.markConsumed(challenge.id);
-      throw new UnauthorizedException(
-        'Too many attempts. Request a new OTP.',
-      );
+      throw new UnauthorizedException('Too many attempts. Request a new OTP.');
     }
 
     const expectedHash = this.hashCode(code);

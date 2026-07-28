@@ -20,8 +20,7 @@ import { CustomerJwtStrategy } from './strategies/customer-jwt.strategy';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const expiresIn =
-          configService.get<string>('JWT_EXPIRES_IN') ?? '7d';
+        const expiresIn = configService.get<string>('JWT_EXPIRES_IN') ?? '7d';
 
         return {
           secret: configService.getOrThrow<string>('JWT_SECRET'),

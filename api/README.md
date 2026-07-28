@@ -129,6 +129,7 @@ api/
 │       ├── health/
 │       ├── prisma/
 │       ├── product/
+│       ├── cart/
 │       ├── auth/
 │       ├── customer/
 │       └── admin/
@@ -148,12 +149,21 @@ Global prefix: `/api/v1`
 | `POST` | `/api/v1/auth/otp/request` | Request / resend OTP (`{ phone }`) |
 | `POST` | `/api/v1/auth/otp/verify` | Verify OTP → customer JWT |
 | `GET` | `/api/v1/customers/me` | Current customer (Bearer customer JWT) |
+| `GET` | `/api/v1/cart` | Get or create cart (Bearer customer JWT) |
+| `POST` | `/api/v1/cart/items` | Add or increment line `{ variantId, quantity }` |
+| `PATCH` | `/api/v1/cart/items/:itemId` | Set line quantity `{ quantity }` (≥ 1) |
+| `DELETE` | `/api/v1/cart/items/:itemId` | Remove cart line |
+| `POST` | `/api/v1/cart/merge` | Merge guest cart `{ items: [{ variantId, quantity }] }` → `{ cart, warnings }` |
 | `GET` | `/api/v1/admin/me` | Current admin (Bearer Supabase JWT + `admins` row) |
 
 Catalog routes stay public. Customer email is not required for OTP.
 
+Cart routes require a customer JWT. Prices in cart responses are live from variants (not snapshotted until checkout).
+
+**Guest cart merge:** OTP verify does **not** merge a guest cart. After login, the FE should call `POST /api/v1/cart/merge` with localStorage lines. Unsellable lines are skipped with a warning; over-stock quantities are clamped with a warning.
+
 ## Shared package
 
-This app depends on `@ishraqparfums/shared` for catalog and auth contracts.
+This app depends on `@ishraqparfums/shared` for catalog, auth, and cart contracts.
 
 Build `packages/shared` before building api if you are not using Turbo from the repo root.

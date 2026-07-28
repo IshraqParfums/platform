@@ -48,8 +48,7 @@ export class AdminJwtGuard implements CanActivate {
     try {
       const { payload } = await jwtVerify(token, secret);
       supabaseUserId = String(payload.sub ?? '');
-      email =
-        typeof payload.email === 'string' ? payload.email : undefined;
+      email = typeof payload.email === 'string' ? payload.email : undefined;
 
       if (!supabaseUserId) {
         throw new UnauthorizedException('Unauthorized.');

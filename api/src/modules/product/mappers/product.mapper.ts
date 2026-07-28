@@ -18,7 +18,13 @@ export type ProductWithCatalogRelations = Product & {
   images: ProductImage[];
 };
 
-function displayCompareAtPricePaise(
+export type PurchasableVariantWithProduct = ProductVariant & {
+  product: Product & {
+    images: ProductImage[];
+  };
+};
+
+export function displayCompareAtPricePaise(
   pricePaise: number,
   compareAtPricePaise: number | null,
 ): number | null {

@@ -1,6 +1,4 @@
-import {
-  BadRequestException,
-} from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 
 const E164_IN_MOBILE = /^\+91[6-9]\d{9}$/;
 

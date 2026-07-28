@@ -1,10 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import type { ProductDetail, ProductListItem } from '@ishraqparfums/shared';
-import { CollectionRepository } from './collection.repository';
 import {
-  toProductDetail,
-  toProductListItem,
-} from './mappers/product.mapper';
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import type { ProductDetail, ProductListItem } from '@ishraqparfums/shared';
+import { ProductStatus } from '@prisma/client';
+import { CollectionRepository } from './collection.repository';
+import type { PurchasableVariantWithProduct } from './mappers/product.mapper';
+import { toProductDetail, toProductListItem } from './mappers/product.mapper';
 import { ProductRepository } from './product.repository';
 
 @Injectable()
@@ -45,5 +48,51 @@ export class ProductService {
     }
 
     return toProductDetail(product);
+  }
+
+  async findPurchasableVariant(
+    variantId: string,
+  ): Promise<PurchasableVariantWithProduct> {
+    const variant =
+      await this.productRepository.findVariantByIdWithProduct(variantId);
+
+    if (!variant) {
+      throw new NotFoundException(`Variant with id "${variantId}" not found`);
+    }
+
+    if (variant.product.status !== ProductStatus.ACTIVE) {
+      throw new BadRequestException(
+        `Product "${variant.product.name}" is not available for purchase`,
+      );
+    }
+
+    if (!variant.isAvailable) {
+      throw new BadRequestException(
+        `Variant (${variant.sizeMl}ml) is currently unavailable`,
+      );
+    }
+
+    if (variant.stockQty < 1) {
+      throw new BadRequestException(
+        `Variant (${variant.sizeMl}ml) is out of stock`,
+      );
+    }
+
+    return variant;
+  }
+
+  assertQuantityAvailable(
+    variant: Pick<PurchasableVariantWithProduct, 'stockQty' | 'sizeMl'>,
+    quantity: number,
+  ): void {
+    if (quantity < 1) {
+      throw new BadRequestException('Quantity must be at least 1');
+    }
+
+    if (quantity > variant.stockQty) {
+      throw new BadRequestException(
+        `Only ${variant.stockQty} unit(s) of ${variant.sizeMl}ml in stock`,
+      );
+    }
   }
 }

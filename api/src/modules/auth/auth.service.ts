@@ -21,10 +21,7 @@ export class AuthService {
     return this.otpService.requestOtp(phone);
   }
 
-  async verifyOtp(
-    rawPhone: string,
-    code: string,
-  ): Promise<AuthTokenResponse> {
+  async verifyOtp(rawPhone: string, code: string): Promise<AuthTokenResponse> {
     const phone = normalizeIndianPhone(rawPhone);
 
     // Guest cart / bespoke merge on login is Phase 4 — verify only issues a token here.
