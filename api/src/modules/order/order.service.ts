@@ -6,7 +6,6 @@ import {
   NotFoundException,
   forwardRef,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import type {
   AdminOrderDetail,
   AdminOrderSummary,
@@ -31,6 +30,11 @@ import {
   toOrderDetail,
   toOrderSummary,
 } from './mappers/order.mapper';
+import {
+  CHECKOUT_RAZORPAY_WINDOW_SECONDS,
+  CHECKOUT_RESERVATION_TTL_SECONDS,
+  SHIPPING_PAISE,
+} from './order.constants';
 import { OrderRepository, type OrderWithRelations } from './order.repository';
 import { assertValidOrderStatusTransition } from './order-status-transitions';
 import { VERIFIED_BUYER_ORDER_STATUSES } from './verified-buyer-statuses';
@@ -49,7 +53,6 @@ export class OrderService {
     private readonly bespokePricing: BespokePricingService,
     @Inject(forwardRef(() => PaymentService))
     private readonly paymentService: PaymentService,
-    private readonly configService: ConfigService,
   ) {}
 
   async listForCustomer(
@@ -114,22 +117,9 @@ export class OrderService {
       throw new BadRequestException('Name is required');
     }
 
-    const razorpayWindowSeconds = this.readPositiveInt(
-      'CHECKOUT_RAZORPAY_WINDOW_SECONDS',
-      600,
-    );
-    const reservationTtlSeconds = this.readPositiveInt(
-      'CHECKOUT_RESERVATION_TTL_SECONDS',
-      660,
-    );
-
-    if (reservationTtlSeconds < razorpayWindowSeconds) {
-      throw new BadRequestException(
-        'CHECKOUT_RESERVATION_TTL_SECONDS must be >= CHECKOUT_RAZORPAY_WINDOW_SECONDS',
-      );
-    }
-
-    const shippingPaise = this.readPositiveInt('SHIPPING_PAISE', 5000);
+    const razorpayWindowSeconds = CHECKOUT_RAZORPAY_WINDOW_SECONDS;
+    const reservationTtlSeconds = CHECKOUT_RESERVATION_TTL_SECONDS;
+    const shippingPaise = SHIPPING_PAISE;
     const address = await this.addressService.getOwnedOrThrow(
       customerId,
       input.addressId,
@@ -506,16 +496,5 @@ export class OrderService {
 
     const updated = await this.orderRepository.updateStatus(id, status);
     return toAdminOrderDetail(updated);
-  }
-
-  private readPositiveInt(key: string, fallback: number): number {
-    const raw = this.configService.get<string>(key);
-    const value = raw === undefined ? fallback : Number.parseInt(raw, 10);
-
-    if (!Number.isFinite(value) || value < 0) {
-      return fallback;
-    }
-
-    return value;
   }
 }

@@ -1,8 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { extname } from 'node:path';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { DEFAULT_MEDIA_BUCKET } from './media.constants';
+import { MEDIA_BUCKET } from './media.constants';
 import { SupabaseStorageClient } from './supabase-storage.client';
 
 export interface UploadedProductImage {
@@ -19,16 +18,8 @@ const EXT_BY_MIME: Record<string, string> = {
 @Injectable()
 export class MediaService {
   private readonly logger = new Logger(MediaService.name);
-  private readonly bucket: string;
 
-  constructor(
-    private readonly storageClient: SupabaseStorageClient,
-    configService: ConfigService,
-  ) {
-    this.bucket =
-      configService.get<string>('SUPABASE_STORAGE_BUCKET') ??
-      DEFAULT_MEDIA_BUCKET;
-  }
+  constructor(private readonly storageClient: SupabaseStorageClient) {}
 
   async uploadProductImage(
     productId: string,
@@ -38,7 +29,7 @@ export class MediaService {
     const storagePath = `${productId}/${randomUUID()}${ext}`;
 
     const { error } = await this.storageClient.storage
-      .from(this.bucket)
+      .from(MEDIA_BUCKET)
       .upload(storagePath, file.buffer, {
         contentType: file.mimetype,
         upsert: false,
@@ -50,7 +41,7 @@ export class MediaService {
 
     const {
       data: { publicUrl },
-    } = this.storageClient.storage.from(this.bucket).getPublicUrl(storagePath);
+    } = this.storageClient.storage.from(MEDIA_BUCKET).getPublicUrl(storagePath);
 
     return { url: publicUrl, storagePath };
   }
@@ -62,7 +53,7 @@ export class MediaService {
     }
 
     const { error } = await this.storageClient.storage
-      .from(this.bucket)
+      .from(MEDIA_BUCKET)
       .remove([storagePath]);
 
     if (error) {

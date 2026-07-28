@@ -24,7 +24,7 @@ Copy environment variables:
 cp .env.example .env
 ```
 
-Fill in Supabase `DATABASE_URL` / `DIRECT_URL`, auth secrets (`JWT_SECRET`, `OTP_PEPPER`, `SUPABASE_JWT_SECRET`), `SUPABASE_SERVICE_ROLE_KEY` (product image uploads), and Razorpay keys before running checkout.
+Fill in Supabase `DATABASE_URL` / `DIRECT_URL`, auth secrets (`JWT_SECRET`, `OTP_PEPPER`, `SUPABASE_JWT_SECRET`), `SUPABASE_SERVICE_ROLE_KEY` (product image uploads), and Razorpay keys before running checkout. Business-rule values (shipping, pricing, OTP limits, etc.) are code constants, not env vars — see [Environment variables](#environment-variables).
 
 ## Scripts
 
@@ -111,25 +111,23 @@ Not paginated: cart, addresses, collections.
 | `DATABASE_URL` | Pooled Postgres URL used by the running app |
 | `DIRECT_URL` | Direct Postgres URL used by Prisma Migrate |
 | `JWT_SECRET` | HS256 secret for customer access tokens |
-| `JWT_EXPIRES_IN` | Customer JWT lifetime (default `7d`) |
 | `SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_JWT_SECRET` | Supabase JWT secret (verify admin Bearer tokens) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-only; product image uploads to Storage) |
-| `SUPABASE_STORAGE_BUCKET` | Public bucket for product images (default `product-images`) |
 | `OTP_PEPPER` | Pepper for hashing OTP codes at rest |
-| `OTP_TTL_SECONDS` | OTP lifetime (default `300`) |
-| `OTP_RESEND_COOLDOWN_SECONDS` | Min seconds between OTP requests (default `60`) |
-| `OTP_MAX_PER_15_MIN` | Max OTP requests per phone / 15 min (default `5`) |
-| `OTP_MAX_PER_DAY` | Max OTP requests per phone / UTC day (default `10`) |
-| `OTP_MAX_VERIFY_ATTEMPTS` | Max wrong verifies per challenge (default `5`) |
-| `SHIPPING_PAISE` | Flat shipping in paise (default `5000` = ₹50); snapshotted on each order |
-| `CHECKOUT_RAZORPAY_WINDOW_SECONDS` | Razorpay order `expire_by` window (default `600` = 10 min) |
-| `CHECKOUT_RESERVATION_TTL_SECONDS` | Stock hold TTL (default `660` = 11 min); must be ≥ Razorpay window |
 | `RAZORPAY_KEY_ID` | Razorpay key id (test or live) |
 | `RAZORPAY_KEY_SECRET` | Razorpay key secret |
 | `RAZORPAY_WEBHOOK_SECRET` | Razorpay webhook signing secret |
-| `BESPOKE_PAISE_PER_ML` | Bespoke price in paise per ml (default `1000` = ₹10/ml) |
-| `BESPOKE_ALLOWED_SIZES_ML` | Comma-separated bottle sizes (default `30,50,100`) |
+
+Only secrets and per-deployment infra values are env vars. Business-rule numbers (OTP throttling, checkout timing, shipping cost, bespoke pricing, JWT lifetime, storage bucket name) are constants in their owning module — change them in code and redeploy, not via `.env`:
+
+| Value | Constant | Where |
+|-------|----------|-------|
+| Customer JWT lifetime (`7d`) | `JWT_EXPIRES_IN` | `src/modules/auth/auth.constants.ts` |
+| OTP TTL / cooldown / rate limits | `OTP_TTL_SECONDS`, `OTP_RESEND_COOLDOWN_SECONDS`, `OTP_MAX_PER_15_MIN`, `OTP_MAX_PER_DAY`, `OTP_MAX_VERIFY_ATTEMPTS` | `src/modules/auth/otp/otp.constants.ts` |
+| Shipping / checkout timing | `SHIPPING_PAISE`, `CHECKOUT_RAZORPAY_WINDOW_SECONDS`, `CHECKOUT_RESERVATION_TTL_SECONDS` | `src/modules/order/order.constants.ts` (reservation TTL is *derived* from the Razorpay window, so it can't drift below it) |
+| Product image bucket / limits | `MEDIA_BUCKET`, `ALLOWED_IMAGE_MIME_TYPES`, `MAX_IMAGE_BYTES` | `src/modules/media/media.constants.ts` |
+| Bespoke pricing / sizes | `BESPOKE_PAISE_PER_ML`, `BESPOKE_ALLOWED_SIZES_ML` | `packages/shared/src/bespoke/pricing.ts` (shared with any future FE) |
 
 ## Auth notes
 
@@ -199,7 +197,7 @@ All `/admin/*` routes (except `GET /admin/me`) require `Authorization: Bearer <S
 
 As with the rest of the API, admin write paths have **no automated test coverage** yet — verify manually via curl/Postman.
 
-**Storage setup (one-time, Supabase dashboard):** create a bucket named `product-images` (or match `SUPABASE_STORAGE_BUCKET`) with public read access and no anon/authenticated write policies — the API writes to it only via the service role key, never from the browser. Object keys are `{productId}/{uuid}.{ext}`.
+**Storage setup (one-time, Supabase dashboard):** create a bucket named `product-images` (must match `MEDIA_BUCKET` in `src/modules/media/media.constants.ts`) with public read access and no anon/authenticated write policies — the API writes to it only via the service role key, never from the browser. Object keys are `{productId}/{uuid}.{ext}`.
 
 ## Project structure
 

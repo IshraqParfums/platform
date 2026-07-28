@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { CustomerModule } from '../customer/customer.module';
+import { JWT_EXPIRES_IN } from './auth.constants';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { CustomerJwtGuard } from './guards/customer-jwt.guard';
@@ -19,16 +20,12 @@ import { CustomerJwtStrategy } from './strategies/customer-jwt.strategy';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const expiresIn = configService.get<string>('JWT_EXPIRES_IN') ?? '7d';
-
-        return {
-          secret: configService.getOrThrow<string>('JWT_SECRET'),
-          signOptions: {
-            expiresIn: expiresIn as `${number}d`,
-          },
-        };
-      },
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.getOrThrow<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: JWT_EXPIRES_IN,
+        },
+      }),
     }),
   ],
   controllers: [AuthController],

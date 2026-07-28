@@ -3,6 +3,13 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { RequestOtpResponse } from '@ishraqparfums/shared';
 import { PrismaService } from '../../prisma/prisma.service';
+import {
+  OTP_MAX_PER_15_MIN,
+  OTP_MAX_PER_DAY,
+  OTP_MAX_VERIFY_ATTEMPTS,
+  OTP_RESEND_COOLDOWN_SECONDS,
+  OTP_TTL_SECONDS,
+} from './otp.constants';
 import { throwOtpRateLimited } from './otp-rate-limit.exception';
 import { OtpRepository } from './otp.repository';
 import { OTP_SENDER, type OtpSender } from './otp-sender';
@@ -17,26 +24,6 @@ export class OtpService {
     private readonly otpRepository: OtpRepository,
     @Inject(OTP_SENDER) private readonly otpSender: OtpSender,
   ) {}
-
-  private get ttlSeconds(): number {
-    return Number(this.configService.get('OTP_TTL_SECONDS') ?? 300);
-  }
-
-  private get resendCooldownSeconds(): number {
-    return Number(this.configService.get('OTP_RESEND_COOLDOWN_SECONDS') ?? 60);
-  }
-
-  private get maxPer15Min(): number {
-    return Number(this.configService.get('OTP_MAX_PER_15_MIN') ?? 5);
-  }
-
-  private get maxPerDay(): number {
-    return Number(this.configService.get('OTP_MAX_PER_DAY') ?? 10);
-  }
-
-  private get maxVerifyAttempts(): number {
-    return Number(this.configService.get('OTP_MAX_VERIFY_ATTEMPTS') ?? 5);
-  }
 
   private get pepper(): string {
     return this.configService.getOrThrow<string>('OTP_PEPPER');
@@ -59,7 +46,7 @@ export class OtpService {
 
     if (latest) {
       const elapsedMs = Date.now() - latest.createdAt.getTime();
-      const cooldownMs = this.resendCooldownSeconds * 1000;
+      const cooldownMs = OTP_RESEND_COOLDOWN_SECONDS * 1000;
 
       if (elapsedMs < cooldownMs) {
         throwOtpRateLimited(
@@ -76,7 +63,7 @@ export class OtpService {
       fifteenMinutesAgo,
     );
 
-    if (recentCount >= this.maxPer15Min) {
+    if (recentCount >= OTP_MAX_PER_15_MIN) {
       const oldest = await this.otpRepository.findOldestSince(
         phone,
         fifteenMinutesAgo,
@@ -97,7 +84,7 @@ export class OtpService {
     startOfUtcDay.setUTCHours(0, 0, 0, 0);
     const dayCount = await this.otpRepository.countSince(phone, startOfUtcDay);
 
-    if (dayCount >= this.maxPerDay) {
+    if (dayCount >= OTP_MAX_PER_DAY) {
       const nextUtcMidnight = new Date(startOfUtcDay);
       nextUtcMidnight.setUTCDate(nextUtcMidnight.getUTCDate() + 1);
 
@@ -110,7 +97,7 @@ export class OtpService {
 
     const code = this.generateCode();
     const codeHash = this.hashCode(code);
-    const expiresAt = new Date(Date.now() + this.ttlSeconds * 1000);
+    const expiresAt = new Date(Date.now() + OTP_TTL_SECONDS * 1000);
 
     await this.prisma.$transaction(async (tx) => {
       await this.otpRepository.consumeAllUnconsumedForPhone(phone, tx);
@@ -126,8 +113,8 @@ export class OtpService {
     await this.otpSender.sendOtp(phone, code);
 
     return {
-      expiresInSeconds: this.ttlSeconds,
-      resendAvailableInSeconds: this.resendCooldownSeconds,
+      expiresInSeconds: OTP_TTL_SECONDS,
+      resendAvailableInSeconds: OTP_RESEND_COOLDOWN_SECONDS,
     };
   }
 
@@ -149,7 +136,7 @@ export class OtpService {
       throw new UnauthorizedException('OTP expired. Request a new one.');
     }
 
-    if (challenge.attempts >= this.maxVerifyAttempts) {
+    if (challenge.attempts >= OTP_MAX_VERIFY_ATTEMPTS) {
       await this.otpRepository.markConsumed(challenge.id);
       throw new UnauthorizedException('Too many attempts. Request a new OTP.');
     }
@@ -159,7 +146,7 @@ export class OtpService {
     if (challenge.codeHash !== expectedHash) {
       const updated = await this.otpRepository.incrementAttempts(challenge.id);
 
-      if (updated.attempts >= this.maxVerifyAttempts) {
+      if (updated.attempts >= OTP_MAX_VERIFY_ATTEMPTS) {
         await this.otpRepository.markConsumed(challenge.id);
         throw new UnauthorizedException(
           'Too many attempts. Request a new OTP.',
