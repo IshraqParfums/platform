@@ -23,7 +23,12 @@ async function upsertProductWithDetails(input: {
   collectionId: string;
   shortDescription: string;
   detailedDescription: string;
-  variants: Array<{ sizeMl: number; pricePaise: number; stockQty: number }>;
+  variants: Array<{
+    sizeMl: number;
+    pricePaise: number;
+    compareAtPricePaise?: number | null;
+    stockQty: number;
+  }>;
   imageUrl: string;
   imageAlt: string;
 }) {
@@ -47,6 +52,8 @@ async function upsertProductWithDetails(input: {
   });
 
   for (const variant of input.variants) {
+    const compareAtPricePaise = variant.compareAtPricePaise ?? null;
+
     await prisma.productVariant.upsert({
       where: {
         productId_sizeMl: {
@@ -58,11 +65,13 @@ async function upsertProductWithDetails(input: {
         productId: product.id,
         sizeMl: variant.sizeMl,
         pricePaise: variant.pricePaise,
+        compareAtPricePaise,
         stockQty: variant.stockQty,
         isAvailable: true,
       },
       update: {
         pricePaise: variant.pricePaise,
+        compareAtPricePaise,
         stockQty: variant.stockQty,
         isAvailable: true,
       },
@@ -117,7 +126,12 @@ async function main() {
       'Noir Velvet opens with soft spice, settles into resinous amber, and finishes on smooth woods. Built for evening wear and lasting presence.',
     variants: [
       { sizeMl: 30, pricePaise: 189900, stockQty: 25 },
-      { sizeMl: 100, pricePaise: 449900, stockQty: 12 },
+      {
+        sizeMl: 100,
+        pricePaise: 449900,
+        compareAtPricePaise: 529900,
+        stockQty: 12,
+      },
     ],
     imageUrl: 'https://placehold.co/800x1000/2C1B14/F3E7D8?text=Noir+Velvet',
     imageAlt: 'Noir Velvet perfume bottle',
@@ -131,7 +145,12 @@ async function main() {
     detailedDescription:
       'Citrus Atelier is an airy, sunlit composition: sparkling top notes, a transparent floral heart, and a soft musk dry-down for all-day freshness.',
     variants: [
-      { sizeMl: 30, pricePaise: 169900, stockQty: 30 },
+      {
+        sizeMl: 30,
+        pricePaise: 169900,
+        compareAtPricePaise: 199900,
+        stockQty: 30,
+      },
       { sizeMl: 100, pricePaise: 399900, stockQty: 18 },
     ],
     imageUrl: 'https://placehold.co/800x1000/3D2519/F3E7D8?text=Citrus+Atelier',

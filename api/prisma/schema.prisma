@@ -48,16 +48,17 @@ model Product {
 }
 
 model ProductVariant {
-  id          String   @id @default(uuid())
-  productId   String
-  sizeMl      Int
-  pricePaise  Int
-  stockQty    Int      @default(0)
-  sku         String?
-  isAvailable Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  id                  String   @id @default(uuid())
+  productId           String
+  sizeMl              Int
+  pricePaise          Int
+  compareAtPricePaise Int?
+  stockQty            Int      @default(0)
+  sku                 String?
+  isAvailable         Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  product             Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@unique([productId, sizeMl])
   @@index([productId])
@@ -76,4 +77,38 @@ model ProductImage {
 
   @@index([productId, displayOrder])
   @@map("product_images")
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  email     String?  @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("customers")
+}
+
+model OtpChallenge {
+  id         String    @id @default(uuid())
+  phone      String
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([phone, createdAt])
+  @@map("otp_challenges")
+}
+
+model Admin {
+  id             String   @id @default(uuid())
+  supabaseUserId String   @unique
+  email          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("admins")
 }
