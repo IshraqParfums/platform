@@ -86,6 +86,8 @@ function toDetailImage(image: ProductImage): ProductDetailImage {
 
 export function toProductListItem(
   product: ProductWithCatalogRelations,
+  ratingAverage: number | null = null,
+  reviewCount = 0,
 ): ProductListItem {
   const cheapest = findCheapestVariant(product.variants);
 
@@ -103,11 +105,15 @@ export function toProductListItem(
           cheapest.compareAtPricePaise,
         )
       : null,
+    ratingAverage,
+    reviewCount,
   };
 }
 
 export function toProductDetail(
   product: ProductWithCatalogRelations,
+  ratingAverage: number | null = null,
+  reviewCount = 0,
 ): ProductDetail {
   return {
     name: product.name,
@@ -120,5 +126,7 @@ export function toProductDetail(
     },
     variants: product.variants.map(toDetailVariant),
     images: product.images.map(toDetailImage),
+    ratingAverage,
+    reviewCount,
   };
 }

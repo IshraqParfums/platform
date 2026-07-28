@@ -8,4 +8,4 @@ export type {
   OrderStatus,
   OrderSummary,
   PaymentStatus,
-} from './order-contracts';
+} from "./order-contracts.js";

@@ -26,4 +26,6 @@ export interface ProductDetail {
   collection: ProductDetailCollection;
   variants: ProductDetailVariant[];
   images: ProductDetailImage[];
+  ratingAverage: number | null;
+  reviewCount: number;
 }

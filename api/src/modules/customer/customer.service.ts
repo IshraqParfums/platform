@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -30,19 +31,36 @@ export class CustomerService {
     return toCustomerSummary(customer);
   }
 
-  async updateCheckoutProfile(
+  async updateProfile(
     customerId: string,
-    name: string,
-    email: string,
+    input: { name?: string; email?: string },
   ): Promise<Customer> {
-    const existing = await this.customerRepository.findByEmail(email);
+    const name =
+      input.name !== undefined ? input.name.trim() : undefined;
+    const email =
+      input.email !== undefined ? input.email.trim().toLowerCase() : undefined;
 
-    if (existing && existing.id !== customerId) {
-      throw new ConflictException(
-        'This email is already associated with another account.',
-      );
+    if (name === undefined && email === undefined) {
+      throw new BadRequestException('At least one of name or email is required.');
     }
 
-    return this.customerRepository.updateProfile(customerId, { name, email });
+    if (name !== undefined && name.length < 1) {
+      throw new BadRequestException('Name must not be empty.');
+    }
+
+    if (email !== undefined) {
+      const existing = await this.customerRepository.findByEmail(email);
+
+      if (existing && existing.id !== customerId) {
+        throw new ConflictException(
+          'This email is already associated with another account.',
+        );
+      }
+    }
+
+    return this.customerRepository.updateProfile(customerId, {
+      ...(name !== undefined ? { name } : {}),
+      ...(email !== undefined ? { email } : {}),
+    });
   }
 }

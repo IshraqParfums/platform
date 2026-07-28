@@ -16,18 +16,30 @@ const catalogInclude = {
 export class ProductRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private activeWhere(options?: { collectionId?: string }) {
+    return {
+      status: ProductStatus.ACTIVE,
+      ...(options?.collectionId ? { collectionId: options.collectionId } : {}),
+    };
+  }
+
   findActiveMany(options?: {
     collectionId?: string;
+    skip?: number;
+    take?: number;
   }): Promise<ProductWithCatalogRelations[]> {
     return this.prisma.product.findMany({
-      where: {
-        status: ProductStatus.ACTIVE,
-        ...(options?.collectionId
-          ? { collectionId: options.collectionId }
-          : {}),
-      },
+      where: this.activeWhere(options),
       include: catalogInclude,
       orderBy: { name: 'asc' },
+      ...(options?.skip !== undefined ? { skip: options.skip } : {}),
+      ...(options?.take !== undefined ? { take: options.take } : {}),
+    });
+  }
+
+  countActive(options?: { collectionId?: string }): Promise<number> {
+    return this.prisma.product.count({
+      where: this.activeWhere(options),
     });
   }
 

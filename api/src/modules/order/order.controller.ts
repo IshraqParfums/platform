@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -12,7 +13,9 @@ import type {
   CheckoutResponse,
   OrderDetail,
   OrderSummary,
+  PaginatedResponse,
 } from '@ishraqparfums/shared';
+import { PaginationQueryDto } from '../../common/dto/pagination.query.dto';
 import { CustomerJwtGuard } from '../auth/guards/customer-jwt.guard';
 import type { RequestWithCustomer } from '../auth/types/request-with-customer';
 import { CheckoutDto } from './dto/checkout.dto';
@@ -32,8 +35,15 @@ export class OrderController {
   }
 
   @Get('orders')
-  list(@Req() request: RequestWithCustomer): Promise<OrderSummary[]> {
-    return this.orderService.listForCustomer(request.user.customerId);
+  list(
+    @Req() request: RequestWithCustomer,
+    @Query() query: PaginationQueryDto,
+  ): Promise<PaginatedResponse<OrderSummary>> {
+    return this.orderService.listForCustomer(
+      request.user.customerId,
+      query.page,
+      query.pageSize,
+    );
   }
 
   @Get('orders/:id')

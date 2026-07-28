@@ -57,9 +57,11 @@ Optional `compareAtPricePaise` on variants is MRP / strikethrough display only. 
 
 Product status values: `DRAFT`, `ACTIVE`, `ARCHIVED`, `DELETED` (soft delete; rows are not physically removed).
 
-Customer identity is **phone** (E.164 `+91…`). `Customer.name` / `Customer.email` are optional at OTP login and **required at checkout** (also snapshotted onto the order for invoices / history).
+Customer identity is **phone** (E.164 `+91…`). `Customer.name` / `Customer.email` are optional at OTP login; set via `PATCH /customers/me` or required at checkout (also snapshotted onto the order for invoices / history).
 
 Variant inventory uses `stockQty` and `reservedQty`. Sellable quantity is `stockQty - reservedQty`. Checkout reserves stock for ~11 minutes while Razorpay accepts payment for ~10 minutes.
+
+Reviews: one per customer per product (`@@unique([customerId, productId])`). Verified Buyer is **derived on read** from paid order history (not stored on the review).
 
 Apply schema and seed demo catalog data:
 
@@ -78,6 +80,28 @@ pnpm dev
 Default URL: http://localhost:3001
 
 In development, OTPs are **logged** by Nest (`DEV OTP for +91…: ######`) and never returned in HTTP responses.
+
+## Pagination
+
+List endpoints that can grow return:
+
+```json
+{ "items": [], "total": 0, "page": 1, "pageSize": 20 }
+```
+
+Query params: `?page=1&pageSize=20`
+
+| Constant | Value |
+|----------|-------|
+| Default page | `1` |
+| Default page size | `20` |
+| Max page size | `100` |
+
+Paginated today: `GET /products`, `GET /orders`, `GET /products/:slug/reviews`, `GET /reviews/me`.
+
+Not paginated: cart, addresses, collections.
+
+**Breaking (pre-FE):** `GET /products` and `GET /orders` no longer return bare arrays.
 
 ## Environment variables
 
@@ -136,6 +160,15 @@ Pass the Supabase access token as `Authorization: Bearer <token>` to admin route
 
 Configure the webhook URL in Razorpay dashboard to: `https://<your-host>/api/v1/webhooks/razorpay`.
 
+## Reviews
+
+- Any logged-in customer may create **one** review per ACTIVE product (`rating` 1–5; optional `title` / `body`).
+- Edit via `PATCH /reviews/:id` (owner only; other owners → 404).
+- Public list: `GET /products/:slug/reviews` includes `ratingAverage`, `ratingCount`, `ratingBreakdown`.
+- `isVerifiedBuyer` is computed from orders in `ORDER_RECEIVED` … `DELIVERED` that include a variant of that product — never stored on the review row.
+- Product list/detail include `ratingAverage` / `reviewCount` (null / 0 when none).
+- No moderation or delete in V1.
+
 ## Project structure
 
 ```text
@@ -147,6 +180,7 @@ api/
 ├── src/
 │   ├── main.ts
 │   ├── app.module.ts
+│   ├── common/                 # pagination helpers
 │   └── modules/
 │       ├── health/
 │       ├── prisma/
@@ -155,6 +189,7 @@ api/
 │       ├── address/
 │       ├── order/
 │       ├── payment/
+│       ├── review/
 │       ├── auth/
 │       ├── customer/
 │       └── admin/
@@ -169,11 +204,16 @@ Global prefix: `/api/v1`
 |--------|------|-------------|
 | `GET` | `/api/v1/health` | Service health check |
 | `GET` | `/api/v1/collections` | List collections |
-| `GET` | `/api/v1/products` | Lean ACTIVE product cards; optional `?collection=<slug>` |
-| `GET` | `/api/v1/products/:slug` | ACTIVE product detail |
+| `GET` | `/api/v1/products` | Paginated ACTIVE product cards; `?collection=<slug>&page=&pageSize=` |
+| `GET` | `/api/v1/products/:slug` | ACTIVE product detail (+ ratings) |
+| `GET` | `/api/v1/products/:slug/reviews` | Paginated reviews + aggregates |
+| `POST` | `/api/v1/products/:slug/reviews` | Create review (customer JWT) |
+| `GET` | `/api/v1/reviews/me` | My reviews (paginated, customer JWT) |
+| `PATCH` | `/api/v1/reviews/:id` | Edit own review |
 | `POST` | `/api/v1/auth/otp/request` | Request / resend OTP (`{ phone }`) |
 | `POST` | `/api/v1/auth/otp/verify` | Verify OTP → customer JWT |
 | `GET` | `/api/v1/customers/me` | Current customer (Bearer customer JWT) |
+| `PATCH` | `/api/v1/customers/me` | Update `{ name?`, `email? }` (at least one) |
 | `GET` | `/api/v1/customers/addresses` | List saved addresses |
 | `POST` | `/api/v1/customers/addresses` | Create address |
 | `PATCH` | `/api/v1/customers/addresses/:id` | Update address / set default |
@@ -186,7 +226,7 @@ Global prefix: `/api/v1`
 | `POST` | `/api/v1/checkout` | `{ addressId, name, email }` → Razorpay pay payload |
 | `POST` | `/api/v1/payments/razorpay/verify` | Verify client payment signature → finalize order |
 | `POST` | `/api/v1/webhooks/razorpay` | Razorpay webhook (signature header; no JWT) |
-| `GET` | `/api/v1/orders` | Customer order history |
+| `GET` | `/api/v1/orders` | Paginated customer order history |
 | `GET` | `/api/v1/orders/:id` | Order detail (poll while confirming payment) |
 | `GET` | `/api/v1/admin/me` | Current admin (Bearer Supabase JWT + `admins` row) |
 
@@ -198,6 +238,6 @@ Cart routes require a customer JWT. Prices in cart responses are live from varia
 
 ## Shared package
 
-This app depends on `@ishraqparfums/shared` for catalog, auth, cart, address, order, and payment contracts.
+This app depends on `@ishraqparfums/shared` for catalog, auth, cart, address, order, payment, review, and pagination contracts.
 
 Build `packages/shared` before building api if you are not using Turbo from the repo root.

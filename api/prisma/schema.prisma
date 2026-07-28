@@ -63,6 +63,7 @@ model Product {
   collection          Collection       @relation(fields: [collectionId], references: [id], onDelete: Restrict)
   variants            ProductVariant[]
   images              ProductImage[]
+  reviews             Review[]
 
   @@index([status])
   @@index([collectionId])
@@ -115,6 +116,7 @@ model Customer {
   cart      Cart?
   addresses CustomerAddress[]
   orders    Order[]
+  reviews   Review[]
 
   @@map("customers")
 }
@@ -227,6 +229,23 @@ model Payment {
 
   @@index([razorpayOrderId])
   @@map("payments")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  customerId String
+  productId  String
+  rating     Int
+  title      String?
+  body       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([customerId, productId])
+  @@index([productId, createdAt])
+  @@map("reviews")
 }
 
 model OtpChallenge {

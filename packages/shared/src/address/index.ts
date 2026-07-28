@@ -2,4 +2,4 @@ export type {
   AddressResponse,
   CreateAddressBody,
   UpdateAddressBody,
-} from './address-contracts';
+} from "./address-contracts.js";

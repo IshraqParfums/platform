@@ -6,4 +6,4 @@ export type {
   MergeCartBody,
   MergeCartItemBody,
   UpdateCartItemBody,
-} from './cart-contracts';
+} from "./cart-contracts.js";

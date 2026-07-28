@@ -1,1 +1,1 @@
-export type { AdminSummary } from "./admin-summary";
+export type { AdminSummary } from "./admin-summary.js";

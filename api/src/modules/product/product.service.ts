@@ -3,12 +3,21 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { ProductDetail, ProductListItem } from '@ishraqparfums/shared';
+import type {
+  PaginatedResponse,
+  ProductDetail,
+  ProductListItem,
+} from '@ishraqparfums/shared';
 import type { Prisma, ProductVariant } from '@prisma/client';
 import { ProductStatus } from '@prisma/client';
+import { toPaginatedResponse, toSkipTake } from '../../common/pagination';
 import { PrismaService } from '../prisma/prisma.service';
+import { buildRatingSummaryMap } from '../review/rating-summary';
 import { CollectionRepository } from './collection.repository';
-import type { PurchasableVariantWithProduct } from './mappers/product.mapper';
+import type {
+  ProductWithCatalogRelations,
+  PurchasableVariantWithProduct,
+} from './mappers/product.mapper';
 import { toProductDetail, toProductListItem } from './mappers/product.mapper';
 import { ProductRepository } from './product.repository';
 
@@ -28,7 +37,11 @@ export class ProductService {
     return Math.max(0, variant.stockQty - variant.reservedQty);
   }
 
-  async list(collectionSlug?: string): Promise<ProductListItem[]> {
+  async list(
+    collectionSlug?: string,
+    page?: number,
+    pageSize?: number,
+  ): Promise<PaginatedResponse<ProductListItem>> {
     let collectionId: string | undefined;
 
     if (collectionSlug !== undefined) {
@@ -44,21 +57,67 @@ export class ProductService {
       collectionId = collection.id;
     }
 
-    const products = await this.productRepository.findActiveMany({
-      collectionId,
+    const { skip, take, page: safePage, pageSize: safePageSize } = toSkipTake(
+      page,
+      pageSize,
+    );
+
+    const [products, total] = await Promise.all([
+      this.productRepository.findActiveMany({ collectionId, skip, take }),
+      this.productRepository.countActive({ collectionId }),
+    ]);
+
+    const productIds = products.map((product) => product.id);
+    const ratingRows =
+      productIds.length === 0
+        ? []
+        : await this.prisma.review.groupBy({
+            by: ['productId'],
+            where: { productId: { in: productIds } },
+            _avg: { rating: true },
+            _count: { rating: true },
+          });
+    const ratings = buildRatingSummaryMap(productIds, ratingRows);
+
+    const items = products.map((product) => {
+      const summary = ratings.get(product.id);
+      return toProductListItem(
+        product,
+        summary?.ratingAverage ?? null,
+        summary?.reviewCount ?? 0,
+      );
     });
 
-    return products.map(toProductListItem);
+    return toPaginatedResponse(items, total, safePage, safePageSize);
   }
 
   async getBySlug(slug: string): Promise<ProductDetail> {
+    const product = await this.requireActiveBySlug(slug);
+    const ratingRows = await this.prisma.review.groupBy({
+      by: ['productId'],
+      where: { productId: product.id },
+      _avg: { rating: true },
+      _count: { rating: true },
+    });
+    const summary = buildRatingSummaryMap([product.id], ratingRows).get(
+      product.id,
+    );
+
+    return toProductDetail(
+      product,
+      summary?.ratingAverage ?? null,
+      summary?.reviewCount ?? 0,
+    );
+  }
+
+  async requireActiveBySlug(slug: string): Promise<ProductWithCatalogRelations> {
     const product = await this.productRepository.findActiveBySlug(slug);
 
     if (!product) {
       throw new NotFoundException(`Product with slug "${slug}" not found`);
     }
 
-    return toProductDetail(product);
+    return product;
   }
 
   async findPurchasableVariant(

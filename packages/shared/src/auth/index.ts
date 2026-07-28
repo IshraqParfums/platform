@@ -3,8 +3,8 @@ export type {
   RequestOtpBody,
   RequestOtpResponse,
   VerifyOtpBody,
-} from "./auth-contracts";
+} from "./auth-contracts.js";
 export type {
   OtpRateLimitErrorBody,
   OtpRateLimitKind,
-} from "./otp-rate-limit";
+} from "./otp-rate-limit.js";

@@ -26,7 +26,10 @@ export class OrderRepository {
     });
   }
 
-  findByCustomerId(customerId: string): Promise<OrderWithRelations[]> {
+  findByCustomerId(
+    customerId: string,
+    options?: { skip?: number; take?: number },
+  ): Promise<OrderWithRelations[]> {
     return this.prisma.order.findMany({
       where: { customerId },
       include: {
@@ -34,6 +37,40 @@ export class OrderRepository {
         payment: true,
       },
       orderBy: { createdAt: 'desc' },
+      ...(options?.skip !== undefined ? { skip: options.skip } : {}),
+      ...(options?.take !== undefined ? { take: options.take } : {}),
+    });
+  }
+
+  countByCustomerId(customerId: string): Promise<number> {
+    return this.prisma.order.count({
+      where: { customerId },
+    });
+  }
+
+  findPurchaserCustomerIds(
+    productId: string,
+    customerIds: string[],
+    statuses: OrderStatus[],
+  ): Promise<{ customerId: string }[]> {
+    if (customerIds.length === 0) {
+      return Promise.resolve([]);
+    }
+
+    return this.prisma.order.findMany({
+      where: {
+        customerId: { in: customerIds },
+        status: { in: statuses },
+        items: {
+          some: {
+            productVariant: {
+              productId,
+            },
+          },
+        },
+      },
+      select: { customerId: true },
+      distinct: ['customerId'],
     });
   }
 

@@ -28,13 +28,13 @@ export class CustomerRepository {
 
   updateProfile(
     id: string,
-    data: { name: string; email: string },
+    data: { name?: string; email?: string },
   ): Promise<Customer> {
     return this.prisma.customer.update({
       where: { id },
       data: {
-        name: data.name,
-        email: data.email,
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.email !== undefined ? { email: data.email } : {}),
       },
     });
   }

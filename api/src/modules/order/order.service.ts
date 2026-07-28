@@ -11,8 +11,10 @@ import type {
   CheckoutResponse,
   OrderDetail,
   OrderSummary,
+  PaginatedResponse,
 } from '@ishraqparfums/shared';
 import { OrderStatus, type Prisma } from '@prisma/client';
+import { toPaginatedResponse, toSkipTake } from '../../common/pagination';
 import { AddressService } from '../address/address.service';
 import { CartService } from '../cart/cart.service';
 import { CustomerService } from '../customer/customer.service';
@@ -20,6 +22,7 @@ import { PaymentService } from '../payment/payment.service';
 import { ProductService } from '../product/product.service';
 import { toOrderDetail, toOrderSummary } from './mappers/order.mapper';
 import { OrderRepository, type OrderWithRelations } from './order.repository';
+import { VERIFIED_BUYER_ORDER_STATUSES } from './verified-buyer-statuses';
 
 @Injectable()
 export class OrderService {
@@ -36,9 +39,40 @@ export class OrderService {
     private readonly configService: ConfigService,
   ) {}
 
-  async listForCustomer(customerId: string): Promise<OrderSummary[]> {
-    const orders = await this.orderRepository.findByCustomerId(customerId);
-    return orders.map(toOrderSummary);
+  async listForCustomer(
+    customerId: string,
+    page?: number,
+    pageSize?: number,
+  ): Promise<PaginatedResponse<OrderSummary>> {
+    const { skip, take, page: safePage, pageSize: safePageSize } = toSkipTake(
+      page,
+      pageSize,
+    );
+
+    const [orders, total] = await Promise.all([
+      this.orderRepository.findByCustomerId(customerId, { skip, take }),
+      this.orderRepository.countByCustomerId(customerId),
+    ]);
+
+    return toPaginatedResponse(
+      orders.map(toOrderSummary),
+      total,
+      safePage,
+      safePageSize,
+    );
+  }
+
+  async findPurchasersOfProduct(
+    productId: string,
+    customerIds: string[],
+  ): Promise<Set<string>> {
+    const rows = await this.orderRepository.findPurchaserCustomerIds(
+      productId,
+      customerIds,
+      VERIFIED_BUYER_ORDER_STATUSES,
+    );
+
+    return new Set(rows.map((row) => row.customerId));
   }
 
   async getForCustomer(
@@ -86,7 +120,7 @@ export class OrderService {
       input.addressId,
     );
 
-    await this.customerService.updateCheckoutProfile(customerId, name, email);
+    await this.customerService.updateProfile(customerId, { name, email });
 
     const cart = await this.cartService.getCart(customerId);
 

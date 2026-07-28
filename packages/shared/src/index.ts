@@ -1,4 +1,4 @@
-export type { HealthResponse } from "./health";
+export type { HealthResponse } from "./health/index.js";
 export type {
   CollectionSummary,
   ProductDetail,
@@ -7,7 +7,7 @@ export type {
   ProductDetailVariant,
   ProductListItem,
   ProductListPrimaryImage,
-} from "./catalog";
+} from "./catalog/index.js";
 export type {
   AuthTokenResponse,
   OtpRateLimitErrorBody,
@@ -15,13 +15,16 @@ export type {
   RequestOtpBody,
   RequestOtpResponse,
   VerifyOtpBody,
-} from "./auth";
-export type { CustomerSummary } from "./customer";
+} from "./auth/index.js";
+export type {
+  CustomerSummary,
+  UpdateCustomerProfileBody,
+} from "./customer/index.js";
 export type {
   AddressResponse,
   CreateAddressBody,
   UpdateAddressBody,
-} from "./address";
+} from "./address/index.js";
 export type {
   CheckoutRequest,
   CheckoutResponse,
@@ -32,9 +35,9 @@ export type {
   OrderStatus,
   OrderSummary,
   PaymentStatus,
-} from "./order";
-export type { RazorpayVerifyRequest } from "./payment";
-export type { AdminSummary } from "./admin";
+} from "./order/index.js";
+export type { RazorpayVerifyRequest } from "./payment/index.js";
+export type { AdminSummary } from "./admin/index.js";
 export type {
   AddCartItemBody,
   CartItemResponse,
@@ -43,4 +46,21 @@ export type {
   MergeCartBody,
   MergeCartItemBody,
   UpdateCartItemBody,
-} from "./cart";
+} from "./cart/index.js";
+export {
+  PAGINATION_DEFAULT_PAGE,
+  PAGINATION_DEFAULT_PAGE_SIZE,
+  PAGINATION_MAX_PAGE_SIZE,
+} from "./pagination/index.js";
+export type {
+  PaginatedResponse,
+  PaginationQuery,
+} from "./pagination/index.js";
+export type {
+  CreateReviewBody,
+  MyReviewResponse,
+  ProductReviewsResponse,
+  RatingBreakdown,
+  ReviewResponse,
+  UpdateReviewBody,
+} from "./review/index.js";

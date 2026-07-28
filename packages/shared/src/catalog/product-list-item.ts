@@ -12,4 +12,6 @@ export interface ProductListItem {
   fromSizeMl: number | null;
   fromPricePaise: number | null;
   fromCompareAtPricePaise: number | null;
+  ratingAverage: number | null;
+  reviewCount: number;
 }

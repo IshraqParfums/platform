@@ -1,1 +1,1 @@
-export type { RazorpayVerifyRequest } from './payment-contracts';
+export type { RazorpayVerifyRequest } from "./payment-contracts.js";
