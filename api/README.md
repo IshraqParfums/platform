@@ -24,7 +24,7 @@ Copy environment variables:
 cp .env.example .env
 ```
 
-Fill in Supabase `DATABASE_URL` / `DIRECT_URL`, auth secrets (`JWT_SECRET`, `OTP_PEPPER`, `SUPABASE_JWT_SECRET`), `SUPABASE_SERVICE_ROLE_KEY` (product image uploads), and Razorpay keys before running checkout. Business-rule values (shipping, pricing, OTP limits, etc.) are code constants, not env vars — see [Environment variables](#environment-variables).
+Fill in Supabase `DATABASE_URL` / `DIRECT_URL`, auth secrets (`JWT_SECRET`, `OTP_PEPPER`, `SUPABASE_JWT_SECRET`, `SUPABASE_ANON_KEY`), `SUPABASE_SERVICE_ROLE_KEY` (product image uploads), and Razorpay keys before running checkout. Business-rule values (shipping, pricing, OTP limits, etc.) are code constants, not env vars — see [Environment variables](#environment-variables).
 
 ## Scripts
 
@@ -112,7 +112,8 @@ Not paginated: cart, addresses, collections.
 | `DIRECT_URL` | Direct Postgres URL used by Prisma Migrate |
 | `JWT_SECRET` | HS256 secret for customer access tokens |
 | `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_JWT_SECRET` | Supabase JWT secret (verify admin Bearer tokens) |
+| `SUPABASE_JWT_SECRET` | Legacy HS256 JWT secret (API Settings). Still required for verifying legacy/`anon`-style HS256 tokens; **user access tokens on newer projects are ES256 and verified via JWKS** (`{SUPABASE_URL}/auth/v1/.well-known/jwks.json`) |
+| `SUPABASE_ANON_KEY` | Supabase anon/public key (server-side proxy for admin login's password grant) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-only; product image uploads to Storage) |
 | `OTP_PEPPER` | Pepper for hashing OTP codes at rest |
 | `RAZORPAY_KEY_ID` | Razorpay key id (test or live) |
@@ -123,7 +124,8 @@ Only secrets and per-deployment infra values are env vars. Business-rule numbers
 
 | Value | Constant | Where |
 |-------|----------|-------|
-| Customer JWT lifetime (`7d`) | `JWT_EXPIRES_IN` | `src/modules/auth/auth.constants.ts` |
+| Customer access token lifetime (`15m`) | `ACCESS_TOKEN_EXPIRES_IN` | `src/modules/auth/auth.constants.ts` |
+| Customer refresh token lifetime (`30d`) | `REFRESH_TOKEN_TTL_DAYS` | `src/modules/auth/refresh-token/refresh-token.constants.ts` |
 | OTP TTL / cooldown / rate limits | `OTP_TTL_SECONDS`, `OTP_RESEND_COOLDOWN_SECONDS`, `OTP_MAX_PER_15_MIN`, `OTP_MAX_PER_DAY`, `OTP_MAX_VERIFY_ATTEMPTS` | `src/modules/auth/otp/otp.constants.ts` |
 | Shipping / checkout timing | `SHIPPING_PAISE`, `CHECKOUT_RAZORPAY_WINDOW_SECONDS`, `CHECKOUT_RESERVATION_TTL_SECONDS` | `src/modules/order/order.constants.ts` (reservation TTL is *derived* from the Razorpay window, so it can't drift below it) |
 | Product image bucket / limits | `MEDIA_BUCKET`, `ALLOWED_IMAGE_MIME_TYPES`, `MAX_IMAGE_BYTES` | `src/modules/media/media.constants.ts` |
@@ -131,11 +133,15 @@ Only secrets and per-deployment infra values are env vars. Business-rule numbers
 
 ## Auth notes
 
+**Customer:**
 - Resend OTP = call `POST /auth/otp/request` again (no separate route). Limits apply in **dev and prod**.
 - Distinct errors for cooldown, rate limits, expired / invalid / too many attempts.
 - On OTP `429`, body includes `retryAfterSeconds` and `limit` (`cooldown` | `window_15m` | `daily`) so the FE can show a countdown after reload.
-- Admin: create a Supabase Auth user, then insert into `admins`:
+- `POST /auth/otp/verify` returns `{ accessToken, refreshToken, customer }`. Access tokens are short-lived (`15m`); `POST /auth/refresh { refreshToken }` exchanges a valid, unrevoked refresh token for a new pair (the old refresh token is revoked on use — rotation, not reuse). `POST /auth/logout { refreshToken }` revokes it (`204`, idempotent — logging out twice, or with an already-revoked token, still succeeds). Refresh tokens are opaque random strings hashed (`sha256`, no pepper needed for a 256-bit random value) before storage in `customer_refresh_tokens` — the raw token is never persisted or logged. Each OTP verify issues an independent refresh token, so multiple devices/sessions per customer work with no special-casing.
+- No reuse-detection in V1: a revoked/rotated-away refresh token is simply rejected (`401`), not treated as a theft signal that revokes other sessions. Addable later without a schema change.
 
+**Admin:**
+1. Create a Supabase Auth user (dashboard, with a password) and insert their `admins` row — this part is still fully manual, there's no self-service admin creation:
 ```sql
 INSERT INTO admins (id, "supabaseUserId", email, "createdAt", "updatedAt")
 VALUES (
@@ -146,8 +152,11 @@ VALUES (
   NOW()
 );
 ```
-
-Pass the Supabase access token as `Authorization: Bearer <token>` to admin routes.
+2. `POST /admin/auth/login { email, password }` → `{ accessToken, refreshToken, expiresIn, admin }`. This proxies Supabase Auth's password grant (via `SUPABASE_ANON_KEY`, the correct credential class for a user-facing sign-in — not the service role key) then checks the resulting Supabase user has an `admins` row; a valid Supabase login for a non-admin user is rejected (`403`) and its session is torn down immediately rather than left dangling.
+3. `POST /admin/auth/refresh { refreshToken }` → new pair; re-checks the `admins` row on every refresh, so a deprovisioned admin (row deleted) is locked out on their next refresh even with a still-valid Supabase refresh token.
+4. `POST /admin/auth/logout { refreshToken }` (requires a valid `Authorization: Bearer <accessToken>`, same as any other admin route) → `204`, and actually revokes the session at Supabase (not just a client-side token discard).
+5. `AdminJwtGuard` (used by every other `/admin/*` route) verifies the Supabase access token: **ES256/RS256 via JWKS** (`{SUPABASE_URL}/auth/v1/.well-known/jwks.json`), or **HS256 via `SUPABASE_JWT_SECRET`** for legacy tokens. It does not care whether the token came from `/admin/auth/login` or elsewhere.
+6. No app-level rate limiting on admin login — Supabase's own GoTrue already rate-limits the password grant, and admin accounts are low-cardinality/low-traffic enough that a parallel DB-backed limiter (like the OTP module's) would just be infra for an already-covered threat.
 
 ## Checkout / payments
 
@@ -184,9 +193,9 @@ Engine + quiz data live in `@ishraqparfums/shared` (`packages/shared/src/bespoke
 
 ## Admin
 
-All `/admin/*` routes (except `GET /admin/me`) require `Authorization: Bearer <Supabase access token>` for a user with a matching row in `admins` — see [Auth notes](#auth-notes) for bootstrapping one.
+All `/admin/*` routes (except `POST /admin/auth/login` and `POST /admin/auth/refresh`) require `Authorization: Bearer <access token>` for a user with a matching row in `admins` — obtain one via `POST /admin/auth/login`, see [Auth notes](#auth-notes).
 
-- **Product status transitions:** `DRAFT ↔ ACTIVE`, `ACTIVE ↔ ARCHIVED`, either → `DELETED`. `DELETED` is terminal (no restore in V1). Same-status PATCH is a no-op. Invalid transitions → `400`.
+- **Product status transitions:** `DRAFT ↔ ACTIVE`, `ACTIVE ↔ ARCHIVED`, either → `DELETED`. `DELETED` is terminal (no restore in V1). Same-status PATCH is a no-op. Invalid transitions → `400`. Moving into `ACTIVE` (via `POST` or `PATCH`) requires at least one variant on the product → `400` otherwise.
 - **Product/collection `slug`** is editable via PATCH — safe because `OrderItem.productName` / `productSlug` are snapshot columns, not live joins, so past orders are unaffected.
 - **Variants have no hard delete** — a variant that was ever ordered/carted can't be removed (`onDelete: Restrict`). Use `PATCH .../variants/:id { isAvailable: false }` to take it off sale instead.
 - **Images**: `POST .../images` is `multipart/form-data` — a `file` field (jpeg/png/webp, ≤ 5MB) plus optional `altText`/`displayOrder` text fields, uploaded to Supabase Storage (`MediaModule`, service-role writes, public-read bucket) and returned as a public `url`. `url` is immutable after creation (delete + recreate to swap the picture, no replace-file endpoint in V1). `DELETE` removes the Storage object first (best-effort — failures are logged, not fatal) then the DB row; seed rows with an external placeholder `url` and no Storage object (`storagePath = null`) delete cleanly with the Storage step skipped.
@@ -242,7 +251,9 @@ Global prefix: `/api/v1`
 | `GET` | `/api/v1/reviews/me` | My reviews (paginated, customer JWT) |
 | `PATCH` | `/api/v1/reviews/:id` | Edit own review |
 | `POST` | `/api/v1/auth/otp/request` | Request / resend OTP (`{ phone }`) |
-| `POST` | `/api/v1/auth/otp/verify` | Verify OTP → customer JWT |
+| `POST` | `/api/v1/auth/otp/verify` | Verify OTP → `{ accessToken, refreshToken, customer }` |
+| `POST` | `/api/v1/auth/refresh` | Rotate `{ refreshToken }` → new access + refresh token pair |
+| `POST` | `/api/v1/auth/logout` | Revoke `{ refreshToken }` |
 | `GET` | `/api/v1/customers/me` | Current customer (Bearer customer JWT) |
 | `PATCH` | `/api/v1/customers/me` | Update `{ name?`, `email? }` (at least one) |
 | `GET` | `/api/v1/customers/addresses` | List saved addresses |
@@ -268,6 +279,9 @@ Global prefix: `/api/v1`
 | `GET` | `/api/v1/orders` | Paginated customer order history |
 | `GET` | `/api/v1/orders/:id` | Order detail (poll while confirming payment) |
 | `GET` | `/api/v1/admin/me` | Current admin (Bearer Supabase JWT + `admins` row) |
+| `POST` | `/api/v1/admin/auth/login` | `{ email, password }` → `{ accessToken, refreshToken, expiresIn, admin }` |
+| `POST` | `/api/v1/admin/auth/refresh` | `{ refreshToken }` → new token pair (re-checks `admins` row) |
+| `POST` | `/api/v1/admin/auth/logout` | Bearer + `{ refreshToken }` → revokes the Supabase session |
 | `POST` | `/api/v1/admin/collections` | Create collection `{ name, slug, description? }` |
 | `PATCH` | `/api/v1/admin/collections/:id` | Update collection |
 | `GET` | `/api/v1/admin/products` | Paginated products, any status; `?status=&collectionId=&search=&page=&pageSize=` |
@@ -295,6 +309,6 @@ Cart routes require a customer JWT. Cart lines are `kind: 'catalog' | 'bespoke'`
 
 ## Shared package
 
-This app depends on `@ishraqparfums/shared` for catalog, auth, cart, address, order, payment, review, bespoke, admin (product/order/customer write), and pagination contracts.
+This app depends on `@ishraqparfums/shared` for catalog, auth, cart, address, order, payment, review, bespoke, admin (product/order/customer write, admin-auth login/refresh), and pagination contracts.
 
 Build `packages/shared` before building api if you are not using Turbo from the repo root.

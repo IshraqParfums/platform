@@ -1,5 +1,7 @@
 export type {
   AuthTokenResponse,
+  LogoutBody,
+  RefreshTokenBody,
   RequestOtpBody,
   RequestOtpResponse,
   VerifyOtpBody,

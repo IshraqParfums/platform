@@ -5,20 +5,20 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { jwtVerify } from 'jose';
-import type { Request } from 'express';
+import {
+  createRemoteJWKSet,
+  decodeProtectedHeader,
+  jwtVerify,
+  type JWTPayload,
+  type JWTVerifyGetKey,
+} from 'jose';
 import { AdminService } from '../admin.service';
-
-type RequestWithAdmin = Request & {
-  admin?: {
-    id: string;
-    email: string;
-    supabaseUserId: string;
-  };
-};
+import type { RequestWithAdmin } from '../types/request-with-admin';
 
 @Injectable()
 export class AdminJwtGuard implements CanActivate {
+  private jwks: JWTVerifyGetKey | null = null;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly adminService: AdminService,
@@ -38,22 +38,18 @@ export class AdminJwtGuard implements CanActivate {
       throw new UnauthorizedException('Unauthorized.');
     }
 
-    const secret = new TextEncoder().encode(
-      this.configService.getOrThrow<string>('SUPABASE_JWT_SECRET'),
-    );
-
-    let supabaseUserId: string;
-    let email: string | undefined;
+    let payload: JWTPayload;
 
     try {
-      const { payload } = await jwtVerify(token, secret);
-      supabaseUserId = String(payload.sub ?? '');
-      email = typeof payload.email === 'string' ? payload.email : undefined;
-
-      if (!supabaseUserId) {
-        throw new UnauthorizedException('Unauthorized.');
-      }
+      payload = await this.verifySupabaseAccessToken(token);
     } catch {
+      throw new UnauthorizedException('Unauthorized.');
+    }
+
+    const supabaseUserId = String(payload.sub ?? '');
+    const email = typeof payload.email === 'string' ? payload.email : undefined;
+
+    if (!supabaseUserId) {
       throw new UnauthorizedException('Unauthorized.');
     }
 
@@ -67,5 +63,39 @@ export class AdminJwtGuard implements CanActivate {
     };
 
     return true;
+  }
+
+  /**
+   * New Supabase projects sign user access tokens with asymmetric keys (ES256/RS256)
+   * discoverable at /.well-known/jwks.json. Legacy projects / API keys still use HS256
+   * with the dashboard "JWT Secret".
+   */
+  private async verifySupabaseAccessToken(token: string): Promise<JWTPayload> {
+    const { alg } = decodeProtectedHeader(token);
+    const supabaseUrl = this.configService.getOrThrow<string>('SUPABASE_URL');
+    const issuer = `${supabaseUrl.replace(/\/$/, '')}/auth/v1`;
+
+    if (alg === 'HS256') {
+      const secret = new TextEncoder().encode(
+        this.configService.getOrThrow<string>('SUPABASE_JWT_SECRET'),
+      );
+      const { payload } = await jwtVerify(token, secret, { issuer });
+      return payload;
+    }
+
+    const { payload } = await jwtVerify(token, this.getJwks(), { issuer });
+    return payload;
+  }
+
+  private getJwks(): JWTVerifyGetKey {
+    if (!this.jwks) {
+      const supabaseUrl = this.configService.getOrThrow<string>('SUPABASE_URL');
+      this.jwks = createRemoteJWKSet(
+        new URL(
+          `${supabaseUrl.replace(/\/$/, '')}/auth/v1/.well-known/jwks.json`,
+        ),
+      );
+    }
+    return this.jwks;
   }
 }

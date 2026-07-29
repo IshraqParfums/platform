@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { CustomerModule } from '../customer/customer.module';
-import { JWT_EXPIRES_IN } from './auth.constants';
+import { ACCESS_TOKEN_EXPIRES_IN } from './auth.constants';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { CustomerJwtGuard } from './guards/customer-jwt.guard';
@@ -11,6 +11,8 @@ import { DevLogOtpSender } from './otp/dev-log-otp.sender';
 import { OtpRepository } from './otp/otp.repository';
 import { OtpService } from './otp/otp.service';
 import { OTP_SENDER } from './otp/otp-sender';
+import { RefreshTokenRepository } from './refresh-token/refresh-token.repository';
+import { RefreshTokenService } from './refresh-token/refresh-token.service';
 import { CustomerJwtStrategy } from './strategies/customer-jwt.strategy';
 
 @Module({
@@ -23,7 +25,7 @@ import { CustomerJwtStrategy } from './strategies/customer-jwt.strategy';
       useFactory: (configService: ConfigService) => ({
         secret: configService.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: JWT_EXPIRES_IN,
+          expiresIn: ACCESS_TOKEN_EXPIRES_IN,
         },
       }),
     }),
@@ -33,6 +35,8 @@ import { CustomerJwtStrategy } from './strategies/customer-jwt.strategy';
     AuthService,
     OtpService,
     OtpRepository,
+    RefreshTokenService,
+    RefreshTokenRepository,
     CustomerJwtStrategy,
     CustomerJwtGuard,
     {

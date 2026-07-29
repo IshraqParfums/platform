@@ -10,8 +10,10 @@ export type {
 } from "./catalog/index.js";
 export type {
   AuthTokenResponse,
+  LogoutBody,
   OtpRateLimitErrorBody,
   OtpRateLimitKind,
+  RefreshTokenBody,
   RequestOtpBody,
   RequestOtpResponse,
   VerifyOtpBody,
@@ -39,6 +41,11 @@ export type {
 } from "./order/index.js";
 export type { RazorpayVerifyRequest } from "./payment/index.js";
 export type { AdminSummary } from "./admin/index.js";
+export type {
+  AdminAuthTokenResponse,
+  AdminLoginBody,
+  AdminRefreshTokenBody,
+} from "./admin-auth/index.js";
 export type {
   AdjustStockBody,
   AdminCollectionResponse,

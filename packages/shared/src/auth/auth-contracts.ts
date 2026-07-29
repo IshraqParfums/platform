@@ -14,10 +14,19 @@ export interface RequestOtpResponse {
 
 export interface AuthTokenResponse {
   accessToken: string;
+  refreshToken: string;
   customer: {
     id: string;
     phone: string;
     email: string | null;
     name: string | null;
   };
+}
+
+export interface RefreshTokenBody {
+  refreshToken: string;
+}
+
+export interface LogoutBody {
+  refreshToken: string;
 }

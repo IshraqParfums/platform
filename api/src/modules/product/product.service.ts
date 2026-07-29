@@ -333,6 +333,10 @@ export class ProductService {
       );
     }
 
+    if (input.status === ProductStatus.ACTIVE) {
+      this.assertActivatable([]);
+    }
+
     try {
       const product = await this.productRepository.create({
         collection: { connect: { id: input.collectionId } },
@@ -357,6 +361,13 @@ export class ProductService {
 
     if (input.status !== undefined) {
       assertValidProductStatusTransition(current.status, input.status);
+
+      if (
+        input.status === ProductStatus.ACTIVE &&
+        current.status !== ProductStatus.ACTIVE
+      ) {
+        this.assertActivatable(current.variants);
+      }
     }
 
     if (input.collectionId !== undefined) {
@@ -390,6 +401,14 @@ export class ProductService {
       return toAdminProductDetail(product);
     } catch (error) {
       throw this.mapProductSlugConflict(error, input.slug);
+    }
+  }
+
+  private assertActivatable(variants: { length: number }): void {
+    if (variants.length === 0) {
+      throw new BadRequestException(
+        'Add at least one variant before activating this product',
+      );
     }
   }
 
