@@ -7,8 +7,10 @@ import {
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { OrnateFrame } from "@/components/ui/ornate-frame";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
+import { ShimmerFrame } from "@/components/ui/shimmer-frame";
 import { Vial } from "@/components/ui/vial";
 import { formatPaise } from "@/lib/format/money";
 
@@ -45,7 +47,7 @@ const FIRST_QUESTION = CORE_QUESTIONS[0];
 
 export function BespokeTeaser() {
   return (
-    <Section tone="deep" glow>
+    <Section tone="deep" glow mist="subtle">
       <Container size="wide">
         {/* ------------------------------------------------ intro + steps */}
         <div className="grid items-start gap-14 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14">
@@ -131,53 +133,60 @@ export function BespokeTeaser() {
         </div>
 
         {/* --------------------------------------------- formula preview */}
-        <Reveal>
-          <div className="mt-16 flex flex-col gap-10 rounded-3xl border border-cream/12 bg-gradient-to-br from-cream/6 to-transparent p-8 sm:p-10 lg:mt-20 lg:flex-row lg:items-center lg:gap-14">
-            {/* The cap and neck are drawn above the element box, so the wrapper
-                needs headroom or they read as a clipped stub. */}
-            <div className="flex shrink-0 justify-center pt-11 text-gold-soft/70 lg:px-6">
-              <Vial fill={82} bands={{ top: 28, heart: 42, base: 30 }} />
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <Eyebrow className="text-gold-soft">
-                What a finished formula looks like
-              </Eyebrow>
-
-              <div className="mt-5 flex flex-col">
-                {EXAMPLE.map((row) => (
-                  <div
-                    key={row.role}
-                    className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-cream/10 py-3.5 last:border-0"
-                  >
-                    <span className="w-16 shrink-0 font-mono text-label-sm uppercase text-rose">
-                      {row.role}
-                    </span>
-                    <span className="min-w-0 flex-1 text-[14.5px] text-cream/85">
-                      {row.materials.map((m) => m.name).join(" · ")}
-                    </span>
-                    <span className="font-mono text-meta text-gold-soft">
-                      {row.pct}%
-                    </span>
-                  </div>
-                ))}
+        {/* The one shimmer moment on the page — this is the highest-intent
+            card, so it earns the only travelling light. */}
+        <Reveal className="mt-16 block lg:mt-20">
+          <ShimmerFrame>
+            <OrnateFrame
+              inset={9}
+              className="flex flex-col gap-10 rounded-3xl border border-cream/12 bg-gradient-to-br from-cream/6 to-transparent p-9 sm:p-11 lg:flex-row lg:items-center lg:gap-14"
+            >
+              {/* The cap and neck are drawn above the element box, so the
+                  wrapper needs headroom or they read as a clipped stub. */}
+              <div className="flex shrink-0 justify-center pt-11 text-gold-soft/70 lg:px-6">
+                <Vial fill={82} bands={{ top: 28, heart: 42, base: 30 }} />
               </div>
 
-              <p className="mt-4 text-meta italic text-cream/60">
-                {EXAMPLE[0].materials[0]?.desc &&
-                  `“${EXAMPLE[0].materials[0].name} — ${EXAMPLE[0].materials[0].desc}.”`}
-              </p>
+              <div className="min-w-0 flex-1">
+                <Eyebrow className="text-gold-soft">
+                  What a finished formula looks like
+                </Eyebrow>
 
-              <div className="mt-7 flex flex-wrap items-center gap-4">
-                <ButtonLink href="/bespoke/quiz" size="lg">
-                  Begin the quiz
-                </ButtonLink>
-                <span className="font-mono text-label uppercase text-cream/55">
-                  100 ml · {formatPaise(BESPOKE_PAISE_PER_ML * 100)}
-                </span>
+                <div className="mt-5 flex flex-col">
+                  {EXAMPLE.map((row) => (
+                    <div
+                      key={row.role}
+                      className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-cream/10 py-3.5 last:border-0"
+                    >
+                      <span className="w-16 shrink-0 font-mono text-label-sm uppercase text-rose">
+                        {row.role}
+                      </span>
+                      <span className="min-w-0 flex-1 text-[14.5px] text-cream/85">
+                        {row.materials.map((m) => m.name).join(" · ")}
+                      </span>
+                      <span className="font-mono text-meta text-gold-soft">
+                        {row.pct}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="mt-4 text-meta italic text-cream/60">
+                  {EXAMPLE[0].materials[0]?.desc &&
+                    `“${EXAMPLE[0].materials[0].name} — ${EXAMPLE[0].materials[0].desc}.”`}
+                </p>
+
+                <div className="mt-7 flex flex-wrap items-center gap-4">
+                  <ButtonLink href="/bespoke/quiz" size="lg">
+                    Begin the quiz
+                  </ButtonLink>
+                  <span className="font-mono text-label uppercase text-cream/55">
+                    100 ml · {formatPaise(BESPOKE_PAISE_PER_ML * 100)}
+                  </span>
+                </div>
               </div>
-            </div>
-          </div>
+            </OrnateFrame>
+          </ShimmerFrame>
         </Reveal>
       </Container>
     </Section>

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Mist } from "@/components/ui/mist";
 import { cn } from "@/lib/cn";
 
 export type SectionTone = "cream" | "cream-soft" | "deep" | "deep-deeper";
@@ -26,6 +27,7 @@ export function Section({
   tone = "cream",
   space = "default",
   glow = false,
+  mist = false,
   bordered = false,
   className,
   id,
@@ -35,6 +37,8 @@ export function Section({
   space?: SectionSpace;
   /** Warm key light for espresso surfaces. */
   glow?: boolean;
+  /** Drifting volumetric mist. Espresso surfaces only — it is invisible on cream. */
+  mist?: boolean | "subtle" | "medium" | "strong";
   /** Hairline rules top and bottom — for thin interstitial bands. */
   bordered?: boolean;
   className?: string;
@@ -53,6 +57,11 @@ export function Section({
         className,
       )}
     >
+      {/* Order matters: mist sits above the flat fill but below the key light,
+          so the glow reads as light passing through it rather than over it. */}
+      {mist && isDark && (
+        <Mist strength={mist === true ? "medium" : mist} />
+      )}
       {glow && (
         <div
           aria-hidden="true"

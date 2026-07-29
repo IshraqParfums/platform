@@ -14,16 +14,16 @@
   --color-cream-soft: #fbf4e9;
   --color-card: #fffbf3;
 
-  /* Deepened and warmed: the previous values read dusty-brown rather than the
-     rich near-black the brand wants gold to sit against. */
-  --color-deep: #22140c;
-  --color-deep-soft: #34200f;
-  --color-deep-deeper: #140b06;
+  /* Deepened toward a true near-black so gold reads as light against it.
+     Warm, not neutral — the brown stays in the shadow, it just gets darker. */
+  --color-deep: #1a0f08;
+  --color-deep-soft: #2b1a0d;
+  --color-deep-deeper: #0d0704;
 
-  /* Slightly more saturated so gold reads as light, not beige. */
-  --color-gold: #d3a044;
-  --color-gold-soft: #e6c68a;
-  --color-gold-pale: #f2dcb3;
+  /* Warmer and a touch lighter — closer to classic antique gold than to ochre. */
+  --color-gold: #d6a851;
+  --color-gold-soft: #e8cb93;
+  --color-gold-pale: #f4e0bb;
 
   --color-rose: #c6685a;
   --color-rose-deep: #a84e42;
@@ -39,8 +39,9 @@
 
   /* Type scale — one ramp, so section headings stay clearly subordinate to the
      hero and clearly above card titles. */
-  --text-display: clamp(44px, 7.4vw, 76px);
-  --text-display--line-height: 1.02;
+  /* Sized to span a wide container and to be set across the hero plate. */
+  --text-display: clamp(46px, 9.6vw, 116px);
+  --text-display--line-height: 0.98;
   --text-section: clamp(30px, 4.2vw, 50px);
   --text-section--line-height: 1.08;
   --text-subsection: clamp(22px, 2.6vw, 30px);
@@ -186,6 +187,191 @@ body {
   transition: height 1s var(--ease-out-soft);
 }
 
+/* ------------------------------------------------------------- mist ---- */
+/* Volumetric drift built from pre-rendered, seamlessly tileable noise. The
+   tiles carry the shape in their alpha channel only, so each layer is a solid
+   brand colour revealed through a repeating mask — one GPU-composited
+   transform per layer, no runtime filters.
+
+   Each layer bleeds one full tile beyond its container on every side and
+   travels exactly one tile per cycle, so the loop realigns invisibly. */
+.mist-layer {
+  position: absolute;
+  top: calc(-1 * var(--mist-tile));
+  left: calc(-1 * var(--mist-tile));
+  width: calc(100% + 2 * var(--mist-tile));
+  height: calc(100% + 2 * var(--mist-tile));
+  background-color: currentColor;
+  -webkit-mask-image: var(--mist-src);
+  mask-image: var(--mist-src);
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: var(--mist-tile) var(--mist-tile);
+  mask-size: var(--mist-tile) var(--mist-tile);
+  will-change: transform;
+  pointer-events: none;
+}
+
+@keyframes mist-drift-a {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(
+      calc(-1 * var(--mist-tile)),
+      calc(-1 * var(--mist-tile)),
+      0
+    );
+  }
+}
+
+@keyframes mist-drift-b {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(var(--mist-tile), calc(-1 * var(--mist-tile)), 0);
+  }
+}
+
+@keyframes mist-drift-c {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(-1 * var(--mist-tile)), 0, 0);
+  }
+}
+
+/* ------------------------------------------------------- hero plate ----- */
+/* The photographic plate. Motion is a camera breath — `scale` only, never
+   translation. It uses the standalone `scale` property so it composes with the
+   centring `transform: translate(...)` instead of overwriting it. */
+@keyframes hero-breath {
+  from {
+    scale: 1;
+  }
+  to {
+    scale: 1.028;
+  }
+}
+
+.hero-breath {
+  animation: hero-breath 28s ease-in-out infinite alternate;
+  will-change: scale;
+}
+
+/* Full-bleed landscape plate — mask only softens the far edges into bg-deep
+   so the smoke doesn't meet the section as a hard rectangle. Wide ellipse so
+   the bottle and midfield stay opaque. */
+.hero-plate {
+  -webkit-mask-image: radial-gradient(
+    ellipse 108% 92% at 50% 48%,
+    #000 62%,
+    rgba(0, 0, 0, 0.85) 82%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 108% 92% at 50% 48%,
+    #000 62%,
+    rgba(0, 0, 0, 0.85) 82%,
+    transparent 100%
+  );
+}
+
+/* Contrast insurance, not decoration. The brightest highlights in the band the
+   headline crosses measure 248 against cream text at 244 — without this the
+   words vanish over them. Invisible as a shape; it only lifts the type to a
+   measured ~3.2:1. */
+.hero-scrim {
+  background: radial-gradient(
+    ellipse 72% 48% at 50% 52%,
+    rgba(13, 7, 4, 0.72),
+    rgba(13, 7, 4, 0.34) 58%,
+    transparent 84%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-breath {
+    animation: none !important;
+    scale: 1 !important;
+  }
+}
+
+/* ------------------------------------------------------- shimmer frame -- */
+/* A band of light orbiting a border ring. The ring is carved out with
+   mask-composite so only the border paints — no second element, no JS.
+   Reserved for one or two moments per page; on every card it is wallpaper.
+
+   The light is a rotating conic gradient rather than a panned linear one.
+   Panning a linear gradient (the usual approach) only looks smooth on a
+   roughly square element: on a wide box the band crosses the short axis far
+   faster than the long one, so the highlight appears to jump between edges
+   instead of travelling. Rotating a conic sweeps the perimeter at a constant
+   angular rate, which holds at any aspect ratio. */
+@property --shimmer-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.shimmer-frame {
+  position: relative;
+  isolation: isolate;
+}
+
+.shimmer-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  /* Slightly thicker than a hairline so the glint has something to travel on. */
+  padding: 1.5px;
+  /* Transparent everywhere except the travelling arc. An always-on base tint
+     paints a permanent ring, and the highlight then has nothing to stand out
+     against — the movement reads as a line that is simply there, rather than
+     light crossing it. The arc is wide enough (~110deg) not to flicker past
+     the long edges of a wide card, with a bright glint at its centre. */
+  background: conic-gradient(
+    from var(--shimmer-angle),
+    transparent 0deg,
+    transparent 248deg,
+    rgba(214, 168, 81, 0.28) 276deg,
+    rgba(244, 224, 179, 0.85) 306deg,
+    rgba(255, 246, 229, 0.98) 318deg,
+    rgba(244, 224, 179, 0.85) 330deg,
+    rgba(214, 168, 81, 0.28) 356deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  animation: shimmer-orbit 6s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes shimmer-orbit {
+  to {
+    --shimmer-angle: 360deg;
+  }
+}
+
+/* Without registered custom properties the angle cannot interpolate, so fall
+   back to a plain static gold hairline rather than a stuttering sweep. */
+@supports not (background: conic-gradient(from var(--shimmer-angle), red, blue)) {
+  .shimmer-frame::before {
+    background: rgba(214, 168, 81, 0.38);
+    animation: none;
+  }
+}
+
 /* ---------------------------------------------------------- animations */
 @keyframes rise-in {
   from {
@@ -238,5 +424,11 @@ body {
   }
   .marquee-track {
     animation: none;
+  }
+  /* Mist and shimmer are pure decoration — hold them still rather than
+     letting the global 0.001ms override churn them at full speed. */
+  .mist-layer,
+  .shimmer-frame::before {
+    animation: none !important;
   }
 }
