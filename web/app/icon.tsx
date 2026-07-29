@@ -13,19 +13,19 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#0f766e",
-          borderRadius: 6,
+          background: "linear-gradient(140deg, #3D2519, #2C1B14)",
+          borderRadius: 7,
         }}
       >
         <span
           style={{
-            color: "#ffffff",
-            fontSize: 14,
+            color: "#E0BD84",
+            fontSize: 20,
             fontWeight: 700,
-            letterSpacing: "-0.5px",
+            fontFamily: "Georgia, serif",
           }}
         >
-          SQ
+          I
         </span>
       </div>
     ),

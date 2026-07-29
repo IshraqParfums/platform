@@ -1,21 +1,42 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, JetBrains_Mono, Manrope } from "next/font/google";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  display: "swap",
+  style: ["normal", "italic"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const jetbrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["500"],
 });
 
 export const metadata: Metadata = {
-  title: "Ishraq Parfums",
+  title: {
+    default: "Ishraq Parfums — Perfume, composed for you",
+    template: "%s · Ishraq Parfums",
+  },
   description:
-    "Ishraq Parfums init page. Premium perfume shopping and bespoke blends.",
+    "Small-batch perfumes built from a real perfumer's palette, and a bespoke blend composed around your answers. Handcrafted in India.",
+  openGraph: {
+    title: "Ishraq Parfums — Perfume, composed for you",
+    description:
+      "Small-batch perfumes built from a real perfumer's palette, and a bespoke blend composed around your answers.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -26,9 +47,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${manrope.variable} ${jetbrains.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full flex-col bg-cream text-ink">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </body>
     </html>
   );
 }

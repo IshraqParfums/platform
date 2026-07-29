@@ -9,6 +9,8 @@ export interface NestFetchInit {
   accessToken?: string | null;
   headers?: HeadersInit;
   cache?: RequestCache;
+  /** Next.js cache directives. Mutually exclusive with `cache`. */
+  next?: { revalidate?: number | false; tags?: string[] };
 }
 
 export interface NestFetchResult<T> {
@@ -35,11 +37,17 @@ export async function nestFetch<T>(
     headers.set('Authorization', `Bearer ${init.accessToken}`);
   }
 
+  // `cache` and `next` cannot both be set; default to no-store only when the
+  // caller has not asked for revalidation.
+  const cacheOptions = init.next
+    ? { next: init.next }
+    : { cache: init.cache ?? ('no-store' as RequestCache) };
+
   const response = await fetch(url, {
     method: init.method ?? (init.body !== undefined ? 'POST' : 'GET'),
     headers,
     body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
-    cache: init.cache ?? 'no-store',
+    ...cacheOptions,
   });
 
   if (response.status === 204) {
