@@ -147,8 +147,25 @@ Guidelines:
 
 * Prefer App Router route groups for storefront vs admin.
 * Keep API calls in `lib/` (or feature helpers), not scattered inside random components.
-* Use TanStack Query for server-state fetching/caching on the client.
 * Guest cart and temporary bespoke results live in browser local storage until login merge.
+* **Auth tokens** are not stored in localStorage. The Next.js BFF (`app/api/auth/*`, `app/api/admin/auth/*`) sets **httpOnly cookies**; Nest stays Bearer for Postman and server-side `nestFetch` / `authFetch`. BFF success JSON must never echo access/refresh tokens.
+
+### Frontend libraries — use where there is a win
+
+Core stack stays Next.js App Router + React + Tailwind + `@ishraqparfums/shared`. Add the following only when the problem shows up; do **not** wrap every screen in every tool.
+
+| Library | Use when | Skip when |
+|---------|----------|-----------|
+| **Thin `lib/api` fetch wrapper** | All HTTP to Nest (`/api/v1`): base URL, JSON, `Authorization`, shared error shape | Inline `fetch` duplicated across components |
+| **TanStack Query** | Client-held server state that refetches/caches: product lists, PDP, cart (logged-in), orders, reviews, admin tables | One-shot Server Component reads with no client interaction; pure local UI state |
+| **Zod** | Parse/validate API payloads and form input at boundaries | Re-defining every Nest DTO again with no FE form |
+| **react-hook-form** (+ Zod resolver) | Multi-field forms: OTP, checkout, address, admin product/login | Single button / toggle with no fields |
+| **Razorpay Checkout.js** | Checkout pay step only (after `POST /checkout`) | Catalog, cart, admin, or anywhere payment is not happening |
+| **nuqs** | URL-driven list state: `page`, `pageSize`, collection/search filters on shop or admin lists | Auth modals, cart drawer, bespoke quiz step state (keep in component/local state) |
+| **shadcn/ui** | Admin panel speed (tables, dialogs, forms) under `/admin` | Storefront brand surfaces — keep custom Tailwind; don’t force shadcn look on the shop |
+| **`next/font` (Fraunces + Manrope or brand fonts)** | Global shop typography / bespoke quiz atmosphere (align with `Find_Your_Bespoke_Blend-2.html`) | Loading every Google font on `/admin`; mono for code-like admin can stay system/Geist Mono |
+
+Bespoke quiz UX may borrow palette/type cues from [`Find_Your_Bespoke_Blend-2.html`](../Find_Your_Bespoke_Blend-2.html); scoring stays in `@ishraqparfums/shared` — do not reimplement the engine in `web/`.
 
 ## 3.5 Shared package structure (`packages/shared/`)
 
@@ -373,7 +390,7 @@ Avoid optimization without evidence of a bottleneck.
 
 Settled Version 1 decisions that engineers should treat as given:
 
-* Stack: TypeScript, pnpm + Turborepo, Next.js, NestJS, PostgreSQL, Prisma, Tailwind, TanStack Query, Zod.
+* Stack: TypeScript, pnpm + Turborepo, Next.js, NestJS, PostgreSQL, Prisma, Tailwind, TanStack Query, Zod. Frontend add-ons (RHF, Razorpay.js, nuqs, shadcn for admin, brand fonts) — use only where they win; see §3.4.
 * Shared contracts live in `@ishraqparfums/shared`.
 * Customer auth: WhatsApp OTP (log-only in development).
 * Admin auth: Supabase email/password.

@@ -1,9 +1,8 @@
 import type { HealthResponse } from "@ishraqparfums/shared";
-
-const API_BASE_URL = "http://localhost:3001";
+import { getNestApiBaseUrl } from "@/lib/config";
 
 export async function fetchHealth(): Promise<HealthResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/health`, {
+  const response = await fetch(`${getNestApiBaseUrl()}/api/v1/health`, {
     cache: "no-store",
   });
 
