@@ -6,6 +6,7 @@ import {
   ShieldIcon,
   TruckIcon,
 } from "@/components/ui/icons";
+import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
 import { cn } from "@/lib/cn";
 
@@ -47,7 +48,7 @@ export function TrustStrip() {
               <li
                 key={item.label}
                 className={cn(
-                  "flex flex-col gap-3 py-8 lg:py-10",
+                  "py-7 lg:py-10",
                   // stacked on mobile, 2-up on sm, 4-up on lg — hairlines follow suit
                   i > 0 && "border-t border-line/50",
                   i > 1 && "sm:border-t",
@@ -56,15 +57,27 @@ export function TrustStrip() {
                   i > 0 && "lg:border-l lg:border-t-0 lg:pl-8",
                 )}
               >
-                <Icon className="h-10 w-10 text-gold" />
+                {/* Icon beside the text on narrow screens — stacking it above
+                    wastes the width and makes the section needlessly tall. It
+                    moves above the claim at `lg`, where four columns give a
+                    cleaner rhythm. Staggered fade-up fires once on scroll-in,
+                    matching the product grid. */}
+                <Reveal
+                  delay={i * 90}
+                  className="flex items-start gap-4 lg:flex-col lg:gap-3"
+                >
+                  <Icon className="h-9 w-9 shrink-0 text-gold lg:h-10 lg:w-10" />
 
-                {/* The claim is the scannable line — display type rather than
-                    mono caps, which is hard to read at a glance. The mono
-                    uppercase voice stays on eyebrows and badges. */}
-                <p className="font-display text-[19px] font-semibold leading-snug text-ink">
-                  {item.label}
-                </p>
-                <p className="text-meta text-ink-soft">{item.detail}</p>
+                  {/* The claim is the scannable line — display type rather than
+                      mono caps, which is hard to read at a glance. The mono
+                      uppercase voice stays on eyebrows and badges. */}
+                  <div className="flex flex-col gap-1.5">
+                    <p className="font-display text-[19px] font-semibold leading-snug text-ink">
+                      {item.label}
+                    </p>
+                    <p className="text-meta text-ink-soft">{item.detail}</p>
+                  </div>
+                </Reveal>
               </li>
             );
           })}

@@ -11,6 +11,16 @@ const BASE =
   "ease-[cubic-bezier(0.22,0.8,0.28,1)] hover:-translate-y-0.5 active:translate-y-0 " +
   "disabled:pointer-events-none disabled:opacity-55 whitespace-nowrap";
 
+/**
+ * Colour lives here, not in a caller's `className`. `cn()` is a plain string
+ * join with no Tailwind conflict resolution, so a `text-*`/`bg-*`/`border-*`
+ * passed via `className` doesn't override these — it sits alongside them, and
+ * the winner is decided by stylesheet order rather than call-site intent. This
+ * is exactly the bug `Eyebrow` had (see its comment): a hardcoded colour class
+ * silently beat an override for months because it happened to be emitted
+ * later in the compiled CSS. Add a new `Variant` instead of trying to tint an
+ * existing one from outside.
+ */
 const VARIANTS: Record<Variant, string> = {
   // Gold is the single loudest element on the page — reserved for one CTA per view.
   primary: "bg-gold-soft text-deep hover:bg-gold-pale",

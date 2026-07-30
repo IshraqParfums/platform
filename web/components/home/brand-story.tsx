@@ -17,14 +17,15 @@ export function BrandStory() {
               like it was made for the person wearing it, not for a shelf.
             </p>
 
+            {/* Deliberately names no collection. Collections are admin-managed
+                and change, so hardcoded copy would go stale the moment one is
+                renamed or added. */}
             <p className="mt-6 text-[15.5px] leading-relaxed text-ink-soft">
               Everything is composed and bottled here in India, in batches small
-              enough that we still smell every one. The{" "}
-              <span className="text-ink">Designer</span>{" "}
-              collection is for scents you&apos;ll reach for daily;{" "}
-              <span className="text-ink">Nostalgia</span>{" "}
-              is for the ones that take you somewhere. And if neither is quite
-              you, the bespoke quiz exists precisely for that.
+              enough that we still smell every one. Each fragrance is drawn from
+              the same closed palette of raw materials — nothing borrowed,
+              nothing outsourced. And if none of them is quite you, the bespoke
+              quiz exists precisely for that.
             </p>
 
             <div

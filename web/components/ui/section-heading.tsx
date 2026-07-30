@@ -35,7 +35,7 @@ export function SectionHeading({
           the type ramp; the description is constrained separately. */}
       <div className={cn("max-w-3xl", centered && "text-center")}>
         {eyebrow && (
-          <Eyebrow className={cn("mb-4", tone === "light" && "text-gold-soft")}>
+          <Eyebrow tone={tone === "light" ? "gold" : "rose"} className="mb-4">
             {eyebrow}
           </Eyebrow>
         )}

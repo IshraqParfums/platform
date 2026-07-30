@@ -1,17 +1,9 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { getCollections } from "@/lib/api/catalog";
 
-const COLUMNS = [
-  {
-    title: "Shop",
-    links: [
-      { href: "/shop", label: "All perfumes" },
-      { href: "/collections/designer", label: "Designer" },
-      { href: "/collections/nostalgia", label: "Nostalgia" },
-      { href: "/collections/limited-edition", label: "Limited Edition" },
-    ],
-  },
+const STATIC_COLUMNS = [
   {
     title: "Bespoke",
     links: [
@@ -30,7 +22,30 @@ const COLUMNS = [
   },
 ];
 
-export function Footer() {
+/**
+ * Server component, so the Shop column can be built from the live collection
+ * list rather than hardcoded slugs — those would 404 or go stale the moment a
+ * collection is renamed, added or archived. `getCollections()` is ISR-cached
+ * and already degrades to an empty array, in which case the column falls back
+ * to just the catalog link.
+ */
+export async function Footer() {
+  const collections = await getCollections();
+
+  const columns = [
+    {
+      title: "Shop",
+      links: [
+        { href: "/shop", label: "All perfumes" },
+        ...collections.map((collection) => ({
+          href: `/collections/${collection.slug}`,
+          label: collection.name,
+        })),
+      ],
+    },
+    ...STATIC_COLUMNS,
+  ];
+
   return (
     <footer className="grain relative overflow-hidden bg-deep-deeper text-cream/70">
       <div className="h-px w-full rule-gold opacity-40" />
@@ -65,9 +80,11 @@ export function Footer() {
             </a>
           </div>
 
-          {COLUMNS.map((col) => (
+          {columns.map((col) => (
             <div key={col.title}>
-              <Eyebrow className="mb-5 text-gold-soft/80">{col.title}</Eyebrow>
+              <Eyebrow tone="gold" className="mb-5">
+                {col.title}
+              </Eyebrow>
               <ul className="flex flex-col gap-3">
                 {col.links.map((link) => (
                   <li key={link.href}>

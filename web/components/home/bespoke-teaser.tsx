@@ -52,7 +52,7 @@ export function BespokeTeaser() {
         {/* ------------------------------------------------ intro + steps */}
         <div className="grid items-start gap-14 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14">
           <div>
-            <Eyebrow className="text-gold-soft">The bespoke blend</Eyebrow>
+            <Eyebrow tone="gold">The bespoke blend</Eyebrow>
             <h2 className="font-display mt-6 text-section font-semibold text-cream-soft">
               You can&apos;t smell a screen.
               <br />
@@ -148,7 +148,7 @@ export function BespokeTeaser() {
               </div>
 
               <div className="min-w-0 flex-1">
-                <Eyebrow className="text-gold-soft">
+                <Eyebrow tone="gold">
                   What a finished formula looks like
                 </Eyebrow>
 
