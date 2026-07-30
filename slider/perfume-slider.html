@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Collection · Ishraq Parfums</title>
+<meta name="description" content="Slide through the collection — every bottle sprays as it arrives.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* ---- page shell (demo only — the slider itself is self-contained) ---- */
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{background:#241510;}
+#collection{min-height:100vh;}
+
+/* ---- slider ---- */
+/* ==========================================================================
+   Perfume spray slider
+   Everything is scoped under .ipx-slider so it can drop into any page.
+   Palette follows the Ishraq Parfums house theme: deep espresso ground,
+   parchment type, rose + gold accents.
+   ========================================================================== */
+
+/* Registering these lets the stage wash crossfade between perfumes.
+   Browsers without @property just snap to the new colour. */
+@property --ipx-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #c9963e;
+}
+@property --ipx-aura {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #5a2e12;
+}
+
+.ipx-slider {
+  --ipx-ink: #2c1b14;
+  --ipx-ink-2: #3d2519;
+  --ipx-cream: #f6ecdc;
+  --ipx-cream-dim: rgba(246, 236, 220, 0.62);
+  --ipx-line: rgba(246, 236, 220, 0.14);
+  --ipx-accent: #c9963e;
+  --ipx-accent-soft: #e0bd84;
+  --ipx-aura: #5a2e12;
+
+  /* Bottle height drives the label's type scale as well as the SVG. */
+  --ipx-bottle-h: clamp(250px, 42vh, 390px);
+
+  --ipx-serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+  --ipx-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ipx-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 2vh, 20px);
+  padding: clamp(20px, 4vh, 44px) clamp(16px, 4vw, 48px) clamp(18px, 3vh, 34px);
+  min-height: 640px;
+  background:
+    radial-gradient(120% 80% at 50% -10%, #4a2c1c 0%, transparent 60%),
+    linear-gradient(180deg, var(--ipx-ink) 0%, var(--ipx-ink-2) 55%, #241510 100%);
+  color: var(--ipx-cream);
+  font-family: var(--ipx-sans);
+  -webkit-font-smoothing: antialiased;
+  transition: --ipx-accent 700ms ease, --ipx-aura 700ms ease;
+}
+
+.ipx-slider:focus-visible {
+  outline: 2px solid var(--ipx-accent);
+  outline-offset: -4px;
+}
+
+/* ------------------------------------------------------------- atmosphere */
+
+.ipx-aura {
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 40% at 50% 46%, var(--ipx-aura) 0%, transparent 68%),
+    radial-gradient(22% 20% at 50% 62%, var(--ipx-accent) 0%, transparent 70%);
+  opacity: 0.55;
+  filter: blur(28px);
+  transition: opacity 600ms ease;
+}
+
+.ipx-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(80% 60% at 50% 45%, transparent 40%, rgba(18, 10, 6, 0.55) 100%);
+}
+
+/* Fine film grain keeps the large flat areas from banding. */
+.ipx-vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.5'/></svg>");
+}
+
+.ipx-slider.ipx-pulse .ipx-aura {
+  animation: ipx-aura-pulse 1000ms cubic-bezier(0.16, 0.84, 0.32, 1);
+}
+
+@keyframes ipx-aura-pulse {
+  0% { opacity: 0.55; transform: scale(1); }
+  22% { opacity: 0.92; transform: scale(1.045); }
+  100% { opacity: 0.55; transform: scale(1); }
+}
+
+/* -------------------------------------------------------------- header */
+
+.ipx-head {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+}
+
+.ipx-eyebrow {
+  display: block;
+  font-family: var(--ipx-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ipx-accent-soft);
+}
+
+.ipx-hint {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--ipx-cream-dim);
+}
+
+/* --------------------------------------------------------------- stage */
+
+.ipx-stage {
+  position: relative;
+  z-index: 4;
+  flex: 1 1 auto;
+  min-height: clamp(280px, 42vh, 420px);
+  cursor: grab;
+  touch-action: pan-y; /* vertical page scrolling still works */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ipx-slider.ipx-dragging .ipx-stage { cursor: grabbing; }
+
+.ipx-rail {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.ipx-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Sits the bottle low in the stage so the plume has somewhere to go. */
+  padding-top: clamp(40px, 9vh, 92px);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.ipx-bottle { position: relative; }
+
+.ipx-bottle-svg {
+  display: block;
+  height: var(--ipx-bottle-h);
+  width: auto;
+  overflow: visible;
+  filter: drop-shadow(0 24px 34px rgba(0, 0, 0, 0.55));
+  transition: filter 500ms ease;
+}
+
+.ipx-slide.ipx-active .ipx-bottle-svg {
+  filter:
+    drop-shadow(0 24px 34px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 26px color-mix(in srgb, var(--ipx-accent) 40%, transparent));
+}
+
+/* ---------------------------------------------------------- bottle label
+
+   Deliberately HTML rather than SVG <text>: see renderLabel() in bottle.js.
+   Position and type size are percentages of the bottle box, so the label
+   tracks the glass exactly however the slider is scaled.                    */
+
+.ipx-label {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5%;
+  padding: 0 4%;
+  border-radius: 4px;
+  color: var(--ipx-l-ink);
+  background: var(--ipx-l-plate);
+  border: 0.5px solid rgba(255, 255, 255, 0.24);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ipx-label-foil {
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(255, 255, 255, 0) 42%,
+    rgba(0, 0, 0, 0.12) 100%
+  );
+  border-radius: 3px;
+}
+
+.ipx-label-etched { border-radius: 5px; }
+.ipx-label-plate { border-radius: 2px; }
+
+.ipx-l-mark {
+  font-family: var(--ipx-serif);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-indent: 0.14em; /* balances the trailing letter-spacing */
+}
+
+.ipx-l-name {
+  font-family: var(--ipx-serif);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.ipx-l-rule {
+  width: 62%;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.45;
+}
+
+.ipx-l-size {
+  font-family: var(--ipx-mono);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-indent: 0.12em;
+}
+
+/* ---------------------------------------------------------- the atomiser */
+
+.ipx-actuator { transform-origin: 110px 98px; }
+
+.ipx-slide.ipx-firing .ipx-actuator {
+  animation: ipx-press 440ms cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+@keyframes ipx-press {
+  0% { transform: translateY(0); }
+  14% { transform: translateY(4px); }
+  46% { transform: translateY(3.4px); }
+  100% { transform: translateY(0); }
+}
+
+/* Liquid pulled up the dip tube as the bottle fires. */
+.ipx-slide.ipx-firing .ipx-tube-draw {
+  animation: ipx-draw 520ms ease-out;
+}
+
+@keyframes ipx-draw {
+  0% { opacity: 0; }
+  18% { opacity: 0.85; }
+  62% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+
+.ipx-slide.ipx-firing .ipx-juice {
+  animation: ipx-slosh 620ms ease-out;
+}
+
+@keyframes ipx-slosh {
+  0% { transform: translateY(0); }
+  22% { transform: translateY(1.6px); }
+  60% { transform: translateY(-0.8px); }
+  100% { transform: translateY(0); }
+}
+
+/* --------------------------------------------------------- spray layers */
+
+.ipx-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.ipx-notes-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 210;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ipx-note-float {
+  position: absolute;
+  font-family: var(--ipx-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ipx-accent-soft);
+  opacity: 0;
+  animation: ipx-note-rise 2600ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes ipx-note-rise {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.9); filter: blur(3px); }
+  18% { opacity: 0.95; filter: blur(0); }
+  100% {
+    opacity: 0;
+    transform: translate(var(--ipx-note-dx, 58px), var(--ipx-note-dy, -84px)) scale(1.08);
+    filter: blur(2px);
+  }
+}
+
+/* ------------------------------------------------------------ nav arrows */
+
+.ipx-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-top: -23px;
+  border: 1px solid var(--ipx-line);
+  border-radius: 50%;
+  background: rgba(246, 236, 220, 0.05);
+  backdrop-filter: blur(6px);
+  color: var(--ipx-cream);
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.ipx-nav svg { width: 22px; height: 22px; }
+.ipx-nav:hover {
+  background: rgba(246, 236, 220, 0.12);
+  border-color: var(--ipx-accent);
+  transform: scale(1.06);
+}
+.ipx-nav:active { transform: scale(0.96); }
+.ipx-prev { left: clamp(2px, 2vw, 24px); }
+.ipx-next { right: clamp(2px, 2vw, 24px); }
+
+/* ------------------------------------------------------------------ info */
+
+.ipx-info {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+}
+
+.ipx-info-in { animation: ipx-fade-up 560ms cubic-bezier(0.16, 0.84, 0.32, 1); }
+
+@keyframes ipx-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ipx-collection {
+  display: block;
+  font-family: var(--ipx-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ipx-accent);
+}
+
+.ipx-name {
+  margin: 8px 0 6px;
+  font-family: var(--ipx-serif);
+  font-weight: 600;
+  font-size: clamp(30px, 5.4vw, 46px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.ipx-tagline {
+  margin: 0 auto 18px;
+  max-width: 46ch;
+  font-family: var(--ipx-serif);
+  font-style: italic;
+  font-size: clamp(14px, 1.6vw, 16.5px);
+  line-height: 1.55;
+  color: var(--ipx-cream-dim);
+}
+
+.ipx-notes {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 26px;
+  margin: 0 0 16px;
+}
+
+.ipx-note-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.ipx-note-row dt {
+  font-family: var(--ipx-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ipx-accent);
+}
+
+.ipx-note-row dd {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ipx-cream-dim);
+}
+
+.ipx-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-family: var(--ipx-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ipx-cream-dim);
+}
+
+.ipx-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ipx-accent);
+}
+
+.ipx-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ipx-btn {
+  font-family: var(--ipx-sans);
+  font-weight: 700;
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  padding: 12px 26px;
+  border-radius: 26px;
+  cursor: pointer;
+  transition: transform 160ms ease, background 200ms ease, border-color 200ms ease;
+}
+
+.ipx-btn:active { transform: scale(0.97); }
+
+.ipx-btn-ghost {
+  border: 1.5px solid var(--ipx-line);
+  background: transparent;
+  color: var(--ipx-cream);
+}
+.ipx-btn-ghost:hover {
+  border-color: var(--ipx-accent);
+  background: rgba(246, 236, 220, 0.06);
+}
+
+.ipx-btn-solid {
+  border: 1.5px solid var(--ipx-accent);
+  background: var(--ipx-accent);
+  color: #24150d;
+}
+.ipx-btn-solid:hover { filter: brightness(1.1); }
+
+/* ------------------------------------------------------------- scrub rail */
+
+.ipx-scrub {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+}
+
+.ipx-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  border: 1px solid var(--ipx-line);
+  border-radius: 999px;
+  background: rgba(20, 12, 8, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+.ipx-tick {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.ipx-tick-line {
+  width: 2px;
+  height: 12px;
+  border-radius: 2px;
+  background: rgba(246, 236, 220, 0.3);
+  transition: height 260ms cubic-bezier(0.16, 0.84, 0.32, 1), background 260ms ease,
+    box-shadow 260ms ease;
+}
+
+.ipx-tick:hover .ipx-tick-line { background: rgba(246, 236, 220, 0.6); height: 16px; }
+
+.ipx-tick[aria-selected="true"] .ipx-tick-line {
+  height: 20px;
+  background: var(--ipx-accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ipx-accent) 70%, transparent);
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 720px) {
+  .ipx-slider { padding-left: 12px; padding-right: 12px; min-height: 580px; }
+  .ipx-nav { width: 38px; height: 38px; margin-top: -19px; }
+  .ipx-nav svg { width: 18px; height: 18px; }
+  .ipx-notes { flex-direction: column; align-items: center; gap: 4px; }
+  .ipx-hint { font-size: 12px; }
+}
+
+@media (max-width: 420px) {
+  .ipx-nav { display: none; }
+}
+
+/* --------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .ipx-slider *,
+  .ipx-slider *::before,
+  .ipx-slider *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="collection"></div>
+
+<script type="module">
+/* ===== perfume-data.js ===== */
+const { PERFUMES } = (() => {
+/**
+ * Perfume data for the spray slider.
+ *
+ * This module is pure data — no DOM, no framework. Swap `PERFUMES` for a list
+ * coming from the API and the slider keeps working, as long as each entry keeps
+ * the same shape. `theme` is what drives the look of the bottle: glass tint,
+ * juice colour, cap material, silhouette and the accent used for the mist.
+ *
+ * @typedef {'flacon'|'orb'|'obelisk'|'cylinder'|'faceted'|'flask'|'teardrop'} BottleShape
+ * @typedef {'knurl'|'grain'|'facets'|'none'} CapTexture
+ *
+ * @typedef {object} PerfumeTheme
+ * @property {string} accent      Primary accent — mist, glow, UI highlights.
+ * @property {string} accentSoft  Lighter accent for text and fine detail.
+ * @property {string} aura        Ambient stage wash behind the bottle.
+ * @property {BottleShape} shape
+ * @property {string} glass       Glass tint (translucent).
+ * @property {[string, string, string]} juice  Liquid gradient: top, middle, bottom.
+ * @property {number} fill        Liquid level, 0–1 of the body height.
+ * @property {{c1:string,c2:string,c3:string,texture:CapTexture,w:number,h:number,r:number}} cap
+ * @property {{c1:string,c2:string}} collar   Metal ring under the actuator.
+ * @property {{style:'foil'|'etched'|'plate',ink:string,plate:string}} label
+ *
+ * @typedef {object} Perfume
+ * @property {string} id
+ * @property {string} name
+ * @property {string} collection
+ * @property {string} concentration
+ * @property {string} size
+ * @property {string} price
+ * @property {string} tagline
+ * @property {{top:string[],heart:string[],base:string[]}} notes
+ * @property {PerfumeTheme} theme
+ */
+
+/** @type {Perfume[]} */
+const PERFUMES = [
+  {
+    id: "attar-bazaar",
+    name: "Attar Bazaar",
+    collection: "Arabic Mukhallat",
+    concentration: "Extrait · 30%",
+    size: "100 ml",
+    price: "₹1,000",
+    tagline: "Oud, saffron and resin — the souk an hour after sundown.",
+    notes: {
+      top: ["Cardamom", "Pink Pepper"],
+      heart: ["Saffron", "Jasmine Sambac"],
+      base: ["Oud", "Labdanum", "Ambroxan"],
+    },
+    theme: {
+      accent: "#D8A24A",
+      accentSoft: "#F0D6A0",
+      aura: "#5A2E12",
+      shape: "faceted",
+      glass: "rgba(255, 226, 178, 0.10)",
+      juice: ["#C97B32", "#8A4118", "#3E1608"],
+      fill: 0.7,
+      cap: { c1: "#F6DFA6", c2: "#C9963E", c3: "#7A5416", texture: "knurl", w: 52, h: 30, r: 5 },
+      collar: { c1: "#EBCB86", c2: "#8C6520" },
+      label: { style: "foil", ink: "#3A1F08", plate: "#D9B368" },
+    },
+  },
+  {
+    id: "golden-resin-amber",
+    name: "Golden Resin",
+    collection: "Amber",
+    concentration: "Eau de Parfum · 22%",
+    size: "100 ml",
+    price: "₹1,000",
+    tagline: "Benzoin and frankincense melted into honey and left in the sun.",
+    notes: {
+      top: ["Orange Peel", "Frankincense"],
+      heart: ["Benzoin", "Coumarin"],
+      base: ["Labdanum", "Vanillin"],
+    },
+    theme: {
+      accent: "#E9B255",
+      accentSoft: "#FBE3B0",
+      aura: "#6A3D12",
+      shape: "orb",
+      glass: "rgba(255, 236, 198, 0.12)",
+      juice: ["#F2C56A", "#D48D2A", "#8C4E10"],
+      fill: 0.74,
+      cap: { c1: "#FBE7B4", c2: "#D6A445", c3: "#8A611D", texture: "facets", w: 46, h: 26, r: 12 },
+      collar: { c1: "#F2D79A", c2: "#96702A" },
+      label: { style: "etched", ink: "#4A2A0C", plate: "rgba(250,243,229,0.9)" },
+    },
+  },
+  {
+    id: "smoke-over-the-souk",
+    name: "Smoke Over the Souk",
+    collection: "Arabic Mukhallat",
+    concentration: "Extrait · 28%",
+    size: "100 ml",
+    price: "₹1,000",
+    tagline: "Guaiac smoke drifting over cypriol and cold incense.",
+    notes: {
+      top: ["Black Pepper", "Cypriol"],
+      heart: ["Frankincense", "Safraleine"],
+      base: ["Guaiacol", "Oud", "Labdanum"],
+    },
+    theme: {
+      accent: "#A98C74",
+      accentSoft: "#E0CDB9",
+      aura: "#2A1D16",
+      shape: "obelisk",
+      glass: "rgba(226, 214, 202, 0.08)",
+      juice: ["#5C4436", "#2E1E16", "#120A06"],
+      fill: 0.66,
+      cap: { c1: "#6E6058", c2: "#332B26", c3: "#14100D", texture: "none", w: 54, h: 22, r: 3 },
+      collar: { c1: "#B9A99A", c2: "#4A3F36" },
+      label: { style: "plate", ink: "#E7D9C7", plate: "rgba(18,12,8,0.82)" },
+    },
+  },
+  {
+    id: "rose-oud-attar",
+    name: "Rose Oud Attar",
+    collection: "Floral Mukhallat",
+    concentration: "Attar · 100%",
+    size: "100 ml",
+    price: "₹1,000",
+    tagline: "Damask rose laid over oud in a bed of jojoba.",
+    notes: {
+      top: ["Rose Petal", "Litchi"],
+      heart: ["Phenyl Ethyl Alcohol", "PEME"],
+      base: ["Oud", "Labdanum", "Civet"],
+    },
+    theme: {
+      accent: "#D2786C",
+      accentSoft: "#F4C6BC",
+      aura: "#5C2028",
+      shape: "teardrop",
+      glass: "rgba(255, 219, 219, 0.10)",
+      juice: ["#D9727F", "#A33C4C", "#571825"],
+      fill: 0.72,
+      cap: { c1: "#F7CFC0", c2: "#C88A72", c3: "#7E4634", texture: "facets", w: 44, h: 28, r: 8 },
+      collar: { c1: "#EFC3AE", c2: "#8E5843" },
+      label: { style: "foil", ink: "#4A141F", plate: "#E3A995" },
+    },
+  },
+  {
+    id: "classic-bergamot-cologne",
+    name: "Bergamot Cologne",
+    collection: "Citrus",
+    concentration: "Eau de Cologne · 12%",
+    size: "100 ml",
+    price: "₹1,000",
+    tagline: "Cold bergamot and petitgrain, poured straight over ice.",
+    notes: {
+      top: ["Bergamot", "Petitgrain"],
+      heart: ["Linalool", "Hedione"],
+      base: ["Dihydromyrcenol", "Iso E Super"],
+    },
+    theme: {
+      accent: "#D9D45E",
+      accentSoft: "#F2F0B8",
+      aura: "#3C4A1E",
+      shape: "cylinder",
+      glass: "rgba(228, 255, 232, 0.12)",
+      juice: ["#EDEB96", "#C8CE58", "#8A9430"],
+      fill: 0.78,
+      cap: { c1: "#EDF0F2", c2: "#A9B2B8", c3: "#5E686E", texture: "knurl", w: 40, h: 24, r: 4 },
+      collar: { c1: "#DCE3E7", c2: "#6C767C" },
+      label: { style: "etched", ink: "#3F4413", plate: "rgba(252,251,240,0.9)" },
+    },
+  },
+  {
+    id: "iso-e-space-wood",
+    name: "Space Wood",
+    collection: "Woody",
+    concentration: "Eau de Parfum · 20%",
+    size: "100 ml",
+    price: "₹1,000",
+    tagline: "Vetiver roots and cedar suspended in weightless amber-wood.",
+    notes: {
+      top: ["Pink Pepper", "Clary Sage"],
+      heart: ["Cedarwood", "Vetiver"],
+      base: ["Iso E Super", "Vertofix"],
+    },
+    theme: {
+      accent: "#9AAA84",
+      accentSoft: "#DCE6CC",
+      aura: "#2F3A26",
+      shape: "flask",
+      glass: "rgba(226, 240, 218, 0.10)",
+      juice: ["#A8A06A", "#6E6A3E", "#33301B"],
+      fill: 0.68,
+      cap: { c1: "#8A6A46", c2: "#5A4028", c3: "#2E1F13", texture: "grain", w: 44, h: 34, r: 4 },
+      collar: { c1: "#C9CBB4", c2: "#585C46" },
+      label: { style: "plate", ink: "#E9F0DC", plate: "rgba(24,28,16,0.82)" },
+    },
+  },
+  {
+    id: "skin-musk-halo",
+    name: "Skin Musk Halo",
+    collection: "Foundational",
+    concentration: "Eau de Parfum · 18%",
+    size: "100 ml",
+    price: "₹1,000",
+    tagline: "The invisible one. Reads as skin, never as perfume.",
+    notes: {
+      top: ["Aldehyde C-12", "Hedione"],
+      heart: ["Galaxolide", "Cashmeran"],
+      base: ["Ambroxan", "Exaltolide"],
+    },
+    theme: {
+      accent: "#E4CFB4",
+      accentSoft: "#F8EEDF",
+      aura: "#4A3A2C",
+      shape: "flacon",
+      glass: "rgba(255, 248, 236, 0.13)",
+      juice: ["#F6EBD9", "#E0CBAC", "#B99B76"],
+      fill: 0.62,
+      cap: { c1: "#FBF3E6", c2: "#DCC7AA", c3: "#9C866B", texture: "none", w: 48, h: 26, r: 10 },
+      collar: { c1: "#F0E2CC", c2: "#8C7B64" },
+      label: { style: "etched", ink: "#5A452C", plate: "rgba(252,246,236,0.9)" },
+    },
+  },
+];
+
+return { PERFUMES };
+})();
+
+/* ===== bottle.js ===== */
+const { renderLabel, renderBottle } = (() => {
+/**
+ * Bottle renderer.
+ *
+ * Builds an inline SVG for one perfume. Everything is drawn from the theme —
+ * silhouette, glass tint, liquid gradient, cap material, collar metal and the
+ * dip tube — so no two bottles in the collection look alike.
+ *
+ * Co-ordinate system: 220 x 340, bottle standing on y = 306.
+ */
+
+const GROUND = 306;
+const MID = 110;
+
+/**
+ * Silhouettes.
+ *   top    where the shoulder meets the neck; sets the liquid level.
+ *   l / r  body extents at mid-height. Highlights and the label are placed
+ *          from these, so narrow bottles don't lose their glasswork.
+ * @type {Record<string, {d: string, top: number, l: number, r: number, facets?: string[]}>}
+ */
+const SHAPES = {
+  flacon: {
+    top: 152,
+    l: 56,
+    r: 164,
+    d: `M 56 292 L 56 200 C 56 176 70 160 94 152 L 126 152
+        C 150 160 164 176 164 200 L 164 292 Q 164 306 150 306
+        L 70 306 Q 56 306 56 292 Z`,
+  },
+  orb: {
+    top: 154,
+    l: 42,
+    r: 178,
+    d: `M 96 154 C 58 166 42 202 42 236 C 42 268 60 292 86 302
+        L 134 302 C 160 292 178 268 178 236 C 178 202 162 166 124 154 Z`,
+  },
+  obelisk: {
+    top: 152,
+    l: 62,
+    r: 158,
+    d: `M 56 300 L 70 188 C 72 170 82 158 96 152 L 124 152
+        C 138 158 148 170 150 188 L 164 300 Q 165 306 158 306
+        L 62 306 Q 55 306 56 300 Z`,
+    facets: ["M 110 152 L 110 306", "M 84 162 L 74 306", "M 136 162 L 146 306"],
+  },
+  cylinder: {
+    top: 154,
+    l: 76,
+    r: 144,
+    d: `M 76 300 L 76 180 C 76 167 84 158 96 154 L 124 154
+        C 136 158 144 167 144 180 L 144 300 Q 144 306 138 306
+        L 82 306 Q 76 306 76 300 Z`,
+  },
+  faceted: {
+    top: 154,
+    l: 56,
+    r: 164,
+    d: `M 56 192 L 92 154 L 128 154 L 164 192 L 164 288
+        Q 164 306 146 306 L 74 306 Q 56 306 56 288 Z`,
+    facets: ["M 92 154 L 92 306", "M 128 154 L 128 306"],
+  },
+  flask: {
+    top: 154,
+    l: 40,
+    r: 180,
+    d: `M 62 304 C 40 288 36 248 48 212 C 56 184 72 166 96 154
+        L 124 154 C 148 166 164 184 172 212 C 184 248 180 288 158 304 Z`,
+  },
+  teardrop: {
+    top: 154,
+    l: 50,
+    r: 170,
+    d: `M 96 154 C 74 172 50 216 50 250 C 50 284 77 306 110 306
+        C 143 306 170 284 170 250 C 170 216 146 172 124 154 Z`,
+  },
+};
+
+const esc = (s) =>
+  String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+const r2 = (n) => Math.round(n * 100) / 100;
+
+/** Knurling / grain / bevels on the actuator. */
+function capTexture(cap, top) {
+  const x0 = MID - cap.w / 2;
+  const out = [];
+
+  if (cap.texture === "knurl") {
+    for (let x = x0 + 5; x < x0 + cap.w - 4; x += 4) {
+      out.push(
+        `<line x1="${x}" y1="${top + 4}" x2="${x}" y2="${top + cap.h - 4}" stroke="rgba(0,0,0,.26)" stroke-width=".9"/>`,
+        `<line x1="${x + 1.3}" y1="${top + 4}" x2="${x + 1.3}" y2="${top + cap.h - 4}" stroke="rgba(255,255,255,.2)" stroke-width=".9"/>`,
+      );
+    }
+  } else if (cap.texture === "grain") {
+    for (let y = top + 5; y < top + cap.h - 3; y += 5) {
+      const wob = (y % 3) - 1;
+      out.push(
+        `<path d="M ${x0 + 3} ${y} q ${cap.w / 4} ${wob} ${cap.w / 2} 0 q ${cap.w / 4} ${-wob} ${cap.w / 2 - 6} 0"
+           fill="none" stroke="rgba(0,0,0,.2)" stroke-width=".9"/>`,
+      );
+    }
+  } else if (cap.texture === "facets") {
+    const mid = top + cap.h / 2;
+    out.push(
+      `<path d="M ${x0} ${mid} L ${MID} ${top + 2} L ${x0 + cap.w} ${mid} Z" fill="rgba(255,255,255,.18)"/>`,
+      `<path d="M ${x0} ${mid} L ${MID} ${top + cap.h - 2} L ${x0 + cap.w} ${mid} Z" fill="rgba(0,0,0,.14)"/>`,
+    );
+  }
+  return out.join("");
+}
+
+/** Rough advance width of a string, as a multiple of its font size. */
+const textWidth = (s, size, factor = 0.5) => s.length * size * factor;
+
+/** Where the label sits on a given silhouette, in SVG user units. */
+function labelGeometry(shape) {
+  const bodyW = shape.r - shape.l;
+  const w = Math.min(86, bodyW - 12);
+  return { w, h: w * 0.58, y: Math.max(shape.top + 58, 212) };
+}
+
+/**
+ * The label is HTML, not SVG.
+ *
+ * SVG <text> inside a slide that has been transformed keeps a stale raster in
+ * Chromium — the plate repaints but the glyphs never do, so the label silently
+ * comes up blank on every bottle except the one painted first. HTML text has no
+ * such problem, and it gives the label real typographic control. It is sized in
+ * percentages of the bottle box, so it tracks the SVG exactly at any scale.
+ *
+ * @param {import('./perfume-data.js').Perfume} perfume
+ * @returns {string} HTML markup, to sit alongside the <svg> in .ipx-bottle
+ */
+function renderLabel(perfume) {
+  const t = perfume.theme;
+  const shape = SHAPES[t.shape] || SHAPES.flacon;
+  const { w, h, y } = labelGeometry(shape);
+
+  // Narrow bottles get a narrow plate, so the name has to earn its place:
+  // drop to the first word rather than let it overrun the label.
+  const inner = w - 8;
+  let short = perfume.name;
+  if (textWidth(short, 7) > inner) short = short.split(" ")[0];
+
+  const markSize = Math.min(11, Math.max(6, h * 0.38));
+  const nameSize = Math.min(9, h * 0.32, inner / (short.length * 0.5));
+  const sizeSize = Math.min(5.2, Math.max(3.6, h * 0.19));
+
+  // SVG user units -> fractions of the bottle box (viewBox is 220 x 340).
+  const em = (units) => `calc(var(--ipx-bottle-h) * ${r2(units / 340)})`;
+
+  return `
+    <div class="ipx-label ipx-label-${esc(t.label.style)}" aria-hidden="true" style="
+      top:${r2(((y + h / 2) / 340) * 100)}%;
+      width:${r2((w / 220) * 100)}%;
+      height:${r2((h / 340) * 100)}%;
+      --ipx-l-ink:${t.label.ink};
+      --ipx-l-plate:${t.label.plate};">
+      <span class="ipx-l-mark" style="font-size:${em(markSize)}">IP</span>
+      <span class="ipx-l-name" style="font-size:${em(nameSize)}">${esc(short)}</span>
+      <span class="ipx-l-rule"></span>
+      <span class="ipx-l-size" style="font-size:${em(sizeSize)}">${esc(perfume.size)}</span>
+    </div>`;
+}
+
+/**
+ * Render one bottle.
+ * @param {import('./perfume-data.js').Perfume} perfume
+ * @param {string} uid Unique suffix so <defs> ids never collide across bottles.
+ * @returns {string} SVG markup
+ */
+function renderBottle(perfume, uid) {
+  const t = perfume.theme;
+  const shape = SHAPES[t.shape] || SHAPES.flacon;
+  const bodyTop = shape.top;
+  const bodyW = shape.r - shape.l;
+
+  const juiceTop = GROUND - t.fill * (GROUND - bodyTop);
+
+  const cap = t.cap;
+  const capTop = 98 - cap.h;
+  const snoutY = capTop + cap.h * 0.42;
+  const snoutX = MID + cap.w / 2;
+  const nozzleX = snoutX + 15;
+
+  // Glasswork, placed from the body extents.
+  const hiX = shape.l + bodyW * 0.11;
+  const hiW = Math.max(5, bodyW * 0.085);
+  const rimX = shape.r - bodyW * 0.12;
+  const rimW = Math.max(2.6, bodyW * 0.032);
+
+  const facets = (shape.facets || [])
+    .map(
+      (d) =>
+        `<path d="${d}" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1"/>
+         <path d="${d}" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1" transform="translate(1.4,0)"/>`,
+    )
+    .join("");
+
+  return `
+<svg class="ipx-bottle-svg" viewBox="0 0 220 340" role="img"
+     aria-label="${esc(perfume.name)} bottle" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="body-${uid}"><path d="${shape.d}"/></clipPath>
+
+    <linearGradient id="juice-${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${t.juice[0]}"/>
+      <stop offset="52%" stop-color="${t.juice[1]}"/>
+      <stop offset="100%" stop-color="${t.juice[2]}"/>
+    </linearGradient>
+
+    <linearGradient id="glass-${uid}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,.2)"/>
+      <stop offset="45%" stop-color="rgba(255,255,255,.04)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,.13)"/>
+    </linearGradient>
+
+    <linearGradient id="metal-${uid}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="${cap.c3}"/>
+      <stop offset="18%" stop-color="${cap.c1}"/>
+      <stop offset="46%" stop-color="${cap.c2}"/>
+      <stop offset="72%" stop-color="${cap.c1}"/>
+      <stop offset="100%" stop-color="${cap.c3}"/>
+    </linearGradient>
+
+    <linearGradient id="collar-${uid}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="${t.collar.c2}"/>
+      <stop offset="24%" stop-color="${t.collar.c1}"/>
+      <stop offset="55%" stop-color="${t.collar.c2}"/>
+      <stop offset="80%" stop-color="${t.collar.c1}"/>
+      <stop offset="100%" stop-color="${t.collar.c2}"/>
+    </linearGradient>
+
+    <linearGradient id="tube-${uid}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="rgba(255,255,255,.06)"/>
+      <stop offset="28%" stop-color="rgba(255,255,255,.34)"/>
+      <stop offset="52%" stop-color="rgba(255,255,255,.12)"/>
+      <stop offset="78%" stop-color="rgba(255,255,255,.26)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,.05)"/>
+    </linearGradient>
+
+    <linearGradient id="foil-${uid}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${t.label.plate}" stop-opacity=".55"/>
+      <stop offset="50%" stop-color="${t.label.plate}"/>
+      <stop offset="100%" stop-color="${t.label.plate}" stop-opacity=".6"/>
+    </linearGradient>
+
+    <radialGradient id="pool-${uid}" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="${t.accent}" stop-opacity=".5"/>
+      <stop offset="100%" stop-color="${t.accent}" stop-opacity="0"/>
+    </radialGradient>
+
+    <filter id="soft-${uid}" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+
+  <!-- pool of light the bottle stands in -->
+  <ellipse cx="${MID}" cy="309" rx="${r2(bodyW * 0.78)}" ry="13" fill="url(#pool-${uid})"/>
+  <ellipse cx="${MID}" cy="307" rx="${r2(bodyW * 0.42)}" ry="6" fill="rgba(0,0,0,.45)" filter="url(#soft-${uid})"/>
+
+  <!-- ============ atomiser: neck, collar, stem, actuator ============ -->
+  <g class="ipx-atomizer">
+    <rect x="95" y="${bodyTop - 26}" width="30" height="30" rx="3" fill="url(#glass-${uid})"
+          stroke="rgba(255,255,255,.18)" stroke-width=".9"/>
+    <rect x="88" y="110" width="44" height="20" rx="3" fill="url(#collar-${uid})"/>
+    <rect x="88" y="110" width="44" height="4" rx="2" fill="rgba(255,255,255,.35)"/>
+    ${Array.from(
+      { length: 9 },
+      (_, i) =>
+        `<line x1="${92 + i * 5}" y1="115" x2="${92 + i * 5}" y2="128" stroke="rgba(0,0,0,.2)" stroke-width=".9"/>`,
+    ).join("")}
+
+    <g class="ipx-actuator">
+      <rect x="103" y="96" width="14" height="18" rx="2" fill="url(#collar-${uid})"/>
+      <rect x="${r2(MID - cap.w / 2)}" y="${capTop}" width="${cap.w}" height="${cap.h}"
+            rx="${cap.r}" fill="url(#metal-${uid})"/>
+      ${capTexture(cap, capTop)}
+      <rect x="${r2(MID - cap.w / 2 + 3)}" y="${capTop + 2}" width="${cap.w - 6}" height="3"
+            rx="1.5" fill="rgba(255,255,255,.45)"/>
+
+      <!-- nozzle snout + orifice -->
+      <rect x="${r2(snoutX - 2)}" y="${r2(snoutY)}" width="17" height="11" rx="3" fill="url(#metal-${uid})"/>
+      <rect x="${r2(snoutX - 2)}" y="${r2(snoutY)}" width="17" height="3" rx="1.5" fill="rgba(255,255,255,.4)"/>
+      <circle cx="${r2(nozzleX - 2)}" cy="${r2(snoutY + 5.5)}" r="2.6" fill="rgba(0,0,0,.62)"/>
+      <circle cx="${r2(nozzleX - 2)}" cy="${r2(snoutY + 5.5)}" r="1.2" fill="${t.accentSoft}" opacity=".5"/>
+      <circle class="ipx-nozzle-anchor" cx="${r2(nozzleX)}" cy="${r2(snoutY + 5.5)}" r="1" fill="none" opacity="0"/>
+    </g>
+  </g>
+
+  <!-- ============ glass body ============ -->
+  <path d="${shape.d}" fill="${t.glass}"/>
+  <path d="${shape.d}" fill="url(#glass-${uid})"/>
+
+  <g clip-path="url(#body-${uid})">
+    <!-- liquid -->
+    <g class="ipx-juice">
+      <rect x="0" y="${r2(juiceTop)}" width="220" height="${r2(340 - juiceTop)}" fill="url(#juice-${uid})"/>
+      <ellipse cx="${MID}" cy="${r2(juiceTop)}" rx="${r2(bodyW * 0.62)}" ry="5" fill="rgba(255,255,255,.2)"/>
+      <ellipse cx="${MID}" cy="${r2(juiceTop + 2)}" rx="${r2(bodyW * 0.62)}" ry="4" fill="rgba(0,0,0,.14)"/>
+      <!-- edge shading gives the liquid volume -->
+      <rect x="${r2(shape.l - 6)}" y="${r2(juiceTop)}" width="${r2(bodyW * 0.17)}" height="${r2(340 - juiceTop)}" fill="rgba(0,0,0,.2)"/>
+      <rect x="${r2(shape.r - bodyW * 0.15)}" y="${r2(juiceTop)}" width="${r2(bodyW * 0.21)}" height="${r2(340 - juiceTop)}" fill="rgba(0,0,0,.18)"/>
+      <ellipse cx="${r2(hiX + hiW)}" cy="${r2(juiceTop + 34)}" rx="${r2(hiW * 0.9)}" ry="26" fill="rgba(255,255,255,.1)"/>
+    </g>
+
+    <!-- ============ the dip tube ============ -->
+    <g class="ipx-tube">
+      <!-- dry section, above the liquid -->
+      <rect x="107.4" y="${r2(bodyTop - 4)}" width="5.2" height="${r2(GROUND - bodyTop)}" rx="2.6"
+            fill="url(#tube-${uid})" stroke="rgba(255,255,255,.22)" stroke-width=".5"/>
+      <!-- refracted: the liquid magnifies whatever sits behind it -->
+      <rect x="105.8" y="${r2(juiceTop)}" width="8.4" height="${r2(GROUND - juiceTop)}" rx="4.2"
+            fill="url(#tube-${uid})" opacity=".6"/>
+      <rect x="105.8" y="${r2(juiceTop)}" width="8.4" height="${r2(GROUND - juiceTop)}" rx="4.2"
+            fill="${t.juice[1]}" opacity=".26"/>
+      <!-- the foot draws from just clear of the base -->
+      <path d="M 110 ${GROUND - 18} q 0 11 6 14" fill="none" stroke="rgba(255,255,255,.3)"
+            stroke-width="4.6" stroke-linecap="round"/>
+      <line x1="108.7" y1="${r2(bodyTop)}" x2="108.7" y2="${GROUND - 20}"
+            stroke="rgba(255,255,255,.34)" stroke-width=".8"/>
+      <!-- liquid climbing the tube when it fires -->
+      <rect class="ipx-tube-draw" x="107.4" y="${r2(bodyTop - 4)}" width="5.2"
+            height="${r2(juiceTop - bodyTop + 4)}" rx="2.6" fill="${t.juice[0]}" opacity="0"/>
+    </g>
+
+    <!-- a couple of bubbles, for life -->
+    <circle cx="${r2(hiX + hiW * 2)}" cy="${r2(juiceTop + 22)}" r="2.2" fill="rgba(255,255,255,.28)"/>
+    <circle cx="${r2(rimX - 4)}" cy="${r2(juiceTop + 46)}" r="1.5" fill="rgba(255,255,255,.22)"/>
+    <circle cx="122" cy="${r2(juiceTop + 14)}" r="1.1" fill="rgba(255,255,255,.26)"/>
+
+    ${facets}
+
+    <!-- specular highlights -->
+    <rect x="${r2(hiX)}" y="${r2(bodyTop + 14)}" width="${r2(hiW)}" height="${r2(GROUND - bodyTop - 44)}"
+          rx="${r2(hiW / 2)}" fill="rgba(255,255,255,.26)" filter="url(#soft-${uid})"/>
+    <rect x="${r2(rimX)}" y="${r2(bodyTop + 26)}" width="${r2(rimW)}" height="${r2(GROUND - bodyTop - 70)}"
+          rx="${r2(rimW / 2)}" fill="rgba(255,255,255,.17)" filter="url(#soft-${uid})"/>
+    <ellipse cx="${r2(shape.l + bodyW * 0.36)}" cy="${r2(bodyTop + 16)}" rx="${r2(bodyW * 0.2)}" ry="7"
+             fill="rgba(255,255,255,.18)" filter="url(#soft-${uid})"/>
+  </g>
+
+  <!-- crisp outline last so the glass reads as glass -->
+  <path d="${shape.d}" fill="none" stroke="rgba(255,255,255,.32)" stroke-width="1.6"/>
+  <path d="${shape.d}" fill="none" stroke="${t.accentSoft}" stroke-width=".6" opacity=".3"/>
+</svg>`;
+}
+
+return { renderLabel, renderBottle };
+})();
+
+/* ===== spray.js ===== */
+const { SprayEngine } = (() => {
+/**
+ * Spray engine.
+ *
+ * A canvas particle system tuned to behave like an atomiser rather than a
+ * generic particle burst. Three things happen at once, and the overlap is what
+ * makes it read as perfume rather than smoke:
+ *
+ *   jet      — a few hundred fast, tiny, bright droplets in a narrow cone.
+ *              They carry a long way before drag kills them, which is what
+ *              gives the spray its reach and its grain.
+ *   mist     — slow, large, very low-alpha puffs that expand and rise. This is
+ *              the body of the cloud; it lingers for a couple of seconds.
+ *   fallout  — every droplet that dies has a chance of becoming a mist puff,
+ *              so the cloud grows outward along the path the jet actually took
+ *              instead of sitting in a ball at the nozzle.
+ *
+ * Everything is drawn additively, so density builds where particles overlap.
+ */
+
+const FRAME = 1000 / 60;
+const TAU = Math.PI * 2;
+const MAX_PARTICLES = 1800;
+
+/** Soft radial sprites, cached per colour + hardness. */
+const spriteCache = new Map();
+
+function toRGBA(color, a) {
+  if (typeof color === "string" && color.charCodeAt(0) === 35) {
+    let hex = color.slice(1);
+    if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    const n = Number.parseInt(hex, 16);
+    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+  }
+  return color;
+}
+
+/**
+ * @param {string} color
+ * @param {'core'|'soft'} kind  `core` is a tight droplet, `soft` is haze.
+ */
+function sprite(color, kind) {
+  const key = `${kind}|${color}`;
+  const hit = spriteCache.get(key);
+  if (hit) return hit;
+
+  const size = 96;
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const g = c.getContext("2d");
+  const half = size / 2;
+  const grad = g.createRadialGradient(half, half, 0, half, half, half);
+
+  if (kind === "core") {
+    grad.addColorStop(0, toRGBA(color, 1));
+    grad.addColorStop(0.32, toRGBA(color, 0.72));
+    grad.addColorStop(1, toRGBA(color, 0));
+  } else {
+    grad.addColorStop(0, toRGBA(color, 0.42));
+    grad.addColorStop(0.32, toRGBA(color, 0.2));
+    grad.addColorStop(1, toRGBA(color, 0));
+  }
+
+  g.fillStyle = grad;
+  g.fillRect(0, 0, size, size);
+  spriteCache.set(key, c);
+  return c;
+}
+
+const rand = (a, b) => a + Math.random() * (b - a);
+/** Triangular distribution — clusters toward the middle of the cone. */
+const spread = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+
+class SprayEngine {
+  /** @param {HTMLCanvasElement} canvas */
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.particles = [];
+    this.emitters = [];
+    this.flashes = [];
+    this.running = false;
+    this.last = 0;
+    this.dpr = 1;
+    this.w = 0;
+    this.h = 0;
+    this._loop = this._loop.bind(this);
+    this.resize();
+  }
+
+  resize() {
+    const rect = this.canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.width = Math.round(rect.width * this.dpr);
+    this.canvas.height = Math.round(rect.height * this.dpr);
+    this.w = rect.width;
+    this.h = rect.height;
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  }
+
+  /**
+   * Fire the atomiser.
+   * @param {object} o
+   * @param {number} o.x            Nozzle x, in canvas CSS pixels.
+   * @param {number} o.y            Nozzle y, in canvas CSS pixels.
+   * @param {string} o.color        Accent colour — the mist.
+   * @param {string} [o.colorSoft]  Lighter accent — the droplets and flash.
+   * @param {number} [o.angle]      Direction in radians. Default: slightly upward.
+   * @param {number} [o.power]      0–1, scales count, velocity and reach.
+   */
+  spray({ x, y, color, colorSoft, angle = -0.16, power = 1 }) {
+    const soft = colorSoft || color;
+    this.emitters.push({
+      x,
+      y,
+      color,
+      soft,
+      angle,
+      power,
+      life: 200 * (0.6 + power * 0.4),
+      age: 0,
+    });
+    this.flashes.push({ x, y, color: soft, age: 0, life: 190 });
+    this.start();
+  }
+
+  _drop(e) {
+    const a = e.angle + spread() * 0.26;
+    const speed = rand(9, 24) * e.power;
+    this.particles.push({
+      kind: "drop",
+      x: e.x + rand(-1.2, 1.2),
+      y: e.y + rand(-1.2, 1.2),
+      vx: Math.cos(a) * speed,
+      vy: Math.sin(a) * speed,
+      r: rand(0.5, 1.9),
+      life: 0,
+      max: rand(420, 900),
+      alpha: rand(0.45, 0.95),
+      phase: Math.random() * TAU,
+      color: e.soft,
+      angle: e.angle,
+      power: e.power,
+      mist: e.color,
+    });
+  }
+
+  _puff(e) {
+    const a = e.angle + spread() * 0.44;
+    const speed = rand(1.5, 8) * e.power;
+    this.particles.push({
+      kind: "mist",
+      x: e.x + rand(-2, 2),
+      y: e.y + rand(-2, 2),
+      vx: Math.cos(a) * speed,
+      vy: Math.sin(a) * speed,
+      r: rand(5, 16),
+      grow: rand(1.006, 1.016),
+      life: 0,
+      max: rand(1300, 2600),
+      alpha: rand(0.035, 0.095),
+      phase: Math.random() * TAU,
+      color: e.color,
+    });
+  }
+
+  /** A spent droplet hanging in the air as vapour. */
+  _fallout(p) {
+    this.particles.push({
+      kind: "mist",
+      x: p.x,
+      y: p.y,
+      vx: p.vx * 0.3,
+      vy: p.vy * 0.3,
+      r: rand(3, 9),
+      grow: rand(1.008, 1.018),
+      life: 0,
+      max: rand(900, 1800),
+      alpha: rand(0.03, 0.075),
+      phase: Math.random() * TAU,
+      color: p.mist,
+    });
+  }
+
+  start() {
+    if (this.running) return;
+    this.running = true;
+    this.last = performance.now();
+    requestAnimationFrame(this._loop);
+  }
+
+  stop() {
+    this.running = false;
+  }
+
+  clear() {
+    this.particles.length = 0;
+    this.emitters.length = 0;
+    this.flashes.length = 0;
+    if (this.w) this.ctx.clearRect(0, 0, this.w, this.h);
+  }
+
+  _loop(now) {
+    if (!this.running) return;
+
+    const raw = now - this.last;
+    this.last = now;
+    // Clamp so a backgrounded tab doesn't teleport every particle off-screen.
+    const ms = Math.min(raw, 50);
+    this._step(ms / FRAME, ms);
+    this._draw();
+
+    if (this.particles.length || this.emitters.length || this.flashes.length) {
+      requestAnimationFrame(this._loop);
+    } else {
+      this.running = false;
+      if (this.w) this.ctx.clearRect(0, 0, this.w, this.h);
+    }
+  }
+
+  _step(dt, ms) {
+    const room = MAX_PARTICLES - this.particles.length;
+
+    for (let i = this.emitters.length - 1; i >= 0; i--) {
+      const e = this.emitters[i];
+      e.age += ms;
+      const t = Math.min(e.age / e.life, 1);
+
+      if (room > 0) {
+        // Hardest at the start of the press, tapering as pressure drops.
+        const drops = Math.round(30 * e.power * (1 - 0.65 * t) * dt);
+        for (let n = 0; n < drops; n++) this._drop(e);
+        const puffs = Math.round(6 * e.power * dt);
+        for (let n = 0; n < puffs; n++) this._puff(e);
+      }
+
+      if (e.age >= e.life) this.emitters.splice(i, 1);
+    }
+
+    for (let i = this.flashes.length - 1; i >= 0; i--) {
+      this.flashes[i].age += ms;
+      if (this.flashes[i].age >= this.flashes[i].life) this.flashes.splice(i, 1);
+    }
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.life += ms;
+
+      if (p.life >= p.max) {
+        if (p.kind === "drop" && Math.random() < 0.62 && this.particles.length < MAX_PARTICLES) {
+          this._fallout(p);
+        }
+        this.particles.splice(i, 1);
+        continue;
+      }
+
+      const drift = Math.sin(p.life / 240 + p.phase) * 0.06;
+
+      if (p.kind === "drop") {
+        const d = Math.pow(0.955, dt);
+        p.vx *= d;
+        p.vy *= d;
+        p.vy += 0.05 * dt; // gravity pulls the heavier droplets down
+        p.vx += drift * dt;
+      } else {
+        const d = Math.pow(0.972, dt);
+        p.vx *= d;
+        p.vy *= d;
+        p.vy -= 0.018 * dt; // scent rises
+        p.vx += drift * 2.2 * dt;
+        p.r *= Math.pow(p.grow, dt);
+      }
+
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+    }
+  }
+
+  _draw() {
+    const g = this.ctx;
+    if (!this.w) return;
+
+    g.clearRect(0, 0, this.w, this.h);
+    g.globalCompositeOperation = "lighter";
+
+    // Mist first so the droplets sparkle on top of it.
+    for (let pass = 0; pass < 2; pass++) {
+      const want = pass === 0 ? "mist" : "drop";
+
+      for (const p of this.particles) {
+        if (p.kind !== want) continue;
+
+        const t = p.life / p.max;
+        const fadeIn = p.kind === "drop" ? 0.06 : 0.16;
+        // Droplets fall off harder than mist, so the far edge of the cone
+        // dissolves into haze instead of staying a field of bright specks.
+        const falloff = p.kind === "drop" ? 1.9 : 1.3;
+        const env = t < fadeIn ? t / fadeIn : Math.pow(1 - (t - fadeIn) / (1 - fadeIn), falloff);
+        const a = p.alpha * env;
+        if (a <= 0.003) continue;
+
+        const d = p.kind === "drop" ? Math.max(1.6, p.r * 2.4) : p.r * 4.6;
+        g.globalAlpha = a;
+        g.drawImage(sprite(p.color, p.kind === "drop" ? "core" : "soft"), p.x - d / 2, p.y - d / 2, d, d);
+      }
+    }
+
+    // Pressure flash at the orifice.
+    for (const f of this.flashes) {
+      const t = f.age / f.life;
+      g.globalAlpha = (1 - t) * 0.75;
+      const d = 12 + t * 26;
+      g.drawImage(sprite(f.color, "core"), f.x - d / 2, f.y - d / 2, d, d);
+    }
+
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = "source-over";
+  }
+
+  destroy() {
+    this.stop();
+    this.clear();
+  }
+}
+
+return { SprayEngine };
+})();
+
+/* ===== slider.js ===== */
+const { createPerfumeSlider } = (() => {
+/**
+ * Perfume spray slider — framework-agnostic core.
+ *
+ * Owns the DOM, the drag/snap physics and the spray choreography. It has no
+ * dependency on React or Next; the React wrapper in ../PerfumeSlider.tsx just
+ * mounts it into a ref and forwards callbacks.
+ *
+ *   const slider = createPerfumeSlider(el, { perfumes, onChange });
+ *   slider.next(); slider.spray(); slider.destroy();
+ */
+
+
+let instances = 0;
+
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+const esc = (s) =>
+  String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/**
+ * @param {HTMLElement} root
+ * @param {object} [options]
+ * @param {import('./perfume-data.js').Perfume[]} [options.perfumes]
+ * @param {number} [options.index]          Starting slide.
+ * @param {boolean} [options.sprayOnChange] Spray when the active perfume changes. Default true.
+ * @param {boolean} [options.autoplay]      Advance on a timer. Default false.
+ * @param {number} [options.autoplayDelay]  Milliseconds between advances. Default 5200.
+ * @param {(perfume, index) => void} [options.onChange]
+ * @param {(perfume, index) => void} [options.onSpray]
+ * @param {(perfume, index) => void} [options.onSelect] Fired by the CTA button.
+ */
+function createPerfumeSlider(root, options = {}) {
+  const opts = {
+    perfumes: PERFUMES,
+    index: 0,
+    sprayOnChange: true,
+    autoplay: false,
+    autoplayDelay: 5200,
+    onChange: null,
+    onSpray: null,
+    onSelect: null,
+    ...options,
+  };
+
+  const uid = `ipx${++instances}`;
+  let perfumes = opts.perfumes.slice();
+  let index = clamp(opts.index, 0, perfumes.length - 1);
+  let pos = index; // fractional position, drives the transforms
+  let slideW = 260;
+  let destroyed = false;
+
+  const reduced =
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ------------------------------------------------------------------ DOM */
+
+  root.classList.add("ipx-slider");
+  root.setAttribute("tabindex", "0");
+  root.setAttribute("role", "region");
+  root.setAttribute("aria-roledescription", "carousel");
+  root.setAttribute("aria-label", "Perfume collection");
+
+  root.innerHTML = `
+    <div class="ipx-aura" aria-hidden="true"></div>
+    <div class="ipx-vignette" aria-hidden="true"></div>
+
+    <header class="ipx-head">
+      <span class="ipx-eyebrow">Ishraq Parfums · The Collection</span>
+      <p class="ipx-hint">Drag to move through the collection — each one sprays as it arrives</p>
+    </header>
+
+    <div class="ipx-stage">
+      <div class="ipx-rail"></div>
+      <canvas class="ipx-canvas" aria-hidden="true"></canvas>
+      <div class="ipx-notes-layer" aria-hidden="true"></div>
+      <button class="ipx-nav ipx-prev" type="button" aria-label="Previous perfume">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none"
+          stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="ipx-nav ipx-next" type="button" aria-label="Next perfume">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none"
+          stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <div class="ipx-info" aria-live="polite"></div>
+
+    <div class="ipx-scrub">
+      <div class="ipx-track" role="tablist" aria-label="Choose a perfume"></div>
+    </div>
+  `;
+
+  const stage = root.querySelector(".ipx-stage");
+  const rail = root.querySelector(".ipx-rail");
+  const canvas = root.querySelector(".ipx-canvas");
+  const notesLayer = root.querySelector(".ipx-notes-layer");
+  const info = root.querySelector(".ipx-info");
+  const track = root.querySelector(".ipx-track");
+
+  const engine = new SprayEngine(canvas);
+
+  /* -------------------------------------------------------------- rendering */
+
+  function buildSlides() {
+    rail.innerHTML = perfumes
+      .map(
+        (p, i) => `
+      <div class="ipx-slide" data-i="${i}" role="group" aria-roledescription="slide"
+           aria-label="${esc(p.name)}, ${i + 1} of ${perfumes.length}">
+        <div class="ipx-bottle">${renderBottle(p, `${uid}-${i}`)}${renderLabel(p)}</div>
+      </div>`,
+      )
+      .join("");
+
+    track.innerHTML = perfumes
+      .map(
+        (p, i) => `
+      <button class="ipx-tick" type="button" role="tab" data-i="${i}"
+              aria-label="${esc(p.name)}" aria-selected="${i === index}">
+        <span class="ipx-tick-line"></span>
+      </button>`,
+      )
+      .join("");
+  }
+
+  function renderInfo() {
+    const p = perfumes[index];
+    info.innerHTML = `
+      <div class="ipx-info-in">
+        <span class="ipx-collection">${esc(p.collection)}</span>
+        <h3 class="ipx-name">${esc(p.name)}</h3>
+        <p class="ipx-tagline">${esc(p.tagline)}</p>
+        <dl class="ipx-notes">
+          ${["top", "heart", "base"]
+            .map(
+              (role) => `
+            <div class="ipx-note-row">
+              <dt>${role}</dt>
+              <dd>${p.notes[role].map((n) => esc(n)).join(" · ")}</dd>
+            </div>`,
+            )
+            .join("")}
+        </dl>
+        <div class="ipx-meta">
+          <span>${esc(p.concentration)}</span>
+          <span class="ipx-dot"></span>
+          <span>${esc(p.price)} · ${esc(p.size)}</span>
+        </div>
+        <div class="ipx-actions">
+          <button class="ipx-btn ipx-btn-ghost ipx-spray-btn" type="button">Spray it</button>
+          <button class="ipx-btn ipx-btn-solid ipx-cta" type="button">Discover</button>
+        </div>
+      </div>`;
+  }
+
+  function applyTheme() {
+    const t = perfumes[index].theme;
+    root.style.setProperty("--ipx-accent", t.accent);
+    root.style.setProperty("--ipx-accent-soft", t.accentSoft);
+    root.style.setProperty("--ipx-aura", t.aura);
+  }
+
+  /** Position every slide from the fractional `pos`. */
+  function layout() {
+    const slides = rail.children;
+    for (let i = 0; i < slides.length; i++) {
+      const d = i - pos;
+      const ad = Math.min(Math.abs(d), 3);
+      const scale = 1 - ad * 0.2;
+      const opacity = Math.max(0, 1 - ad * 0.42);
+      const blur = ad * 1.9;
+      const lift = ad * 16;
+
+      const el = slides[i];
+      // Deliberately a 2D transform. A 3D one (translate3d/perspective/rotateY)
+      // promotes each slide to its own compositing layer, where Chromium keeps
+      // a stale raster of the bottle's SVG label text after the slide moves —
+      // the plate and rules repaint, the glyphs don't. Depth still reads from
+      // scale, blur and opacity.
+      el.style.transform = `translate(${d * slideW}px, ${lift}px) scale(${Math.max(scale, 0.2)})`;
+      el.style.opacity = String(opacity);
+      // Drop the property entirely on the active slide rather than setting
+      // `none`: an always-present filter promotes the slide to its own layer,
+      // where SVG label text can fail to repaint after a transform.
+      if (blur > 0.05) el.style.filter = `blur(${blur.toFixed(2)}px)`;
+      else el.style.removeProperty("filter");
+      el.style.zIndex = String(100 - Math.round(ad * 10));
+      el.style.pointerEvents = ad < 0.5 ? "auto" : "none";
+      el.setAttribute("aria-hidden", ad < 0.5 ? "false" : "true");
+    }
+  }
+
+  function measure() {
+    const w = stage.clientWidth || 640;
+    slideW = clamp(w * 0.46, 190, 330);
+    engine.resize();
+    layout();
+  }
+
+  /* ------------------------------------------------------------------ spray */
+
+  /** Nozzle position of a slide, in canvas-local CSS pixels. */
+  function nozzleAt(i) {
+    const slide = rail.children[i];
+    if (!slide) return null;
+    const anchor = slide.querySelector(".ipx-nozzle-anchor");
+    if (!anchor) return null;
+
+    const a = anchor.getBoundingClientRect();
+    const c = canvas.getBoundingClientRect();
+    return { x: a.left + a.width / 2 - c.left, y: a.top + a.height / 2 - c.top };
+  }
+
+  function floatNotes(i, origin) {
+    const p = perfumes[i];
+    const pool = [...p.notes.top, ...p.notes.heart];
+    const picks = pool.sort(() => Math.random() - 0.5).slice(0, 2);
+
+    picks.forEach((note, n) => {
+      const el = document.createElement("span");
+      el.className = "ipx-note-float";
+      el.textContent = note;
+      el.style.left = `${origin.x + 8 + n * 12}px`;
+      el.style.top = `${origin.y - 4 - n * 34}px`;
+      // Fan the words apart so two notes never land on top of each other.
+      el.style.setProperty("--ipx-note-dx", `${58 + n * 30}px`);
+      el.style.setProperty("--ipx-note-dy", `${-84 - n * 38}px`);
+      el.style.animationDelay = `${n * 190}ms`;
+      notesLayer.appendChild(el);
+      el.addEventListener("animationend", () => el.remove(), { once: true });
+    });
+  }
+
+  let firingTimer = null;
+
+  /**
+   * Fire the atomiser on a slide.
+   * @param {number} [i]      Slide to spray. Defaults to the active one.
+   * @param {number} [power]  0–1. Detent puffs use less than a full press.
+   */
+  function spray(i = index, power = 1) {
+    const p = perfumes[i];
+    const slide = rail.children[i];
+    if (!p || !slide) return;
+
+    slide.classList.remove("ipx-firing");
+    void slide.offsetWidth; // restart the press animation
+    slide.classList.add("ipx-firing");
+    clearTimeout(firingTimer);
+    firingTimer = setTimeout(() => slide.classList.remove("ipx-firing"), 460);
+
+    root.classList.remove("ipx-pulse");
+    void root.offsetWidth;
+    root.classList.add("ipx-pulse");
+
+    if (!reduced) {
+      const origin = nozzleAt(i);
+      if (origin) {
+        engine.spray({
+          x: origin.x,
+          y: origin.y,
+          color: p.theme.accent,
+          colorSoft: p.theme.accentSoft,
+          power,
+        });
+        if (power > 0.8) floatNotes(i, origin);
+      }
+    }
+
+    if (opts.onSpray) opts.onSpray(p, i);
+  }
+
+  /* --------------------------------------------------------------- movement */
+
+  let tween = null;
+
+  function animateTo(target, duration = 560) {
+    if (tween) cancelAnimationFrame(tween.raf);
+    const from = pos;
+    const delta = target - from;
+    if (Math.abs(delta) < 0.0005) {
+      pos = target;
+      layout();
+      return;
+    }
+
+    const t0 = performance.now();
+    const step = (now) => {
+      const t = clamp((now - t0) / duration, 0, 1);
+      pos = from + delta * easeOutCubic(t);
+      layout();
+      if (t < 1) {
+        tween.raf = requestAnimationFrame(step);
+      } else {
+        tween = null;
+      }
+    };
+    tween = { raf: requestAnimationFrame(step) };
+  }
+
+  function setIndex(next, { animate = true, spraying = true } = {}) {
+    const clamped = clamp(next, 0, perfumes.length - 1);
+    const changed = clamped !== index;
+    index = clamped;
+
+    applyTheme();
+    renderInfo();
+    for (const tick of track.children) {
+      tick.setAttribute("aria-selected", String(Number(tick.dataset.i) === index));
+    }
+    for (const slide of rail.children) {
+      slide.classList.toggle("ipx-active", Number(slide.dataset.i) === index);
+    }
+
+    if (animate) animateTo(index, reduced ? 0 : 560);
+    else {
+      pos = index;
+      layout();
+    }
+
+    if (changed && opts.onChange) opts.onChange(perfumes[index], index);
+    if (spraying && opts.sprayOnChange) {
+      // Let the bottle arrive before it fires.
+      setTimeout(() => !destroyed && spray(index, 1), reduced ? 0 : 210);
+    }
+  }
+
+  const next = () => setIndex(index + 1);
+  const prev = () => setIndex(index - 1);
+
+  /* ---------------------------------------------------------------- gestures */
+
+  let drag = null;
+  let lastDetent = index;
+
+  function onPointerDown(e) {
+    if (e.button != null && e.button > 0) return;
+    if (e.target.closest("button")) return;
+
+    stopAutoplay();
+    if (tween) cancelAnimationFrame(tween.raf);
+    tween = null;
+
+    drag = {
+      id: e.pointerId,
+      x: e.clientX,
+      startPos: pos,
+      last: e.clientX,
+      v: 0,
+      time: performance.now(),
+      moved: false,
+    };
+    lastDetent = Math.round(pos);
+    stage.setPointerCapture?.(e.pointerId);
+    root.classList.add("ipx-dragging");
+  }
+
+  function onPointerMove(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+
+    const dx = e.clientX - drag.x;
+    if (Math.abs(dx) > 3) drag.moved = true;
+
+    const now = performance.now();
+    const dt = Math.max(now - drag.time, 1);
+    drag.v = (e.clientX - drag.last) / dt;
+    drag.last = e.clientX;
+    drag.time = now;
+
+    let target = drag.startPos - dx / slideW;
+    // Rubber band past the ends.
+    const max = perfumes.length - 1;
+    if (target < 0) target = target * 0.32;
+    else if (target > max) target = max + (target - max) * 0.32;
+
+    pos = target;
+    layout();
+
+    // Puff at each detent as it passes — "sprays as you slide".
+    const detent = Math.round(pos);
+    if (detent !== lastDetent && detent >= 0 && detent <= max) {
+      lastDetent = detent;
+      spray(detent, 0.5);
+    }
+  }
+
+  function onPointerUp(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    const flick = drag.v;
+    const wasDrag = drag.moved;
+    drag = null;
+    root.classList.remove("ipx-dragging");
+
+    if (!wasDrag) return;
+
+    // A quick flick carries to the neighbouring slide.
+    let target = Math.round(pos);
+    if (Math.abs(flick) > 0.45) target = flick < 0 ? Math.ceil(pos) : Math.floor(pos);
+
+    setIndex(target, { animate: true, spraying: true });
+  }
+
+  let wheelLock = false;
+  function onWheel(e) {
+    const dx = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.shiftKey ? e.deltaY : 0;
+    if (!dx) return;
+    e.preventDefault();
+    if (wheelLock) return;
+    wheelLock = true;
+    setTimeout(() => (wheelLock = false), 420);
+    if (dx > 0) next();
+    else prev();
+  }
+
+  function onKeyDown(e) {
+    switch (e.key) {
+      case "ArrowRight":
+        e.preventDefault();
+        stopAutoplay();
+        next();
+        break;
+      case "ArrowLeft":
+        e.preventDefault();
+        stopAutoplay();
+        prev();
+        break;
+      case "Home":
+        e.preventDefault();
+        setIndex(0);
+        break;
+      case "End":
+        e.preventDefault();
+        setIndex(perfumes.length - 1);
+        break;
+      case " ":
+      case "Enter":
+        if (e.target === root) {
+          e.preventDefault();
+          spray(index, 1);
+        }
+        break;
+    }
+  }
+
+  function onClick(e) {
+    const tick = e.target.closest(".ipx-tick");
+    if (tick) {
+      stopAutoplay();
+      setIndex(Number(tick.dataset.i));
+      return;
+    }
+    if (e.target.closest(".ipx-prev")) {
+      stopAutoplay();
+      prev();
+      return;
+    }
+    if (e.target.closest(".ipx-next")) {
+      stopAutoplay();
+      next();
+      return;
+    }
+    if (e.target.closest(".ipx-spray-btn")) return spray(index, 1);
+    if (e.target.closest(".ipx-cta")) {
+      if (opts.onSelect) opts.onSelect(perfumes[index], index);
+      return;
+    }
+    // Tapping the bottle itself presses the atomiser.
+    if (e.target.closest(".ipx-slide.ipx-active")) spray(index, 1);
+  }
+
+  /* --------------------------------------------------------------- autoplay */
+
+  let autoTimer = null;
+  function startAutoplay() {
+    if (!opts.autoplay || reduced) return;
+    stopAutoplay();
+    autoTimer = setInterval(() => {
+      if (document.hidden) return;
+      setIndex(index >= perfumes.length - 1 ? 0 : index + 1);
+    }, opts.autoplayDelay);
+  }
+  function stopAutoplay() {
+    clearInterval(autoTimer);
+    autoTimer = null;
+  }
+
+  /* ----------------------------------------------------------------- wiring */
+
+  stage.addEventListener("pointerdown", onPointerDown);
+  stage.addEventListener("pointermove", onPointerMove);
+  stage.addEventListener("pointerup", onPointerUp);
+  stage.addEventListener("pointercancel", onPointerUp);
+  stage.addEventListener("wheel", onWheel, { passive: false });
+  root.addEventListener("keydown", onKeyDown);
+  root.addEventListener("click", onClick);
+
+  const ro = new ResizeObserver(measure);
+  ro.observe(stage);
+
+  const onVisibility = () => document.hidden && engine.stop();
+  document.addEventListener("visibilitychange", onVisibility);
+
+  buildSlides();
+  setIndex(index, { animate: false, spraying: false });
+  measure();
+  // Opening spray, once the layout has settled.
+  const bootTimer = setTimeout(() => !destroyed && opts.sprayOnChange && spray(index, 1), 520);
+  startAutoplay();
+
+  /* -------------------------------------------------------------------- API */
+
+  return {
+    get index() {
+      return index;
+    },
+    get perfume() {
+      return perfumes[index];
+    },
+    goTo: (i) => setIndex(i),
+    next,
+    prev,
+    spray: (power = 1) => spray(index, power),
+    /** Swap the collection at runtime — e.g. once the API responds. */
+    setPerfumes(list, keepIndex = true) {
+      perfumes = list.slice();
+      index = clamp(keepIndex ? index : 0, 0, perfumes.length - 1);
+      buildSlides();
+      setIndex(index, { animate: false, spraying: false });
+      measure();
+    },
+    destroy() {
+      destroyed = true;
+      clearTimeout(bootTimer);
+      clearTimeout(firingTimer);
+      stopAutoplay();
+      if (tween) cancelAnimationFrame(tween.raf);
+      ro.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+      stage.removeEventListener("pointerdown", onPointerDown);
+      stage.removeEventListener("pointermove", onPointerMove);
+      stage.removeEventListener("pointerup", onPointerUp);
+      stage.removeEventListener("pointercancel", onPointerUp);
+      stage.removeEventListener("wheel", onWheel);
+      root.removeEventListener("keydown", onKeyDown);
+      root.removeEventListener("click", onClick);
+      engine.destroy();
+      root.innerHTML = "";
+      root.classList.remove("ipx-slider");
+    },
+  };
+}
+
+return { createPerfumeSlider };
+})();
+
+/* ===== mount ===== */
+const slider = createPerfumeSlider(document.getElementById("collection"), {
+  perfumes: PERFUMES,
+  index: 0,
+  onSelect(perfume) {
+    // Integration point — in the Next app this navigates to the product page.
+    console.log("selected", perfume.id, perfume.name);
+  },
+});
+
+// Handy while tuning: window.slider.spray(), .next(), .goTo(3)
+window.slider = slider;
+</script>
+
+</body>
+</html>
