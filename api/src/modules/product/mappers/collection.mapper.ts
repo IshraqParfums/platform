@@ -20,5 +20,7 @@ export function toAdminCollectionResponse(
     name: collection.name,
     slug: collection.slug,
     description: collection.description,
+    status: collection.status,
+    homeRank: collection.homeRank,
   };
 }

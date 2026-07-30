@@ -31,6 +31,17 @@ export function getCollections(): Promise<CollectionSummary[]> {
   }, []);
 }
 
+/** Admin-curated homepage picks — filtered, ordered and capped server-side. */
+export function getHomepageCollections(): Promise<CollectionSummary[]> {
+  return safe(async () => {
+    const { data } = await nestFetch<CollectionSummary[]>(
+      '/collections?homepage=true',
+      { next: { revalidate: CATALOG_REVALIDATE_SECONDS } },
+    );
+    return data;
+  }, []);
+}
+
 export function getProducts(params?: {
   collection?: string;
   page?: number;

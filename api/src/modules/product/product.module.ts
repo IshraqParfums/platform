@@ -3,6 +3,7 @@ import { AdminModule } from '../admin/admin.module';
 import { MediaModule } from '../media/media.module';
 import { AdminCollectionsController } from './admin-collections.controller';
 import { AdminProductsController } from './admin-products.controller';
+import { CollectionArchiveService } from './collection-archive.service';
 import { CollectionRepository } from './collection.repository';
 import { CollectionService } from './collection.service';
 import { CollectionsController } from './collections.controller';
@@ -21,6 +22,7 @@ import { ProductsController } from './products.controller';
   providers: [
     CollectionRepository,
     ProductRepository,
+    CollectionArchiveService,
     CollectionService,
     ProductService,
   ],

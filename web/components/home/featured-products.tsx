@@ -33,7 +33,11 @@ export function FeaturedProducts({
             cards stretch to a common height so prices line up across the row. */}
         <div className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:mt-14 lg:grid-cols-4 lg:gap-x-10">
           {products.map((product, i) => (
-            <Reveal key={product.slug} delay={i * 90} className="h-full">
+            <Reveal
+              key={product.slug}
+              delay={i * 90}
+              className="h-full border-b border-line/50 pb-14 last:border-b-0 sm:border-b-0 sm:pb-0"
+            >
               <ProductCard
                 product={product}
                 collectionLabel={labels.get(product.collectionSlug)}

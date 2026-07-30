@@ -5,9 +5,12 @@ import {
 } from '@nestjs/common';
 import type {
   AdminCollectionResponse,
+  ArchiveCollectionResponse,
   CollectionSummary,
+  RestoreCollectionResponse,
 } from '@ishraqparfums/shared';
 import { Prisma } from '@prisma/client';
+import { CollectionArchiveService } from './collection-archive.service';
 import { CollectionRepository } from './collection.repository';
 import type {
   CreateCollectionDto,
@@ -20,11 +23,25 @@ import {
 
 @Injectable()
 export class CollectionService {
-  constructor(private readonly collectionRepository: CollectionRepository) {}
+  constructor(
+    private readonly collectionRepository: CollectionRepository,
+    private readonly collectionArchiveService: CollectionArchiveService,
+  ) {}
 
   async list(): Promise<CollectionSummary[]> {
-    const collections = await this.collectionRepository.findAllOrdered();
+    const collections = await this.collectionRepository.findAllActiveOrdered();
     return collections.map(toCollectionSummary);
+  }
+
+  /** Admin-curated homepage picks — filtered, ordered and capped server-side. */
+  async listHomepage(): Promise<CollectionSummary[]> {
+    const collections = await this.collectionRepository.findHomeRankedOrdered();
+    return collections.map(toCollectionSummary);
+  }
+
+  async listAdmin(): Promise<AdminCollectionResponse[]> {
+    const collections = await this.collectionRepository.findAllOrdered();
+    return collections.map(toAdminCollectionResponse);
   }
 
   async create(input: CreateCollectionDto): Promise<AdminCollectionResponse> {
@@ -67,6 +84,7 @@ export class CollectionService {
         ...(input.description !== undefined
           ? { description: input.description?.trim() ?? null }
           : {}),
+        ...(input.homeRank !== undefined ? { homeRank: input.homeRank } : {}),
       });
 
       return toAdminCollectionResponse(collection);
@@ -82,5 +100,13 @@ export class CollectionService {
 
       throw error;
     }
+  }
+
+  archive(id: string): Promise<ArchiveCollectionResponse> {
+    return this.collectionArchiveService.archive(id);
+  }
+
+  restore(id: string): Promise<RestoreCollectionResponse> {
+    return this.collectionArchiveService.restore(id);
   }
 }

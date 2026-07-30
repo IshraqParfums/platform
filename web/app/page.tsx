@@ -5,12 +5,17 @@ import { FeaturedProducts } from "@/components/home/featured-products";
 import { Hero } from "@/components/hero/hero";
 import { PaletteMarquee } from "@/components/home/palette-marquee";
 import { TrustStrip } from "@/components/home/trust-strip";
-import { getCollections, getFeaturedProducts } from "@/lib/api/catalog";
+import {
+  getCollections,
+  getFeaturedProducts,
+  getHomepageCollections,
+} from "@/lib/api/catalog";
 
 export default async function HomePage() {
-  const [featured, collections] = await Promise.all([
+  const [featured, collections, homepageCollections] = await Promise.all([
     getFeaturedProducts(4),
     getCollections(),
+    getHomepageCollections(),
   ]);
 
   return (
@@ -18,7 +23,7 @@ export default async function HomePage() {
       <Hero />
       <TrustStrip />
       <FeaturedProducts products={featured} collections={collections} />
-      <CollectionsShowcase collections={collections} />
+      <CollectionsShowcase collections={homepageCollections} />
       <BespokeTeaser />
       <PaletteMarquee />
       <BrandStory />

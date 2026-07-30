@@ -140,6 +140,14 @@ Version 1 includes the following collections.
 
 The platform should allow additional collections to be introduced in future versions.
 
+Collection lifecycle (status only — rows are not physically deleted):
+
+* **Active** — Visible on the storefront collection list. Products in the collection follow their own status.
+* **Archived** — Hidden from the storefront. Archiving a collection cascades: every **Active** product in it becomes **Archived** with archive reason `COLLECTION`. Products already Draft, Archived (manual), or Deleted are left unchanged.
+* **Restore** — Collection returns to Active. Only products archived with reason `COLLECTION` are restored to Active (and must still have at least one variant). Manually archived products stay archived.
+
+Administrators may move a product to another collection. A product archived by collection cascade that is moved onto an Active collection is restored when activatable; moving onto an Archived collection keeps it cascade-archived.
+
 ---
 
 # 5. Products
@@ -157,6 +165,7 @@ Each product should support the following information.
 * Product Rating
 * Customer Reviews
 * Product Status (Draft / Active / Archived / Deleted)
+* Archive Reason (when Archived: `MANUAL` or `COLLECTION`)
 
 Each product may support one or more bottle sizes.
 
@@ -172,8 +181,8 @@ Administrators should be able to select which predefined bottle sizes are availa
 Product lifecycle (status only — rows are not physically deleted):
 
 * **Draft** — Never released. Not visible to customers. Can be published as Active or soft-deleted.
-* **Active** — Visible and available for purchase. Can be returned to Draft, taken down as Archived, or soft-deleted.
-* **Archived** — Taken down from the selling catalog. Row retained. Can return to Active, or be soft-deleted.
+* **Active** — Visible and available for purchase. Can be returned to Draft, taken down as Archived, or soft-deleted. Cannot be Active while assigned to an Archived collection.
+* **Archived** — Taken down from the selling catalog. Row retained. Always carries an archive reason (`MANUAL` for admin takedown, `COLLECTION` for collection cascade). Can return to Active, or be soft-deleted. Collection restore only reactivates `COLLECTION` reasons.
 * **Deleted** — Soft-removed. Row retained for history; not shown on the storefront.
 
 ---

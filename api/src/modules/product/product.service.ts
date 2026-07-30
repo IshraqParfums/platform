@@ -14,7 +14,12 @@ import type {
   ProductListItem,
 } from '@ishraqparfums/shared';
 import type { ProductVariant } from '@prisma/client';
-import { Prisma, ProductStatus } from '@prisma/client';
+import {
+  CollectionStatus,
+  Prisma,
+  ProductArchiveReason,
+  ProductStatus,
+} from '@prisma/client';
 import { toPaginatedResponse, toSkipTake } from '../../common/pagination';
 import { MediaService } from '../media/media.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -43,6 +48,12 @@ import {
   toProductDetail,
   toProductListItem,
 } from './mappers/product.mapper';
+import {
+  archiveReasonForStatusChange,
+  isCollectionCascadeArchive,
+  reasonForCollectionArchive,
+  reasonForManualArchive,
+} from './product-archive-reason';
 import { assertValidProductStatusTransition } from './product-status-transitions';
 import { ProductRepository } from './product.repository';
 
@@ -72,7 +83,7 @@ export class ProductService {
 
     if (collectionSlug !== undefined) {
       const collection =
-        await this.collectionRepository.findBySlug(collectionSlug);
+        await this.collectionRepository.findActiveBySlug(collectionSlug);
 
       if (!collection) {
         throw new NotFoundException(
@@ -333,7 +344,10 @@ export class ProductService {
       );
     }
 
-    if (input.status === ProductStatus.ACTIVE) {
+    const nextStatus = input.status ?? ProductStatus.DRAFT;
+    this.assertCanPlaceActiveProduct(collection.status, nextStatus);
+
+    if (nextStatus === ProductStatus.ACTIVE) {
       this.assertActivatable([]);
     }
 
@@ -344,7 +358,8 @@ export class ProductService {
         slug: input.slug,
         shortDescription: input.shortDescription.trim(),
         detailedDescription: input.detailedDescription.trim(),
-        status: input.status ?? ProductStatus.DRAFT,
+        status: nextStatus,
+        archiveReason: archiveReasonForStatusChange(nextStatus),
       });
 
       return toAdminProductDetail(product);
@@ -359,6 +374,25 @@ export class ProductService {
   ): Promise<AdminProductDetail> {
     const current = await this.requireAdminById(id);
 
+    const destinationCollectionId =
+      input.collectionId !== undefined
+        ? input.collectionId
+        : current.collectionId;
+
+    const destinationCollection =
+      destinationCollectionId === current.collectionId
+        ? current.collection
+        : await this.collectionRepository.findById(destinationCollectionId);
+
+    if (!destinationCollection) {
+      throw new BadRequestException(
+        `Collection with id "${destinationCollectionId}" not found`,
+      );
+    }
+
+    let nextStatus = input.status ?? current.status;
+    let nextArchiveReason = current.archiveReason;
+
     if (input.status !== undefined) {
       assertValidProductStatusTransition(current.status, input.status);
 
@@ -368,19 +402,28 @@ export class ProductService {
       ) {
         this.assertActivatable(current.variants);
       }
+
+      nextStatus = input.status;
+      nextArchiveReason = archiveReasonForStatusChange(input.status);
     }
 
-    if (input.collectionId !== undefined) {
-      const collection = await this.collectionRepository.findById(
-        input.collectionId,
-      );
+    const collectionChanged =
+      input.collectionId !== undefined &&
+      input.collectionId !== current.collectionId;
 
-      if (!collection) {
-        throw new BadRequestException(
-          `Collection with id "${input.collectionId}" not found`,
-        );
-      }
+    if (collectionChanged) {
+      const move = this.resolveMoveAfterCollectionChange({
+        currentStatus: nextStatus,
+        currentArchiveReason: nextArchiveReason,
+        destinationStatus: destinationCollection.status,
+        variantCount: current.variants.length,
+        statusExplicitlySet: input.status !== undefined,
+      });
+      nextStatus = move.status;
+      nextArchiveReason = move.archiveReason;
     }
+
+    this.assertCanPlaceActiveProduct(destinationCollection.status, nextStatus);
 
     try {
       const product = await this.productRepository.update(id, {
@@ -395,12 +438,77 @@ export class ProductService {
         ...(input.detailedDescription !== undefined
           ? { detailedDescription: input.detailedDescription.trim() }
           : {}),
-        ...(input.status !== undefined ? { status: input.status } : {}),
+        status: nextStatus,
+        archiveReason: nextArchiveReason,
       });
 
       return toAdminProductDetail(product);
     } catch (error) {
       throw this.mapProductSlugConflict(error, input.slug);
+    }
+  }
+
+  /**
+   * Moving a COLLECTION-cascaded product off its collection clears that mark.
+   * Destination ACTIVE → try live again; destination ARCHIVED → stay cascaded.
+   */
+  private resolveMoveAfterCollectionChange(input: {
+    currentStatus: ProductStatus;
+    currentArchiveReason: ProductArchiveReason | null;
+    destinationStatus: CollectionStatus;
+    variantCount: number;
+    statusExplicitlySet: boolean;
+  }): {
+    status: ProductStatus;
+    archiveReason: ProductArchiveReason | null;
+  } {
+    if (!isCollectionCascadeArchive(input.currentArchiveReason)) {
+      return {
+        status: input.currentStatus,
+        archiveReason: input.currentArchiveReason,
+      };
+    }
+
+    if (input.destinationStatus === CollectionStatus.ARCHIVED) {
+      return {
+        status: ProductStatus.ARCHIVED,
+        archiveReason: reasonForCollectionArchive(),
+      };
+    }
+
+    // Leaving an archived collection for an ACTIVE one.
+    if (input.statusExplicitlySet) {
+      // Caller already chose the next status; only clear COLLECTION reason.
+      return {
+        status: input.currentStatus,
+        archiveReason: archiveReasonForStatusChange(input.currentStatus),
+      };
+    }
+
+    if (input.variantCount > 0) {
+      return {
+        status: ProductStatus.ACTIVE,
+        archiveReason: null,
+      };
+    }
+
+    return {
+      status: ProductStatus.ARCHIVED,
+      archiveReason: reasonForManualArchive(),
+    };
+  }
+
+  private assertCanPlaceActiveProduct(
+    collectionStatus: CollectionStatus,
+    productStatus: ProductStatus,
+  ): void {
+    if (
+      productStatus === ProductStatus.ACTIVE &&
+      collectionStatus === CollectionStatus.ARCHIVED
+    ) {
+      throw new BadRequestException(
+        'Cannot place an ACTIVE product on an ARCHIVED collection',
+      );
     }
   }
 

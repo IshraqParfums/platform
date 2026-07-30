@@ -1,4 +1,6 @@
-export type ProductStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED' | 'DELETED';
+export type ProductStatus = "DRAFT" | "ACTIVE" | "ARCHIVED" | "DELETED";
+
+export type ProductArchiveReason = "MANUAL" | "COLLECTION";
 
 export interface AdminProductVariant {
   id: string;
@@ -23,6 +25,7 @@ export interface AdminProductListItem {
   name: string;
   slug: string;
   status: ProductStatus;
+  archiveReason: ProductArchiveReason | null;
   collectionId: string;
   collectionName: string;
   primaryImageUrl: string | null;
@@ -39,6 +42,7 @@ export interface AdminProductDetail {
   shortDescription: string;
   detailedDescription: string;
   status: ProductStatus;
+  archiveReason: ProductArchiveReason | null;
   collectionId: string;
   collectionName: string;
   variants: AdminProductVariant[];

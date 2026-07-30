@@ -15,6 +15,16 @@ enum ProductStatus {
   DELETED
 }
 
+enum CollectionStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum ProductArchiveReason {
+  MANUAL
+  COLLECTION
+}
+
 enum OrderStatus {
   PENDING_PAYMENT
   EXPIRED
@@ -39,34 +49,43 @@ enum PaymentProvider {
 }
 
 model Collection {
-  id          String    @id @default(uuid())
+  id          String           @id @default(uuid())
   name        String
-  slug        String    @unique
+  slug        String           @unique
   description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  status      CollectionStatus @default(ACTIVE)
+  /// Admin-curated homepage slot, 1-based. Null = not shown on the homepage.
+  /// No DB uniqueness constraint — the homepage query takes the first two by
+  /// ascending rank, so a duplicate is a curation mistake, not a data error.
+  homeRank    Int?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   products    Product[]
 
+  @@index([status])
+  @@index([status, homeRank])
   @@map("collections")
 }
 
 model Product {
-  id                  String           @id @default(uuid())
+  id                  String                @id @default(uuid())
   collectionId        String
   name                String
-  slug                String           @unique
+  slug                String                @unique
   shortDescription    String
   detailedDescription String
-  status              ProductStatus    @default(DRAFT)
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
-  collection          Collection       @relation(fields: [collectionId], references: [id], onDelete: Restrict)
+  status              ProductStatus         @default(DRAFT)
+  archiveReason       ProductArchiveReason?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  collection          Collection            @relation(fields: [collectionId], references: [id], onDelete: Restrict)
   variants            ProductVariant[]
   images              ProductImage[]
   reviews             Review[]
 
   @@index([status])
   @@index([collectionId])
+  @@index([collectionId, status, archiveReason])
   @@index([name])
   @@map("products")
 }

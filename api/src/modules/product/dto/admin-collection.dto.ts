@@ -1,8 +1,10 @@
 import { Transform } from 'class-transformer';
 import {
+  IsInt,
   IsOptional,
   IsString,
   Matches,
+  Min,
   MinLength,
   ValidateIf,
 } from 'class-validator';
@@ -50,4 +52,10 @@ export class UpdateCollectionDto {
   @IsString()
   @MinLength(1)
   description?: string | null;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsInt()
+  @Min(1)
+  homeRank?: number | null;
 }

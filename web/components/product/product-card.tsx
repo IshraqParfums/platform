@@ -39,6 +39,8 @@ export function ProductCard({
   className?: string;
 }) {
   const label = collectionLabel ?? prettifySlug(product.collectionSlug);
+  const hasReviews =
+    product.ratingAverage !== null && product.reviewCount > 0;
 
   return (
     <Link
@@ -75,11 +77,16 @@ export function ProductCard({
           {product.name}
         </h3>
 
-        <div className="mt-1.5 min-h-[16px]">
-          <Rating average={product.ratingAverage} count={product.reviewCount} />
-        </div>
+        {hasReviews ? (
+          <div className="mt-1.5">
+            <Rating
+              average={product.ratingAverage}
+              count={product.reviewCount}
+            />
+          </div>
+        ) : null}
 
-        <p className="mt-2 line-clamp-1 text-[13px] leading-relaxed text-ink-soft">
+        <p className={cn("line-clamp-1 text-[13px] leading-relaxed text-ink-soft", hasReviews ? "mt-2" : "mt-1.5")}>
           {product.shortDescription}
         </p>
 
