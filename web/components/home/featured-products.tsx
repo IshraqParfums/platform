@@ -19,7 +19,7 @@ export function FeaturedProducts({
   const labels = new Map(collections.map((c) => [c.slug, c.name]));
 
   return (
-    <Section tone="cream">
+    <Section tone="cream" space="compact">
       <Container size="wide">
         <SectionHeading
           eyebrow="The collection"
@@ -31,7 +31,7 @@ export function FeaturedProducts({
         {/* Wider gutters rather than bigger cards — density is what makes a
             grid feel cheap. `h-full` on the Reveal wrapper is what lets the
             cards stretch to a common height so prices line up across the row. */}
-        <div className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:mt-14 lg:grid-cols-4 lg:gap-x-10">
+        <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-4 lg:gap-x-10">
           {products.map((product, i) => (
             <Reveal
               key={product.slug}

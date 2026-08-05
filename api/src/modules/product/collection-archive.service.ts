@@ -22,8 +22,17 @@ export class CollectionArchiveService {
     const { collection, cascadedProductCount } =
       await this.collectionRepository.archiveWithActiveProductCascade(id);
 
+    const hydrated =
+      await this.collectionRepository.findByIdWithActiveProductCount(
+        collection.id,
+      );
+
+    if (!hydrated) {
+      throw new NotFoundException(`Collection with id "${id}" not found`);
+    }
+
     return {
-      collection: toAdminCollectionResponse(collection),
+      collection: toAdminCollectionResponse(hydrated),
       cascadedProductCount,
     };
   }
@@ -56,8 +65,17 @@ export class CollectionArchiveService {
         leaveManualIds,
       );
 
+    const hydrated =
+      await this.collectionRepository.findByIdWithActiveProductCount(
+        collection.id,
+      );
+
+    if (!hydrated) {
+      throw new NotFoundException(`Collection with id "${id}" not found`);
+    }
+
     return {
-      collection: toAdminCollectionResponse(collection),
+      collection: toAdminCollectionResponse(hydrated),
       restoredProductCount: restoreIds.length,
       leftArchivedCount: leaveManualIds.length,
     };

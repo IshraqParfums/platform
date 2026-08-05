@@ -46,11 +46,21 @@ export class CollectionService {
 
   async create(input: CreateCollectionDto): Promise<AdminCollectionResponse> {
     try {
-      const collection = await this.collectionRepository.create({
+      const created = await this.collectionRepository.create({
         name: input.name.trim(),
         slug: input.slug,
         description: input.description?.trim() ?? null,
+        editorialLabel: input.editorialLabel?.trim() ?? null,
       });
+
+      const collection =
+        await this.collectionRepository.findByIdWithActiveProductCount(created.id);
+
+      if (!collection) {
+        throw new NotFoundException(
+          `Collection with id "${created.id}" not found`,
+        );
+      }
 
       return toAdminCollectionResponse(collection);
     } catch (error) {
@@ -78,14 +88,24 @@ export class CollectionService {
     }
 
     try {
-      const collection = await this.collectionRepository.update(id, {
+      await this.collectionRepository.update(id, {
         ...(input.name !== undefined ? { name: input.name.trim() } : {}),
         ...(input.slug !== undefined ? { slug: input.slug } : {}),
         ...(input.description !== undefined
           ? { description: input.description?.trim() ?? null }
           : {}),
+        ...(input.editorialLabel !== undefined
+          ? { editorialLabel: input.editorialLabel?.trim() ?? null }
+          : {}),
         ...(input.homeRank !== undefined ? { homeRank: input.homeRank } : {}),
       });
+
+      const collection =
+        await this.collectionRepository.findByIdWithActiveProductCount(id);
+
+      if (!collection) {
+        throw new NotFoundException(`Collection with id "${id}" not found`);
+      }
 
       return toAdminCollectionResponse(collection);
     } catch (error) {

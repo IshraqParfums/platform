@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import type { ProductListSort } from '@ishraqparfums/shared';
 import type { Prisma, ProductImage, ProductVariant } from '@prisma/client';
-import { ProductStatus } from '@prisma/client';
+import { ProductStatus, Prisma as PrismaNamespace } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type {
   ProductWithCatalogRelations,
@@ -19,32 +20,134 @@ export interface AdminProductFilters {
   search?: string;
 }
 
+export interface ActiveProductListOptions {
+  collectionId?: string;
+  search?: string;
+  sort?: ProductListSort;
+  skip?: number;
+  take?: number;
+}
+
 @Injectable()
 export class ProductRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private activeWhere(options?: { collectionId?: string }) {
+  private activeWhere(options?: {
+    collectionId?: string;
+    search?: string;
+  }): Prisma.ProductWhereInput {
     return {
       status: ProductStatus.ACTIVE,
       ...(options?.collectionId ? { collectionId: options.collectionId } : {}),
+      ...(options?.search
+        ? {
+            name: { contains: options.search, mode: 'insensitive' as const },
+          }
+        : {}),
     };
   }
 
-  findActiveMany(options?: {
-    collectionId?: string;
-    skip?: number;
-    take?: number;
-  }): Promise<ProductWithCatalogRelations[]> {
+  private prismaOrderBy(
+    sort: ProductListSort | undefined,
+  ): Prisma.ProductOrderByWithRelationInput {
+    switch (sort) {
+      case 'name-asc':
+        return { name: 'asc' };
+      case 'newest':
+      default:
+        return { createdAt: 'desc' };
+    }
+  }
+
+  private isPriceSort(
+    sort: ProductListSort | undefined,
+  ): sort is 'price-asc' | 'price-desc' {
+    return sort === 'price-asc' || sort === 'price-desc';
+  }
+
+  async findActiveMany(
+    options?: ActiveProductListOptions,
+  ): Promise<ProductWithCatalogRelations[]> {
+    const sort = options?.sort ?? 'newest';
+
+    if (this.isPriceSort(sort)) {
+      return this.findActiveManyByPrice(options, sort);
+    }
+
     return this.prisma.product.findMany({
       where: this.activeWhere(options),
       include: catalogInclude,
-      orderBy: { name: 'asc' },
+      orderBy: this.prismaOrderBy(sort),
       ...(options?.skip !== undefined ? { skip: options.skip } : {}),
       ...(options?.take !== undefined ? { take: options.take } : {}),
     });
   }
 
-  countActive(options?: { collectionId?: string }): Promise<number> {
+  private async findActiveManyByPrice(
+    options: ActiveProductListOptions | undefined,
+    sort: 'price-asc' | 'price-desc',
+  ): Promise<ProductWithCatalogRelations[]> {
+    const direction = sort === 'price-asc' ? 'ASC' : 'DESC';
+    const collectionId = options?.collectionId ?? null;
+    const search = options?.search ?? null;
+    const skip = options?.skip ?? 0;
+    const take = options?.take;
+
+    // Price lives on variants — paginate by MIN(price) then hydrate.
+    const rows =
+      take === undefined
+        ? await this.prisma.$queryRaw<{ id: string }[]>`
+            SELECT p.id
+            FROM products p
+            LEFT JOIN product_variants pv ON pv."productId" = p.id
+            WHERE p.status = CAST('ACTIVE' AS "ProductStatus")
+              AND (${collectionId}::text IS NULL OR p."collectionId" = ${collectionId})
+              AND (
+                ${search}::text IS NULL
+                OR p.name ILIKE '%' || ${search} || '%'
+              )
+            GROUP BY p.id
+            ORDER BY MIN(pv."pricePaise") ${PrismaNamespace.raw(direction)} NULLS LAST,
+              p.name ASC
+          `
+        : await this.prisma.$queryRaw<{ id: string }[]>`
+            SELECT p.id
+            FROM products p
+            LEFT JOIN product_variants pv ON pv."productId" = p.id
+            WHERE p.status = CAST('ACTIVE' AS "ProductStatus")
+              AND (${collectionId}::text IS NULL OR p."collectionId" = ${collectionId})
+              AND (
+                ${search}::text IS NULL
+                OR p.name ILIKE '%' || ${search} || '%'
+              )
+            GROUP BY p.id
+            ORDER BY MIN(pv."pricePaise") ${PrismaNamespace.raw(direction)} NULLS LAST,
+              p.name ASC
+            LIMIT ${take} OFFSET ${skip}
+          `;
+
+    if (rows.length === 0) {
+      return [];
+    }
+
+    const ids = rows.map((row) => row.id);
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: ids } },
+      include: catalogInclude,
+    });
+
+    const byId = new Map(products.map((product) => [product.id, product]));
+    return ids
+      .map((id) => byId.get(id))
+      .filter((product): product is ProductWithCatalogRelations =>
+        Boolean(product),
+      );
+  }
+
+  countActive(options?: {
+    collectionId?: string;
+    search?: string;
+  }): Promise<number> {
     return this.prisma.product.count({
       where: this.activeWhere(options),
     });

@@ -1,3 +1,4 @@
+import { HEADER_HEIGHT_PX } from "@/lib/layout";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -14,10 +15,19 @@ const MICRO = [
  * keep the plate from reading as a hard rectangle and keep the headline
  * readable over bright smoke. Content is capped to roughly one viewport so
  * eyebrow, lead, and both CTAs stay in the first view.
+ *
+ * Negative top margin cancels the shop layout's header offset so the plate
+ * still runs under the transparent home nav.
  */
 export function Hero() {
   return (
-    <section className="relative isolate overflow-hidden bg-deep pt-[68px]">
+    <section
+      className="relative isolate overflow-hidden bg-deep"
+      style={{
+        marginTop: -HEADER_HEIGHT_PX,
+        paddingTop: HEADER_HEIGHT_PX,
+      }}
+    >
       <div className="absolute inset-0 z-0">
         <HeroPlate opacity={0.92} />
       </div>
@@ -30,7 +40,10 @@ export function Hero() {
       />
 
       <Container size="wide" className="relative z-20">
-        <div className="flex min-h-[calc(100svh-68px)] max-h-[900px] flex-col justify-center py-10 text-center md:py-12">
+        <div
+          className="flex max-h-[900px] flex-col justify-center py-10 text-center md:py-12"
+          style={{ minHeight: `calc(100svh - ${HEADER_HEIGHT_PX}px)` }}
+        >
           <Eyebrow tone="cream" className="hero-eyebrow mx-auto">
             Small-batch perfumery · Made in India
           </Eyebrow>

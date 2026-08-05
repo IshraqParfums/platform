@@ -7,6 +7,13 @@ export type {
   ProductDetailVariant,
   ProductListItem,
   ProductListPrimaryImage,
+  ProductListSort,
+  PublicProductListQuery,
+} from "./catalog/index.js";
+export {
+  PRODUCT_LIST_SORTS,
+  PRODUCT_LIST_SORT_DEFAULT,
+  isProductListSort,
 } from "./catalog/index.js";
 export type {
   AuthTokenResponse,

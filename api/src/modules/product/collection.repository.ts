@@ -7,33 +7,46 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
+export type CollectionWithActiveProductCount = Collection & {
+  _count: { products: number };
+};
+
 @Injectable()
 export class CollectionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAllOrdered(): Promise<Collection[]> {
+  private readonly activeProductCount = {
+    products: {
+      where: { status: ProductStatus.ACTIVE },
+    },
+  } satisfies Prisma.CollectionCountOutputTypeSelect;
+
+  findAllOrdered(): Promise<CollectionWithActiveProductCount[]> {
     return this.prisma.collection.findMany({
+      include: { _count: { select: this.activeProductCount } },
       orderBy: { name: 'asc' },
     });
   }
 
-  findAllActiveOrdered(): Promise<Collection[]> {
+  findAllActiveOrdered(): Promise<CollectionWithActiveProductCount[]> {
     return this.prisma.collection.findMany({
+      include: { _count: { select: this.activeProductCount } },
       where: { status: CollectionStatus.ACTIVE },
       orderBy: { name: 'asc' },
     });
   }
 
   /**
-   * Admin-curated homepage picks. Capped at 2 with no DB uniqueness on
-   * `homeRank` — a duplicate or third rank is a curation mistake the admin
+   * Admin-curated homepage picks. Capped at 3 with no DB uniqueness on
+   * `homeRank` — a duplicate or fourth rank is a curation mistake the admin
    * can see and fix, not something worth a validation error over.
    */
-  findHomeRankedOrdered(): Promise<Collection[]> {
+  findHomeRankedOrdered(): Promise<CollectionWithActiveProductCount[]> {
     return this.prisma.collection.findMany({
+      include: { _count: { select: this.activeProductCount } },
       where: { status: CollectionStatus.ACTIVE, homeRank: { not: null } },
       orderBy: { homeRank: 'asc' },
-      take: 2,
+      take: 3,
     });
   }
 
@@ -52,6 +65,15 @@ export class CollectionRepository {
   findById(id: string): Promise<Collection | null> {
     return this.prisma.collection.findUnique({
       where: { id },
+    });
+  }
+
+  findByIdWithActiveProductCount(
+    id: string,
+  ): Promise<CollectionWithActiveProductCount | null> {
+    return this.prisma.collection.findUnique({
+      where: { id },
+      include: { _count: { select: this.activeProductCount } },
     });
   }
 

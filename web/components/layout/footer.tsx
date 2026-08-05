@@ -38,7 +38,7 @@ export async function Footer() {
       links: [
         { href: "/shop", label: "All perfumes" },
         ...collections.map((collection) => ({
-          href: `/collections/${collection.slug}`,
+          href: `/shop?collection=${collection.slug}`,
           label: collection.name,
         })),
       ],

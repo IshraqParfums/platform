@@ -1,7 +1,26 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { ButtonLink } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { cn } from "@/lib/cn";
+
+function ActionArrow() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      fill="none"
+      className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+    >
+      <path
+        d="M3 8h10M9 4l4 4-4 4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export function SectionHeading({
   eyebrow,
@@ -59,25 +78,17 @@ export function SectionHeading({
         )}
       </div>
 
-      {action && (
-        <Link
+      {action ? (
+        <ButtonLink
           href={action.href}
-          className={cn(
-            "group inline-flex shrink-0 items-center gap-2 font-mono text-label uppercase transition-colors",
-            tone === "light"
-              ? "text-gold-soft hover:text-gold-pale"
-              : "text-rose-deep hover:text-ink",
-          )}
+          variant={tone === "light" ? "outline-dark" : "outline"}
+          size="sm"
+          className="group shrink-0 font-mono text-label uppercase tracking-[0.14em]"
         >
           {action.label}
-          <span
-            aria-hidden="true"
-            className="transition-transform duration-200 group-hover:translate-x-1"
-          >
-            →
-          </span>
-        </Link>
-      )}
+          <ActionArrow />
+        </ButtonLink>
+      ) : null}
     </div>
   );
 }

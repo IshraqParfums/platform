@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/cn";
+import { HEADER_HEIGHT_PX } from "@/lib/layout";
 
 const NAV = [
   { href: "/shop", label: "Shop" },
@@ -19,17 +21,31 @@ function Monogram() {
   );
 }
 
+/**
+ * Surface modes:
+ * - transparent over the home hero (cream/gold on espresso)
+ * - solid deep bar on all other routes, after scroll on home, and when the
+ *   mobile menu is open
+ *
+ * Never stay transparent on cream pages — that is what made the logo vanish.
+ */
 export function Header() {
-  // Transparent over the espresso hero, solid once the user scrolls past it.
-  const [solid, setSolid] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setSolid(window.scrollY > 40);
+    if (!isHome) {
+      setScrolled(false);
+      return;
+    }
+
+    const onScroll = () => setScrolled(window.scrollY > 40);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [isHome]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -38,17 +54,22 @@ export function Header() {
     };
   }, [open]);
 
+  const solid = !isHome || scrolled || open;
+
   return (
     <header
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300",
-        solid || open
+        solid
           ? "border-b border-gold/15 bg-deep/92 backdrop-blur-md"
           : "border-b border-transparent bg-transparent",
       )}
     >
       <Container size="wide">
-        <div className="flex h-[68px] items-center justify-between gap-6">
+        <div
+          className="flex items-center justify-between gap-6"
+          style={{ height: HEADER_HEIGHT_PX }}
+        >
           <Link
             href="/"
             className="flex items-center gap-3"
@@ -133,7 +154,7 @@ export function Header() {
         </div>
       </Container>
 
-      {open && (
+      {open ? (
         <nav className="border-t border-gold/15 bg-deep/97 backdrop-blur-md md:hidden">
           <Container size="wide">
             <div className="flex flex-col py-3">
@@ -150,7 +171,7 @@ export function Header() {
             </div>
           </Container>
         </nav>
-      )}
+      ) : null}
     </header>
   );
 }

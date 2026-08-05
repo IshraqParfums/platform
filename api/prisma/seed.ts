@@ -14,6 +14,7 @@ async function upsertCollection(input: {
   slug: string;
   name: string;
   description: string;
+  editorialLabel?: string | null;
   homeRank?: number | null;
 }) {
   return prisma.collection.upsert({
@@ -22,11 +23,13 @@ async function upsertCollection(input: {
       slug: input.slug,
       name: input.name,
       description: input.description,
+      editorialLabel: input.editorialLabel ?? null,
       homeRank: input.homeRank ?? null,
     },
     update: {
       name: input.name,
       description: input.description,
+      editorialLabel: input.editorialLabel ?? null,
       homeRank: input.homeRank ?? null,
     },
   });
@@ -127,13 +130,13 @@ async function upsertProductWithDetails(input: {
 }
 
 async function main() {
-  // homeRank: 1 and 2 exercise the homepage curation feature on a fresh
-  // clone. Limited Edition is deliberately unranked — it's fully browsable
-  // via /shop and /collections/limited-edition, just not on the homepage.
+  // homeRank 1–3 fill the homepage collections grid on a fresh clone.
+  // Unranked collections remain browsable via /shop and /collections.
   const designer = await upsertCollection({
     slug: 'designer',
     name: 'Designer',
     description: 'Contemporary designer-inspired compositions.',
+    editorialLabel: 'Designer-inspired',
     homeRank: 1,
   });
 
@@ -141,6 +144,7 @@ async function main() {
     slug: 'nostalgia',
     name: 'Nostalgia',
     description: 'Memory-led scents with warm, familiar depth.',
+    editorialLabel: 'Memory-led',
     homeRank: 2,
   });
 
@@ -149,7 +153,8 @@ async function main() {
     name: 'Limited Edition',
     description:
       'Small-batch releases in strictly limited runs. Once a batch is gone, it is gone.',
-    homeRank: null,
+    editorialLabel: 'Limited batches',
+    homeRank: 3,
   });
 
   // --- Designer ---------------------------------------------------------

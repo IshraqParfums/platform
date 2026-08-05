@@ -4,6 +4,7 @@ import type {
   CollectionSummary,
   PaginatedResponse,
   ProductListItem,
+  ProductListSort,
 } from '@ishraqparfums/shared';
 import { nestFetch } from '@/lib/api/nest';
 
@@ -44,11 +45,15 @@ export function getHomepageCollections(): Promise<CollectionSummary[]> {
 
 export function getProducts(params?: {
   collection?: string;
+  q?: string;
+  sort?: ProductListSort;
   page?: number;
   pageSize?: number;
 }): Promise<PaginatedResponse<ProductListItem>> {
   const search = new URLSearchParams();
   if (params?.collection) search.set('collection', params.collection);
+  if (params?.q) search.set('q', params.q);
+  if (params?.sort) search.set('sort', params.sort);
   if (params?.page) search.set('page', String(params.page));
   if (params?.pageSize) search.set('pageSize', String(params.pageSize));
   const qs = search.toString();

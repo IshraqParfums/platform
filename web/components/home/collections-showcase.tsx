@@ -1,26 +1,14 @@
 import type { CollectionSummary } from "@ishraqparfums/shared";
-import { ExploreRow } from "@/components/home/explore-row";
+import { CollectionCard } from "@/components/shop/collection-card";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { Vial } from "@/components/ui/vial";
-
-/** Decorative art per collection slug, served locally so this section never waits on the API. */
-const ART: Record<string, { src: string; alt: string }> = {
-  designer: { src: "/products/citrus-atelier.jpg", alt: "Citrus Atelier perfume bottle" },
-  nostalgia: { src: "/products/monsoon-letters.jpg", alt: "Monsoon Letters perfume bottle" },
-  "limited-edition": { src: "/products/oud-ishraq.jpg", alt: "Oud Ishraq perfume bottle" },
-};
-const FALLBACK_ART = { src: "/products/cedar-sessions.jpg", alt: "" };
 
 /**
- * "Three ways in" — one static Bespoke row (not a database collection; the
- * same custom-perfume feature covered in full further down the page) plus one
- * row per admin-picked collection from `GET /collections?homepage=true`.
- *
- * Curation lives entirely server-side: which collections appear and in what
- * order is decided by `Collection.homeRank`, not by array position. A
- * collection can exist and be fully browsable without ever showing here.
+ * Homepage collections entry — up to three curated picks from
+ * `GET /collections?homepage=true` (`Collection.homeRank`). Bespoke lives in
+ * its own section below; this block is collections-only and links out to the
+ * full index when there are more than the homepage slots.
  */
 export function CollectionsShowcase({
   collections,
@@ -28,54 +16,27 @@ export function CollectionsShowcase({
   collections: CollectionSummary[];
 }) {
   return (
-    <Section tone="cream-soft">
+    <Section tone="cream-soft" space="compact">
       <Container size="wide">
         <SectionHeading
           eyebrow="Find your corner"
-          title="Three ways in"
-          description="Start from a mood rather than a bottle — or skip the guessing and let us compose one around you."
+          title="Start with a mood"
+          description="Each collection is a mood — pick one to begin, or browse the full shelf."
+          action={{ href: "/collections", label: "Explore all collections" }}
         />
 
-        {/* No gap here — each row past the first supplies its own top
-            border + padding (see ExploreRow), so spacing isn't doubled. */}
-        <div className="mt-14 flex flex-col lg:mt-16">
-          <ExploreRow
-            index={0}
-            imageSide="right"
-            eyebrow="The custom option"
-            title="Compose your own"
-            description="Ten questions about how you want to feel, then a formula built just for you from the same perfumer's palette — top, heart and base, named however you like."
-            href="/bespoke"
-            ctaLabel="Start the quiz"
-            image={{
-              src: "/products/amber-meridian.jpg",
-              alt: "A bespoke perfume formula, backlit in golden mist",
-            }}
-            accent={
-              <div className="mt-6 flex items-end text-gold-soft/70">
-                <Vial fill={72} bands={{ top: 30, heart: 40, base: 30 }} width={52} height={100} />
-              </div>
-            }
-          />
-
-          {collections.map((collection, i) => (
-            <ExploreRow
-              key={collection.slug}
-              index={i + 1}
-              delay={i * 90}
-              imageSide={i % 2 === 0 ? "left" : "right"}
-              eyebrow="Collection"
-              title={collection.name}
-              description={
-                collection.description ??
-                "A composition built from our closed palette of raw materials."
-              }
-              href={`/collections/${collection.slug}`}
-              ctaLabel="Explore the collection"
-              image={ART[collection.slug] ?? FALLBACK_ART}
-            />
-          ))}
-        </div>
+        {collections.length > 0 ? (
+          <div className="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:mt-10 lg:grid-cols-3 lg:gap-x-8">
+            {collections.map((collection) => (
+              <CollectionCard key={collection.slug} collection={collection} />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-8 text-[15px] text-ink-soft lg:mt-10">
+            Collections will appear here once they&apos;re curated for the
+            homepage.
+          </p>
+        )}
       </Container>
     </Section>
   );

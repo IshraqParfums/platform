@@ -15,6 +15,8 @@ export class ProductsController {
       query.collection,
       query.page,
       query.pageSize,
+      query.q,
+      query.sort,
     );
   }
 

@@ -57,6 +57,16 @@ export function DropletIcon(props: IconProps) {
   );
 }
 
+/** Magnifying glass — search fields. */
+export function SearchIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <circle cx="11" cy="11" r="6.2" />
+      <path d="M16.2 16.2L20.5 20.5" />
+    </Base>
+  );
+}
+
 /** Secure payment. */
 export function ShieldIcon(props: IconProps) {
   return (

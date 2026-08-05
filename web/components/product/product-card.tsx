@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ProductListItem } from "@ishraqparfums/shared";
+import { ProductCollectionBadge } from "@/components/product/product-collection-badge";
 import { Price } from "@/components/ui/price";
 import { Rating } from "@/components/ui/rating";
 import { cn } from "@/lib/cn";
@@ -27,6 +28,8 @@ function ImageFallback({ name }: { name: string }) {
   );
 }
 
+const HOVER_EASE = "duration-[280ms] ease-[cubic-bezier(0.22,0.8,0.28,1)]";
+
 export function ProductCard({
   product,
   collectionLabel,
@@ -46,11 +49,19 @@ export function ProductCard({
     <Link
       href={`/products/${product.slug}`}
       className={cn(
-        "group flex h-full flex-col transition-transform duration-500 ease-[cubic-bezier(0.22,0.8,0.28,1)] hover:-translate-y-1.5",
+        "group flex h-full flex-col transition-transform",
+        HOVER_EASE,
+        "hover:-translate-y-[3px]",
         className,
       )}
     >
-      <div className="relative aspect-4/5 w-full overflow-hidden rounded-2xl bg-deep ring-1 ring-line/40">
+      <div
+        className={cn(
+          "relative aspect-square w-full overflow-hidden rounded-2xl bg-deep ring-1 ring-line/40 transition-[box-shadow,ring-color]",
+          HOVER_EASE,
+          "group-hover:shadow-[0_18px_40px_-24px_rgba(28,22,18,0.55)] group-hover:ring-gold/25",
+        )}
+      >
         {product.primaryImage ? (
           <Image
             src={product.primaryImage.url}
@@ -58,43 +69,50 @@ export function ProductCard({
             fill
             priority={priority}
             sizes="(min-width:1280px) 300px, (min-width:768px) 33vw, 82vw"
-            className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,0.8,0.28,1)] group-hover:scale-105"
+            className={cn(
+              "object-cover transition-transform",
+              HOVER_EASE,
+              "group-hover:scale-[1.03]",
+            )}
           />
         ) : (
           <ImageFallback name={product.name} />
         )}
 
-        <span className="absolute left-3 top-3 rounded-full bg-deep/70 px-3 py-1.5 font-mono text-label-sm uppercase text-gold-soft backdrop-blur-sm">
-          {label}
-        </span>
+        <ProductCollectionBadge>{label}</ProductCollectionBadge>
       </div>
 
-      {/* Clear hierarchy rather than four competing lines: name, then rating,
-          then one supporting line, and price alone on the bottom row so a
-          discount badge can never push it into a second line. */}
-      <div className="flex flex-1 flex-col pt-5">
-        <h3 className="font-display text-[19px] font-semibold leading-snug text-ink transition-colors group-hover:text-rose-deep">
-          {product.name}
-        </h3>
+      {/* Compact top stack: title → rating? → description → price; leftover
+          height sits below — never between lines. */}
+      <div className="pt-3.5 sm:pt-4">
+        <div className="flex flex-col gap-1">
+          <h3
+            className={cn(
+              "font-display text-[clamp(1.2rem,1.4vw,1.35rem)] font-semibold tracking-[-0.01em] leading-snug text-ink transition-colors",
+              HOVER_EASE,
+              "group-hover:text-rose-deep",
+            )}
+          >
+            {product.name}
+          </h3>
 
-        {hasReviews ? (
-          <div className="mt-1.5">
+          {hasReviews ? (
             <Rating
               average={product.ratingAverage}
               count={product.reviewCount}
             />
-          </div>
-        ) : null}
+          ) : null}
 
-        <p className={cn("line-clamp-1 text-[13px] leading-relaxed text-ink-soft", hasReviews ? "mt-2" : "mt-1.5")}>
-          {product.shortDescription}
-        </p>
+          <p className="line-clamp-1 text-[12.5px] leading-snug text-ink-faint">
+            {product.shortDescription}
+          </p>
 
-        <div className="mt-auto pt-4">
           <Price
             pricePaise={product.fromPricePaise}
             compareAtPaise={product.fromCompareAtPricePaise}
-            from={product.fromPricePaise !== null}
+            sizeMl={product.fromSizeMl}
+            layout="stacked"
+            className="mt-1"
           />
         </div>
       </div>

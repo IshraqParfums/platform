@@ -52,10 +52,11 @@ model Collection {
   id          String           @id @default(uuid())
   name        String
   slug        String           @unique
-  description String?
-  status      CollectionStatus @default(ACTIVE)
+  description    String?
+  editorialLabel String?
+  status         CollectionStatus @default(ACTIVE)
   /// Admin-curated homepage slot, 1-based. Null = not shown on the homepage.
-  /// No DB uniqueness constraint — the homepage query takes the first two by
+  /// No DB uniqueness constraint — the homepage query takes the first three by
   /// ascending rank, so a duplicate is a curation mistake, not a data error.
   homeRank    Int?
   createdAt   DateTime         @default(now())

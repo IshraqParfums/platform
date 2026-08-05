@@ -4,14 +4,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type {
-  AdminProductDetail,
-  AdminProductImage,
-  AdminProductListItem,
-  AdminProductVariant,
-  PaginatedResponse,
-  ProductDetail,
-  ProductListItem,
+import {
+  PRODUCT_LIST_SORT_DEFAULT,
+  type AdminProductDetail,
+  type AdminProductImage,
+  type AdminProductListItem,
+  type AdminProductVariant,
+  type PaginatedResponse,
+  type ProductDetail,
+  type ProductListItem,
+  type ProductListSort,
 } from '@ishraqparfums/shared';
 import type { ProductVariant } from '@prisma/client';
 import {
@@ -78,6 +80,8 @@ export class ProductService {
     collectionSlug?: string,
     page?: number,
     pageSize?: number,
+    q?: string,
+    sort?: ProductListSort,
   ): Promise<PaginatedResponse<ProductListItem>> {
     let collectionId: string | undefined;
 
@@ -101,9 +105,20 @@ export class ProductService {
       pageSize: safePageSize,
     } = toSkipTake(page, pageSize);
 
+    const listOptions = {
+      collectionId,
+      search: q,
+      sort: sort ?? PRODUCT_LIST_SORT_DEFAULT,
+      skip,
+      take,
+    };
+
     const [products, total] = await Promise.all([
-      this.productRepository.findActiveMany({ collectionId, skip, take }),
-      this.productRepository.countActive({ collectionId }),
+      this.productRepository.findActiveMany(listOptions),
+      this.productRepository.countActive({
+        collectionId,
+        search: q,
+      }),
     ]);
 
     const productIds = products.map((product) => product.id);

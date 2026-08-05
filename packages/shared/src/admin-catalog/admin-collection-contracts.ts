@@ -5,6 +5,8 @@ export interface AdminCollectionResponse {
   name: string;
   slug: string;
   description: string | null;
+  editorialLabel: string | null;
+  productCount: number;
   status: CollectionStatus;
   /** Admin-curated homepage slot, 1-based. Null = not shown on the homepage. */
   homeRank: number | null;
@@ -14,12 +16,14 @@ export interface CreateCollectionBody {
   name: string;
   slug: string;
   description?: string | null;
+  editorialLabel?: string | null;
 }
 
 export interface UpdateCollectionBody {
   name?: string;
   slug?: string;
   description?: string | null;
+  editorialLabel?: string | null;
   homeRank?: number | null;
 }
 

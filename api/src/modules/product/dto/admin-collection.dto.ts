@@ -30,6 +30,15 @@ export class CreateCollectionDto {
   @IsString()
   @MinLength(1)
   description?: string | null;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString()
+  @MinLength(1)
+  editorialLabel?: string | null;
 }
 
 export class UpdateCollectionDto {
@@ -52,6 +61,15 @@ export class UpdateCollectionDto {
   @IsString()
   @MinLength(1)
   description?: string | null;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString()
+  @MinLength(1)
+  editorialLabel?: string | null;
 
   @IsOptional()
   @ValidateIf((_, value) => value !== null)
