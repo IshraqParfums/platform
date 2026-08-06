@@ -164,6 +164,29 @@ export function findCartLineByVariantId(
 }
 
 /**
+ * Recompute cart sums from a line list (optimistic local updates).
+ */
+function withLines(view: CartView, lines: CartViewLine[]): CartView {
+  const subtotalPaise = lines
+    .filter((line) => line.isAvailable)
+    .reduce((sum, line) => sum + line.lineTotalPaise, 0);
+  const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
+  const hasSellable = lines.some(
+    (line) => line.isAvailable && line.quantity > 0,
+  );
+  const shippingPaise = hasSellable ? SHIPPING_PAISE : 0;
+
+  return {
+    ...view,
+    lines,
+    itemCount,
+    subtotalPaise,
+    shippingPaise,
+    totalPaise: subtotalPaise + shippingPaise,
+  };
+}
+
+/**
  * Local qty change for optimistic UI — recomputes line totals and cart sums.
  * Quantity ≤ 0 drops the line.
  */
@@ -184,19 +207,24 @@ export function withLineQuantity(
           };
         });
 
-  const subtotalPaise = lines
-    .filter((line) => line.isAvailable)
-    .reduce((sum, line) => sum + line.lineTotalPaise, 0);
-  const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
-  const hasSellable = lines.some((line) => line.isAvailable && line.quantity > 0);
-  const shippingPaise = hasSellable ? SHIPPING_PAISE : 0;
+  return withLines(view, lines);
+}
 
-  return {
-    ...view,
-    lines,
-    itemCount,
-    subtotalPaise,
-    shippingPaise,
-    totalPaise: subtotalPaise + shippingPaise,
+/**
+ * Put a removed line back for Undo — inserts if missing, else resets qty.
+ */
+export function withLineRestored(
+  view: CartView,
+  line: CartViewLine,
+): CartView {
+  const restored: CartViewLine = {
+    ...line,
+    lineTotalPaise: line.pricePaise * line.quantity,
   };
+
+  if (view.lines.some((item) => item.key === line.key)) {
+    return withLineQuantity(view, line.key, line.quantity);
+  }
+
+  return withLines(view, [...view.lines, restored]);
 }

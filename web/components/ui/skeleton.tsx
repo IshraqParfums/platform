@@ -1,11 +1,16 @@
+import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 /**
- * Placeholder for content that is on its way — the same faint ink wash the
- * login page already uses for its suspense fallback, with a slow pulse.
+ * Content placeholders while a page or section loads.
  *
- * Shape these to the content that will land, so nothing jumps when it does.
- * The global reduced-motion rule stills the pulse; the blocks still read.
+ * Conventions:
+ * - Content wait → page/feature skeleton built from these primitives
+ * - Action wait → button label pending (Sending…), not a skeleton
+ * - Soft reloads (`useGuardedLoad`) → do not flash a skeleton after mutations
+ *
+ * Shape blocks to the UI that will land so nothing jumps. Reduced-motion
+ * stills the pulse globally; the blocks still read.
  */
 export function Skeleton({
   className,
@@ -31,6 +36,33 @@ export function Skeleton({
 }
 
 /**
+ * Vertical stack of skeleton bars — headers, summary rows, short copy.
+ */
+export function SkeletonStack({
+  children,
+  className,
+  gap = "md",
+}: {
+  children: ReactNode;
+  className?: string;
+  gap?: "sm" | "md" | "lg";
+}) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col",
+        gap === "sm" && "gap-2",
+        gap === "md" && "gap-3",
+        gap === "lg" && "gap-4",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
  * Wrapper that announces the wait once, for assistive tech, while the blocks
  * inside stay decorative.
  */
@@ -40,7 +72,7 @@ export function SkeletonScreen({
   className,
 }: {
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }) {
   return (

@@ -11,6 +11,8 @@ type ToastOptions = {
   description?: string;
   duration?: number;
   action?: ToastAction;
+  /** Fires when the toast closes for any reason (timeout, swipe, or action). */
+  onDismiss?: () => void;
 };
 
 /**
@@ -48,6 +50,7 @@ function toSonnerOptions(options?: ToastOptions) {
     description: options.description,
     duration: options.duration,
     action: options.action,
+    onDismiss: options.onDismiss,
   };
 }
 

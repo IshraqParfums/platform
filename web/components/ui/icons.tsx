@@ -86,3 +86,13 @@ export function ShieldIcon(props: IconProps) {
     </Base>
   );
 }
+
+/** Direct message / conversation. */
+export function MessageIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="M4.2 5.2h15.6v10.4H8.1L4.2 19V5.2z" />
+      <path d="M8 9.2h8M8 12.4h5.5" />
+    </Base>
+  );
+}

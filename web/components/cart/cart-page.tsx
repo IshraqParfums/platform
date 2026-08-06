@@ -1,8 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { CartEmpty } from "@/components/cart/cart-empty";
 import { CartLine } from "@/components/cart/cart-line";
+import { CartSkeleton } from "@/components/cart/cart-skeleton";
 import { CartSummary } from "@/components/cart/cart-summary";
 import { toast } from "@/components/ui/toaster";
 import { ensureShopSession } from "@/lib/auth/shop-session";
@@ -17,11 +24,19 @@ import {
   cartItemCountLabel,
 } from "@/lib/cart/cart-copy";
 import { emitCartChanged, subscribeCartChanged } from "@/lib/cart/cart-events";
-import { withLineQuantity, type CartView } from "@/lib/cart/cart-view";
+import { toastRemovedFromCart } from "@/lib/cart/cart-toast";
+import {
+  withLineQuantity,
+  withLineRestored,
+  type CartView,
+  type CartViewLine,
+} from "@/lib/cart/cart-view";
 
 /**
  * Client cart orchestrator — loads guest or server cart and handles mutations.
  * Title + lines share the left column; Summary sticks to the top on desktop.
+ * Remove is soft: UI updates immediately, server/guest write waits for toast
+ * dismiss unless Undo restores the line.
  */
 export function CartPageClient() {
   const [view, setView] = useState<CartView | null>(null);
@@ -29,6 +44,16 @@ export function CartPageClient() {
   const [error, setError] = useState<string | null>(null);
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const viewRef = useRef<CartView | null>(null);
+
+  viewRef.current = view;
+
+  /** Set cart UI and notify listeners — never call emit from inside a setState updater. */
+  const publishView = useCallback((next: CartView) => {
+    viewRef.current = next;
+    setView(next);
+    emitCartChanged({ itemCount: next.itemCount, view: next });
+  }, []);
 
   const refresh = useCallback(() => {
     startTransition(async () => {
@@ -38,10 +63,13 @@ export function CartPageClient() {
           loadCart(),
         ]);
         setAuthenticated(auth || next.mode === "server");
+        viewRef.current = next;
         setView(next);
         setError(null);
       } catch {
-        setView(emptyCartView());
+        const empty = emptyCartView();
+        viewRef.current = empty;
+        setView(empty);
         setError("Could not load your cart.");
       }
     });
@@ -51,16 +79,22 @@ export function CartPageClient() {
     refresh();
     return subscribeCartChanged((detail) => {
       if (detail.view) {
+        viewRef.current = detail.view;
         setView(detail.view);
         if (detail.view.mode === "server") setAuthenticated(true);
         return;
       }
       void loadCart()
         .then((next) => {
+          viewRef.current = next;
           setView(next);
           if (next.mode === "server") setAuthenticated(true);
         })
-        .catch(() => setView(emptyCartView()));
+        .catch(() => {
+          const empty = emptyCartView();
+          viewRef.current = empty;
+          setView(empty);
+        });
     });
   }, [refresh]);
 
@@ -71,15 +105,12 @@ export function CartPageClient() {
   ) {
     setPendingKey(key);
     setError(null);
-    setView(optimisticView);
-    emitCartChanged({
-      itemCount: optimisticView.itemCount,
-      view: optimisticView,
-    });
+    publishView(optimisticView);
 
     startTransition(async () => {
       try {
         const next = await work();
+        viewRef.current = next;
         setView(next);
       } catch (err) {
         const message =
@@ -93,14 +124,41 @@ export function CartPageClient() {
     });
   }
 
+  function restoreRemovedLine(line: CartViewLine, fallback: CartView) {
+    const base = viewRef.current ?? fallback;
+    publishView(withLineRestored(base, line));
+  }
+
+  function removeLine(line: CartViewLine, current: CartView) {
+    const optimistic = withLineQuantity(current, line.key, 0);
+    setError(null);
+    publishView(optimistic);
+
+    toastRemovedFromCart({
+      productName: line.productName,
+      onUndo: () => {
+        restoreRemovedLine(line, optimistic);
+      },
+      onCommit: () => {
+        startTransition(async () => {
+          try {
+            const next = await removeCartLine(line, current.mode);
+            viewRef.current = next;
+            setView(next);
+          } catch (err) {
+            const message =
+              err instanceof Error ? err.message : "Update failed";
+            setError(message);
+            toast.error("Could not update cart", message);
+            restoreRemovedLine(line, optimistic);
+          }
+        });
+      },
+    });
+  }
+
   if (view === null) {
-    return (
-      <div className="py-16">
-        <p className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-          Loading cart…
-        </p>
-      </div>
-    );
+    return <CartSkeleton />;
   }
 
   if (view.lines.length === 0) {
@@ -142,13 +200,7 @@ export function CartPageClient() {
                   () => setCartLineQuantity(line, quantity, view.mode),
                 );
               }}
-              onRemove={() => {
-                runMutation(
-                  line.key,
-                  withLineQuantity(view, line.key, 0),
-                  () => removeCartLine(line, view.mode),
-                );
-              }}
+              onRemove={() => removeLine(line, view)}
             />
           ))}
         </div>

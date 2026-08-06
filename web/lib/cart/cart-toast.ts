@@ -19,3 +19,35 @@ export function toastAddedToCart(productName: string) {
     },
   });
 }
+
+/**
+ * Soft-remove toast: Undo cancels the pending delete; dismiss/timeout commits it.
+ * Callers should update UI optimistically before invoking this.
+ */
+export function toastRemovedFromCart({
+  productName,
+  onUndo,
+  onCommit,
+}: {
+  productName: string;
+  onUndo: () => void;
+  onCommit: () => void;
+}) {
+  let settled = false;
+
+  const finish = (fn: () => void) => {
+    if (settled) return;
+    settled = true;
+    fn();
+  };
+
+  return toast.message(productName, {
+    description: "Removed from your cart",
+    duration: 5000,
+    action: {
+      label: "Undo",
+      onClick: () => finish(onUndo),
+    },
+    onDismiss: () => finish(onCommit),
+  });
+}

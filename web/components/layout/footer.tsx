@@ -7,6 +7,7 @@ import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { getCollections } from "@/lib/api/catalog";
 import { ACCOUNT_HOME, ACCOUNT_ORDERS } from "@/lib/auth/account-routes";
+import { getSiteContact } from "@/lib/site/contact";
 
 const STATIC_COLUMNS: FooterNavColumn[] = [
   {
@@ -36,6 +37,7 @@ const STATIC_COLUMNS: FooterNavColumn[] = [
  */
 export async function Footer() {
   const collections = await getCollections();
+  const contact = getSiteContact();
 
   const desktopColumns: FooterNavColumn[] = [
     {
@@ -101,7 +103,9 @@ export async function Footer() {
             Composed and bottled in India.
           </p>
           <a
-            href="https://wa.me/919000000000"
+            href={contact.whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-cream/20 px-5 py-3 text-meta font-medium text-cream/85 transition-colors hover:border-gold/50 hover:text-cream-soft"
           >
             <WhatsAppIcon />
@@ -129,7 +133,9 @@ export async function Footer() {
             </p>
 
             <a
-              href="https://wa.me/919000000000"
+              href={contact.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="mt-6 inline-flex items-center gap-2 rounded-full border border-cream/20 px-5 py-3 text-meta font-medium text-cream/85 transition-colors hover:border-gold/50 hover:text-cream-soft"
             >
               <WhatsAppIcon />

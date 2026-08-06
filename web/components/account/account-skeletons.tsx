@@ -1,13 +1,17 @@
-import { Skeleton, SkeletonScreen } from "@/components/ui/skeleton";
+import {
+  Skeleton,
+  SkeletonScreen,
+  SkeletonStack,
+} from "@/components/ui/skeleton";
 
-/** Three cards' worth of order history. */
+/** Order history cards — borders match loaded account cards. */
 function OrderCardSkeletons({ count = 3 }: { count?: number }) {
   return (
     <div className="grid gap-3">
       {Array.from({ length: count }, (_, index) => (
         <div
           key={index}
-          className="rounded-lg border border-ink/[0.08] px-5 py-4"
+          className="rounded-lg border border-ink/12 px-5 py-4"
         >
           <div className="flex items-baseline justify-between gap-4">
             <Skeleton className="h-4 w-40" />
@@ -27,11 +31,11 @@ export function AccountHubSkeleton() {
   return (
     <SkeletonScreen label="Loading your account">
       <div className="flex items-start justify-between gap-6">
-        <div>
-          <Skeleton className="h-9 w-64" />
-          <Skeleton className="mt-3 h-3 w-40" />
-        </div>
-        <Skeleton className="h-9 w-24" rounded="full" />
+        <SkeletonStack gap="md">
+          <Skeleton className="h-9 w-64 max-w-full" />
+          <Skeleton className="h-3 w-40" />
+        </SkeletonStack>
+        <Skeleton className="h-9 w-24 shrink-0" rounded="full" />
       </div>
 
       <div className="mt-8 border-t border-ink/[0.08] pt-8">
@@ -56,9 +60,11 @@ export function AccountHubSkeleton() {
 export function OrdersListSkeleton() {
   return (
     <SkeletonScreen label="Loading your orders">
-      <Skeleton className="h-9 w-40" />
-      <Skeleton className="mt-3 h-3 w-24" />
-      <div className="mt-8 flex gap-2">
+      <SkeletonStack gap="md">
+        <Skeleton className="h-9 w-40" />
+        <Skeleton className="h-3 w-24" />
+      </SkeletonStack>
+      <div className="mt-8 flex flex-wrap gap-2">
         <Skeleton className="h-8 w-20" rounded="full" />
         <Skeleton className="h-8 w-28" rounded="full" />
         <Skeleton className="h-8 w-24" rounded="full" />
@@ -74,24 +80,26 @@ export function OrderDetailSkeleton() {
   return (
     <SkeletonScreen label="Loading your order">
       <Skeleton className="h-6 w-32" rounded="full" />
-      <Skeleton className="mt-5 h-9 w-56" />
-      <Skeleton className="mt-3 h-3 w-48" />
+      <SkeletonStack gap="md" className="mt-5">
+        <Skeleton className="h-9 w-56 max-w-full" />
+        <Skeleton className="h-3 w-48" />
+      </SkeletonStack>
 
       <div className="mt-9 grid gap-4 border-y border-ink/[0.08] py-7 sm:grid-cols-2">
         {Array.from({ length: 4 }, (_, index) => (
-          <div key={index}>
+          <SkeletonStack key={index} gap="sm">
             <Skeleton className="h-3 w-16" />
-            <Skeleton className="mt-2 h-4 w-44" />
-          </div>
+            <Skeleton className="h-4 w-44 max-w-full" />
+          </SkeletonStack>
         ))}
       </div>
 
-      <div className="mt-8 rounded-xl border border-ink/[0.08] p-6">
+      <div className="mt-8 rounded-xl border border-ink/12 p-6">
         <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(15rem,18rem)]">
           <div className="grid gap-4">
             {Array.from({ length: 3 }, (_, index) => (
               <div key={index} className="flex justify-between gap-4">
-                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-4 w-40 max-w-[60%]" />
                 <Skeleton className="h-4 w-16" />
               </div>
             ))}

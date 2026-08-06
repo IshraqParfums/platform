@@ -9,6 +9,7 @@ import {
 } from "@/components/checkout/address-section";
 import { checkoutLayout } from "@/components/checkout/checkout-layout";
 import { CheckoutProfileDialog } from "@/components/checkout/checkout-profile-dialog";
+import { CheckoutSkeleton } from "@/components/checkout/checkout-skeleton";
 import { OrderSection } from "@/components/checkout/order-section";
 import { toast } from "@/components/ui/toaster";
 import { createAddress, listAddresses } from "@/lib/address/address-client";
@@ -71,7 +72,7 @@ export function CheckoutPageClient() {
   const [attempted, setAttempted] = useState(false);
   const [draftErrors, setDraftErrors] = useState<AddressDraftErrors>({});
   const [preparing, setPreparing] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const applyProfile = useCallback((profile: CustomerSummary) => {
     setMe(profile);
@@ -291,13 +292,7 @@ export function CheckoutPageClient() {
   }
 
   if (!ready || view === null || me === null) {
-    return (
-      <div className="py-16">
-        <p className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-          {isPending ? "Loading checkout…" : "Preparing…"}
-        </p>
-      </div>
-    );
+    return <CheckoutSkeleton />;
   }
 
   const profileIncomplete = !isProfileComplete(me);
