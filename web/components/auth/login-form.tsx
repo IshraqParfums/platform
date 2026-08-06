@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { safeNext } from "@/lib/auth/safe-next";
+import { shopFetch } from "@/lib/auth/shop-fetch";
 import { emitCartChanged } from "@/lib/cart/cart-events";
 import {
   clearGuestCart,
@@ -204,7 +205,7 @@ async function mergeGuestCartAfterLogin(): Promise<void> {
   if (guest.items.length === 0) return;
 
   try {
-    const response = await fetch("/api/cart/merge", {
+    const response = await shopFetch("/api/cart/merge", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -230,4 +231,3 @@ async function mergeGuestCartAfterLogin(): Promise<void> {
     /* Keep guest cart if merge fails; user can retry next login. */
   }
 }
-
