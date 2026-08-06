@@ -65,6 +65,7 @@ export function ProductPurchasePanel({
     pending: cartPending,
     quantity: cartQty,
     setQuantity: setCartQty,
+    applySummary,
   } = useCartVariantLine(selected?.id ?? null);
 
   const sellable = selected ? isVariantSellable(selected) : false;
@@ -107,6 +108,18 @@ export function ProductPurchasePanel({
           return;
         }
 
+        applySummary(result.summary, {
+          variantId: selected.id,
+          productName: product.name,
+          productSlug: product.slug,
+          collectionName: product.collectionName,
+          shortDescription: product.shortDescription,
+          sizeMl: selected.sizeMl,
+          pricePaise: selected.pricePaise,
+          compareAtPricePaise: selected.compareAtPricePaise,
+          primaryImageUrl: product.primaryImageUrl,
+          stockQty: selected.stockQty,
+        });
         toastAddedToCart(product.name);
         setCtaState("added");
         window.setTimeout(() => setCtaState("idle"), 2200);

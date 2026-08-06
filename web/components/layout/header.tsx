@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CartNavLink } from "@/components/layout/cart-nav-link";
 import { Container } from "@/components/ui/container";
+import { ACCOUNT_HOME } from "@/lib/auth/account-routes";
 import { cn } from "@/lib/cn";
 import { HEADER_HEIGHT_PX } from "@/lib/layout";
 
@@ -98,8 +99,11 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
+            {/* Always Account, never Login: the destination is the same door
+                either way, and `/account` sends a guest to sign in and back
+                without the header having to probe the session on every page. */}
             <Link
-              href="/login"
+              href={ACCOUNT_HOME}
               className="hidden rounded-full px-4 py-2 text-sm font-medium text-cream/80 transition-colors hover:bg-cream/10 hover:text-cream-soft sm:inline-flex"
             >
               Account
@@ -139,7 +143,7 @@ export function Header() {
               {[
                 ...NAV,
                 { href: "/cart", label: "Cart" },
-                { href: "/login", label: "Account" },
+                { href: ACCOUNT_HOME, label: "Account" },
               ].map((item) => (
                 <Link
                   key={item.href}

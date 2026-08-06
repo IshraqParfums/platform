@@ -37,6 +37,9 @@ export type {
 export type {
   CheckoutRequest,
   CheckoutResponse,
+  CustomerOrderListResponse,
+  CustomerOrderStatusCounts,
+  CustomerOrderStatusGroup,
   OrderDetail,
   OrderItemResponse,
   OrderLineKind,
@@ -46,10 +49,20 @@ export type {
   OrderSummary,
   PaymentStatus,
 } from "./order/index.js";
+export {
+  CUSTOMER_ORDER_STATUS_GROUPS,
+  CUSTOMER_ORDER_STATUS_GROUP_IDS,
+  CUSTOMER_ORDER_STATUS_GROUP_LABELS,
+  countsFromStatusRows,
+  emptyCustomerOrderStatusCounts,
+  isCustomerOrderStatusGroup,
+  statusesForCustomerOrderGroup,
+} from "./order/index.js";
 export type { RazorpayVerifyRequest } from "./payment/index.js";
 export {
   INDIAN_MOBILE_E164_PATTERN,
   INDIAN_MOBILE_E164_RE,
+  formatIndianMobileDisplay,
   indianMobileNationalDigits,
   isIndianMobileE164,
   normalizeIndianMobile,
@@ -96,11 +109,21 @@ export type {
   CartItemResponse,
   CartLineKind,
   CartMergeResponse,
+  CartMutationResult,
+  CartMutationSummary,
+  CartMutationView,
   CartResponse,
   CatalogCartItemResponse,
   MergeCartBody,
   MergeCartItemBody,
   UpdateCartItemBody,
+} from "./cart/index.js";
+export {
+  CART_MUTATION_VIEWS,
+  DEFAULT_CART_MUTATION_VIEW,
+  isCartMutationSummary,
+  isCartMutationView,
+  isCartResponse,
 } from "./cart/index.js";
 export {
   PAGINATION_DEFAULT_PAGE,

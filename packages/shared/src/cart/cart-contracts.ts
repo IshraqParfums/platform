@@ -42,6 +42,52 @@ export interface CartResponse {
   itemCount: number;
 }
 
+/**
+ * Mutation response weight. Same routes; `summary` skips the fat cart reload.
+ * Default remains `full` so existing callers keep working.
+ */
+export const CART_MUTATION_VIEWS = ['full', 'summary'] as const;
+export type CartMutationView = (typeof CART_MUTATION_VIEWS)[number];
+export const DEFAULT_CART_MUTATION_VIEW: CartMutationView = 'full';
+
+export function isCartMutationView(value: unknown): value is CartMutationView {
+  return (
+    typeof value === 'string' &&
+    (CART_MUTATION_VIEWS as readonly string[]).includes(value)
+  );
+}
+
+/**
+ * Slim ack after add / update / remove when `view=summary`.
+ * Clients merge into local cart state; no product images.
+ */
+export interface CartMutationSummary {
+  cartId: string;
+  itemId: string;
+  /** Absolute line quantity after the mutation; `0` when removed. */
+  quantity: number;
+  itemCount: number;
+  lineTotalPaise: number | null;
+  /** Available catalog stock after the write; null for bespoke or removed lines. */
+  stockQty: number | null;
+  /** Catalog variant id when known (add / catalog update); null for bespoke. */
+  variantId: string | null;
+}
+
+export type CartMutationResult = CartResponse | CartMutationSummary;
+
+export function isCartMutationSummary(
+  value: CartMutationResult,
+): value is CartMutationSummary {
+  return !('items' in value);
+}
+
+export function isCartResponse(
+  value: CartMutationResult,
+): value is CartResponse {
+  return 'items' in value;
+}
+
 export interface CartMergeResponse {
   cart: CartResponse;
   warnings: string[];

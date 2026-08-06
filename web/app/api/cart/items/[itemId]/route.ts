@@ -1,10 +1,16 @@
-import type { CartResponse } from "@ishraqparfums/shared";
+import type { CartMutationResult } from "@ishraqparfums/shared";
+import { isCartMutationView } from "@ishraqparfums/shared";
 import { NextResponse } from "next/server";
 import { shopAuthFetch } from "@/lib/api/auth-fetch";
 import { jsonFromNestError, unauthorizedResponse } from "@/lib/api/route-response";
 import { getShopAccessToken } from "@/lib/auth/session";
 
 type RouteContext = { params: Promise<{ itemId: string }> };
+
+function viewQuery(request: Request): string {
+  const view = new URL(request.url).searchParams.get("view");
+  return isCartMutationView(view) ? `?view=${view}` : "";
+}
 
 export async function PATCH(
   request: Request,
@@ -39,8 +45,8 @@ export async function PATCH(
   }
 
   try {
-    const { data } = await shopAuthFetch<CartResponse>(
-      `/cart/items/${encodeURIComponent(itemId)}`,
+    const { data } = await shopAuthFetch<CartMutationResult>(
+      `/cart/items/${encodeURIComponent(itemId)}${viewQuery(request)}`,
       { method: "PATCH", body: { quantity } },
     );
     return NextResponse.json(data);
@@ -50,7 +56,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   context: RouteContext,
 ): Promise<NextResponse> {
   const accessToken = await getShopAccessToken();
@@ -61,8 +67,8 @@ export async function DELETE(
   const { itemId } = await context.params;
 
   try {
-    const { data } = await shopAuthFetch<CartResponse>(
-      `/cart/items/${encodeURIComponent(itemId)}`,
+    const { data } = await shopAuthFetch<CartMutationResult>(
+      `/cart/items/${encodeURIComponent(itemId)}${viewQuery(request)}`,
       { method: "DELETE" },
     );
     return NextResponse.json(data);

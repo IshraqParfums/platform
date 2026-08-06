@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -18,7 +20,11 @@ import type {
 } from '@ishraqparfums/shared';
 import { PaginationQueryDto } from '../../common/dto/pagination.query.dto';
 import { CustomerJwtGuard } from '../auth/guards/customer-jwt.guard';
-import type { RequestWithCustomer } from '../auth/types/request-with-customer';
+import { OptionalCustomerJwtGuard } from '../auth/guards/optional-customer-jwt.guard';
+import type {
+  RequestWithCustomer,
+  RequestWithOptionalCustomer,
+} from '../auth/types/request-with-customer';
 import { CreateReviewDto, UpdateReviewDto } from './dto/review.dto';
 import { ReviewService } from './review.service';
 
@@ -26,8 +32,14 @@ import { ReviewService } from './review.service';
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
+  /**
+   * Community list. Optional JWT excludes the viewer’s own review from
+   * `items`/`total` so pagination stays aligned with the sticky “yours” column.
+   */
   @Get('products/:slug/reviews')
+  @UseGuards(OptionalCustomerJwtGuard)
   listForProduct(
+    @Req() request: RequestWithOptionalCustomer,
     @Param('slug') slug: string,
     @Query() query: PaginationQueryDto,
   ): Promise<ProductReviewsResponse> {
@@ -35,6 +47,20 @@ export class ReviewController {
       slug,
       query.page,
       query.pageSize,
+      request.user?.customerId,
+    );
+  }
+
+  /** Current customer's review for this product — 404 when none. */
+  @Get('products/:slug/reviews/me')
+  @UseGuards(CustomerJwtGuard)
+  getMineForProduct(
+    @Req() request: RequestWithCustomer,
+    @Param('slug') slug: string,
+  ): Promise<ReviewResponse> {
+    return this.reviewService.getMineForProduct(
+      request.user.customerId,
+      slug,
     );
   }
 
@@ -69,5 +95,15 @@ export class ReviewController {
     @Body() body: UpdateReviewDto,
   ): Promise<ReviewResponse> {
     return this.reviewService.update(request.user.customerId, id, body);
+  }
+
+  @Delete('reviews/:id')
+  @HttpCode(204)
+  @UseGuards(CustomerJwtGuard)
+  remove(
+    @Req() request: RequestWithCustomer,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
+    return this.reviewService.remove(request.user.customerId, id);
   }
 }

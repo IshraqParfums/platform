@@ -162,3 +162,41 @@ export function findCartLineByVariantId(
 ): CartViewLine | null {
   return view.lines.find((line) => line.variantId === variantId) ?? null;
 }
+
+/**
+ * Local qty change for optimistic UI — recomputes line totals and cart sums.
+ * Quantity ≤ 0 drops the line.
+ */
+export function withLineQuantity(
+  view: CartView,
+  lineKey: string,
+  quantity: number,
+): CartView {
+  const lines =
+    quantity <= 0
+      ? view.lines.filter((line) => line.key !== lineKey)
+      : view.lines.map((line) => {
+          if (line.key !== lineKey) return line;
+          return {
+            ...line,
+            quantity,
+            lineTotalPaise: line.pricePaise * quantity,
+          };
+        });
+
+  const subtotalPaise = lines
+    .filter((line) => line.isAvailable)
+    .reduce((sum, line) => sum + line.lineTotalPaise, 0);
+  const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
+  const hasSellable = lines.some((line) => line.isAvailable && line.quantity > 0);
+  const shippingPaise = hasSellable ? SHIPPING_PAISE : 0;
+
+  return {
+    ...view,
+    lines,
+    itemCount,
+    subtotalPaise,
+    shippingPaise,
+    totalPaise: subtotalPaise + shippingPaise,
+  };
+}

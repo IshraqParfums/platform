@@ -1,5 +1,17 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsInt, IsUUID, Min, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsUUID,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import {
+  CART_MUTATION_VIEWS,
+  type CartMutationView,
+} from '@ishraqparfums/shared';
 
 export class AddCartItemDto {
   @IsUUID()
@@ -42,4 +54,11 @@ export class MergeCartDto {
   @ValidateNested({ each: true })
   @Type(() => MergeCartItemDto)
   items!: MergeCartItemDto[];
+}
+
+/** `?view=summary|full` on cart mutations. */
+export class CartMutationViewQueryDto {
+  @IsOptional()
+  @IsIn([...CART_MUTATION_VIEWS])
+  view?: CartMutationView;
 }

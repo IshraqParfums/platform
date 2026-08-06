@@ -1,8 +1,14 @@
-import type { CartResponse } from "@ishraqparfums/shared";
+import type { CartMutationResult } from "@ishraqparfums/shared";
+import { isCartMutationView } from "@ishraqparfums/shared";
 import { NextResponse } from "next/server";
 import { shopAuthFetch } from "@/lib/api/auth-fetch";
 import { jsonFromNestError, unauthorizedResponse } from "@/lib/api/route-response";
 import { getShopAccessToken } from "@/lib/auth/session";
+
+function viewQuery(request: Request): string {
+  const view = new URL(request.url).searchParams.get("view");
+  return isCartMutationView(view) ? `?view=${view}` : "";
+}
 
 export async function POST(request: Request): Promise<NextResponse> {
   const accessToken = await getShopAccessToken();
@@ -37,13 +43,17 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  const quantity = Number.isInteger(quantityRaw) && quantityRaw > 0 ? quantityRaw : 1;
+  const quantity =
+    Number.isInteger(quantityRaw) && quantityRaw > 0 ? quantityRaw : 1;
 
   try {
-    const { data } = await shopAuthFetch<CartResponse>("/cart/items", {
-      method: "POST",
-      body: { variantId, quantity },
-    });
+    const { data } = await shopAuthFetch<CartMutationResult>(
+      `/cart/items${viewQuery(request)}`,
+      {
+        method: "POST",
+        body: { variantId, quantity },
+      },
+    );
     return NextResponse.json(data);
   } catch (error) {
     return jsonFromNestError(error);

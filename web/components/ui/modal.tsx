@@ -72,19 +72,29 @@ export function Modal({
         aria-modal="true"
         aria-labelledby={titleId}
         className={cn(
-          "relative z-10 w-full max-w-md border border-ink/10 bg-cream-soft p-6",
-          "shadow-[0_16px_40px_rgba(28,22,18,0.18)]",
+          "relative z-10 flex w-full max-h-[min(90dvh,44rem)] max-w-md flex-col",
+          "border border-ink/10 bg-cream-soft shadow-[0_16px_40px_rgba(28,22,18,0.18)]",
           panelClassName,
         )}
       >
-        <h2
-          id={titleId}
-          className="font-display text-xl font-semibold tracking-[-0.02em] text-ink"
-        >
-          {title}
-        </h2>
-        <div className="mt-2.5">{children}</div>
-        {footer ? <div className="mt-6">{footer}</div> : null}
+        <div className="shrink-0 px-6 pt-6">
+          <h2
+            id={titleId}
+            className="font-display text-xl font-semibold tracking-[-0.02em] text-ink"
+          >
+            {title}
+          </h2>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pt-2.5 pb-2">
+          {children}
+        </div>
+        {footer ? (
+          <div className="shrink-0 border-t border-ink/[0.06] px-6 py-4">
+            {footer}
+          </div>
+        ) : (
+          <div className="shrink-0 pb-6" aria-hidden />
+        )}
       </div>
     </div>
   );

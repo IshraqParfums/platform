@@ -8,8 +8,8 @@ import {
   type FormEvent,
 } from "react";
 import type { ReviewResponse } from "@ishraqparfums/shared";
+import { ProductReviewFields } from "@/components/product/product-review-fields";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/cn";
 import {
   clearReviewDraft,
   readReviewDraft,
@@ -38,7 +38,6 @@ export function ProductReviewForm({
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   async function postReview(payload: ReviewDraft): Promise<{
@@ -87,7 +86,6 @@ export function ProductReviewForm({
   function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
-    setSuccess(false);
 
     const draft: ReviewDraft = { slug, rating, title, body };
 
@@ -108,10 +106,6 @@ export function ProductReviewForm({
       }
       if (review) {
         clearReviewDraft(slug);
-        setSuccess(true);
-        setTitle("");
-        setBody("");
-        setRating(5);
         onCreated(review);
       }
     });
@@ -150,7 +144,6 @@ export function ProductReviewForm({
       }
       if (review) {
         clearReviewDraft(slug);
-        setSuccess(true);
         onCreated(review);
       }
     })();
@@ -172,60 +165,15 @@ export function ProductReviewForm({
         </p>
       </div>
 
-      <fieldset>
-        <legend className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-          Rating
-        </legend>
-        <div className="mt-2 flex gap-1.5">
-          {[1, 2, 3, 4, 5].map((value) => (
-            <button
-              key={value}
-              type="button"
-              className={cn(
-                "cursor-pointer p-1 transition-colors",
-                value <= rating ? "text-gold" : "text-ink/25 hover:text-ink/45",
-              )}
-              aria-label={`${value} star${value === 1 ? "" : "s"}`}
-              aria-pressed={value === rating}
-              onClick={() => setRating(value)}
-            >
-              <svg viewBox="0 0 20 20" className="h-6 w-6" fill="currentColor">
-                <path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.94 2.6.94-5.5-4-3.9 5.53-.8z" />
-              </svg>
-            </button>
-          ))}
-        </div>
-      </fieldset>
-
-      <label className="block">
-        <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-          Title <span className="normal-case tracking-normal">(optional)</span>
-        </span>
-        <input
-          type="text"
-          name="title"
-          maxLength={120}
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          className={fieldClassName()}
-          placeholder="A few words"
-        />
-      </label>
-
-      <label className="block">
-        <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-          Review <span className="normal-case tracking-normal">(optional)</span>
-        </span>
-        <textarea
-          name="body"
-          rows={4}
-          maxLength={2000}
-          value={body}
-          onChange={(event) => setBody(event.target.value)}
-          className={cn(fieldClassName(), "resize-y")}
-          placeholder="How does it wear? What notes stand out?"
-        />
-      </label>
+      <ProductReviewFields
+        rating={rating}
+        title={title}
+        body={body}
+        disabled={isPending}
+        onRatingChange={setRating}
+        onTitleChange={setTitle}
+        onBodyChange={setBody}
+      />
 
       <Button
         type="submit"
@@ -238,17 +186,6 @@ export function ProductReviewForm({
       </Button>
 
       {error ? <p className="text-sm text-rose-deep">{error}</p> : null}
-      {success ? (
-        <p className="text-sm text-ink-soft">Thank you — your review is live.</p>
-      ) : null}
     </form>
-  );
-}
-
-function fieldClassName(): string {
-  return cn(
-    "mt-2 w-full rounded-none border border-ink/20 bg-cream-soft px-3.5 py-3",
-    "text-[15px] text-ink outline-none transition-colors",
-    "placeholder:text-ink-faint focus:border-ink/45",
   );
 }

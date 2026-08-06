@@ -1,7 +1,9 @@
 import 'server-only';
 
 import type { ProductReviewsResponse } from '@ishraqparfums/shared';
+import { shopAuthFetch } from '@/lib/api/auth-fetch';
 import { nestFetch } from '@/lib/api/nest';
+import { getShopAccessToken } from '@/lib/auth/session';
 
 const REVIEWS_REVALIDATE_SECONDS = 60;
 
@@ -16,7 +18,9 @@ const EMPTY_REVIEWS: ProductReviewsResponse = {
 };
 
 /**
- * Public product reviews for the PDP. Degrades to empty on failure.
+ * Product community reviews for the PDP.
+ * Forwards the shop session when present so Nest can exclude the viewer’s
+ * own review from `items`/`total`. Authenticated responses are never cached.
  */
 export async function getProductReviews(
   slug: string,
@@ -26,12 +30,20 @@ export async function getProductReviews(
   if (params?.page) search.set('page', String(params.page));
   if (params?.pageSize) search.set('pageSize', String(params.pageSize));
   const qs = search.toString();
+  const path = `/products/${encodeURIComponent(slug)}/reviews${qs ? `?${qs}` : ''}`;
 
   try {
-    const { data } = await nestFetch<ProductReviewsResponse>(
-      `/products/${encodeURIComponent(slug)}/reviews${qs ? `?${qs}` : ''}`,
-      { next: { revalidate: REVIEWS_REVALIDATE_SECONDS } },
-    );
+    const accessToken = await getShopAccessToken();
+    if (accessToken) {
+      const { data } = await shopAuthFetch<ProductReviewsResponse>(path, {
+        cache: 'no-store',
+      });
+      return data;
+    }
+
+    const { data } = await nestFetch<ProductReviewsResponse>(path, {
+      next: { revalidate: REVIEWS_REVALIDATE_SECONDS },
+    });
     return data;
   } catch {
     return {

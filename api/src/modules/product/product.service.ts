@@ -186,6 +186,49 @@ export class ProductService {
       throw new NotFoundException(`Variant with id "${variantId}" not found`);
     }
 
+    this.assertVariantPurchasable(variant);
+    return variant;
+  }
+
+  /**
+   * Stock + price gate for cart writes — no images.
+   */
+  async findPurchasableVariantLean(variantId: string): Promise<{
+    id: string;
+    sizeMl: number;
+    pricePaise: number;
+    stockQty: number;
+    reservedQty: number;
+    isAvailable: boolean;
+  }> {
+    const variant = await this.prisma.productVariant.findUnique({
+      where: { id: variantId },
+      select: {
+        id: true,
+        sizeMl: true,
+        pricePaise: true,
+        stockQty: true,
+        reservedQty: true,
+        isAvailable: true,
+        product: { select: { status: true, name: true } },
+      },
+    });
+
+    if (!variant) {
+      throw new NotFoundException(`Variant with id "${variantId}" not found`);
+    }
+
+    this.assertVariantPurchasable(variant);
+    return variant;
+  }
+
+  private assertVariantPurchasable(variant: {
+    sizeMl: number;
+    stockQty: number;
+    reservedQty: number;
+    isAvailable: boolean;
+    product: { status: ProductStatus; name: string };
+  }): void {
     if (variant.product.status !== ProductStatus.ACTIVE) {
       throw new BadRequestException(
         `Product "${variant.product.name}" is not available for purchase`,
@@ -203,8 +246,6 @@ export class ProductService {
         `Variant (${variant.sizeMl}ml) is out of stock`,
       );
     }
-
-    return variant;
   }
 
   assertQuantityAvailable(
@@ -225,6 +266,43 @@ export class ProductService {
         `Only ${available} unit(s) of ${variant.sizeMl}ml in stock`,
       );
     }
+  }
+
+  /**
+   * Stock/availability check for cart qty updates — lean select, no images.
+   */
+  async assertVariantQuantityForCart(
+    variantId: string,
+    quantity: number,
+  ): Promise<void> {
+    const variant = await this.prisma.productVariant.findUnique({
+      where: { id: variantId },
+      select: {
+        stockQty: true,
+        reservedQty: true,
+        isAvailable: true,
+        sizeMl: true,
+        product: { select: { status: true, name: true } },
+      },
+    });
+
+    if (!variant) {
+      throw new NotFoundException(`Variant with id "${variantId}" not found`);
+    }
+
+    if (variant.product.status !== ProductStatus.ACTIVE) {
+      throw new BadRequestException(
+        `Product "${variant.product.name}" is not available for purchase`,
+      );
+    }
+
+    if (!variant.isAvailable) {
+      throw new BadRequestException(
+        `Variant (${variant.sizeMl}ml) is currently unavailable`,
+      );
+    }
+
+    this.assertQuantityAvailable(variant, quantity);
   }
 
   async reserveStock(

@@ -46,10 +46,17 @@ export class ReviewService {
     return buildRatingSummaryMap(productIds, rows);
   }
 
+  /**
+   * Community reviews for a product.
+   * When `excludeCustomerId` is set, that shopper’s review is omitted from
+   * `items`/`total` (it lives in the sticky “yours” column). Aggregates
+   * (`ratingAverage`, `ratingCount`, `ratingBreakdown`) always include everyone.
+   */
   async listForProduct(
     slug: string,
     page?: number,
     pageSize?: number,
+    excludeCustomerId?: string,
   ): Promise<ProductReviewsResponse> {
     const product = await this.productService.requireActiveBySlug(slug);
     const { skip, take, page: safePage, pageSize: safePageSize } = toSkipTake(
@@ -58,8 +65,12 @@ export class ReviewService {
     );
 
     const [reviews, total, summaryMap, breakdownRows] = await Promise.all([
-      this.reviewRepository.findByProductId(product.id, { skip, take }),
-      this.reviewRepository.countByProductId(product.id),
+      this.reviewRepository.findByProductId(product.id, {
+        skip,
+        take,
+        excludeCustomerId,
+      }),
+      this.reviewRepository.countByProductId(product.id, excludeCustomerId),
       this.getRatingSummaries([product.id]),
       this.reviewRepository.breakdownByProductId(product.id),
     ]);
@@ -85,6 +96,28 @@ export class ReviewService {
       ratingCount: summary.reviewCount,
       ratingBreakdown: this.toBreakdown(breakdownRows),
     };
+  }
+
+  async getMineForProduct(
+    customerId: string,
+    slug: string,
+  ): Promise<ReviewResponse> {
+    const product = await this.productService.requireActiveBySlug(slug);
+    const review = await this.reviewRepository.findByCustomerAndProduct(
+      customerId,
+      product.id,
+    );
+
+    if (!review) {
+      throw new NotFoundException('You have not reviewed this product yet');
+    }
+
+    const purchasers = await this.orderService.findPurchasersOfProduct(
+      product.id,
+      [customerId],
+    );
+
+    return toReviewResponse(review, purchasers.has(customerId));
   }
 
   async create(
@@ -160,6 +193,16 @@ export class ReviewService {
     );
 
     return toReviewResponse(updated, purchasers.has(customerId));
+  }
+
+  async remove(customerId: string, reviewId: string): Promise<void> {
+    const review = await this.reviewRepository.findById(reviewId);
+
+    if (!review || review.customerId !== customerId) {
+      throw new NotFoundException(`Review with id "${reviewId}" not found`);
+    }
+
+    await this.reviewRepository.delete(reviewId);
   }
 
   async listMine(

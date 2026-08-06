@@ -30,7 +30,8 @@ export function emptyAddressDraft(
     city: "",
     state: "",
     pincode: "",
-    isDefault: true,
+    /** Opt-in; callers set true for the first address or when editing a default. */
+    isDefault: false,
     ...initial,
   };
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { Prisma, Review } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type {
   ReviewWithCustomer,
@@ -28,20 +28,28 @@ export class ReviewRepository {
   findByCustomerAndProduct(
     customerId: string,
     productId: string,
-  ): Promise<Review | null> {
+  ): Promise<ReviewWithCustomer | null> {
     return this.prisma.review.findUnique({
       where: {
         customerId_productId: { customerId, productId },
+      },
+      include: {
+        customer: { select: { id: true, name: true } },
       },
     });
   }
 
   findByProductId(
     productId: string,
-    options: { skip: number; take: number },
+    options: {
+      skip: number;
+      take: number;
+      /** Community list — omit the signed-in shopper’s own review. */
+      excludeCustomerId?: string;
+    },
   ): Promise<ReviewWithCustomer[]> {
     return this.prisma.review.findMany({
-      where: { productId },
+      where: this.productListWhere(productId, options.excludeCustomerId),
       include: {
         customer: { select: { id: true, name: true } },
       },
@@ -51,10 +59,25 @@ export class ReviewRepository {
     });
   }
 
-  countByProductId(productId: string): Promise<number> {
+  countByProductId(
+    productId: string,
+    excludeCustomerId?: string,
+  ): Promise<number> {
     return this.prisma.review.count({
-      where: { productId },
+      where: this.productListWhere(productId, excludeCustomerId),
     });
+  }
+
+  private productListWhere(
+    productId: string,
+    excludeCustomerId?: string,
+  ): Prisma.ReviewWhereInput {
+    return {
+      productId,
+      ...(excludeCustomerId
+        ? { customerId: { not: excludeCustomerId } }
+        : {}),
+    };
   }
 
   findByCustomerId(
@@ -110,6 +133,12 @@ export class ReviewRepository {
       include: {
         customer: { select: { id: true, name: true } },
       },
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.review.delete({
+      where: { id },
     });
   }
 

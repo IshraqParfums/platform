@@ -85,6 +85,7 @@ export function AddressForm({
             disabled={disabled}
             value={draft.name}
             invalid={Boolean(errors?.name)}
+            placeholder="Full name"
             onChange={(event) => patch({ name: event.target.value })}
           />
         </FormField>
@@ -135,6 +136,7 @@ export function AddressForm({
           disabled={disabled}
           value={draft.line1}
           invalid={Boolean(errors?.line1)}
+          placeholder="House no., street"
           onChange={(event) => patch({ line1: event.target.value })}
         />
       </FormField>
@@ -150,6 +152,7 @@ export function AddressForm({
           autoComplete="shipping address-line2"
           disabled={disabled}
           value={draft.line2}
+          placeholder="Apartment, landmark"
           onChange={(event) => patch({ line2: event.target.value })}
         />
       </FormField>
@@ -170,6 +173,7 @@ export function AddressForm({
             disabled={disabled}
             value={draft.pincode}
             invalid={Boolean(errors?.pincode)}
+            placeholder="560001"
             onChange={(event) => {
               void onPincodeChange(event.target.value);
             }}
@@ -189,6 +193,7 @@ export function AddressForm({
             disabled={disabled}
             value={draft.city}
             invalid={Boolean(errors?.city)}
+            placeholder="City"
             onChange={(event) => {
               autofilledFromPin.current = null;
               patch({ city: event.target.value });
@@ -209,6 +214,7 @@ export function AddressForm({
             disabled={disabled}
             value={draft.state}
             invalid={Boolean(errors?.state)}
+            placeholder="State"
             onChange={(event) => {
               autofilledFromPin.current = null;
               patch({ state: event.target.value });

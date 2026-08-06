@@ -6,6 +6,7 @@ import {
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { getCollections } from "@/lib/api/catalog";
+import { ACCOUNT_HOME, ACCOUNT_ORDERS } from "@/lib/auth/account-routes";
 
 const STATIC_COLUMNS: FooterNavColumn[] = [
   {
@@ -19,8 +20,10 @@ const STATIC_COLUMNS: FooterNavColumn[] = [
   {
     title: "Account",
     links: [
-      { href: "/login", label: "Sign in" },
-      { href: "/account/orders", label: "Order history" },
+      // Both resolve for guests too — the account routes send them to sign in
+      // and return them here, so neither link is ever a dead end.
+      { href: ACCOUNT_HOME, label: "Account" },
+      { href: ACCOUNT_ORDERS, label: "Order history" },
       { href: "/cart", label: "Cart" },
     ],
   },
@@ -71,8 +74,10 @@ export async function Footer() {
     {
       title: "Account",
       links: [
-        { href: "/login", label: "Sign in" },
-        { href: "/account/orders", label: "Order history" },
+        // Both resolve for guests too — the account routes send them to sign in
+        // and return them here, so neither link is ever a dead end.
+        { href: ACCOUNT_HOME, label: "Account" },
+        { href: ACCOUNT_ORDERS, label: "Order history" },
         { href: "/cart", label: "Cart" },
       ],
     },

@@ -25,6 +25,12 @@
   --color-gold-soft: #e8cb93;
   --color-gold-pale: #f4e0bb;
 
+  /* Pressed metal, for interaction on cream. A commerce CTA that lightens on
+     hover reads as retreating — the gold thins out against the cream ground.
+     Deepening keeps the same metal and adds weight to the touch. */
+  --color-gold-deep: #be923e;
+  --color-gold-deeper: #a87f32;
+
   --color-rose: #c6685a;
   --color-rose-deep: #a84e42;
   --color-sage: #7c8b6f;

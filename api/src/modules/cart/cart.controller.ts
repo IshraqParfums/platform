@@ -7,16 +7,23 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import type { CartMergeResponse, CartResponse } from '@ishraqparfums/shared';
+import type {
+  CartMergeResponse,
+  CartMutationResult,
+  CartResponse,
+} from '@ishraqparfums/shared';
+import { DEFAULT_CART_MUTATION_VIEW } from '@ishraqparfums/shared';
 import { CustomerJwtGuard } from '../auth/guards/customer-jwt.guard';
 import type { RequestWithCustomer } from '../auth/types/request-with-customer';
 import { CartService } from './cart.service';
 import {
   AddBespokeCartItemDto,
   AddCartItemDto,
+  CartMutationViewQueryDto,
   MergeCartDto,
   UpdateCartItemDto,
 } from './dto/cart.dto';
@@ -35,11 +42,13 @@ export class CartController {
   addItem(
     @Req() request: RequestWithCustomer,
     @Body() body: AddCartItemDto,
-  ): Promise<CartResponse> {
+    @Query() query: CartMutationViewQueryDto,
+  ): Promise<CartMutationResult> {
     return this.cartService.addItem(
       request.user.customerId,
       body.variantId,
       body.quantity,
+      query.view ?? DEFAULT_CART_MUTATION_VIEW,
     );
   }
 
@@ -47,12 +56,14 @@ export class CartController {
   addBespokeItem(
     @Req() request: RequestWithCustomer,
     @Body() body: AddBespokeCartItemDto,
-  ): Promise<CartResponse> {
+    @Query() query: CartMutationViewQueryDto,
+  ): Promise<CartMutationResult> {
     return this.cartService.addBespokeItem(
       request.user.customerId,
       body.bespokePerfumeId,
       body.sizeMl,
       body.quantity,
+      query.view ?? DEFAULT_CART_MUTATION_VIEW,
     );
   }
 
@@ -61,11 +72,13 @@ export class CartController {
     @Req() request: RequestWithCustomer,
     @Param('itemId', ParseUUIDPipe) itemId: string,
     @Body() body: UpdateCartItemDto,
-  ): Promise<CartResponse> {
+    @Query() query: CartMutationViewQueryDto,
+  ): Promise<CartMutationResult> {
     return this.cartService.updateItem(
       request.user.customerId,
       itemId,
       body.quantity,
+      query.view ?? DEFAULT_CART_MUTATION_VIEW,
     );
   }
 
@@ -73,8 +86,13 @@ export class CartController {
   removeItem(
     @Req() request: RequestWithCustomer,
     @Param('itemId', ParseUUIDPipe) itemId: string,
-  ): Promise<CartResponse> {
-    return this.cartService.removeItem(request.user.customerId, itemId);
+    @Query() query: CartMutationViewQueryDto,
+  ): Promise<CartMutationResult> {
+    return this.cartService.removeItem(
+      request.user.customerId,
+      itemId,
+      query.view ?? DEFAULT_CART_MUTATION_VIEW,
+    );
   }
 
   @Post('merge')

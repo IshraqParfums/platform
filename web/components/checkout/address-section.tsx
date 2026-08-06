@@ -2,7 +2,7 @@
 
 import type { AddressResponse } from "@ishraqparfums/shared";
 import { AddressComposerPanel } from "@/components/checkout/address-choice";
-import { AddressForm } from "@/components/checkout/address-form";
+import { AddressForm } from "@/components/address/address-form";
 import { AddressList } from "@/components/checkout/address-list";
 import { CheckoutSection } from "@/components/checkout/checkout-section";
 import { Button } from "@/components/ui/button";
@@ -121,12 +121,6 @@ export function AddressSection({
             showDefaultToggle={hasSaved}
             onChange={onDraftChange}
           />
-
-          {hasSaved ? (
-            <p className="mt-3 text-sm text-ink-faint">
-              Saved to your account when you pay.
-            </p>
-          ) : null}
         </AddressComposerPanel>
       ) : hasSaved ? (
         <button

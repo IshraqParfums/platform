@@ -1,4 +1,5 @@
 import type { ReviewResponse } from "@ishraqparfums/shared";
+import { cn } from "@/lib/cn";
 
 function formatReviewDate(iso: string): string {
   try {
@@ -62,15 +63,42 @@ function Stars({ rating }: { rating: number }) {
  * Stars · Title
  * Body
  * Verified buyer
+ *
+ * `mine` uses a distinct surface so the shopper’s review doesn’t blend into
+ * the public list; optional Edit opens the edit modal from the parent.
  */
-export function ProductReviewCard({ review }: { review: ReviewResponse }) {
+export function ProductReviewCard({
+  review,
+  mine = false,
+  onEdit,
+  onDelete,
+}: {
+  review: ReviewResponse;
+  mine?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
+}) {
   return (
-    <article className="border border-ink/10 bg-cream px-4 py-4 sm:px-5 sm:py-5">
+    <article
+      className={cn(
+        "px-4 py-4 sm:px-5 sm:py-5",
+        mine
+          ? "border border-gold/30 bg-cream-soft"
+          : "border border-ink/10 bg-cream",
+      )}
+    >
       <div className="flex items-center gap-2.5">
         <ReviewAvatar name={review.reviewerName} />
-        <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">
-          {review.reviewerName}
-        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-ink">
+            {review.reviewerName}
+          </p>
+          {mine ? (
+            <p className="font-mono text-label-sm uppercase tracking-wide text-gold">
+              Your review
+            </p>
+          ) : null}
+        </div>
         <time
           dateTime={review.createdAt}
           className="shrink-0 font-mono text-label-sm text-ink-faint"
@@ -93,11 +121,31 @@ export function ProductReviewCard({ review }: { review: ReviewResponse }) {
         </p>
       ) : null}
 
-      {review.isVerifiedBuyer ? (
-        <p className="mt-2 font-mono text-label-sm uppercase tracking-wide text-gold">
-          Verified buyer
-        </p>
-      ) : null}
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+        {review.isVerifiedBuyer ? (
+          <p className="font-mono text-label-sm uppercase tracking-wide text-gold">
+            Verified buyer
+          </p>
+        ) : null}
+        {mine && onEdit ? (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="cursor-pointer font-mono text-label-sm uppercase text-ink-faint transition-colors hover:text-ink"
+          >
+            Edit
+          </button>
+        ) : null}
+        {mine && onDelete ? (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="cursor-pointer font-mono text-label-sm uppercase text-ink-faint transition-colors hover:text-ink"
+          >
+            Remove
+          </button>
+        ) : null}
+      </div>
     </article>
   );
 }

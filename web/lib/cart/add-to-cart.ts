@@ -1,3 +1,8 @@
+import type {
+  CartMutationResult,
+  CartMutationSummary,
+} from "@ishraqparfums/shared";
+import { isCartMutationSummary } from "@ishraqparfums/shared";
 import { shopFetch } from "@/lib/auth/shop-fetch";
 import {
   addGuestCartItem,
@@ -9,12 +14,15 @@ import { emitCartChanged } from "@/lib/cart/cart-events";
 export type CartLineSnapshot = GuestCartSnapshot & { variantId: string };
 
 export type AddToCartResult =
-  | { mode: "server" }
+  | { mode: "server"; summary: CartMutationSummary }
   | { mode: "guest" };
 
 /**
  * Prefer authenticated BFF cart (refresh on 401). After a failed refresh,
  * fall back to guest localStorage with a display snapshot.
+ *
+ * Uses `view=summary`. Server callers should merge via `applyCartMutationSummary`
+ * (and emit); this helper only emits for the guest fallback.
  */
 export async function addToCart(
   snapshot: CartLineSnapshot,
@@ -22,7 +30,7 @@ export async function addToCart(
 ): Promise<AddToCartResult> {
   const qty = Number.isInteger(quantity) && quantity > 0 ? quantity : 1;
 
-  const response = await shopFetch("/api/cart/items", {
+  const response = await shopFetch("/api/cart/items?view=summary", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ variantId: snapshot.variantId, quantity: qty }),
@@ -30,7 +38,7 @@ export async function addToCart(
 
   if (response.status === 401) {
     addGuestCartItem(snapshot, qty);
-    emitCartChanged(guestCartItemCount());
+    emitCartChanged({ itemCount: guestCartItemCount() });
     return { mode: "guest" };
   }
 
@@ -45,14 +53,10 @@ export async function addToCart(
     throw new Error(message);
   }
 
-  try {
-    const cart = (await response.json()) as { itemCount?: number };
-    emitCartChanged(
-      typeof cart.itemCount === "number" ? cart.itemCount : guestCartItemCount(),
-    );
-  } catch {
-    emitCartChanged(guestCartItemCount());
+  const payload = (await response.json()) as CartMutationResult;
+  if (!isCartMutationSummary(payload)) {
+    throw new Error("Expected cart mutation summary");
   }
 
-  return { mode: "server" };
+  return { mode: "server", summary: payload };
 }

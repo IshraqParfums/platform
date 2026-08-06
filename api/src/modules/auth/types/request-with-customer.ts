@@ -4,10 +4,17 @@ export type CustomerJwtPayload = {
   phone: string;
 };
 
+export type CustomerAuthUser = {
+  customerId: string;
+  phone: string;
+  role: 'customer';
+};
+
 export type RequestWithCustomer = {
-  user: {
-    customerId: string;
-    phone: string;
-    role: 'customer';
-  };
+  user: CustomerAuthUser;
+};
+
+/** Used with {@link OptionalCustomerJwtGuard} — `user` is set only when JWT is valid. */
+export type RequestWithOptionalCustomer = {
+  user?: CustomerAuthUser;
 };

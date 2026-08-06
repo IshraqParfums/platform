@@ -3,10 +3,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { CartMergeResponse, CartResponse } from '@ishraqparfums/shared';
+import type {
+  CartMergeResponse,
+  CartMutationResult,
+  CartMutationSummary,
+  CartMutationView,
+  CartResponse,
+} from '@ishraqparfums/shared';
+import { DEFAULT_CART_MUTATION_VIEW } from '@ishraqparfums/shared';
 import { BespokePricingService } from '../bespoke/bespoke-pricing.service';
 import { BespokeService } from '../bespoke/bespoke.service';
 import { ProductService } from '../product/product.service';
+import type { OwnedQuantityUpdateRow } from './cart-mutation.types';
 import { CartRepository } from './cart.repository';
 import { toCartResponse } from './mappers/cart.mapper';
 
@@ -28,20 +36,36 @@ export class CartService {
     customerId: string,
     variantId: string,
     quantity: number,
-  ): Promise<CartResponse> {
-    const variant = await this.productService.findPurchasableVariant(variantId);
-    const cart = await this.cartRepository.findOrCreateByCustomerId(customerId);
+    view: CartMutationView = DEFAULT_CART_MUTATION_VIEW,
+  ): Promise<CartMutationResult> {
+    const variant =
+      await this.productService.findPurchasableVariantLean(variantId);
+    const cartId = await this.cartRepository.findOrCreateCartId(customerId);
     const existing = await this.cartRepository.findItemByCartAndVariant(
-      cart.id,
+      cartId,
       variantId,
     );
 
     const desiredQuantity = (existing?.quantity ?? 0) + quantity;
     this.productService.assertQuantityAvailable(variant, desiredQuantity);
 
-    await this.cartRepository.upsertItem(cart.id, variantId, desiredQuantity);
+    const item = await this.cartRepository.upsertItem(
+      cartId,
+      variantId,
+      desiredQuantity,
+    );
 
-    return this.reloadCart(cart.id);
+    return this.respondAfterWrite(
+      {
+        cartId,
+        itemId: item.id,
+        quantity: item.quantity,
+        lineTotalPaise: variant.pricePaise * item.quantity,
+        stockQty: this.productService.availableQty(variant),
+        variantId,
+      },
+      view,
+    );
   }
 
   async addBespokeItem(
@@ -49,7 +73,8 @@ export class CartService {
     bespokePerfumeId: string,
     sizeMl: number,
     quantity: number,
-  ): Promise<CartResponse> {
+    view: CartMutationView = DEFAULT_CART_MUTATION_VIEW,
+  ): Promise<CartMutationResult> {
     if (!Number.isInteger(quantity) || quantity < 1) {
       throw new BadRequestException('quantity must be at least 1');
     }
@@ -57,54 +82,84 @@ export class CartService {
     this.bespokePricing.assertAllowedSize(sizeMl);
     await this.bespokeService.requireOwned(customerId, bespokePerfumeId);
 
-    const cart = await this.cartRepository.findOrCreateByCustomerId(customerId);
+    const cartId = await this.cartRepository.findOrCreateCartId(customerId);
     const existing = await this.cartRepository.findItemByCartBespokeSize(
-      cart.id,
+      cartId,
       bespokePerfumeId,
       sizeMl,
     );
 
     const desiredQuantity = (existing?.quantity ?? 0) + quantity;
-    await this.cartRepository.upsertBespokeItem(
-      cart.id,
+    const item = await this.cartRepository.upsertBespokeItem(
+      cartId,
       bespokePerfumeId,
       sizeMl,
       desiredQuantity,
     );
 
-    return this.reloadCart(cart.id);
+    const pricePaise = this.bespokePricing.unitPricePaise(sizeMl);
+    return this.respondAfterWrite(
+      {
+        cartId,
+        itemId: item.id,
+        quantity: item.quantity,
+        lineTotalPaise: pricePaise * item.quantity,
+        stockQty: null,
+        variantId: null,
+      },
+      view,
+    );
   }
 
   async updateItem(
     customerId: string,
     itemId: string,
     quantity: number,
-  ): Promise<CartResponse> {
-    const item = await this.findCustomerItemOrThrow(customerId, itemId);
-
-    if (item.bespokePerfumeId) {
-      await this.cartRepository.updateItemQuantity(itemId, quantity);
-      return this.reloadCart(item.cartId);
-    }
-
-    if (!item.productVariantId) {
-      throw new BadRequestException('Cart item is invalid');
-    }
-
-    const variant = await this.productService.findPurchasableVariant(
-      item.productVariantId,
+    view: CartMutationView = DEFAULT_CART_MUTATION_VIEW,
+  ): Promise<CartMutationResult> {
+    const row = await this.cartRepository.updateOwnedItemQuantity(
+      customerId,
+      itemId,
+      quantity,
     );
 
-    this.productService.assertQuantityAvailable(variant, quantity);
-    await this.cartRepository.updateItemQuantity(itemId, quantity);
+    if (row) {
+      return this.respondFromUpdateRow(row, view);
+    }
 
-    return this.reloadCart(item.cartId);
+    return this.recoverFailedQuantityUpdate(
+      customerId,
+      itemId,
+      quantity,
+      view,
+    );
   }
 
-  async removeItem(customerId: string, itemId: string): Promise<CartResponse> {
-    const item = await this.findCustomerItemOrThrow(customerId, itemId);
-    await this.cartRepository.deleteItem(itemId);
-    return this.reloadCart(item.cartId);
+  async removeItem(
+    customerId: string,
+    itemId: string,
+    view: CartMutationView = DEFAULT_CART_MUTATION_VIEW,
+  ): Promise<CartMutationResult> {
+    const row = await this.cartRepository.deleteOwnedItem(customerId, itemId);
+
+    if (!row) {
+      throw new NotFoundException(`Cart item with id "${itemId}" not found`);
+    }
+
+    if (view === 'summary') {
+      const summary: CartMutationSummary = {
+        cartId: row.cartId,
+        itemId: row.id,
+        quantity: 0,
+        itemCount: Number(row.itemCount),
+        lineTotalPaise: null,
+        stockQty: null,
+        variantId: null,
+      };
+      return summary;
+    }
+
+    return this.reloadCart(row.cartId);
   }
 
   async merge(
@@ -118,7 +173,7 @@ export class CartService {
       return { cart, warnings };
     }
 
-    const cart = await this.cartRepository.findOrCreateByCustomerId(customerId);
+    const cartId = await this.cartRepository.findOrCreateCartId(customerId);
 
     for (const guestItem of guestItems) {
       const normalizedQuantity = Math.trunc(guestItem.quantity);
@@ -133,7 +188,7 @@ export class CartService {
       let variant;
 
       try {
-        variant = await this.productService.findPurchasableVariant(
+        variant = await this.productService.findPurchasableVariantLean(
           guestItem.variantId,
         );
       } catch (error) {
@@ -142,14 +197,12 @@ export class CartService {
       }
 
       if (this.productService.availableQty(variant) < 1) {
-        warnings.push(
-          `Skipped ${variant.product.name} (${variant.sizeMl}ml): out of stock`,
-        );
+        warnings.push(`Skipped variant ${guestItem.variantId}: out of stock`);
         continue;
       }
 
       const existing = await this.cartRepository.findItemByCartAndVariant(
-        cart.id,
+        cartId,
         guestItem.variantId,
       );
       const desiredQuantity = (existing?.quantity ?? 0) + normalizedQuantity;
@@ -159,19 +212,145 @@ export class CartService {
       if (desiredQuantity > available) {
         finalQuantity = available;
         warnings.push(
-          `Quantity for ${variant.product.name} (${variant.sizeMl}ml) reduced to ${available} (stock limit)`,
+          `Quantity for variant ${guestItem.variantId} reduced to ${available} (stock limit)`,
         );
       }
 
       await this.cartRepository.upsertItem(
-        cart.id,
+        cartId,
         guestItem.variantId,
         finalQuantity,
       );
     }
 
-    const updatedCart = await this.reloadCart(cart.id);
+    const updatedCart = await this.reloadCart(cartId);
     return { cart: updatedCart, warnings };
+  }
+
+  /**
+   * One-shot UPDATE matched nothing. Classify not-found vs stock/status
+   * (failure path only). If stock is now OK (race), fall back to a plain
+   * update and respond.
+   */
+  private async recoverFailedQuantityUpdate(
+    customerId: string,
+    itemId: string,
+    quantity: number,
+    view: CartMutationView,
+  ): Promise<CartMutationResult> {
+    const owned = await this.cartRepository.findOwnedItem(customerId, itemId);
+
+    if (!owned) {
+      throw new NotFoundException(`Cart item with id "${itemId}" not found`);
+    }
+
+    if (owned.productVariantId) {
+      await this.productService.assertVariantQuantityForCart(
+        owned.productVariantId,
+        quantity,
+      );
+    }
+
+    await this.cartRepository.updateItemQuantity(itemId, quantity);
+
+    if (view === 'full') {
+      return this.reloadCart(owned.cartId);
+    }
+
+    const itemCount = await this.cartRepository.sumItemQuantities(owned.cartId);
+
+    if (owned.productVariantId) {
+      const variant = await this.productService.findPurchasableVariantLean(
+        owned.productVariantId,
+      );
+      return {
+        cartId: owned.cartId,
+        itemId: owned.id,
+        quantity,
+        itemCount,
+        lineTotalPaise: variant.pricePaise * quantity,
+        stockQty: this.productService.availableQty(variant),
+        variantId: variant.id,
+      };
+    }
+
+    const sizeMl = owned.bespokeSizeMl;
+    const lineTotalPaise =
+      sizeMl != null
+        ? this.bespokePricing.unitPricePaise(sizeMl) * quantity
+        : null;
+
+    return {
+      cartId: owned.cartId,
+      itemId: owned.id,
+      quantity,
+      itemCount,
+      lineTotalPaise,
+      stockQty: null,
+      variantId: null,
+    };
+  }
+
+  private respondFromUpdateRow(
+    row: OwnedQuantityUpdateRow,
+    view: CartMutationView,
+  ): Promise<CartMutationResult> {
+    const quantity = Number(row.quantity);
+    const itemCount = Number(row.itemCount);
+    const availableStock =
+      row.availableStock == null ? null : Number(row.availableStock);
+
+    let lineTotalPaise: number | null = null;
+    if (row.productVariantId && row.pricePaise != null) {
+      lineTotalPaise = Number(row.pricePaise) * quantity;
+    } else if (row.bespokePerfumeId && row.bespokeSizeMl != null) {
+      lineTotalPaise =
+        this.bespokePricing.unitPricePaise(row.bespokeSizeMl) * quantity;
+    }
+
+    if (view === 'summary') {
+      const summary: CartMutationSummary = {
+        cartId: row.cartId,
+        itemId: row.id,
+        quantity,
+        itemCount,
+        lineTotalPaise,
+        stockQty: availableStock,
+        variantId: row.productVariantId,
+      };
+      return Promise.resolve(summary);
+    }
+
+    return this.reloadCart(row.cartId);
+  }
+
+  private async respondAfterWrite(
+    fields: {
+      cartId: string;
+      itemId: string;
+      quantity: number;
+      lineTotalPaise: number | null;
+      stockQty: number | null;
+      variantId: string | null;
+    },
+    view: CartMutationView,
+  ): Promise<CartMutationResult> {
+    if (view === 'summary') {
+      const itemCount = await this.cartRepository.sumItemQuantities(
+        fields.cartId,
+      );
+      return {
+        cartId: fields.cartId,
+        itemId: fields.itemId,
+        quantity: fields.quantity,
+        itemCount,
+        lineTotalPaise: fields.lineTotalPaise,
+        stockQty: fields.stockQty,
+        variantId: fields.variantId,
+      };
+    }
+
+    return this.reloadCart(fields.cartId);
   }
 
   private formatMergeWarning(variantId: string, error: unknown): string {
@@ -196,30 +375,6 @@ export class CartService {
     }
 
     return `Variant ${variantId} could not be added`;
-  }
-
-  private async findCustomerItemOrThrow(
-    customerId: string,
-    itemId: string,
-  ): Promise<{
-    id: string;
-    cartId: string;
-    productVariantId: string | null;
-    bespokePerfumeId: string | null;
-  }> {
-    const item = await this.cartRepository.findItemById(itemId);
-
-    if (!item) {
-      throw new NotFoundException(`Cart item with id "${itemId}" not found`);
-    }
-
-    const cart = await this.cartRepository.findByCustomerId(customerId);
-
-    if (!cart || cart.id !== item.cartId) {
-      throw new NotFoundException(`Cart item with id "${itemId}" not found`);
-    }
-
-    return item;
   }
 
   private mapCart(

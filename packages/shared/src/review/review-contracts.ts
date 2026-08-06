@@ -30,10 +30,13 @@ export interface RatingBreakdown {
 }
 
 export interface ProductReviewsResponse {
+  /** Community reviews for this page (excludes the viewer when authenticated). */
   items: ReviewResponse[];
+  /** Community review count used for pagination (excludes the viewer when authenticated). */
   total: number;
   page: number;
   pageSize: number;
+  /** Product-level aggregates — always include every review, including the viewer’s. */
   ratingAverage: number | null;
   ratingCount: number;
   ratingBreakdown: RatingBreakdown;

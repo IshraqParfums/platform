@@ -28,10 +28,16 @@ const BASE =
  * existing one from outside.
  */
 const VARIANTS: Record<Variant, string> = {
-  // Soft gold — marketing surfaces where primary shouldn’t overpower photography.
+  // Soft gold — marketing surfaces where primary shouldn’t overpower
+  // photography. It lightens on hover because it sits on espresso, where
+  // lifting toward the light is what reads as "live".
   primary: "bg-gold-soft text-deep hover:bg-gold-pale",
-  // Richer gold for shop CTAs on cream (Add to cart, Post review).
-  emphasis: "bg-gold text-deep hover:bg-gold-soft",
+  // Money and commitment on cream: Add to cart, Post review, Proceed to
+  // checkout, Pay, Sign in. Warm metal — full gold at rest, deeper under the
+  // cursor, deeper still on press. Never lighter: on cream, lightening washes
+  // the button toward the background exactly as the customer commits.
+  emphasis:
+    "bg-gold text-deep hover:bg-gold-deep active:bg-gold-deeper",
   // On cream.
   outline:
     "border border-ink/25 text-ink hover:border-ink/50 hover:bg-ink/5",

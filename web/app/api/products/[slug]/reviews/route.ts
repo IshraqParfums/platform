@@ -7,6 +7,10 @@ import { getShopAccessToken } from "@/lib/auth/session";
 
 type RouteContext = { params: Promise<{ slug: string }> };
 
+/**
+ * Community reviews. Forwards the shop JWT when present so Nest excludes
+ * the viewer’s review from the paginated list.
+ */
 export async function GET(
   request: Request,
   context: RouteContext,
@@ -20,11 +24,14 @@ export async function GET(
   if (page) qs.set("page", page);
   if (pageSize) qs.set("pageSize", pageSize);
   const query = qs.toString();
+  const path = `/products/${encodeURIComponent(slug)}/reviews${query ? `?${query}` : ""}`;
 
   try {
-    const { data } = await nestFetch<ProductReviewsResponse>(
-      `/products/${encodeURIComponent(slug)}/reviews${query ? `?${query}` : ""}`,
-    );
+    const accessToken = await getShopAccessToken();
+    const { data } = accessToken
+      ? await shopAuthFetch<ProductReviewsResponse>(path, { cache: "no-store" })
+      : await nestFetch<ProductReviewsResponse>(path);
+
     return NextResponse.json(data);
   } catch (error) {
     return jsonFromNestError(error);

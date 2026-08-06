@@ -1,25 +1,16 @@
-import type { Metadata } from "next";
-import { OrderConfirmation } from "@/components/checkout/order-confirmation";
-import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
+import { permanentRedirect } from "next/navigation";
+import { accountOrderPath } from "@/lib/auth/account-routes";
 
-export const metadata: Metadata = {
-  title: "Order",
-  description: "Your Ishraq Parfums order.",
-};
-
-export default async function OrderPage({
+/**
+ * Orders now live under Account. Checkout still redirects here after payment,
+ * and customers may have kept the link — so this forwards to the real page
+ * rather than leaving a second copy of it to drift out of step.
+ */
+export default async function LegacyOrderPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
-  return (
-    <Section space="default" className="!pt-10 md:!pt-14 !pb-16 md:!pb-24">
-      <Container size="narrow">
-        <OrderConfirmation orderId={id} />
-      </Container>
-    </Section>
-  );
+  permanentRedirect(accountOrderPath(id));
 }

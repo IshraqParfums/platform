@@ -1,10 +1,12 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useTransition, type FormEvent } from "react";
+import { useEffect, useState, useTransition, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
+import { ACCOUNT_HOME } from "@/lib/auth/account-routes";
 import { safeNext } from "@/lib/auth/safe-next";
 import { shopFetch } from "@/lib/auth/shop-fetch";
+import { ensureShopSession } from "@/lib/auth/shop-session";
 import { emitCartChanged } from "@/lib/cart/cart-events";
 import {
   clearGuestCart,
@@ -16,7 +18,9 @@ import { cn } from "@/lib/cn";
 type Step = "phone" | "code";
 
 /**
- * OTP sign-in. After verify, redirects to a safe `?next=` path or `/shop`.
+ * OTP sign-in. After verify, redirects to a safe `?next=` path, otherwise to
+ * Account — the customer signed in to reach something of theirs, and Account
+ * is where their orders and addresses live.
  */
 export function LoginForm() {
   const router = useRouter();
@@ -26,10 +30,50 @@ export function LoginForm() {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [devHint, setDevHint] = useState<string | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  const next = searchParams.get("next");
+
+  /**
+   * The page already turned away anyone holding a live access cookie. What is
+   * left is the customer whose 15-minute access token lapsed but whose 30-day
+   * refresh is good: rotate it and let them through rather than asking for a
+   * code they do not owe us.
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    void ensureShopSession().then((active) => {
+      if (cancelled) return;
+      if (active) {
+        setSignedIn(true);
+        router.replace(safeNext(next) ?? ACCOUNT_HOME);
+        return;
+      }
+      setSessionChecked(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [next, router]);
+
   function destination(): string {
-    return safeNext(searchParams.get("next")) ?? "/shop";
+    return safeNext(next) ?? ACCOUNT_HOME;
+  }
+
+  if (signedIn || !sessionChecked) {
+    return (
+      <div className="mx-auto w-full max-w-md">
+        <p className="font-mono text-label-sm uppercase text-ink-faint">
+          {signedIn
+            ? "Already signed in — taking you through…"
+            : "Checking your session…"}
+        </p>
+      </div>
+    );
   }
 
   function onRequestOtp(event: FormEvent) {
@@ -101,7 +145,8 @@ export function LoginForm() {
         Sign in
       </h1>
       <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
-        We’ll text a one-time code to your phone. No password needed.
+        We’ll text a one-time code to your phone. No password needed — your
+        orders and delivery addresses stay with your number.
       </p>
 
       {step === "phone" ? (
@@ -124,6 +169,7 @@ export function LoginForm() {
           </label>
           <Button
             type="submit"
+            variant="emphasis"
             size="lg"
             className="w-full cursor-pointer"
             disabled={isPending}
@@ -169,6 +215,7 @@ export function LoginForm() {
           </label>
           <Button
             type="submit"
+            variant="emphasis"
             size="lg"
             className="w-full cursor-pointer"
             disabled={isPending || code.trim().length < 4}
@@ -222,11 +269,12 @@ async function mergeGuestCartAfterLogin(): Promise<void> {
       cart?: { itemCount?: number };
     };
     clearGuestCart();
-    emitCartChanged(
-      typeof data.cart?.itemCount === "number"
-        ? data.cart.itemCount
-        : guestCartItemCount(),
-    );
+    emitCartChanged({
+      itemCount:
+        typeof data.cart?.itemCount === "number"
+          ? data.cart.itemCount
+          : guestCartItemCount(),
+    });
   } catch {
     /* Keep guest cart if merge fails; user can retry next login. */
   }

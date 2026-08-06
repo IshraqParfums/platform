@@ -5,7 +5,7 @@ import { CartEmpty } from "@/components/cart/cart-empty";
 import { CartLine } from "@/components/cart/cart-line";
 import { CartSummary } from "@/components/cart/cart-summary";
 import { toast } from "@/components/ui/toaster";
-import { isShopAuthenticated } from "@/lib/auth/shop-session";
+import { ensureShopSession } from "@/lib/auth/shop-session";
 import {
   emptyCartView,
   loadCart,
@@ -16,8 +16,8 @@ import {
   cartEditorialLine,
   cartItemCountLabel,
 } from "@/lib/cart/cart-copy";
-import { subscribeCartChanged } from "@/lib/cart/cart-events";
-import type { CartView } from "@/lib/cart/cart-view";
+import { emitCartChanged, subscribeCartChanged } from "@/lib/cart/cart-events";
+import { withLineQuantity, type CartView } from "@/lib/cart/cart-view";
 
 /**
  * Client cart orchestrator — loads guest or server cart and handles mutations.
@@ -34,7 +34,7 @@ export function CartPageClient() {
     startTransition(async () => {
       try {
         const [auth, next] = await Promise.all([
-          isShopAuthenticated(),
+          ensureShopSession(),
           loadCart(),
         ]);
         setAuthenticated(auth || next.mode === "server");
@@ -49,7 +49,12 @@ export function CartPageClient() {
 
   useEffect(() => {
     refresh();
-    return subscribeCartChanged(() => {
+    return subscribeCartChanged((detail) => {
+      if (detail.view) {
+        setView(detail.view);
+        if (detail.view.mode === "server") setAuthenticated(true);
+        return;
+      }
       void loadCart()
         .then((next) => {
           setView(next);
@@ -61,10 +66,17 @@ export function CartPageClient() {
 
   function runMutation(
     key: string,
+    optimisticView: CartView,
     work: () => Promise<CartView>,
   ) {
     setPendingKey(key);
     setError(null);
+    setView(optimisticView);
+    emitCartChanged({
+      itemCount: optimisticView.itemCount,
+      view: optimisticView,
+    });
+
     startTransition(async () => {
       try {
         const next = await work();
@@ -92,7 +104,7 @@ export function CartPageClient() {
   }
 
   if (view.lines.length === 0) {
-    return <CartEmpty />;
+    return <CartEmpty authenticated={authenticated} />;
   }
 
   return (
@@ -124,12 +136,18 @@ export function CartPageClient() {
               line={line}
               pending={isPending && pendingKey === line.key}
               onQuantityChange={(quantity) => {
-                runMutation(line.key, () =>
-                  setCartLineQuantity(line, quantity, view.mode),
+                runMutation(
+                  line.key,
+                  withLineQuantity(view, line.key, quantity),
+                  () => setCartLineQuantity(line, quantity, view.mode),
                 );
               }}
               onRemove={() => {
-                runMutation(line.key, () => removeCartLine(line, view.mode));
+                runMutation(
+                  line.key,
+                  withLineQuantity(view, line.key, 0),
+                  () => removeCartLine(line, view.mode),
+                );
               }}
             />
           ))}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CustomerSummary } from "@ishraqparfums/shared";
+import { formatIndianMobileDisplay } from "@ishraqparfums/shared";
 import { ContactSection } from "@/components/checkout/contact-section";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
@@ -59,6 +60,7 @@ export function CheckoutProfileDialog({
       open={open}
       title="A few details"
       dismissible={false}
+      panelClassName="max-w-xl"
       footer={
         <Button
           type="button"
@@ -80,7 +82,9 @@ export function CheckoutProfileDialog({
 
       <p className="mt-4 font-mono text-label-sm uppercase tracking-wide text-ink-faint">
         Signed in as{" "}
-        <span className="normal-case tracking-normal text-ink">{phone}</span>
+        <span className="normal-case tracking-normal text-ink">
+          {formatIndianMobileDisplay(phone)}
+        </span>
       </p>
 
       <div className="mt-5">

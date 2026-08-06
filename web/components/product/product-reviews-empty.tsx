@@ -1,16 +1,22 @@
 /**
- * Empty reviews column — copy always; decorative mark only on desktop,
- * centered in the leftover space beside the write form.
+ * Empty community column — copy + desktop stroke illustration
+ * (open review card + empty stars) to balance the write / yours column.
  */
-export function ProductReviewsEmpty() {
+export function ProductReviewsEmpty({
+  variant = "none",
+}: {
+  /** `none` = no reviews at all; `only-yours` = shopper has one, community is empty. */
+  variant?: "none" | "only-yours";
+}) {
   return (
-    <div className="flex max-w-md flex-col lg:min-h-[20rem]">
+    <div className="flex max-w-md flex-col lg:min-h-[22rem]">
       <p className="font-display text-2xl font-semibold tracking-[-0.02em] text-ink">
-        No reviews yet
+        {variant === "only-yours" ? "No other reviews yet" : "No reviews yet"}
       </p>
       <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
-        Be the first to share how it wears — notes, projection, and how it
-        settles on skin. Your words help the next person choose with confidence.
+        {variant === "only-yours"
+          ? "Yours is the first. When others share how it wears, they’ll show up here."
+          : "Be the first to share how it wears — notes, projection, and how it settles on skin. Your words help the next person choose with confidence."}
       </p>
 
       <div className="mt-8 hidden flex-1 items-center justify-center lg:flex">
@@ -22,7 +28,7 @@ export function ProductReviewsEmpty() {
 
 /**
  * Large stroke illustration: open review card + empty stars.
- * Desktop-only filler for the empty reviews column.
+ * Desktop filler so an empty community column doesn’t look hollow.
  */
 function EmptyReviewsMark() {
   return (

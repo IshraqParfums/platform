@@ -67,6 +67,16 @@ export function SearchIcon(props: IconProps) {
   );
 }
 
+/** Backwards navigation — a drawn arrow, not the thin `←` glyph. */
+export function ArrowLeftIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="M19 12H5.5" />
+      <path d="M11 5.5L4.5 12l6.5 6.5" />
+    </Base>
+  );
+}
+
 /** Secure payment. */
 export function ShieldIcon(props: IconProps) {
   return (

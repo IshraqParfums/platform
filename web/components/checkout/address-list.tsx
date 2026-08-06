@@ -2,6 +2,7 @@
 
 import { useRef, type KeyboardEvent } from "react";
 import type { AddressResponse } from "@ishraqparfums/shared";
+import { formatIndianMobileDisplay } from "@ishraqparfums/shared";
 import {
   AddressChoiceAccent,
   AddressChoiceRadio,
@@ -63,7 +64,7 @@ export function AddressOption({
             <br />
             {address.city}, {address.state} {address.pincode}
             <br />
-            {address.phone}
+            {formatIndianMobileDisplay(address.phone)}
           </p>
         </div>
       </div>

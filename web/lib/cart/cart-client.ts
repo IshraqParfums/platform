@@ -1,4 +1,14 @@
-import type { CartResponse } from "@ishraqparfums/shared";
+import type {
+  CartMutationResult,
+  CartMutationView,
+  CartResponse,
+} from "@ishraqparfums/shared";
+import {
+  DEFAULT_CART_MUTATION_VIEW,
+  isCartMutationSummary,
+  isCartResponse,
+} from "@ishraqparfums/shared";
+import { apiErrorFrom } from "@/lib/api/api-error";
 import { shopFetch } from "@/lib/auth/shop-fetch";
 import { emitCartChanged } from "@/lib/cart/cart-events";
 import {
@@ -15,17 +25,6 @@ import {
   type CartViewLine,
 } from "@/lib/cart/cart-view";
 
-async function readErrorMessage(response: Response): Promise<string> {
-  try {
-    const body = (await response.json()) as { message?: string | string[] };
-    if (Array.isArray(body.message)) return body.message.join(" ");
-    if (typeof body.message === "string") return body.message;
-  } catch {
-    /* ignore */
-  }
-  return "Something went wrong";
-}
-
 /**
  * Prefer server cart via shopFetch (refresh on 401). Fall back to guest
  * localStorage when unauthenticated or after a failed refresh.
@@ -40,25 +39,25 @@ export async function loadCart(): Promise<CartView> {
   return cartViewFromGuest(readGuestCart().items);
 }
 
-export async function setCartLineQuantity(
-  line: CartViewLine,
+function publishCart(view: CartView): CartView {
+  emitCartChanged({ itemCount: view.itemCount, view });
+  return view;
+}
+
+function mutationQuery(view: CartMutationView): string {
+  return view === "summary" ? "?view=summary" : "";
+}
+
+/**
+ * Server cart quantity write. `view=summary` returns a slim ack; `full` the cart.
+ */
+export async function mutateCartItemQuantity(
+  itemId: string,
   quantity: number,
-  mode: CartView["mode"],
-): Promise<CartView> {
-  if (mode === "guest") {
-    if (!line.variantId) return cartViewFromGuest(readGuestCart().items);
-    setGuestCartQuantity(line.variantId, quantity);
-    const view = cartViewFromGuest(readGuestCart().items);
-    emitCartChanged(view.itemCount);
-    return view;
-  }
-
-  if (!line.itemId) {
-    throw new Error("Missing cart item id");
-  }
-
+  view: CartMutationView = DEFAULT_CART_MUTATION_VIEW,
+): Promise<CartMutationResult> {
   const response = await shopFetch(
-    `/api/cart/items/${encodeURIComponent(line.itemId)}`,
+    `/api/cart/items/${encodeURIComponent(itemId)}${mutationQuery(view)}`,
     {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -67,13 +66,49 @@ export async function setCartLineQuantity(
   );
 
   if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
+    throw await apiErrorFrom(response);
   }
 
-  const cart = (await response.json()) as CartResponse;
-  const view = cartViewFromServer(cart);
-  emitCartChanged(view.itemCount);
-  return view;
+  return (await response.json()) as CartMutationResult;
+}
+
+export async function mutateCartItemRemove(
+  itemId: string,
+  view: CartMutationView = DEFAULT_CART_MUTATION_VIEW,
+): Promise<CartMutationResult> {
+  const response = await shopFetch(
+    `/api/cart/items/${encodeURIComponent(itemId)}${mutationQuery(view)}`,
+    { method: "DELETE" },
+  );
+
+  if (!response.ok) {
+    throw await apiErrorFrom(response);
+  }
+
+  return (await response.json()) as CartMutationResult;
+}
+
+/** Cart page / callers that want a full `CartView` after the write. */
+export async function setCartLineQuantity(
+  line: CartViewLine,
+  quantity: number,
+  mode: CartView["mode"],
+): Promise<CartView> {
+  if (mode === "guest") {
+    if (!line.variantId) return cartViewFromGuest(readGuestCart().items);
+    setGuestCartQuantity(line.variantId, quantity);
+    return publishCart(cartViewFromGuest(readGuestCart().items));
+  }
+
+  if (!line.itemId) {
+    throw new Error("Missing cart item id");
+  }
+
+  const result = await mutateCartItemQuantity(line.itemId, quantity, "full");
+  if (!isCartResponse(result)) {
+    throw new Error("Expected full cart response");
+  }
+  return publishCart(cartViewFromServer(result));
 }
 
 export async function removeCartLine(
@@ -83,32 +118,22 @@ export async function removeCartLine(
   if (mode === "guest") {
     if (!line.variantId) return cartViewFromGuest(readGuestCart().items);
     removeGuestCartItem(line.variantId);
-    const view = cartViewFromGuest(readGuestCart().items);
-    emitCartChanged(view.itemCount);
-    return view;
+    return publishCart(cartViewFromGuest(readGuestCart().items));
   }
 
   if (!line.itemId) {
     throw new Error("Missing cart item id");
   }
 
-  const response = await shopFetch(
-    `/api/cart/items/${encodeURIComponent(line.itemId)}`,
-    { method: "DELETE" },
-  );
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
+  const result = await mutateCartItemRemove(line.itemId, "full");
+  if (!isCartResponse(result)) {
+    throw new Error("Expected full cart response");
   }
-
-  const cart = (await response.json()) as CartResponse;
-  const view = cartViewFromServer(cart);
-  emitCartChanged(view.itemCount);
-  return view;
+  return publishCart(cartViewFromServer(result));
 }
 
 export function readLocalCartCount(): number {
   return guestCartItemCount();
 }
 
-export { emptyCartView };
+export { emptyCartView, isCartMutationSummary, isCartResponse };

@@ -37,10 +37,19 @@ export class OrderRepository {
 
   findByCustomerId(
     customerId: string,
-    options?: { skip?: number; take?: number },
+    options?: {
+      skip?: number;
+      take?: number;
+      statuses?: OrderStatus[];
+    },
   ): Promise<OrderWithRelations[]> {
     return this.prisma.order.findMany({
-      where: { customerId },
+      where: {
+        customerId,
+        ...(options?.statuses && options.statuses.length > 0
+          ? { status: { in: options.statuses } }
+          : {}),
+      },
       include: {
         items: { orderBy: { createdAt: 'asc' } },
         payment: true,
@@ -51,9 +60,25 @@ export class OrderRepository {
     });
   }
 
-  countByCustomerId(customerId: string): Promise<number> {
+  countByCustomerId(
+    customerId: string,
+    statuses?: OrderStatus[],
+  ): Promise<number> {
     return this.prisma.order.count({
+      where: {
+        customerId,
+        ...(statuses && statuses.length > 0
+          ? { status: { in: statuses } }
+          : {}),
+      },
+    });
+  }
+
+  countByCustomerGroupedByStatus(customerId: string) {
+    return this.prisma.order.groupBy({
+      by: ['status'] as const,
       where: { customerId },
+      _count: { _all: true },
     });
   }
 

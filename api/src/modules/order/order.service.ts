@@ -10,9 +10,15 @@ import type {
   AdminOrderDetail,
   AdminOrderSummary,
   CheckoutResponse,
+  CustomerOrderListResponse,
+  CustomerOrderStatusGroup,
   OrderDetail,
   OrderSummary,
   PaginatedResponse,
+} from '@ishraqparfums/shared';
+import {
+  countsFromStatusRows,
+  statusesForCustomerOrderGroup,
 } from '@ishraqparfums/shared';
 import { OrderStatus, type Prisma } from '@prisma/client';
 import { toPaginatedResponse, toSkipTake } from '../../common/pagination';
@@ -58,7 +64,8 @@ export class OrderService {
     customerId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<PaginatedResponse<OrderSummary>> {
+    statusGroup: CustomerOrderStatusGroup = 'all',
+  ): Promise<CustomerOrderListResponse> {
     const {
       skip,
       take,
@@ -66,17 +73,35 @@ export class OrderService {
       pageSize: safePageSize,
     } = toSkipTake(page, pageSize);
 
-    const [orders, total] = await Promise.all([
-      this.orderRepository.findByCustomerId(customerId, { skip, take }),
-      this.orderRepository.countByCustomerId(customerId),
+    const statuses = statusesForCustomerOrderGroup(statusGroup);
+    const statusList = statuses ? [...statuses] : undefined;
+
+    const [orders, total, grouped] = await Promise.all([
+      this.orderRepository.findByCustomerId(customerId, {
+        skip,
+        take,
+        statuses: statusList,
+      }),
+      this.orderRepository.countByCustomerId(customerId, statusList),
+      this.orderRepository.countByCustomerGroupedByStatus(customerId),
     ]);
 
-    return toPaginatedResponse(
-      orders.map(toOrderSummary),
-      total,
-      safePage,
-      safePageSize,
+    const counts = countsFromStatusRows(
+      grouped.map((row) => ({
+        status: row.status,
+        count: row._count._all,
+      })),
     );
+
+    return {
+      ...toPaginatedResponse(
+        orders.map(toOrderSummary),
+        total,
+        safePage,
+        safePageSize,
+      ),
+      counts,
+    };
   }
 
   async findPurchasersOfProduct(

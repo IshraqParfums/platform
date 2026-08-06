@@ -1,20 +1,10 @@
 import type { CustomerSummary } from "@ishraqparfums/shared";
+import { apiErrorFrom } from "@/lib/api/api-error";
 import { shopFetch } from "@/lib/auth/shop-fetch";
-
-async function readErrorMessage(response: Response): Promise<string> {
-  try {
-    const body = (await response.json()) as { message?: string | string[] };
-    if (Array.isArray(body.message)) return body.message.join(" ");
-    if (typeof body.message === "string") return body.message;
-  } catch {
-    /* ignore */
-  }
-  return "Could not load profile";
-}
 
 export async function getMe(): Promise<CustomerSummary> {
   const response = await shopFetch("/api/customers/me", { cache: "no-store" });
-  if (!response.ok) throw new Error(await readErrorMessage(response));
+  if (!response.ok) throw await apiErrorFrom(response, "Could not load profile");
   return (await response.json()) as CustomerSummary;
 }
 
@@ -30,6 +20,6 @@ export async function updateMe(input: {
       email: input.email.trim(),
     }),
   });
-  if (!response.ok) throw new Error(await readErrorMessage(response));
+  if (!response.ok) throw await apiErrorFrom(response, "Could not load profile");
   return (await response.json()) as CustomerSummary;
 }

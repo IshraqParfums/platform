@@ -12,7 +12,8 @@ import { CheckoutProfileDialog } from "@/components/checkout/checkout-profile-di
 import { OrderSection } from "@/components/checkout/order-section";
 import { toast } from "@/components/ui/toaster";
 import { createAddress, listAddresses } from "@/lib/address/address-client";
-import { isShopAuthenticated } from "@/lib/auth/shop-session";
+import { accountOrderPath } from "@/lib/auth/account-routes";
+import { ensureShopSession } from "@/lib/auth/shop-session";
 import { loadCart } from "@/lib/cart/cart-client";
 import { emitCartChanged } from "@/lib/cart/cart-events";
 import {
@@ -81,7 +82,7 @@ export function CheckoutPageClient() {
   const bootstrap = useCallback(() => {
     startTransition(async () => {
       try {
-        const authenticated = await isShopAuthenticated();
+        const authenticated = await ensureShopSession();
         if (!authenticated) {
           router.replace("/login?next=/checkout");
           return;
@@ -259,8 +260,8 @@ export function CheckoutPageClient() {
           razorpayPaymentId: payment.razorpayPaymentId,
           razorpaySignature: payment.razorpaySignature,
         });
-        emitCartChanged(0);
-        router.replace(`/orders/${order.id}`);
+        emitCartChanged({ itemCount: 0 });
+        router.replace(accountOrderPath(order.id, { justPlaced: true }));
         return;
       } catch {
         toast.message(
@@ -269,15 +270,15 @@ export function CheckoutPageClient() {
         );
         const settled = await pollOrderUntilSettled(checkout.orderId);
         if (settled && settled.status !== "PENDING_PAYMENT") {
-          emitCartChanged(0);
-          router.replace(`/orders/${settled.id}`);
+          emitCartChanged({ itemCount: 0 });
+          router.replace(accountOrderPath(settled.id, { justPlaced: true }));
           return;
         }
         toast.error(
           "Payment received, confirmation pending",
           "Check your orders shortly, or contact us if needed.",
         );
-        router.replace(`/orders/${checkout.orderId}`);
+        router.replace(accountOrderPath(checkout.orderId));
       }
     } catch (err) {
       toast.error(

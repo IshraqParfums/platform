@@ -1,47 +1,38 @@
 import type {
+  CustomerOrderListResponse,
+  CustomerOrderStatusGroup,
   OrderDetail,
-  OrderSummary,
-  PaginatedResponse,
   RazorpayVerifyRequest,
 } from "@ishraqparfums/shared";
+import { apiErrorFrom } from "@/lib/api/api-error";
 import { shopFetch } from "@/lib/auth/shop-fetch";
-
-async function readErrorMessage(response: Response): Promise<string> {
-  try {
-    const body = (await response.json()) as { message?: string | string[] };
-    if (Array.isArray(body.message)) return body.message.join(" ");
-    if (typeof body.message === "string") return body.message;
-  } catch {
-    /* ignore */
-  }
-  return "Something went wrong";
-}
 
 export async function getOrder(id: string): Promise<OrderDetail> {
   const response = await shopFetch(
     `/api/orders/${encodeURIComponent(id)}`,
     { cache: "no-store" },
   );
-  if (!response.ok) {
-    if (response.status === 404) throw new Error("not found");
-    throw new Error(await readErrorMessage(response));
-  }
+  if (!response.ok) throw await apiErrorFrom(response);
   return (await response.json()) as OrderDetail;
 }
 
 export async function listOrders(params?: {
   page?: number;
   pageSize?: number;
-}): Promise<PaginatedResponse<OrderSummary>> {
+  statusGroup?: CustomerOrderStatusGroup;
+}): Promise<CustomerOrderListResponse> {
   const query = new URLSearchParams();
   if (params?.page != null) query.set("page", String(params.page));
   if (params?.pageSize != null) query.set("pageSize", String(params.pageSize));
+  if (params?.statusGroup && params.statusGroup !== "all") {
+    query.set("statusGroup", params.statusGroup);
+  }
   const qs = query.toString();
   const response = await shopFetch(qs ? `/api/orders?${qs}` : "/api/orders", {
     cache: "no-store",
   });
-  if (!response.ok) throw new Error(await readErrorMessage(response));
-  return (await response.json()) as PaginatedResponse<OrderSummary>;
+  if (!response.ok) throw await apiErrorFrom(response);
+  return (await response.json()) as CustomerOrderListResponse;
 }
 
 export async function verifyRazorpayPayment(
@@ -52,7 +43,7 @@ export async function verifyRazorpayPayment(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!response.ok) throw new Error(await readErrorMessage(response));
+  if (!response.ok) throw await apiErrorFrom(response);
   return (await response.json()) as OrderDetail;
 }
 

@@ -7,6 +7,7 @@ import { ACCESS_TOKEN_EXPIRES_IN } from './auth.constants';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { CustomerJwtGuard } from './guards/customer-jwt.guard';
+import { OptionalCustomerJwtGuard } from './guards/optional-customer-jwt.guard';
 import { DevLogOtpSender } from './otp/dev-log-otp.sender';
 import { OtpRepository } from './otp/otp.repository';
 import { OtpService } from './otp/otp.service';
@@ -39,11 +40,17 @@ import { CustomerJwtStrategy } from './strategies/customer-jwt.strategy';
     RefreshTokenRepository,
     CustomerJwtStrategy,
     CustomerJwtGuard,
+    OptionalCustomerJwtGuard,
     {
       provide: OTP_SENDER,
       useClass: DevLogOtpSender,
     },
   ],
-  exports: [CustomerJwtGuard, PassportModule, JwtModule],
+  exports: [
+    CustomerJwtGuard,
+    OptionalCustomerJwtGuard,
+    PassportModule,
+    JwtModule,
+  ],
 })
 export class AuthModule {}

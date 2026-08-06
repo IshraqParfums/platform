@@ -10,9 +10,16 @@ export function isIndianMobileE164(value: string): boolean {
 /**
  * Normalize user input toward E.164 `+91` + 10-digit Indian mobile.
  * Returns a cleaned candidate; callers should validate with `isIndianMobileE164`.
+ *
+ * Country-code-only (`""`, `"91"`, `"+91"`) stays `+91` — never `+9191`.
  */
 export function normalizeIndianMobile(input: string): string {
   const digits = input.replace(/\D/g, "");
+
+  // Bare country code — empty national number.
+  if (digits.length === 0 || digits === "91") {
+    return "+91";
+  }
 
   if (digits.length === 10 && /^[6-9]/.test(digits)) {
     return `+91${digits}`;
@@ -30,18 +37,37 @@ export function normalizeIndianMobile(input: string): string {
     return `+${digits}`;
   }
 
-  if (digits.length > 0) {
-    return `+91${digits}`;
-  }
-
-  return "+91";
+  return `+91${digits}`;
 }
 
-/** National 10-digit part for UI inputs that show a fixed +91 prefix. */
+/**
+ * National 10-digit part for UI inputs that show a fixed +91 prefix.
+ * Empty / country-code-only → `""` so the field can clear.
+ */
 export function indianMobileNationalDigits(e164OrPartial: string): string {
+  const digits = e164OrPartial.replace(/\D/g, "");
+  if (digits.length === 0 || digits === "91") {
+    return "";
+  }
+
   const normalized = normalizeIndianMobile(e164OrPartial);
+  if (normalized === "+91") {
+    return "";
+  }
   if (normalized.startsWith("+91")) {
     return normalized.slice(3).replace(/\D/g, "").slice(0, 10);
   }
-  return e164OrPartial.replace(/\D/g, "").slice(0, 10);
+  return digits.slice(0, 10);
+}
+
+/**
+ * Read-only display: `+91 74836 21525` (or `+91` / `+91 748` while incomplete).
+ */
+export function formatIndianMobileDisplay(e164OrPartial: string): string {
+  const national = indianMobileNationalDigits(e164OrPartial);
+  if (!national) return "+91";
+  if (national.length === 10) {
+    return `+91 ${national.slice(0, 5)} ${national.slice(5)}`;
+  }
+  return `+91 ${national}`;
 }
