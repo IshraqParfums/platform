@@ -40,7 +40,7 @@ export function ContactSection({
       <div
         className={cn(
           "grid sm:grid-cols-2",
-          showHeading && checkoutLayout.sectionToFields,
+          showHeading && checkoutLayout.sectionToContent,
           checkoutLayout.fieldGrid,
         )}
       >

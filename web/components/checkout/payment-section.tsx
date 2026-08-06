@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckoutTrustInfo } from "@/components/checkout/checkout-trust-info";
 import { formatPaise } from "@/lib/format/money";
@@ -14,7 +15,9 @@ export type PaymentActionProps = {
 };
 
 /**
- * Primary pay CTA + trust lines. Embed in summary (desktop sticky) or standalone.
+ * The end of the journey: one CTA — the only one on the page, at every
+ * breakpoint — with room around it and reassurance sitting quietly beneath
+ * rather than beside it.
  */
 export function PaymentSection({
   totalPaise,
@@ -23,12 +26,11 @@ export function PaymentSection({
   onPay,
   className,
 }: PaymentActionProps) {
+  const headingId = useId();
+
   return (
-    <section
-      aria-labelledby="checkout-pay-heading"
-      className={cn(className)}
-    >
-      <h2 id="checkout-pay-heading" className="sr-only">
+    <section aria-labelledby={headingId} className={cn(className)}>
+      <h2 id={headingId} className="sr-only">
         Payment
       </h2>
 
@@ -43,7 +45,7 @@ export function PaymentSection({
         {preparing ? "Preparing checkout…" : `Pay ${formatPaise(totalPaise)}`}
       </Button>
 
-      <CheckoutTrustInfo className="mt-4 space-y-1.5" />
+      <CheckoutTrustInfo className="mt-5" />
     </section>
   );
 }

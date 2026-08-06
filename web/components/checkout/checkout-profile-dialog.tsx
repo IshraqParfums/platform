@@ -1,22 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import type { CustomerSummary } from "@ishraqparfums/shared";
 import { ContactSection } from "@/components/checkout/contact-section";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { toast } from "@/components/ui/toaster";
 import { validateContact } from "@/lib/checkout/checkout-validation";
 import { updateMe } from "@/lib/customers/me-client";
-import type { CustomerSummary } from "@ishraqparfums/shared";
 
 /**
- * Full-page gate when name/email are missing. Persists via PATCH /me, then unlocks checkout.
+ * Required profile complete — name + email over dimmed checkout.
+ * Not dismissible until saved.
  */
-export function CheckoutProfileGate({
+export function CheckoutProfileDialog({
+  open,
   phone,
   initialName,
   initialEmail,
   onComplete,
 }: {
+  open: boolean;
   phone: string;
   initialName?: string;
   initialEmail?: string;
@@ -51,28 +55,42 @@ export function CheckoutProfileGate({
   }
 
   return (
-    <div className="mx-auto max-w-lg">
-      <header>
-        <h1 className="font-display text-[clamp(1.85rem,3.2vw,2.5rem)] font-semibold tracking-[-0.025em] text-ink">
-          Almost there
-        </h1>
-        <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
-          Where should we send your order confirmation?
-        </p>
-      </header>
+    <Modal
+      open={open}
+      title="A few details"
+      dismissible={false}
+      footer={
+        <Button
+          type="button"
+          variant="emphasis"
+          size="lg"
+          disabled={saving}
+          className="w-full cursor-pointer"
+          onClick={() => {
+            void onContinue();
+          }}
+        >
+          {saving ? "Saving…" : "Continue"}
+        </Button>
+      }
+    >
+      <p className="text-[15px] leading-relaxed text-ink-soft">
+        So we can send your order confirmation.
+      </p>
 
-      <p className="mt-6 font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+      <p className="mt-4 font-mono text-label-sm uppercase tracking-wide text-ink-faint">
         Signed in as{" "}
         <span className="normal-case tracking-normal text-ink">{phone}</span>
       </p>
 
-      <div className="mt-8">
+      <div className="mt-5">
         <ContactSection
           name={name}
           email={email}
           nameError={liveErrors.name}
           emailError={liveErrors.email}
           disabled={saving}
+          showHeading={false}
           onNameChange={(value) => {
             setName(value);
             if (attempted) setErrors(validateContact(value, email));
@@ -83,19 +101,6 @@ export function CheckoutProfileGate({
           }}
         />
       </div>
-
-      <Button
-        type="button"
-        variant="emphasis"
-        size="lg"
-        disabled={saving}
-        className="mt-8 w-full cursor-pointer sm:w-auto sm:min-w-[16rem]"
-        onClick={() => {
-          void onContinue();
-        }}
-      >
-        {saving ? "Saving…" : "Continue to checkout"}
-      </Button>
-    </div>
+    </Modal>
   );
 }

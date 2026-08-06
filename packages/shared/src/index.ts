@@ -47,6 +47,13 @@ export type {
   PaymentStatus,
 } from "./order/index.js";
 export type { RazorpayVerifyRequest } from "./payment/index.js";
+export {
+  INDIAN_MOBILE_E164_PATTERN,
+  INDIAN_MOBILE_E164_RE,
+  indianMobileNationalDigits,
+  isIndianMobileE164,
+  normalizeIndianMobile,
+} from "./phone/index.js";
 export type { AdminSummary } from "./admin/index.js";
 export type {
   AdminAuthTokenResponse,

@@ -1,17 +1,18 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { Check, ShoppingBag } from "lucide-react";
 import type { ProductDetailVariant } from "@ishraqparfums/shared";
 import { CartGuestSavedModal } from "@/components/cart/cart-guest-saved-modal";
 import { CartQuantityStepper } from "@/components/cart/cart-quantity-stepper";
+import { ViewCartLink } from "@/components/cart/view-cart-link";
 import { ProductTrustStrip } from "@/components/product/product-trust-strip";
 import { FilterChip } from "@/components/shop/filter-chip";
 import { Button } from "@/components/ui/button";
 import { Price } from "@/components/ui/price";
 import { toast } from "@/components/ui/toaster";
 import { addToCart } from "@/lib/cart/add-to-cart";
+import { toastAddedToCart } from "@/lib/cart/cart-toast";
 import {
   hasSeenGuestCartHint,
   markGuestCartHintSeen,
@@ -102,11 +103,11 @@ export function ProductPurchasePanel({
             setGuestModalOpen(true);
             return;
           }
-          toast.success(product.name, "Added to your cart");
+          toastAddedToCart(product.name);
           return;
         }
 
-        toast.success(product.name, "Added to your cart");
+        toastAddedToCart(product.name);
         setCtaState("added");
         window.setTimeout(() => setCtaState("idle"), 2200);
       } catch (error) {
@@ -195,12 +196,7 @@ export function ProductPurchasePanel({
               aria-label={`Quantity in cart for ${product.name}`}
               onChange={setCartQty}
             />
-            <Link
-              href="/cart"
-              className="font-mono text-label-sm uppercase tracking-wide text-ink-faint transition-colors hover:text-ink"
-            >
-              View cart
-            </Link>
+            <ViewCartLink />
           </div>
         ) : sellable ? (
           <Button

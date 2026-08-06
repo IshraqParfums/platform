@@ -31,7 +31,6 @@ import {
   toOrderSummary,
 } from './mappers/order.mapper';
 import {
-  CHECKOUT_RAZORPAY_WINDOW_SECONDS,
   CHECKOUT_RESERVATION_TTL_SECONDS,
   SHIPPING_PAISE,
 } from './order.constants';
@@ -117,7 +116,6 @@ export class OrderService {
       throw new BadRequestException('Name is required');
     }
 
-    const razorpayWindowSeconds = CHECKOUT_RAZORPAY_WINDOW_SECONDS;
     const reservationTtlSeconds = CHECKOUT_RESERVATION_TTL_SECONDS;
     const shippingPaise = SHIPPING_PAISE;
     const address = await this.addressService.getOwnedOrThrow(
@@ -196,8 +194,6 @@ export class OrderService {
 
     const now = new Date();
     const expiresAt = new Date(now.getTime() + reservationTtlSeconds * 1000);
-    const expireByUnix =
-      Math.floor(now.getTime() / 1000) + razorpayWindowSeconds;
     const totalPaise = subtotalPaise + shippingPaise;
 
     const order = await this.orderRepository.client.$transaction(async (tx) => {
@@ -238,7 +234,6 @@ export class OrderService {
       const razorpayOrder = await this.paymentService.createRazorpayOrder({
         amountPaise: totalPaise,
         receipt: order.id.slice(0, 40),
-        expireByUnix,
         notes: {
           orderId: order.id,
           customerEmail: email,

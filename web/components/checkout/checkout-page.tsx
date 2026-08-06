@@ -3,12 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import type { AddressResponse, CustomerSummary } from "@ishraqparfums/shared";
-import { AddressSection } from "@/components/checkout/address-section";
+import {
+  AddressSection,
+  ADDRESS_SECTION_ID,
+} from "@/components/checkout/address-section";
 import { checkoutLayout } from "@/components/checkout/checkout-layout";
-import { CheckoutProfileGate } from "@/components/checkout/checkout-profile-gate";
-import { ContactSummary } from "@/components/checkout/contact-summary";
-import { OrderSummaryCard } from "@/components/checkout/order-summary-card";
-import { PaymentSection } from "@/components/checkout/payment-section";
+import { CheckoutProfileDialog } from "@/components/checkout/checkout-profile-dialog";
+import { OrderSection } from "@/components/checkout/order-section";
 import { toast } from "@/components/ui/toaster";
 import { createAddress, listAddresses } from "@/lib/address/address-client";
 import { isShopAuthenticated } from "@/lib/auth/shop-session";
@@ -22,8 +23,8 @@ import { startCheckout } from "@/lib/checkout/checkout-client";
 import {
   addressDraftToBody,
   emptyAddressDraft,
+  isAddressDraftPristine,
   validateAddressDraft,
-  validateContact,
   type AddressDraft,
   type AddressDraftErrors,
 } from "@/lib/checkout/checkout-validation";
@@ -39,8 +40,19 @@ import {
   RazorpayDismissedError,
 } from "@/lib/payments/razorpay";
 
+/** Message shown at the delivery step when payment is blocked on an address. */
+const NO_ADDRESS_ERROR = "Choose a delivery address to continue.";
+
+/** A blocked payment takes the customer to the step that needs them. */
+function revealDeliveryStep() {
+  document
+    .getElementById(ADDRESS_SECTION_ID)
+    ?.scrollIntoView({ block: "start" });
+}
+
 /**
- * Checkout orchestrator: profile gate (if needed) → address → sticky summary + pay.
+ * Checkout: delivery + pay. Incomplete profiles open a required dialog over a
+ * dimmed page until name and email are saved.
  */
 export function CheckoutPageClient() {
   const router = useRouter();
@@ -117,17 +129,26 @@ export function CheckoutPageClient() {
     bootstrap();
   }, [bootstrap]);
 
+  function seedAddressDraft(): AddressDraft {
+    return emptyAddressDraft({
+      name: name.trim() || undefined,
+      phone: me?.phone ?? "+91",
+      isDefault: addresses.length === 0,
+    });
+  }
+
   function openNewAddressForm() {
-    setDraft(
-      emptyAddressDraft({
-        name: name.trim() || undefined,
-        phone: me?.phone ?? "+91",
-        isDefault: false,
-      }),
-    );
+    if (isAddressDraftPristine(draft)) {
+      setDraft(seedAddressDraft());
+    }
     setDraftErrors({});
     setShowAddressForm(true);
     setSelectedAddressId(null);
+  }
+
+  function clearAddressDraft() {
+    setDraft(seedAddressDraft());
+    setDraftErrors({});
   }
 
   function closeNewAddressForm() {
@@ -153,16 +174,24 @@ export function CheckoutPageClient() {
     setAddresses(next);
     setSelectedAddressId(created.id);
     setShowAddressForm(false);
+    setDraft(
+      emptyAddressDraft({
+        name: name.trim() || undefined,
+        phone: me?.phone ?? "+91",
+        isDefault: false,
+      }),
+    );
+    setDraftErrors({});
     return created.id;
   }
 
   async function handlePay() {
-    if (!view || preparing) return;
+    if (!view || preparing || !me) return;
 
     setAttempted(true);
-    const contactErrors = validateContact(name, email);
-    if (Object.keys(contactErrors).length > 0) {
-      toast.error("Check your contact details");
+
+    if (!isProfileComplete(me)) {
+      toast.error("Add your name and email to continue");
       return;
     }
 
@@ -176,10 +205,12 @@ export function CheckoutPageClient() {
       setDraftErrors(errors);
       if (Object.keys(errors).length > 0) {
         toast.error("Complete your delivery address");
+        revealDeliveryStep();
         return;
       }
     } else if (!selectedAddressId) {
       toast.error("Select a delivery address");
+      revealDeliveryStep();
       return;
     }
 
@@ -188,6 +219,7 @@ export function CheckoutPageClient() {
       const addressId = await resolveAddressId();
       if (!addressId) {
         toast.error("Complete your delivery address");
+        revealDeliveryStep();
         return;
       }
 
@@ -211,7 +243,7 @@ export function CheckoutPageClient() {
           amountPaise: checkout.amountPaise,
           customerName: trimmedName,
           customerEmail: trimmedEmail,
-          customerPhone: selected?.phone ?? me?.phone ?? draft.phone,
+          customerPhone: selected?.phone ?? me.phone ?? draft.phone,
         });
       } catch (err) {
         if (err instanceof RazorpayDismissedError) {
@@ -267,9 +299,69 @@ export function CheckoutPageClient() {
     );
   }
 
-  if (!isProfileComplete(me)) {
-    return (
-      <CheckoutProfileGate
+  const profileIncomplete = !isProfileComplete(me);
+  const liveDraftErrors = attempted && showAddressForm ? draftErrors : {};
+  const addressError =
+    attempted && !showAddressForm && !selectedAddressId
+      ? NO_ADDRESS_ERROR
+      : null;
+  const interactionsLocked = preparing || profileIncomplete;
+
+  return (
+    <div>
+      <div
+        className={cn(
+          profileIncomplete && "pointer-events-none select-none opacity-40",
+        )}
+        aria-hidden={profileIncomplete || undefined}
+      >
+        <header className="max-w-xl">
+          <h1 className="font-display text-[clamp(1.85rem,3.2vw,2.5rem)] font-semibold tracking-[-0.025em] text-ink">
+            Checkout
+          </h1>
+          <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
+            Confirm your details and pay securely.
+          </p>
+        </header>
+
+        <div className={checkoutLayout.sectionStack}>
+          <AddressSection
+            step="01"
+            addresses={addresses}
+            selectedId={selectedAddressId}
+            showForm={showAddressForm}
+            draft={draft}
+            draftErrors={liveDraftErrors}
+            error={addressError}
+            disabled={interactionsLocked}
+            onSelect={(id) => {
+              setSelectedAddressId(id);
+              setShowAddressForm(false);
+              setDraftErrors({});
+            }}
+            onShowForm={openNewAddressForm}
+            onHideForm={closeNewAddressForm}
+            onClearDraft={clearAddressDraft}
+            onDraftChange={(next) => {
+              setDraft(next);
+              if (attempted) setDraftErrors(validateAddressDraft(next));
+            }}
+          />
+
+          <OrderSection
+            step="02"
+            view={view}
+            disabled={!cartHasSellableLines(view) || profileIncomplete}
+            preparing={preparing}
+            onPay={() => {
+              void handlePay();
+            }}
+          />
+        </div>
+      </div>
+
+      <CheckoutProfileDialog
+        open={profileIncomplete}
         phone={me.phone}
         initialName={me.name ?? ""}
         initialEmail={me.email ?? ""}
@@ -281,65 +373,6 @@ export function CheckoutPageClient() {
             phone: profile.phone || prev.phone,
           }));
         }}
-      />
-    );
-  }
-
-  const liveDraftErrors = attempted && showAddressForm ? draftErrors : {};
-
-  return (
-    <div className={checkoutLayout.pageGrid}>
-      <div className={cn("min-w-0", checkoutLayout.formStack)}>
-        <header className="max-w-xl">
-          <h1 className="font-display text-[clamp(1.85rem,3.2vw,2.5rem)] font-semibold tracking-[-0.025em] text-ink">
-            Checkout
-          </h1>
-          <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
-            Confirm your details and pay securely.
-          </p>
-        </header>
-
-        <ContactSummary
-          name={name}
-          email={email}
-          phone={me.phone}
-          disabled={preparing}
-          onSaved={applyProfile}
-        />
-
-        <AddressSection
-          addresses={addresses}
-          selectedId={selectedAddressId}
-          showForm={showAddressForm}
-          draft={draft}
-          draftErrors={liveDraftErrors}
-          disabled={preparing}
-          onSelect={(id) => {
-            setSelectedAddressId(id);
-            setShowAddressForm(false);
-            setDraftErrors({});
-          }}
-          onShowForm={openNewAddressForm}
-          onHideForm={closeNewAddressForm}
-          onDraftChange={(next) => {
-            setDraft(next);
-            if (attempted) setDraftErrors(validateAddressDraft(next));
-          }}
-        />
-      </div>
-
-      <OrderSummaryCard
-        view={view}
-        footer={
-          <PaymentSection
-            totalPaise={view.totalPaise}
-            disabled={!cartHasSellableLines(view)}
-            preparing={preparing}
-            onPay={() => {
-              void handlePay();
-            }}
-          />
-        }
       />
     </div>
   );

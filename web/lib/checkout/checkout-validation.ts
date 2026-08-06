@@ -1,4 +1,8 @@
 import type { CreateAddressBody } from "@ishraqparfums/shared";
+import {
+  isIndianMobileE164,
+  normalizeIndianMobile,
+} from "@ishraqparfums/shared";
 
 export type AddressDraft = {
   name: string;
@@ -35,7 +39,7 @@ export function addressDraftToBody(draft: AddressDraft): CreateAddressBody {
   const line2 = draft.line2.trim();
   return {
     name: draft.name.trim(),
-    phone: draft.phone.trim(),
+    phone: normalizeIndianMobile(draft.phone),
     line1: draft.line1.trim(),
     line2: line2.length > 0 ? line2 : null,
     city: draft.city.trim(),
@@ -45,9 +49,21 @@ export function addressDraftToBody(draft: AddressDraft): CreateAddressBody {
   };
 }
 
+/**
+ * True when the shopper has not entered delivery fields yet.
+ * Name/phone may still be profile prefills — those alone are not progress.
+ */
+export function isAddressDraftPristine(draft: AddressDraft): boolean {
+  return (
+    !draft.line1.trim() &&
+    !draft.line2.trim() &&
+    !draft.city.trim() &&
+    !draft.state.trim() &&
+    !draft.pincode.trim()
+  );
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-/** E.164-ish: + and 8–15 digits total after optional spaces. */
-const PHONE_RE = /^\+[1-9]\d{7,14}$/;
 const PIN_RE = /^[1-9][0-9]{5}$/;
 
 export function validateContact(name: string, email: string): {
@@ -64,12 +80,15 @@ export function validateContact(name: string, email: string): {
 export function validateAddressDraft(draft: AddressDraft): AddressDraftErrors {
   const errors: AddressDraftErrors = {};
   if (!draft.name.trim()) errors.name = "Enter recipient name";
-  const phone = draft.phone.replace(/[\s-]/g, "");
-  if (!phone || phone === "+91") errors.phone = "Enter a mobile number";
-  else if (!PHONE_RE.test(phone)) {
-    errors.phone = "Use country code, e.g. +91…";
+
+  const phone = normalizeIndianMobile(draft.phone);
+  if (!phone || phone === "+91") {
+    errors.phone = "Enter a mobile number";
+  } else if (!isIndianMobileE164(phone)) {
+    errors.phone = "Enter a valid Indian mobile (+91)";
   }
-  if (!draft.line1.trim()) errors.line1 = "Enter street address";
+
+  if (!draft.line1.trim()) errors.line1 = "Enter house / street";
   if (!draft.city.trim()) errors.city = "Enter city";
   if (!draft.state.trim()) errors.state = "Enter state";
   if (!draft.pincode.trim()) errors.pincode = "Enter PIN code";
@@ -77,12 +96,4 @@ export function validateAddressDraft(draft: AddressDraft): AddressDraftErrors {
     errors.pincode = "Enter a 6-digit PIN code";
   }
   return errors;
-}
-
-export function normalizePhoneInput(value: string): string {
-  const cleaned = value.replace(/[^\d+]/g, "");
-  if (!cleaned.startsWith("+")) {
-    return `+${cleaned.replace(/\+/g, "")}`;
-  }
-  return `+${cleaned.slice(1).replace(/\+/g, "")}`;
 }

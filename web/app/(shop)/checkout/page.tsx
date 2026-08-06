@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function CheckoutPage() {
   return (
     <Section space="default" className="!pt-10 md:!pt-14 !pb-16 md:!pb-24">
-      <Container size="wide">
+      <Container size="form">
         <CheckoutPageClient />
       </Container>
     </Section>

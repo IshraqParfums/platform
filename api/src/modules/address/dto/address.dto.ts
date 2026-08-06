@@ -7,6 +7,7 @@ import {
   MinLength,
   ValidateIf,
 } from 'class-validator';
+import { INDIAN_MOBILE_E164_PATTERN } from '@ishraqparfums/shared';
 
 export class CreateAddressDto {
   @IsString()
@@ -14,7 +15,9 @@ export class CreateAddressDto {
   name!: string;
 
   @IsString()
-  @MinLength(10)
+  @Matches(new RegExp(INDIAN_MOBILE_E164_PATTERN), {
+    message: 'Enter a valid Indian mobile (+91).',
+  })
   phone!: string;
 
   @IsString()
@@ -52,7 +55,9 @@ export class UpdateAddressDto {
 
   @IsOptional()
   @IsString()
-  @MinLength(10)
+  @Matches(new RegExp(INDIAN_MOBILE_E164_PATTERN), {
+    message: 'Enter a valid Indian mobile (+91).',
+  })
   phone?: string;
 
   @IsOptional()

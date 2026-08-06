@@ -1,6 +1,12 @@
 "use client";
 
+import { useRef, type KeyboardEvent } from "react";
 import type { AddressResponse } from "@ishraqparfums/shared";
+import {
+  AddressChoiceAccent,
+  AddressChoiceRadio,
+  addressChoiceClassName,
+} from "@/components/checkout/address-choice";
 import { checkoutLayout } from "@/components/checkout/checkout-layout";
 import { cn } from "@/lib/cn";
 
@@ -8,34 +14,50 @@ export function AddressOption({
   address,
   selected,
   disabled,
+  tabIndex,
+  buttonRef,
   onSelect,
+  onKeyDown,
 }: {
   address: AddressResponse;
   selected: boolean;
   disabled?: boolean;
+  tabIndex?: number;
+  buttonRef?: (node: HTMLButtonElement | null) => void;
   onSelect: (id: string) => void;
+  onKeyDown?: (event: KeyboardEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <button
+      ref={buttonRef}
       type="button"
       role="radio"
       aria-checked={selected}
       disabled={disabled}
+      tabIndex={tabIndex}
       onClick={() => onSelect(address.id)}
+      onKeyDown={onKeyDown}
       className={cn(
-        "w-full min-h-12 cursor-pointer border text-left transition-colors duration-200",
-        checkoutLayout.addressCard,
+        "h-full w-full cursor-pointer",
+        addressChoiceClassName(selected),
         "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink/30",
-        selected
-          ? "border-ink/40 bg-cream-soft"
-          : "border-ink/10 bg-transparent hover:border-ink/25",
         disabled && "opacity-55",
       )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="font-medium text-ink">{address.name}</p>
-          <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+      <AddressChoiceAccent selected={selected} />
+
+      <div className="flex items-start gap-3">
+        <AddressChoiceRadio selected={selected} />
+        <div className="min-w-0">
+          <p className="flex flex-wrap items-baseline gap-x-2 text-[15px]">
+            <span className="font-medium text-ink">{address.name}</span>
+            {address.isDefault ? (
+              <span className="font-mono text-label-sm uppercase text-ink-faint">
+                Default
+              </span>
+            ) : null}
+          </p>
+          <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
             {address.line1}
             {address.line2 ? `, ${address.line2}` : ""}
             <br />
@@ -44,19 +66,7 @@ export function AddressOption({
             {address.phone}
           </p>
         </div>
-        <span
-          className={cn(
-            "mt-1 size-4 shrink-0 rounded-full border",
-            selected ? "border-ink bg-ink" : "border-ink/30 bg-transparent",
-          )}
-          aria-hidden
-        />
       </div>
-      {address.isDefault ? (
-        <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-faint">
-          Default
-        </p>
-      ) : null}
     </button>
   );
 }
@@ -72,21 +82,56 @@ export function AddressList({
   disabled?: boolean;
   onSelect: (id: string) => void;
 }) {
+  const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
   if (addresses.length === 0) return null;
+
+  const selectedIndex = addresses.findIndex(
+    (address) => address.id === selectedId,
+  );
+
+  /** Arrow keys move the selection, as a radio group is expected to. */
+  function handleKeyDown(
+    index: number,
+    event: KeyboardEvent<HTMLButtonElement>,
+  ) {
+    const delta =
+      event.key === "ArrowDown" || event.key === "ArrowRight"
+        ? 1
+        : event.key === "ArrowUp" || event.key === "ArrowLeft"
+          ? -1
+          : 0;
+    if (delta === 0) return;
+
+    event.preventDefault();
+    const next = (index + delta + addresses.length) % addresses.length;
+    onSelect(addresses[next].id);
+    optionRefs.current[next]?.focus();
+  }
 
   return (
     <ul
-      className={checkoutLayout.addressList}
+      className={cn(
+        checkoutLayout.addressGrid,
+        addresses.length > 1 && checkoutLayout.addressGridMulti,
+      )}
       role="radiogroup"
       aria-label="Saved addresses"
     >
-      {addresses.map((address) => (
+      {addresses.map((address, index) => (
         <li key={address.id}>
           <AddressOption
             address={address}
             selected={address.id === selectedId}
             disabled={disabled}
+            tabIndex={
+              index === (selectedIndex === -1 ? 0 : selectedIndex) ? 0 : -1
+            }
+            buttonRef={(node) => {
+              optionRefs.current[index] = node;
+            }}
             onSelect={onSelect}
+            onKeyDown={(event) => handleKeyDown(index, event)}
           />
         </li>
       ))}

@@ -6,29 +6,47 @@ import { cn } from "@/lib/cn";
 
 export function SectionHeading({
   id,
+  step,
   title,
   description,
   action,
 }: {
   id: string;
+  /**
+   * Position in the checkout, e.g. `"01"`. Rendered as a hanging mono numeral —
+   * this is the progress indicator, living on the step it describes rather than
+   * in a separate strip that has to be kept in sync with it. Decorative to
+   * assistive tech, which already reads the steps in document order.
+   */
+  step?: string;
   title: string;
   description?: string;
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3">
-      <div className="min-w-0">
-        <h2
-          id={id}
-          className="font-display text-xl font-semibold tracking-[-0.015em] text-ink"
-        >
-          {title}
-        </h2>
-        {description ? (
-          <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-            {description}
-          </p>
+    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+      <div className="flex min-w-0 items-baseline gap-3 sm:gap-4">
+        {step ? (
+          <span
+            aria-hidden
+            className="shrink-0 font-mono text-label-sm uppercase tabular-nums text-ink-faint"
+          >
+            {step}
+          </span>
         ) : null}
+        <div className="min-w-0">
+          <h2
+            id={id}
+            className="font-display text-xl font-semibold tracking-[-0.015em] text-ink"
+          >
+            {title}
+          </h2>
+          {description ? (
+            <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+              {description}
+            </p>
+          ) : null}
+        </div>
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>

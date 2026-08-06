@@ -23,7 +23,6 @@ export class PaymentService {
   createRazorpayOrder(input: {
     amountPaise: number;
     receipt: string;
-    expireByUnix: number;
     notes?: Record<string, string>;
   }) {
     return this.razorpayClient.createOrder(input);

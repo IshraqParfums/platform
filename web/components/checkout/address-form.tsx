@@ -1,12 +1,17 @@
 "use client";
 
-import { FormField } from "@/components/checkout/form-field";
+import { useRef } from "react";
+import {
+  indianMobileNationalDigits,
+  normalizeIndianMobile,
+} from "@ishraqparfums/shared";
+import { FormField, fieldControlClassName } from "@/components/checkout/form-field";
 import { FormInput } from "@/components/checkout/form-input";
 import { checkoutLayout } from "@/components/checkout/checkout-layout";
-import {
-  normalizePhoneInput,
-  type AddressDraft,
-  type AddressDraftErrors,
+import { lookupPincode } from "@/lib/address/pincode-lookup";
+import type {
+  AddressDraft,
+  AddressDraftErrors,
 } from "@/lib/checkout/checkout-validation";
 import { cn } from "@/lib/cn";
 
@@ -23,9 +28,46 @@ export function AddressForm({
   showDefaultToggle?: boolean;
   onChange: (next: AddressDraft) => void;
 }) {
+  /** PIN that last drove autofill — city/state stay overwriteable until user edits after. */
+  const autofilledFromPin = useRef<string | null>(null);
+  const lookupSeq = useRef(0);
+
   function patch(partial: Partial<AddressDraft>) {
     onChange({ ...draft, ...partial });
   }
+
+  function setNationalMobile(national: string) {
+    const digits = national.replace(/\D/g, "").slice(0, 10);
+    patch({ phone: normalizeIndianMobile(digits.length > 0 ? digits : "") });
+  }
+
+  async function onPincodeChange(raw: string) {
+    const pincode = raw.replace(/\D/g, "").slice(0, 6);
+    const cityAtStart = draft.city;
+    const stateAtStart = draft.state;
+    const overwriteAutofill = autofilledFromPin.current !== null;
+    const next: AddressDraft = { ...draft, pincode };
+    onChange(next);
+
+    if (pincode.length !== 6) {
+      return;
+    }
+
+    const seq = ++lookupSeq.current;
+    const result = await lookupPincode(pincode);
+    if (seq !== lookupSeq.current || !result) return;
+
+    autofilledFromPin.current = pincode;
+    onChange({
+      ...next,
+      city:
+        !cityAtStart.trim() || overwriteAutofill ? result.city : next.city,
+      state:
+        !stateAtStart.trim() || overwriteAutofill ? result.state : next.state,
+    });
+  }
+
+  const nationalPhone = indianMobileNationalDigits(draft.phone);
 
   return (
     <div className={checkoutLayout.fieldStack}>
@@ -48,31 +90,40 @@ export function AddressForm({
         </FormField>
 
         <FormField
-          label="Phone"
+          label="Recipient mobile"
           htmlFor="checkout-address-phone"
           error={errors?.phone}
-          hint={!errors?.phone ? "Include country code" : undefined}
         >
-          <FormInput
-            id="checkout-address-phone"
-            name="shipping-phone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="shipping tel"
-            required
-            disabled={disabled}
-            value={draft.phone}
-            invalid={Boolean(errors?.phone)}
-            placeholder="+91 98765 43210"
-            onChange={(event) =>
-              patch({ phone: normalizePhoneInput(event.target.value) })
-            }
-          />
+          <div
+            className={cn(
+              fieldControlClassName(Boolean(errors?.phone)),
+              "flex items-center gap-2",
+            )}
+          >
+            <span className="shrink-0 tabular-nums text-ink-soft" aria-hidden>
+              +91
+            </span>
+            <input
+              id="checkout-address-phone"
+              name="shipping-phone"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="shipping tel-national"
+              required
+              disabled={disabled}
+              value={nationalPhone}
+              placeholder="98765 43210"
+              maxLength={10}
+              aria-invalid={Boolean(errors?.phone) || undefined}
+              className="min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink-faint disabled:cursor-not-allowed"
+              onChange={(event) => setNationalMobile(event.target.value)}
+            />
+          </div>
         </FormField>
       </div>
 
       <FormField
-        label="Street address"
+        label="House / street"
         htmlFor="checkout-address-line1"
         error={errors?.line1}
       >
@@ -89,7 +140,7 @@ export function AddressForm({
       </FormField>
 
       <FormField
-        label="Apartment / Suite"
+        label="Landmark / apartment"
         htmlFor="checkout-address-line2"
         optional
       >
@@ -119,11 +170,9 @@ export function AddressForm({
             disabled={disabled}
             value={draft.pincode}
             invalid={Boolean(errors?.pincode)}
-            onChange={(event) =>
-              patch({
-                pincode: event.target.value.replace(/\D/g, "").slice(0, 6),
-              })
-            }
+            onChange={(event) => {
+              void onPincodeChange(event.target.value);
+            }}
           />
         </FormField>
 
@@ -140,7 +189,10 @@ export function AddressForm({
             disabled={disabled}
             value={draft.city}
             invalid={Boolean(errors?.city)}
-            onChange={(event) => patch({ city: event.target.value })}
+            onChange={(event) => {
+              autofilledFromPin.current = null;
+              patch({ city: event.target.value });
+            }}
           />
         </FormField>
 
@@ -157,7 +209,10 @@ export function AddressForm({
             disabled={disabled}
             value={draft.state}
             invalid={Boolean(errors?.state)}
-            onChange={(event) => patch({ state: event.target.value })}
+            onChange={(event) => {
+              autofilledFromPin.current = null;
+              patch({ state: event.target.value });
+            }}
           />
         </FormField>
       </div>
@@ -176,7 +231,7 @@ export function AddressForm({
             onChange={(event) => patch({ isDefault: event.target.checked })}
             className="size-4 accent-gold"
           />
-          Set as default address
+          Save as default
         </label>
       ) : null}
     </div>

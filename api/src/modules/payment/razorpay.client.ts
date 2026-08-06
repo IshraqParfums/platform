@@ -33,15 +33,13 @@ export class RazorpayClient {
   async createOrder(input: {
     amountPaise: number;
     receipt: string;
-    expireByUnix: number;
     notes?: Record<string, string>;
   }): Promise<RazorpayOrderResult> {
+    // Orders API rejects expire_by (Payment Links only). Expiry is ours locally.
     const order = (await this.client.orders.create({
       amount: input.amountPaise,
       currency: 'INR',
       receipt: input.receipt,
-      // Razorpay SDK typings omit expire_by; runtime API supports it.
-      ...({ expire_by: input.expireByUnix } as object),
       notes: input.notes,
     })) as RazorpayOrderResult;
 
