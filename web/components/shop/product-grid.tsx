@@ -6,9 +6,8 @@ import { Reveal } from "@/components/ui/reveal";
 /**
  * Pure grid — no data fetching, no pagination, no empty-state handling.
  *
- * Mobile dividers sit as a shrink-0 sibling under the card. Do not put `h-full`
- * on the reveal on mobile — that stretched the card over the divider and made
- * the ornament paint on the next image.
+ * Mobile: single-column editorial catalogue with generous vertical rhythm.
+ * Desktop: multi-column grid with hover-led cards.
  */
 export function ProductGrid({
   products,
@@ -20,7 +19,7 @@ export function ProductGrid({
   const labels = new Map(collections.map((c) => [c.slug, c.name]));
 
   return (
-    <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 sm:gap-y-14 lg:grid-cols-4 lg:gap-x-10">
+    <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 sm:gap-y-14 lg:grid-cols-4 lg:gap-x-10">
       {products.map((product, i) => {
         const isLast = i === products.length - 1;
         return (
@@ -34,7 +33,7 @@ export function ProductGrid({
             </Reveal>
             {!isLast ? (
               <div
-                className="flex shrink-0 items-center justify-center bg-cream pt-4 pb-2 sm:hidden"
+                className="flex shrink-0 items-center justify-center bg-cream pt-6 pb-1 sm:hidden"
                 aria-hidden="true"
               >
                 <OrnamentalDivider />

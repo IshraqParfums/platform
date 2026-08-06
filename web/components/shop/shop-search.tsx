@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import type { ProductListSort } from "@ishraqparfums/shared";
-import { SHOP_CONTROL_HEIGHT } from "@/components/shop/shop-control";
 import { useShopNavigate } from "@/components/shop/shop-navigation";
 import { SearchIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
@@ -86,8 +85,8 @@ export function ShopSearch({
         placeholder="Find a perfume"
         autoComplete="off"
         className={cn(
-          "w-full rounded-md border border-ink/15 bg-cream pl-11 pr-4 text-[15px] text-ink outline-none transition-colors placeholder:text-ink-faint hover:border-ink/30 focus:border-ink/40",
-          SHOP_CONTROL_HEIGHT,
+          "w-full rounded-lg border border-ink/15 bg-cream pl-12 pr-4 text-base text-ink outline-none transition-colors placeholder:text-ink-faint hover:border-ink/30 focus:border-ink/40 md:rounded-md md:pl-11 md:text-[15px]",
+          "h-14 md:h-12",
         )}
         onChange={(event) => {
           const next = event.target.value;

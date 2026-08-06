@@ -2,7 +2,13 @@ import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "outline" | "outline-dark" | "ghost" | "light";
+type Variant =
+  | "primary"
+  | "emphasis"
+  | "outline"
+  | "outline-dark"
+  | "ghost"
+  | "light";
 type Size = "sm" | "md" | "lg";
 
 const BASE =
@@ -22,8 +28,10 @@ const BASE =
  * existing one from outside.
  */
 const VARIANTS: Record<Variant, string> = {
-  // Gold is the single loudest element on the page — reserved for one CTA per view.
+  // Soft gold — marketing surfaces where primary shouldn’t overpower photography.
   primary: "bg-gold-soft text-deep hover:bg-gold-pale",
+  // Richer gold for shop CTAs on cream (Add to cart, Post review).
+  emphasis: "bg-gold text-deep hover:bg-gold-soft",
   // On cream.
   outline:
     "border border-ink/25 text-ink hover:border-ink/50 hover:bg-ink/5",

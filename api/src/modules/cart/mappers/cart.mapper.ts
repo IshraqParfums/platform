@@ -45,6 +45,8 @@ function toCartItemResponse(
     isAvailable: variant.isAvailable,
     productName: product.name,
     productSlug: product.slug,
+    collectionName: product.collection?.name ?? null,
+    shortDescription: product.shortDescription?.trim() || null,
     primaryImageUrl: primaryImage?.url ?? null,
     lineTotalPaise: variant.pricePaise * item.quantity,
   };

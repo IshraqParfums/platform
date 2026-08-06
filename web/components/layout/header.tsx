@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CartNavLink } from "@/components/layout/cart-nav-link";
 import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/cn";
 import { HEADER_HEIGHT_PX } from "@/lib/layout";
@@ -103,30 +104,7 @@ export function Header() {
             >
               Account
             </Link>
-            <Link
-              href="/cart"
-              aria-label="Cart"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-cream/85 transition-colors hover:bg-cream/10 hover:text-cream-soft"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                className="h-[19px] w-[19px]"
-                aria-hidden="true"
-              >
-                <path
-                  d="M6 7h12l-1 12H7L6 7z"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M9.5 9V6a2.5 2.5 0 0 1 5 0v3"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </Link>
+            <CartNavLink />
 
             <button
               type="button"
@@ -158,7 +136,11 @@ export function Header() {
         <nav className="border-t border-gold/15 bg-deep/97 backdrop-blur-md md:hidden">
           <Container size="wide">
             <div className="flex flex-col py-3">
-              {[...NAV, { href: "/login", label: "Account" }].map((item) => (
+              {[
+                ...NAV,
+                { href: "/cart", label: "Cart" },
+                { href: "/login", label: "Account" },
+              ].map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

@@ -3,9 +3,11 @@ import 'server-only';
 import type {
   CollectionSummary,
   PaginatedResponse,
+  ProductDetail,
   ProductListItem,
   ProductListSort,
 } from '@ishraqparfums/shared';
+import { NestApiError } from '@/lib/api/errors';
 import { nestFetch } from '@/lib/api/nest';
 
 /** Public catalog changes rarely; serve from cache and revalidate in the background. */
@@ -68,6 +70,27 @@ export function getProducts(params?: {
     },
     { items: [], total: 0, page: 1, pageSize: params?.pageSize ?? 0 },
   );
+}
+
+/**
+ * Single product for the PDP. Returns `null` on 404 / network failure so the
+ * route can call `notFound()` without leaking Nest errors to the browser.
+ */
+export async function getProductBySlug(
+  slug: string,
+): Promise<ProductDetail | null> {
+  try {
+    const { data } = await nestFetch<ProductDetail>(
+      `/products/${encodeURIComponent(slug)}`,
+      { next: { revalidate: CATALOG_REVALIDATE_SECONDS } },
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof NestApiError && error.status === 404) {
+      return null;
+    }
+    return null;
+  }
 }
 
 /**

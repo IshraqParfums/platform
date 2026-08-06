@@ -3,6 +3,7 @@ import type {
   BespokePerfume,
   Cart,
   CartItem,
+  Collection,
   Product,
   ProductImage,
   ProductVariant,
@@ -17,6 +18,7 @@ const cartInclude = {
           product: {
             include: {
               images: { orderBy: { displayOrder: 'asc' as const } },
+              collection: true,
             },
           },
         },
@@ -32,6 +34,7 @@ export type CartItemWithRelations = CartItem & {
     | (ProductVariant & {
         product: Product & {
           images: ProductImage[];
+          collection: Collection;
         };
       })
     | null;

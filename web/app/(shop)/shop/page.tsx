@@ -55,7 +55,7 @@ export default async function ShopPage({
         <ShopNavigationProvider>
           <ShopIntro total={products.total} />
 
-          <div className="mt-6">
+          <div className="mt-8 md:mt-6">
             <ShopToolbar
               homepageCollections={homepageCollections}
               totalCollectionCount={collections.length}
@@ -65,7 +65,7 @@ export default async function ShopPage({
             />
           </div>
 
-          <div className="mt-6">
+          <div className="mt-8 md:mt-6">
             <ShopResults>
               <ProductListing
                 page={products}

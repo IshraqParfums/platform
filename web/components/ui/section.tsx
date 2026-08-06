@@ -50,7 +50,10 @@ export function Section({
     <section
       id={id}
       className={cn(
-        "relative overflow-hidden",
+        "relative",
+        // Clip only when mist/glow need containment — otherwise sticky
+        // descendants (cart summary, PDP gallery) break under overflow:hidden.
+        (mist || glow) && "overflow-hidden",
         TONES[tone],
         SPACE[space],
         bordered && (isDark ? "border-y border-gold/12" : "border-y border-line/50"),

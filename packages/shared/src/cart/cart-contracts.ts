@@ -12,6 +12,8 @@ export interface CatalogCartItemResponse {
   isAvailable: boolean;
   productName: string;
   productSlug: string;
+  collectionName: string | null;
+  shortDescription: string | null;
   primaryImageUrl: string | null;
   lineTotalPaise: number;
 }

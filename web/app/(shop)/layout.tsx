@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Toaster } from "@/components/ui/toaster";
 import { HEADER_HEIGHT_PX } from "@/lib/layout";
 
 /**
@@ -7,6 +8,9 @@ import { HEADER_HEIGHT_PX } from "@/lib/layout";
  */
 export default function ShopLayout({ children }: { children: ReactNode }) {
   return (
-    <div style={{ paddingTop: HEADER_HEIGHT_PX }}>{children}</div>
+    <div style={{ paddingTop: HEADER_HEIGHT_PX }}>
+      {children}
+      <Toaster />
+    </div>
   );
 }
