@@ -11,59 +11,63 @@ export function PaginationNav({
   pageSize,
   total,
   buildHref,
+  compact = false,
 }: {
   page: number;
   pageSize: number;
   total: number;
   buildHref: (page: number) => string;
+  /** Tighter spacing for admin lists. */
+  compact?: boolean;
 }) {
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
-  if (totalPages <= 1) {
+  if (total <= 0) {
     return null;
   }
 
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const rangeStart = (page - 1) * pageSize + 1;
   const rangeEnd = Math.min(total, page * pageSize);
 
   return (
     <nav
       aria-label="Pagination"
-      className="mt-16 flex flex-col items-center gap-5 border-t border-line/50 pt-10"
+      className={cn(
+        "flex flex-col items-center gap-5 border-t border-line/50",
+        compact ? "mt-8 gap-3 pt-6" : "mt-16 pt-10",
+      )}
     >
       <p className="font-mono text-label-sm text-ink-faint">
         Showing {rangeStart}–{rangeEnd} of {total}
       </p>
 
-      <div className="flex items-center gap-2">
-        <PageLink
-          href={page > 1 ? buildHref(page - 1) : undefined}
-          label="Previous"
-        />
+      {totalPages > 1 ? (
+        <div className="flex items-center gap-2">
+          <PageLink
+            href={page > 1 ? buildHref(page - 1) : undefined}
+            label="Previous"
+          />
 
-        {/* Numbered links are only worth it while the count stays scannable —
-            beyond that a "Page X of Y" readout serves the same purpose
-            without a very long button row. */}
-        {totalPages <= 7 ? (
-          Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-            <PageLink
-              key={n}
-              href={n === page ? undefined : buildHref(n)}
-              label={String(n)}
-              current={n === page}
-            />
-          ))
-        ) : (
-          <span className="px-3 font-mono text-label-sm text-ink-faint">
-            Page {page} of {totalPages}
-          </span>
-        )}
+          {totalPages <= 7 ? (
+            Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+              <PageLink
+                key={n}
+                href={n === page ? undefined : buildHref(n)}
+                label={String(n)}
+                current={n === page}
+              />
+            ))
+          ) : (
+            <span className="px-3 font-mono text-label-sm text-ink-faint">
+              Page {page} of {totalPages}
+            </span>
+          )}
 
-        <PageLink
-          href={page < totalPages ? buildHref(page + 1) : undefined}
-          label="Next"
-        />
-      </div>
+          <PageLink
+            href={page < totalPages ? buildHref(page + 1) : undefined}
+            label="Next"
+          />
+        </div>
+      ) : null}
     </nav>
   );
 }

@@ -3,11 +3,13 @@ import {
   PRODUCT_LIST_SORT_DEFAULT,
   type ProductListSort,
 } from "@ishraqparfums/shared";
+import { ProductGridSkeleton } from "@/components/product/product-card-skeleton";
 import { ProductListing } from "@/components/shop/product-listing";
-import { ShopIntro } from "@/components/shop/shop-intro";
+import { ShopClosingBand } from "@/components/shop/shop-closing-band";
+import { ShopFilterRail } from "@/components/shop/shop-filter-rail";
+import { ShopMasthead } from "@/components/shop/shop-masthead";
 import { ShopNavigationProvider } from "@/components/shop/shop-navigation";
 import { ShopResults } from "@/components/shop/shop-results";
-import { ShopToolbar } from "@/components/shop/shop-toolbar";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import {
@@ -49,27 +51,35 @@ export default async function ShopPage({
     getCollections(),
   ]);
 
+  const activeCollection = collection
+    ? collections.find((item) => item.slug === collection)
+    : undefined;
+
   return (
-    <Section space="compact" className="!pt-5 md:!pt-6">
-      <Container size="wide">
-        <ShopNavigationProvider>
-          <ShopIntro total={products.total} />
+    <ShopNavigationProvider>
+      <ShopMasthead
+        total={products.total}
+        collection={activeCollection}
+        q={q}
+      />
 
-          <div className="mt-8 md:mt-6">
-            <ShopToolbar
-              homepageCollections={homepageCollections}
-              totalCollectionCount={collections.length}
-              collection={collection}
-              q={q}
-              sort={sort}
-            />
-          </div>
+      <Section space="compact" className="!pt-0 md:!pt-0">
+        <Container size="wide">
+          <ShopFilterRail
+            homepageCollections={homepageCollections}
+            totalCollectionCount={collections.length}
+            collection={collection}
+            q={q}
+            sort={sort}
+          />
 
-          <div className="mt-8 md:mt-6">
-            <ShopResults>
+          <div className="mt-8 md:mt-10">
+            <ShopResults skeleton={<ProductGridSkeleton count={8} />}>
               <ProductListing
                 page={products}
                 collections={collections}
+                emptyQuery={q}
+                emptyCollectionName={activeCollection?.name}
                 buildPageHref={(pageNumber) =>
                   buildShopHref({
                     collection,
@@ -79,12 +89,13 @@ export default async function ShopPage({
                     page: pageNumber,
                   })
                 }
-                emptyMessage="No products match your filters yet."
               />
             </ShopResults>
           </div>
-        </ShopNavigationProvider>
-      </Container>
-    </Section>
+        </Container>
+      </Section>
+
+      <ShopClosingBand />
+    </ShopNavigationProvider>
   );
 }

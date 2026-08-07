@@ -2,21 +2,23 @@
 
 import type { ReactNode } from "react";
 import { useShopNavigate } from "@/components/shop/shop-navigation";
-import { cn } from "@/lib/cn";
 
-/** Dims the product grid while a soft shop navigation is in flight. */
-export function ShopResults({ children }: { children: ReactNode }) {
+/**
+ * While a soft shop navigation is in flight, swap the product listing for
+ * shimmer card skeletons instead of dimming live content.
+ */
+export function ShopResults({
+  children,
+  skeleton,
+}: {
+  children: ReactNode;
+  skeleton: ReactNode;
+}) {
   const { isPending } = useShopNavigate();
 
   return (
-    <div
-      aria-busy={isPending}
-      className={cn(
-        "transition-opacity duration-200",
-        isPending && "pointer-events-none opacity-60",
-      )}
-    >
-      {children}
+    <div aria-busy={isPending}>
+      {isPending ? skeleton : children}
     </div>
   );
 }

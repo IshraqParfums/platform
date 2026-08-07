@@ -2,9 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ProductListItem } from "@ishraqparfums/shared";
 import { ProductCollectionBadge } from "@/components/product/product-collection-badge";
+import { ProductDiscountBadge } from "@/components/product/product-discount-badge";
 import { Price } from "@/components/ui/price";
 import { Rating } from "@/components/ui/rating";
 import { cn } from "@/lib/cn";
+import { discountPercent } from "@/lib/format/money";
 
 function prettifySlug(slug: string): string {
   return slug
@@ -30,25 +32,33 @@ function ImageFallback({ name }: { name: string }) {
 
 const HOVER_EASE = "duration-[280ms] ease-[cubic-bezier(0.22,0.8,0.28,1)]";
 
+/** Matches the Rating star row so cards without reviews keep the same height. */
+const RATING_ROW_MIN_H = "min-h-[1.25rem]";
+
 /**
  * Catalog product card.
- * Mobile: image-led editorial entry, one-line description, strong price.
- * Desktop: existing hover lift and denser metadata (ratings).
+ * `editorial` (default): homepage / related — fuller type.
+ * `compact`: shop grid — denser type for 2-col mobile cells.
  */
 export function ProductCard({
   product,
   collectionLabel,
   priority = false,
+  density = "editorial",
   className,
 }: {
   product: ProductListItem;
   collectionLabel?: string;
   priority?: boolean;
+  density?: "editorial" | "compact";
   className?: string;
 }) {
   const label = collectionLabel ?? prettifySlug(product.collectionSlug);
-  const hasReviews =
-    product.ratingAverage !== null && product.reviewCount > 0;
+  const compact = density === "compact";
+  const off =
+    product.fromPricePaise != null
+      ? discountPercent(product.fromPricePaise, product.fromCompareAtPricePaise)
+      : null;
 
   return (
     <Link
@@ -62,7 +72,7 @@ export function ProductCard({
     >
       <div
         className={cn(
-          "relative aspect-square w-full overflow-hidden rounded-2xl bg-deep ring-1 ring-line/40",
+          "relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-deep ring-1 ring-line/40",
           HOVER_EASE,
           "md:transition-[box-shadow,ring-color]",
           "md:group-hover:shadow-[0_18px_40px_-24px_rgba(28,22,18,0.55)] md:group-hover:ring-gold/25",
@@ -74,7 +84,7 @@ export function ProductCard({
             alt={product.primaryImage.altText ?? product.name}
             fill
             priority={priority}
-            sizes="(min-width:1280px) 300px, (min-width:768px) 33vw, 92vw"
+            sizes="(min-width:1280px) 320px, (min-width:768px) 30vw, 46vw"
             className={cn(
               "object-cover",
               HOVER_EASE,
@@ -85,16 +95,42 @@ export function ProductCard({
           <ImageFallback name={product.name} />
         )}
 
-        <ProductCollectionBadge className="left-3.5 top-3.5 px-3.5 py-2 md:left-3 md:top-3 md:px-3 md:py-1.5">
-          {label}
-        </ProductCollectionBadge>
+        <div
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-deep/70 to-transparent opacity-80",
+            HOVER_EASE,
+            "md:opacity-0 md:transition-opacity md:group-hover:opacity-100",
+          )}
+        />
+
+        <span
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute bottom-3 left-3 font-mono text-label-sm uppercase tracking-[0.14em] text-cream-soft/90 opacity-0",
+            HOVER_EASE,
+            "md:transition-opacity md:group-hover:opacity-100",
+          )}
+        >
+          View
+        </span>
+
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-2 p-2.5 md:p-3">
+          <ProductCollectionBadge className="min-w-0">
+            {label}
+          </ProductCollectionBadge>
+          {off ? <ProductDiscountBadge percent={off} /> : null}
+        </div>
       </div>
 
-      <div className="pt-4 sm:pt-4">
-        <div className="flex flex-col gap-1.5 sm:gap-1">
+      <div className={cn(compact ? "pt-3" : "pt-4")}>
+        <div className={cn("flex flex-col", compact ? "gap-1" : "gap-1.5 sm:gap-1")}>
           <h3
             className={cn(
-              "font-display text-[1.35rem] font-semibold tracking-[-0.015em] leading-snug text-ink sm:text-[clamp(1.2rem,1.4vw,1.35rem)] sm:tracking-[-0.01em]",
+              "font-display font-semibold leading-snug text-ink",
+              compact
+                ? "text-[1.05rem] tracking-[-0.01em] sm:text-[clamp(1.1rem,1.3vw,1.25rem)]"
+                : "text-[1.35rem] tracking-[-0.015em] sm:text-[clamp(1.2rem,1.4vw,1.35rem)] sm:tracking-[-0.01em]",
               HOVER_EASE,
               "md:transition-colors md:group-hover:text-rose-deep",
             )}
@@ -102,16 +138,20 @@ export function ProductCard({
             {product.name}
           </h3>
 
-          {hasReviews ? (
-            <div className="hidden sm:block">
-              <Rating
-                average={product.ratingAverage}
-                count={product.reviewCount}
-              />
-            </div>
-          ) : null}
+          <div className={RATING_ROW_MIN_H}>
+            <Rating
+              average={product.ratingAverage}
+              count={product.reviewCount}
+              showEmpty
+            />
+          </div>
 
-          <p className="line-clamp-1 text-[13px] leading-snug text-ink-faint sm:text-[12.5px]">
+          <p
+            className={cn(
+              "line-clamp-1 leading-snug text-ink-faint",
+              compact ? "text-[12px]" : "text-[13px] sm:text-[12.5px]",
+            )}
+          >
             {product.shortDescription}
           </p>
 
@@ -120,7 +160,8 @@ export function ProductCard({
             compareAtPaise={product.fromCompareAtPricePaise}
             sizeMl={product.fromSizeMl}
             layout="stacked"
-            className="mt-1.5 sm:mt-1"
+            size={compact ? "sm" : "md"}
+            className={cn(compact ? "mt-1" : "mt-1.5 sm:mt-1")}
           />
         </div>
       </div>

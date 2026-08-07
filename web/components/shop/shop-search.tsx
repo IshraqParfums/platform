@@ -85,8 +85,8 @@ export function ShopSearch({
         placeholder="Find a perfume"
         autoComplete="off"
         className={cn(
-          "w-full rounded-lg border border-ink/15 bg-cream pl-12 pr-4 text-base text-ink outline-none transition-colors placeholder:text-ink-faint hover:border-ink/30 focus:border-ink/40 md:rounded-md md:pl-11 md:text-[15px]",
-          "h-14 md:h-12",
+          "w-full rounded-lg border border-ink/15 bg-cream pl-11 pr-4 text-[15px] text-ink outline-none transition-colors placeholder:text-ink-faint hover:border-ink/30 focus:border-ink/40 md:rounded-md",
+          "h-12",
         )}
         onChange={(event) => {
           const next = event.target.value;

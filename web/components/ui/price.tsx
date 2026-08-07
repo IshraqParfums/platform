@@ -66,7 +66,7 @@ export function Price({
             ? `MRP ${formatPaise(compareAtPaise)}`
             : formatPaise(compareAtPaise)}
         </span>
-        <span className="font-mono text-label-sm uppercase text-rose-deep">
+        <span className="font-mono text-label-sm uppercase text-ink-soft">
           {off}% off
         </span>
       </span>

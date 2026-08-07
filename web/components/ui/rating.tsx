@@ -36,7 +36,12 @@ export function Rating({
   if (average === null || count === 0) {
     if (!showEmpty) return null;
     return (
-      <span className={cn("font-mono text-label-sm text-ink-faint", className)}>
+      <span
+        className={cn(
+          "flex h-3.5 items-center font-mono text-label-sm text-ink-faint",
+          className,
+        )}
+      >
         No reviews yet
       </span>
     );

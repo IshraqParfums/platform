@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/toaster";
 import { HEADER_HEIGHT_PX } from "@/lib/layout";
 
@@ -8,9 +10,13 @@ import { HEADER_HEIGHT_PX } from "@/lib/layout";
  */
 export default function ShopLayout({ children }: { children: ReactNode }) {
   return (
-    <div style={{ paddingTop: HEADER_HEIGHT_PX }}>
-      {children}
+    <>
+      <Header />
+      <main className="flex-1" style={{ paddingTop: HEADER_HEIGHT_PX }}>
+        {children}
+      </main>
+      <Footer />
       <Toaster />
-    </div>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 /**
@@ -10,20 +10,26 @@ import { cn } from "@/lib/cn";
  * - Soft reloads (`useGuardedLoad`) → do not flash a skeleton after mutations
  *
  * Shape blocks to the UI that will land so nothing jumps. Reduced-motion
- * stills the pulse globally; the blocks still read.
+ * stills the pulse/shimmer globally; the blocks still read.
  */
 export function Skeleton({
   className,
   rounded = "sm",
+  variant = "pulse",
+  style,
 }: {
   className?: string;
   rounded?: "sm" | "lg" | "full";
+  /** `shimmer` = soft left→right light pass; `pulse` = opacity pulse. */
+  variant?: "pulse" | "shimmer";
+  style?: CSSProperties;
 }) {
   return (
     <div
       aria-hidden
+      style={style}
       className={cn(
-        "animate-pulse bg-ink/[0.06]",
+        variant === "shimmer" ? "skeleton-shimmer" : "animate-pulse bg-ink/[0.06]",
         rounded === "full"
           ? "rounded-full"
           : rounded === "lg"

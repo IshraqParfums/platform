@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Fraunces, JetBrains_Mono, Manrope } from "next/font/google";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -50,9 +48,7 @@ export default function RootLayout({
       className={`${fraunces.variable} ${manrope.variable} ${jetbrains.variable} h-full`}
     >
       <body className="flex min-h-full flex-col bg-cream text-ink">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        {children}
       </body>
     </html>
   );

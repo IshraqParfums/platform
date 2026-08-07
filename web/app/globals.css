@@ -421,6 +421,28 @@ body {
   animation-play-state: paused;
 }
 
+/* Soft left→right light pass for table / list skeleton bars */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background-color: rgba(28, 22, 18, 0.06);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 252, 247, 0.55) 45%,
+    transparent 90%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -441,7 +463,8 @@ body {
   /* Mist and shimmer are pure decoration — hold them still rather than
      letting the global 0.001ms override churn them at full speed. */
   .mist-layer,
-  .shimmer-frame::before {
+  .shimmer-frame::before,
+  .skeleton-shimmer {
     animation: none !important;
   }
 }
