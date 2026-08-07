@@ -1,14 +1,11 @@
-import Image from "next/image";
-import Link from "next/link";
 import type { CollectionSummary } from "@ishraqparfums/shared";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Section } from "@/components/ui/section";
-import { getCollectionArt } from "@/lib/catalog/collection-art";
 
 /**
  * Espresso arrival band for `/shop`.
- * Default: catalogue masthead. Collection filter: mood + art. Search: result meta.
+ * Default: catalogue masthead. Collection / search: same band, text-only.
  */
 export function ShopMasthead({
   total,
@@ -31,8 +28,6 @@ export function ShopMasthead({
     collection?.description?.trim() ||
     "Handcrafted compositions built from a real perfumer's palette.";
 
-  const art = collection ? getCollectionArt(collection.slug) : null;
-
   return (
     <Section
       tone="deep"
@@ -42,57 +37,19 @@ export function ShopMasthead({
       className="!py-8 md:!py-12"
     >
       <Container size="wide">
-        <div
-          className={
-            art
-              ? "grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,0.42fr)] md:gap-12"
-              : undefined
-          }
-        >
-          <div>
-            <Eyebrow tone="gold">{eyebrow}</Eyebrow>
+        <Eyebrow tone="gold">{eyebrow}</Eyebrow>
 
-            <h1 className="font-display mt-4 text-[clamp(1.85rem,5vw,2.75rem)] font-semibold tracking-tight text-cream-soft md:mt-5 md:text-[clamp(2rem,3.2vw,2.75rem)]">
-              {title}
-            </h1>
+        <h1 className="font-display mt-4 text-[clamp(1.85rem,5vw,2.75rem)] font-semibold tracking-tight text-cream-soft md:mt-5 md:text-[clamp(2rem,3.2vw,2.75rem)]">
+          {title}
+        </h1>
 
-            <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-cream/70 md:mt-4 md:text-[15.5px]">
-              {lead}
-            </p>
+        <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-cream/70 md:mt-4 md:text-[15.5px]">
+          {lead}
+        </p>
 
-            <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 md:mt-6">
-              <p className="font-mono text-label-sm uppercase tracking-wide text-gold-soft/80">
-                {meta}
-              </p>
-              {collection ? (
-                <Link
-                  href="/shop"
-                  className="font-mono text-label-sm uppercase tracking-wide text-cream/55 transition-colors hover:text-cream-soft"
-                >
-                  All perfumes
-                  <span aria-hidden="true"> →</span>
-                </Link>
-              ) : null}
-            </div>
-          </div>
-
-          {art ? (
-            <div className="relative mx-auto hidden aspect-[4/5] w-full max-w-[18rem] overflow-hidden rounded-2xl ring-1 ring-gold/20 md:block lg:max-w-[20rem]">
-              <Image
-                src={art.src}
-                alt={art.alt || collection!.name}
-                fill
-                priority
-                sizes="(min-width:768px) 20vw, 0px"
-                className="object-cover"
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-deep/55 via-transparent to-transparent"
-              />
-            </div>
-          ) : null}
-        </div>
+        <p className="mt-5 font-mono text-label-sm uppercase tracking-wide text-gold-soft/80 md:mt-6">
+          {meta}
+        </p>
       </Container>
     </Section>
   );
