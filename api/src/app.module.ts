@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AddressModule } from './modules/address/address.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { BespokeModule } from './modules/bespoke/bespoke.module';
 import { CartModule } from './modules/cart/cart.module';
@@ -33,6 +34,7 @@ import { ReviewModule } from './modules/review/review.module';
     OrderModule,
     PaymentModule,
     ReviewModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}

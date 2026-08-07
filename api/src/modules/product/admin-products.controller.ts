@@ -18,6 +18,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type {
+  AdminLowStockVariant,
   AdminProductDetail,
   AdminProductImage,
   AdminProductListItem,
@@ -31,6 +32,7 @@ import {
 } from '../media/media.constants';
 import { AdjustStockDto } from './dto/adjust-stock.dto';
 import { AdminListProductsQueryDto } from './dto/admin-list-products.query.dto';
+import { AdminLowStockQueryDto } from './dto/admin-low-stock.query.dto';
 import { CreateProductDto, UpdateProductDto } from './dto/admin-product.dto';
 import { CreateVariantDto, UpdateVariantDto } from './dto/admin-variant.dto';
 import { CreateImageDto, UpdateImageDto } from './dto/admin-image.dto';
@@ -46,6 +48,13 @@ export class AdminProductsController {
     @Query() query: AdminListProductsQueryDto,
   ): Promise<PaginatedResponse<AdminProductListItem>> {
     return this.productService.listAdmin(query);
+  }
+
+  @Get('low-stock')
+  listLowStock(
+    @Query() query: AdminLowStockQueryDto,
+  ): Promise<AdminLowStockVariant[]> {
+    return this.productService.listLowStock(query.threshold);
   }
 
   @Get(':id')

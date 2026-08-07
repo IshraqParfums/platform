@@ -98,10 +98,21 @@ export type {
   AdminOrderSummary,
   UpdateOrderStatusBody,
 } from "./admin-order/index.js";
+export { ORDER_FULFILLMENT_SEQUENCE } from "./admin-order/index.js";
 export type {
   AdminCustomerSummary,
   AdminUpdateCustomerBody,
 } from "./admin-customer/index.js";
+export type {
+  AdminAnalyticsOverview,
+  AdminOrderStatusBreakdownItem,
+  AdminOrderStatusBreakdownResponse,
+  AdminRevenuePoint,
+  AdminRevenueSeriesResponse,
+  AdminTopProduct,
+  AdminTopProductsResponse,
+  AnalyticsRange,
+} from "./admin-analytics/index.js";
 export type {
   AddBespokeCartItemBody,
   AddCartItemBody,

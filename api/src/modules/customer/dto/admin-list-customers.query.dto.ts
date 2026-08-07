@@ -1,5 +1,9 @@
 import { Transform } from 'class-transformer';
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  ADMIN_CUSTOMER_LIST_SORTS,
+  type AdminCustomerListSort,
+} from '@ishraqparfums/shared';
 import { PaginationQueryDto } from '../../../common/dto/pagination.query.dto';
 
 export class AdminListCustomersQueryDto extends PaginationQueryDto {
@@ -10,4 +14,8 @@ export class AdminListCustomersQueryDto extends PaginationQueryDto {
   @IsString()
   @MinLength(1)
   search?: string;
+
+  @IsOptional()
+  @IsIn([...ADMIN_CUSTOMER_LIST_SORTS])
+  sort?: AdminCustomerListSort;
 }

@@ -1,15 +1,9 @@
 import { BadRequestException } from '@nestjs/common';
+import { ORDER_FULFILLMENT_SEQUENCE } from '@ishraqparfums/shared';
 import { OrderStatus } from '@prisma/client';
 
 /** V1 fulfillment pipeline — admin-driven, strictly forward, no cancellation (docs/01 §13). */
-export const FULFILLMENT_ORDER: OrderStatus[] = [
-  OrderStatus.ORDER_RECEIVED,
-  OrderStatus.CONFIRMED,
-  OrderStatus.IN_PRODUCTION,
-  OrderStatus.READY_FOR_DISPATCH,
-  OrderStatus.DISPATCHED,
-  OrderStatus.DELIVERED,
-];
+export const FULFILLMENT_ORDER = ORDER_FULFILLMENT_SEQUENCE as OrderStatus[];
 
 export function assertValidOrderStatusTransition(
   from: OrderStatus,
