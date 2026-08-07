@@ -32,6 +32,9 @@ function toCartItemResponse(
 ): CartItemResponse {
   if (item.bespokePerfumeId && item.bespokePerfume && item.bespokeSizeMl != null) {
     const pricePaise = bespokeUnitPricePaise ?? 0;
+    // The brew row survives a delete so the line still has a name to show;
+    // what it loses is the right to be bought.
+    const deleted = item.bespokePerfume.deletedAt != null;
     return {
       kind: 'bespoke',
       id: item.id,
@@ -39,6 +42,8 @@ function toCartItemResponse(
       quantity: item.quantity,
       sizeMl: item.bespokeSizeMl,
       pricePaise,
+      isAvailable: !deleted,
+      unavailableReason: deleted ? 'DISCONTINUED' : null,
       productName: item.bespokePerfume.name,
       productSlug: 'bespoke',
       primaryImageUrl: null,
@@ -99,9 +104,7 @@ export function toCartResponse(
     return toCartItemResponse(item);
   });
 
-  const payable = items.filter((item) =>
-    item.kind === 'bespoke' ? true : item.isAvailable,
-  );
+  const payable = items.filter((item) => item.isAvailable);
 
   return {
     id: cart.id,

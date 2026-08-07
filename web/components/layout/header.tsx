@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { BespokeSavedNavLink } from "@/components/layout/bespoke-saved-nav-link";
 import { CartNavLink } from "@/components/layout/cart-nav-link";
 import { Container } from "@/components/ui/container";
 import { ACCOUNT_HOME } from "@/lib/auth/account-routes";
@@ -108,6 +109,7 @@ export function Header() {
             >
               Account
             </Link>
+            <BespokeSavedNavLink />
             <CartNavLink />
 
             <button
@@ -142,6 +144,7 @@ export function Header() {
             <div className="flex flex-col py-3">
               {[
                 ...NAV,
+                { href: "/bespoke/saved", label: "Saved blends" },
                 { href: "/cart", label: "Cart" },
                 { href: ACCOUNT_HOME, label: "Account" },
               ].map((item) => (

@@ -18,6 +18,7 @@ import type {
 } from '@ishraqparfums/shared';
 import {
   countsFromStatusRows,
+  statusesForAdminOrderGroup,
   statusesForCustomerOrderGroup,
 } from '@ishraqparfums/shared';
 import { OrderStatus, type Prisma } from '@prisma/client';
@@ -508,7 +509,17 @@ export class OrderService {
       query.page,
       query.pageSize,
     );
-    const filters = { status: query.status, customerId: query.customerId };
+
+    const groupStatuses =
+      !query.status && query.statusGroup
+        ? statusesForAdminOrderGroup(query.statusGroup)
+        : null;
+
+    const filters = {
+      status: query.status,
+      statuses: groupStatuses ? ([...groupStatuses] as OrderStatus[]) : undefined,
+      customerId: query.customerId,
+    };
 
     const [orders, total] = await Promise.all([
       this.orderRepository.findAdminMany({ filters, skip, take }),

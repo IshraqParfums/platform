@@ -1,54 +1,35 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
-  ArrayMinSize,
-  IsArray,
+  IsBoolean,
+  IsInt,
   IsObject,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
   MinLength,
-  ValidateNested,
 } from 'class-validator';
+import { PaginationQueryDto } from '../../../common/dto/pagination.query.dto';
 
-export class SaveBespokeDto {
+export class AnswerBespokeSessionDto {
   @IsString()
   @MinLength(1)
-  @MaxLength(80)
-  name!: string;
+  @MaxLength(120)
+  nodeId!: string;
 
+  /** The session version the client rendered this question at. */
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  version!: number;
+
+  /**
+   * Shape depends on the node type, so it is validated against the node the
+   * session is actually on rather than by decorators here.
+   */
   @IsObject()
-  formula!: Record<string, unknown>;
-
-  @IsArray()
-  answers!: unknown[];
-
-  @IsString()
-  @MinLength(1)
-  moodText!: string;
-
-  @IsArray()
-  why!: string[];
-
-  @IsOptional()
-  @IsArray()
-  inspired?: unknown[];
-
-  @IsString()
-  @MinLength(1)
-  engineVersion!: string;
-
-  @IsOptional()
-  @IsString()
-  @MinLength(1)
-  @MaxLength(64)
-  clientKey?: string;
-}
-
-export class MergeBespokeDto {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => SaveBespokeDto)
-  items!: SaveBespokeDto[];
+  answer!: Record<string, unknown>;
 }
 
 export class RenameBespokeDto {
@@ -58,12 +39,24 @@ export class RenameBespokeDto {
   name!: string;
 }
 
-export class BespokePreviewDto {
-  @IsArray()
-  @ArrayMinSize(1)
-  answers!: unknown[];
+export class AdminBespokeListQueryDto extends PaginationQueryDto {
+  @IsOptional()
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  includeDeleted?: boolean;
 
   @IsOptional()
-  @IsArray()
-  interimRanked?: string[];
+  @IsString()
+  @MinLength(1)
+  @MaxLength(36)
+  customerId?: string;
+}
+
+export class AdminBespokeAnalyticsQueryDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(365)
+  days?: number;
 }

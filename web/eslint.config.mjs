@@ -5,6 +5,22 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@ishraqparfums/bespoke-engine",
+              message:
+                "Bespoke engine is API-only. Use @ishraqparfums/shared contracts and BFF routes.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

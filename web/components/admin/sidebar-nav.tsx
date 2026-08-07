@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  FlaskConical,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -25,6 +26,7 @@ const NAV = [
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/collections", label: "Collections", icon: Tags },
+  { href: "/admin/bespoke", label: "Bespoke", icon: FlaskConical },
   { href: "/admin/customers", label: "Customers", icon: Users },
 ];
 

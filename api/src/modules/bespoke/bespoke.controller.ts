@@ -3,7 +3,9 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
+  Ip,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -13,47 +15,148 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type {
-  BespokePerfumeResponse,
-  BespokePreviewResponse,
-  MergeBespokeResponse,
+  BespokePerfumeCustomerResponse,
+  BespokeReferenceProduct,
+  BespokeSessionCreateResponse,
+  BespokeSessionResultResponse,
+  BespokeSessionViewResponse,
   PaginatedResponse,
 } from '@ishraqparfums/shared';
 import { PaginationQueryDto } from '../../common/dto/pagination.query.dto';
 import { CustomerJwtGuard } from '../auth/guards/customer-jwt.guard';
-import type { RequestWithCustomer } from '../auth/types/request-with-customer';
-import {
-  BespokePreviewDto,
-  MergeBespokeDto,
-  RenameBespokeDto,
-  SaveBespokeDto,
-} from './dto/bespoke.dto';
+import { OptionalCustomerJwtGuard } from '../auth/guards/optional-customer-jwt.guard';
+import type {
+  RequestWithCustomer,
+  RequestWithOptionalCustomer,
+} from '../auth/types/request-with-customer';
+import { BespokeSessionService } from './bespoke-session.service';
 import { BespokeService } from './bespoke.service';
+import { AnswerBespokeSessionDto, RenameBespokeDto } from './dto/bespoke.dto';
+
+/** Raw session token, minted once at create and never returned again. */
+const SESSION_HEADER = 'x-bespoke-session';
+
+function optionalCustomerId(
+  request: RequestWithOptionalCustomer,
+): string | null {
+  return request.user?.customerId ?? null;
+}
+
+/**
+ * `req.ip` is the load balancer's address unless Express is told to trust the
+ * proxy, which would collapse the create-rate-limit into one global bucket.
+ * The forwarded chain's first entry is the closest thing to a client address
+ * available here; it only feeds an abuse counter, never an authorization
+ * decision.
+ */
+function clientIp(forwardedFor: string | undefined, fallback: string): string {
+  return forwardedFor?.split(',')[0]?.trim() || fallback;
+}
 
 @Controller('bespoke')
 export class BespokeController {
-  constructor(private readonly bespokeService: BespokeService) {}
+  constructor(
+    private readonly bespokeService: BespokeService,
+    private readonly sessionService: BespokeSessionService,
+  ) {}
 
-  @Post('preview')
-  preview(@Body() body: BespokePreviewDto): BespokePreviewResponse {
-    return this.bespokeService.preview(body);
+  @Post('sessions')
+  @UseGuards(OptionalCustomerJwtGuard)
+  createSession(
+    @Req() request: RequestWithOptionalCustomer,
+    @Ip() ip: string,
+    @Headers('x-forwarded-for') forwardedFor?: string,
+  ): Promise<BespokeSessionCreateResponse> {
+    return this.sessionService.create(
+      optionalCustomerId(request),
+      clientIp(forwardedFor, ip),
+    );
   }
 
-  @Post()
-  @UseGuards(CustomerJwtGuard)
-  save(
-    @Req() request: RequestWithCustomer,
-    @Body() body: SaveBespokeDto,
-  ): Promise<BespokePerfumeResponse> {
-    return this.bespokeService.save(request.user.customerId, body);
+  @Get('sessions/:id')
+  @UseGuards(OptionalCustomerJwtGuard)
+  resumeSession(
+    @Req() request: RequestWithOptionalCustomer,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Headers(SESSION_HEADER) token?: string,
+  ): Promise<BespokeSessionViewResponse> {
+    return this.sessionService.resume(id, token, optionalCustomerId(request));
   }
 
-  @Post('merge')
+  @Post('sessions/:id/answer')
+  @HttpCode(200)
+  @UseGuards(OptionalCustomerJwtGuard)
+  answer(
+    @Req() request: RequestWithOptionalCustomer,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: AnswerBespokeSessionDto,
+    @Headers(SESSION_HEADER) token?: string,
+  ): Promise<BespokeSessionViewResponse> {
+    return this.sessionService.answer(
+      id,
+      token,
+      optionalCustomerId(request),
+      body,
+    );
+  }
+
+  @Post('sessions/:id/back')
+  @HttpCode(200)
+  @UseGuards(OptionalCustomerJwtGuard)
+  back(
+    @Req() request: RequestWithOptionalCustomer,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Headers(SESSION_HEADER) token?: string,
+  ): Promise<BespokeSessionViewResponse> {
+    return this.sessionService.back(id, token, optionalCustomerId(request));
+  }
+
+  @Post('sessions/:id/restart')
+  @HttpCode(200)
+  @UseGuards(OptionalCustomerJwtGuard)
+  restart(
+    @Req() request: RequestWithOptionalCustomer,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Headers(SESSION_HEADER) token?: string,
+  ): Promise<BespokeSessionViewResponse> {
+    return this.sessionService.restart(id, token, optionalCustomerId(request));
+  }
+
+  @Post('sessions/:id/complete')
+  @HttpCode(200)
+  @UseGuards(OptionalCustomerJwtGuard)
+  complete(
+    @Req() request: RequestWithOptionalCustomer,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Headers(SESSION_HEADER) token?: string,
+  ): Promise<BespokeSessionResultResponse> {
+    return this.sessionService.complete(id, token, optionalCustomerId(request));
+  }
+
+  @Get('sessions/:id/result')
+  @UseGuards(OptionalCustomerJwtGuard)
+  result(
+    @Req() request: RequestWithOptionalCustomer,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Headers(SESSION_HEADER) token?: string,
+  ): Promise<BespokeSessionResultResponse> {
+    return this.sessionService.result(id, token, optionalCustomerId(request));
+  }
+
+  @Post('sessions/:id/claim')
+  @HttpCode(200)
   @UseGuards(CustomerJwtGuard)
-  merge(
+  claim(
     @Req() request: RequestWithCustomer,
-    @Body() body: MergeBespokeDto,
-  ): Promise<MergeBespokeResponse> {
-    return this.bespokeService.merge(request.user.customerId, body.items);
+    @Param('id', ParseUUIDPipe) id: string,
+    @Headers(SESSION_HEADER) token?: string,
+  ): Promise<BespokeSessionResultResponse> {
+    return this.sessionService.claim(id, token, request.user.customerId);
+  }
+
+  @Get('reference-products')
+  referenceProducts(): Promise<BespokeReferenceProduct[]> {
+    return this.sessionService.referenceProducts();
   }
 
   @Get()
@@ -61,7 +164,7 @@ export class BespokeController {
   list(
     @Req() request: RequestWithCustomer,
     @Query() query: PaginationQueryDto,
-  ): Promise<PaginatedResponse<BespokePerfumeResponse>> {
+  ): Promise<PaginatedResponse<BespokePerfumeCustomerResponse>> {
     return this.bespokeService.list(
       request.user.customerId,
       query.page,
@@ -74,7 +177,7 @@ export class BespokeController {
   getById(
     @Req() request: RequestWithCustomer,
     @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<BespokePerfumeResponse> {
+  ): Promise<BespokePerfumeCustomerResponse> {
     return this.bespokeService.getById(request.user.customerId, id);
   }
 
@@ -84,7 +187,7 @@ export class BespokeController {
     @Req() request: RequestWithCustomer,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: RenameBespokeDto,
-  ): Promise<BespokePerfumeResponse> {
+  ): Promise<BespokePerfumeCustomerResponse> {
     return this.bespokeService.rename(request.user.customerId, id, body);
   }
 

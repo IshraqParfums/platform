@@ -9,21 +9,41 @@ import {
 
 export type CartLineSeed = GuestCartSnapshot & { variantId: string };
 
+export type BespokeCartLineSeed = {
+  bespokePerfumeId: string;
+  sizeMl: number;
+  pricePaise: number;
+  productName: string;
+};
+
 /**
  * Merge a slim mutation ack into local cart state (PDP / optimistic clients).
- * Optional `seed` supplies display fields when the line is new (add-to-cart).
+ * Optional `seed` supplies display fields when a catalog line is new.
+ * Optional `bespokeSeed` does the same for bespoke brew lines.
  */
 export function applyCartMutationSummary(
   view: CartView,
   summary: CartMutationSummary,
   seed?: CartLineSeed,
+  bespokeSeed?: BespokeCartLineSeed,
 ): CartView {
   const existing = view.lines.find((line) => line.itemId === summary.itemId);
   const existingByVariant =
     !existing && summary.variantId
       ? view.lines.find((line) => line.variantId === summary.variantId)
       : null;
-  const target = existing ?? existingByVariant ?? null;
+  const existingByBespoke =
+    !existing &&
+    !existingByVariant &&
+    summary.bespokePerfumeId &&
+    summary.sizeMl != null
+      ? view.lines.find(
+          (line) =>
+            line.bespokePerfumeId === summary.bespokePerfumeId &&
+            line.sizeMl === summary.sizeMl,
+        )
+      : null;
+  const target = existing ?? existingByVariant ?? existingByBespoke ?? null;
 
   if (summary.quantity <= 0) {
     if (!target) {
@@ -58,10 +78,45 @@ export function applyCartMutationSummary(
             summary.stockQty != null
               ? summary.stockQty > 0
               : line.isAvailable,
+          bespokePerfumeId:
+            summary.bespokePerfumeId ?? line.bespokePerfumeId,
         };
       }),
     };
     return recomputeView(next);
+  }
+
+  if (bespokeSeed && summary.bespokePerfumeId) {
+    const line: CartViewLine = {
+      key: summary.itemId,
+      kind: "bespoke",
+      itemId: summary.itemId,
+      variantId: null,
+      bespokePerfumeId: bespokeSeed.bespokePerfumeId,
+      quantity: summary.quantity,
+      sizeMl: bespokeSeed.sizeMl,
+      pricePaise: bespokeSeed.pricePaise,
+      compareAtPricePaise: null,
+      stockQty: null,
+      isAvailable: true,
+      unavailableReason: null,
+      productName: bespokeSeed.productName,
+      productSlug: "bespoke",
+      collectionName: "Bespoke",
+      shortDescription: null,
+      primaryImageUrl: null,
+      lineTotalPaise:
+        summary.lineTotalPaise ??
+        bespokeSeed.pricePaise * summary.quantity,
+    };
+
+    return recomputeView({
+      ...view,
+      cartId: summary.cartId,
+      mode: "server",
+      itemCount: summary.itemCount,
+      lines: [...view.lines, line],
+    });
   }
 
   if (!seed || !summary.variantId) {
@@ -78,6 +133,7 @@ export function applyCartMutationSummary(
     kind: "catalog",
     itemId: summary.itemId,
     variantId: summary.variantId,
+    bespokePerfumeId: null,
     quantity: summary.quantity,
     sizeMl: seed.sizeMl,
     pricePaise: seed.pricePaise,

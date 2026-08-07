@@ -6,9 +6,14 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "bespoke:sync": "node scripts/bespoke-sync.mjs sync",
+    "bespoke:verify": "node scripts/bespoke-verify.mjs",
+    "bespoke:parity": "node --import tsx/esm scripts/bespoke-parity.mjs",
+    "bespoke:palette-parity": "node --import tsx/esm scripts/bespoke-palette-parity.mjs"
   },
   "devDependencies": {
+    "tsx": "^4.20.5",
     "turbo": "^2.10.3"
   }
 }

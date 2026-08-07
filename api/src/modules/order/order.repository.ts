@@ -14,6 +14,8 @@ export type OrderWithCustomer = OrderWithRelations & {
 
 export interface AdminOrderFilters {
   status?: OrderStatus;
+  /** When set (and status is not), filter to any of these statuses. */
+  statuses?: OrderStatus[];
   customerId?: string;
 }
 
@@ -320,8 +322,14 @@ export class OrderRepository {
   }
 
   private adminWhere(filters?: AdminOrderFilters): Prisma.OrderWhereInput {
+    const statusFilter = filters?.status
+      ? { status: filters.status }
+      : filters?.statuses && filters.statuses.length > 0
+        ? { status: { in: filters.statuses } }
+        : {};
+
     return {
-      ...(filters?.status ? { status: filters.status } : {}),
+      ...statusFilter,
       ...(filters?.customerId ? { customerId: filters.customerId } : {}),
     };
   }

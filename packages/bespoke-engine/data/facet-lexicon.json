@@ -1,0 +1,1523 @@
+{
+  "meta": {
+    "purpose": "Canonical facet vocabulary. The palette was authored over time and accumulated spelling variants of the same facet (powder/powdery/dust/dusty, smoke/smoky, resin/resinous, ink/inky, honey/honeyed, butter/buttery, sulphurous/sulfurous). Any feature that reasons about shared facets has to fold those first or it silently misses real matches. Only genuine duplicates are folded; facets that are related but distinct are linked through `bridges` with a stated weight.",
+    "generated_by": "scripts/build_chemistry.py"
+  },
+  "aliases": {
+    "burnt-sugar": "caramel",
+    "butter": "buttery",
+    "clean-green": "green",
+    "clove": "spicy",
+    "cotton-candy": "candy",
+    "dust": "powdery",
+    "dusty": "powdery",
+    "earth": "earthy",
+    "faint-sweet": "sweet",
+    "honeyed": "honey",
+    "ink": "inky",
+    "musky": "musk",
+    "orange-peel": "citrus-peel",
+    "peel": "citrus-peel",
+    "pepper": "spicy",
+    "powder": "powdery",
+    "resin": "resinous",
+    "smoke": "smoky",
+    "spice": "spicy",
+    "sulphurous": "sulfurous",
+    "warm-sweet": "warm",
+    "wood": "woody",
+    "woody-dry": "dry-wood"
+  },
+  "canonical": {
+    "airy": {
+      "label": "airy",
+      "group": "texture",
+      "uses": 3
+    },
+    "airy-floral": {
+      "label": "airy floral",
+      "group": "misc",
+      "uses": 1
+    },
+    "aldehyde": {
+      "label": "aldehyde",
+      "group": "misc",
+      "uses": 2
+    },
+    "aldehydic": {
+      "label": "aldehydic",
+      "group": "clean",
+      "uses": 6
+    },
+    "almond": {
+      "label": "almond",
+      "group": "sweet",
+      "uses": 5
+    },
+    "altitude": {
+      "label": "altitude",
+      "group": "misc",
+      "uses": 1
+    },
+    "amber": {
+      "label": "amber",
+      "group": "misc",
+      "uses": 6
+    },
+    "amber-green": {
+      "label": "amber green",
+      "group": "misc",
+      "uses": 1
+    },
+    "ambery": {
+      "label": "ambery",
+      "group": "wood_and_resin",
+      "uses": 10
+    },
+    "ambery-green": {
+      "label": "ambery green",
+      "group": "misc",
+      "uses": 1
+    },
+    "animal": {
+      "label": "animal",
+      "group": "misc",
+      "uses": 2
+    },
+    "animalic": {
+      "label": "animalic",
+      "group": "animal_and_skin",
+      "uses": 9
+    },
+    "anise": {
+      "label": "anise",
+      "group": "spice",
+      "uses": 3
+    },
+    "apple": {
+      "label": "apple",
+      "group": "fruit",
+      "uses": 3
+    },
+    "apricot": {
+      "label": "apricot",
+      "group": "fruit",
+      "uses": 2
+    },
+    "balsamic": {
+      "label": "balsamic",
+      "group": "sweet",
+      "uses": 19
+    },
+    "balsamic-floral": {
+      "label": "balsamic floral",
+      "group": "misc",
+      "uses": 1
+    },
+    "balsamic-sweet": {
+      "label": "balsamic sweet",
+      "group": "misc",
+      "uses": 1
+    },
+    "banana": {
+      "label": "banana",
+      "group": "fruit",
+      "uses": 4
+    },
+    "beetroot": {
+      "label": "beetroot",
+      "group": "earth_and_stone",
+      "uses": 2
+    },
+    "bergamot": {
+      "label": "bergamot",
+      "group": "citrus",
+      "uses": 2
+    },
+    "berry": {
+      "label": "berry",
+      "group": "fruit",
+      "uses": 1
+    },
+    "bitter": {
+      "label": "bitter",
+      "group": "green",
+      "uses": 9
+    },
+    "bitter-green": {
+      "label": "bitter green",
+      "group": "misc",
+      "uses": 1
+    },
+    "bright-spice": {
+      "label": "bright spice",
+      "group": "misc",
+      "uses": 1
+    },
+    "buttery": {
+      "label": "buttery",
+      "group": "texture",
+      "uses": 5
+    },
+    "camphor": {
+      "label": "camphor",
+      "group": "green",
+      "uses": 12
+    },
+    "candied": {
+      "label": "candied",
+      "group": "misc",
+      "uses": 1
+    },
+    "candy": {
+      "label": "candy",
+      "group": "sweet",
+      "uses": 7
+    },
+    "caramel": {
+      "label": "caramel",
+      "group": "sweet",
+      "uses": 7
+    },
+    "cardamom": {
+      "label": "cardamom",
+      "group": "misc",
+      "uses": 1
+    },
+    "cassis": {
+      "label": "cassis",
+      "group": "misc",
+      "uses": 1
+    },
+    "cellar": {
+      "label": "cellar",
+      "group": "earth_and_stone",
+      "uses": 2
+    },
+    "chai": {
+      "label": "chai",
+      "group": "misc",
+      "uses": 1
+    },
+    "cinnamon": {
+      "label": "cinnamon",
+      "group": "misc",
+      "uses": 2
+    },
+    "citrus": {
+      "label": "citrus",
+      "group": "citrus",
+      "uses": 10
+    },
+    "citrus-bitter": {
+      "label": "citrus bitter",
+      "group": "citrus",
+      "uses": 1
+    },
+    "citrus-dust": {
+      "label": "citrus dust",
+      "group": "misc",
+      "uses": 1
+    },
+    "citrus-peel": {
+      "label": "citrus peel",
+      "group": "citrus",
+      "uses": 10
+    },
+    "citrus-rose": {
+      "label": "citrus rose",
+      "group": "citrus",
+      "uses": 1
+    },
+    "citrus-sparkle": {
+      "label": "citrus sparkle",
+      "group": "misc",
+      "uses": 1
+    },
+    "clay": {
+      "label": "clay",
+      "group": "earth_and_stone",
+      "uses": 2
+    },
+    "clean": {
+      "label": "clean",
+      "group": "clean",
+      "uses": 6
+    },
+    "clean-musk": {
+      "label": "clean musk",
+      "group": "misc",
+      "uses": 2
+    },
+    "cocoa": {
+      "label": "cocoa",
+      "group": "sweet",
+      "uses": 4
+    },
+    "coconut": {
+      "label": "coconut",
+      "group": "fruit",
+      "uses": 7
+    },
+    "coffee": {
+      "label": "coffee",
+      "group": "misc",
+      "uses": 1
+    },
+    "cold": {
+      "label": "cold",
+      "group": "clean",
+      "uses": 4
+    },
+    "cold-resin": {
+      "label": "cold resin",
+      "group": "misc",
+      "uses": 1
+    },
+    "cool-resin": {
+      "label": "cool resin",
+      "group": "misc",
+      "uses": 1
+    },
+    "cool-smoke": {
+      "label": "cool smoke",
+      "group": "misc",
+      "uses": 1
+    },
+    "cotton": {
+      "label": "cotton",
+      "group": "texture",
+      "uses": 2
+    },
+    "cream": {
+      "label": "cream",
+      "group": "misc",
+      "uses": 1
+    },
+    "creamy": {
+      "label": "creamy",
+      "group": "texture",
+      "uses": 10
+    },
+    "creamy-floral": {
+      "label": "creamy floral",
+      "group": "misc",
+      "uses": 1
+    },
+    "creamy-fruit": {
+      "label": "creamy fruit",
+      "group": "misc",
+      "uses": 1
+    },
+    "creamy-wood": {
+      "label": "creamy wood",
+      "group": "misc",
+      "uses": 2
+    },
+    "cut-grass": {
+      "label": "cut grass",
+      "group": "misc",
+      "uses": 2
+    },
+    "dairy": {
+      "label": "dairy",
+      "group": "misc",
+      "uses": 2
+    },
+    "damp-stone": {
+      "label": "damp stone",
+      "group": "earth_and_stone",
+      "uses": 1
+    },
+    "dark-amber": {
+      "label": "dark amber",
+      "group": "misc",
+      "uses": 1
+    },
+    "dark-wood": {
+      "label": "dark wood",
+      "group": "misc",
+      "uses": 1
+    },
+    "dew": {
+      "label": "dew",
+      "group": "misc",
+      "uses": 1
+    },
+    "dewy": {
+      "label": "dewy",
+      "group": "misc",
+      "uses": 1
+    },
+    "dried-fruit": {
+      "label": "dried fruit",
+      "group": "fruit",
+      "uses": 3
+    },
+    "dry": {
+      "label": "dry",
+      "group": "texture",
+      "uses": 10
+    },
+    "dry-amber": {
+      "label": "dry amber",
+      "group": "misc",
+      "uses": 3
+    },
+    "dry-earth": {
+      "label": "dry earth",
+      "group": "misc",
+      "uses": 3
+    },
+    "dry-smoke": {
+      "label": "dry smoke",
+      "group": "misc",
+      "uses": 1
+    },
+    "dry-spice": {
+      "label": "dry spice",
+      "group": "misc",
+      "uses": 2
+    },
+    "dry-wood": {
+      "label": "dry wood",
+      "group": "wood_and_resin",
+      "uses": 26
+    },
+    "earthy": {
+      "label": "earthy",
+      "group": "earth_and_stone",
+      "uses": 17
+    },
+    "fatty": {
+      "label": "fatty",
+      "group": "texture",
+      "uses": 2
+    },
+    "fecal": {
+      "label": "fecal",
+      "group": "misc",
+      "uses": 1
+    },
+    "fire": {
+      "label": "fire",
+      "group": "misc",
+      "uses": 1
+    },
+    "fixative": {
+      "label": "fixative",
+      "group": "misc",
+      "uses": 1
+    },
+    "floral": {
+      "label": "floral",
+      "group": "floral",
+      "uses": 11
+    },
+    "floral-citrus": {
+      "label": "floral citrus",
+      "group": "misc",
+      "uses": 1
+    },
+    "floral-creamy": {
+      "label": "floral creamy",
+      "group": "misc",
+      "uses": 1
+    },
+    "floral-fresh": {
+      "label": "floral fresh",
+      "group": "misc",
+      "uses": 1
+    },
+    "fougere": {
+      "label": "fougere",
+      "group": "misc",
+      "uses": 1
+    },
+    "foxy": {
+      "label": "foxy",
+      "group": "animal_and_skin",
+      "uses": 2
+    },
+    "foxy-fruity": {
+      "label": "foxy fruity",
+      "group": "misc",
+      "uses": 1
+    },
+    "fresh": {
+      "label": "fresh",
+      "group": "clean",
+      "uses": 13
+    },
+    "fresh-fruit": {
+      "label": "fresh fruit",
+      "group": "misc",
+      "uses": 1
+    },
+    "fresh-rose": {
+      "label": "fresh rose",
+      "group": "misc",
+      "uses": 1
+    },
+    "fresh-spice": {
+      "label": "fresh spice",
+      "group": "misc",
+      "uses": 2
+    },
+    "fruit-sparkle": {
+      "label": "fruit sparkle",
+      "group": "misc",
+      "uses": 1
+    },
+    "fruity": {
+      "label": "fruity",
+      "group": "fruit",
+      "uses": 19
+    },
+    "fruity-ester": {
+      "label": "fruity ester",
+      "group": "misc",
+      "uses": 1
+    },
+    "fruity-floral": {
+      "label": "fruity floral",
+      "group": "fruit",
+      "uses": 3
+    },
+    "fruity-fresh": {
+      "label": "fruity fresh",
+      "group": "misc",
+      "uses": 1
+    },
+    "fruity-green": {
+      "label": "fruity green",
+      "group": "fruit",
+      "uses": 2
+    },
+    "geranium": {
+      "label": "geranium",
+      "group": "floral",
+      "uses": 2
+    },
+    "grape": {
+      "label": "grape",
+      "group": "fruit",
+      "uses": 3
+    },
+    "green": {
+      "label": "green",
+      "group": "green",
+      "uses": 26
+    },
+    "green-bite": {
+      "label": "green bite",
+      "group": "misc",
+      "uses": 1
+    },
+    "green-bitter": {
+      "label": "green bitter",
+      "group": "green",
+      "uses": 1
+    },
+    "green-citrus": {
+      "label": "green citrus",
+      "group": "misc",
+      "uses": 2
+    },
+    "green-floral": {
+      "label": "green floral",
+      "group": "floral",
+      "uses": 6
+    },
+    "hay": {
+      "label": "hay",
+      "group": "green",
+      "uses": 5
+    },
+    "hay-floral": {
+      "label": "hay floral",
+      "group": "misc",
+      "uses": 1
+    },
+    "herbaceous": {
+      "label": "herbaceous",
+      "group": "misc",
+      "uses": 3
+    },
+    "herbal": {
+      "label": "herbal",
+      "group": "misc",
+      "uses": 2
+    },
+    "honey": {
+      "label": "honey",
+      "group": "sweet",
+      "uses": 7
+    },
+    "hot-spice": {
+      "label": "hot spice",
+      "group": "misc",
+      "uses": 3
+    },
+    "indole": {
+      "label": "indole",
+      "group": "misc",
+      "uses": 1
+    },
+    "indolic": {
+      "label": "indolic",
+      "group": "floral",
+      "uses": 2
+    },
+    "inky": {
+      "label": "inky",
+      "group": "smoke_and_burn",
+      "uses": 6
+    },
+    "jam": {
+      "label": "jam",
+      "group": "misc",
+      "uses": 1
+    },
+    "jasmine": {
+      "label": "jasmine",
+      "group": "floral",
+      "uses": 7
+    },
+    "juicy": {
+      "label": "juicy",
+      "group": "fruit",
+      "uses": 1
+    },
+    "kewra": {
+      "label": "kewra",
+      "group": "misc",
+      "uses": 1
+    },
+    "kitchen": {
+      "label": "kitchen",
+      "group": "misc",
+      "uses": 1
+    },
+    "laundry": {
+      "label": "laundry",
+      "group": "clean",
+      "uses": 3
+    },
+    "lavender": {
+      "label": "lavender",
+      "group": "floral",
+      "uses": 12
+    },
+    "leaf": {
+      "label": "leaf",
+      "group": "green",
+      "uses": 2
+    },
+    "leather": {
+      "label": "leather",
+      "group": "animal_and_skin",
+      "uses": 15
+    },
+    "light-fruit": {
+      "label": "light fruit",
+      "group": "misc",
+      "uses": 1
+    },
+    "linen": {
+      "label": "linen",
+      "group": "texture",
+      "uses": 3
+    },
+    "medicinal": {
+      "label": "medicinal",
+      "group": "spice",
+      "uses": 18
+    },
+    "medicinal-wood": {
+      "label": "medicinal wood",
+      "group": "misc",
+      "uses": 1
+    },
+    "metal": {
+      "label": "metal",
+      "group": "misc",
+      "uses": 1
+    },
+    "metal-air": {
+      "label": "metal air",
+      "group": "misc",
+      "uses": 1
+    },
+    "metallic": {
+      "label": "metallic",
+      "group": "clean",
+      "uses": 9
+    },
+    "milk": {
+      "label": "milk",
+      "group": "misc",
+      "uses": 2
+    },
+    "milky": {
+      "label": "milky",
+      "group": "texture",
+      "uses": 7
+    },
+    "mineral": {
+      "label": "mineral",
+      "group": "earth_and_stone",
+      "uses": 9
+    },
+    "mineral-salt": {
+      "label": "mineral salt",
+      "group": "misc",
+      "uses": 1
+    },
+    "moss": {
+      "label": "moss",
+      "group": "green",
+      "uses": 3
+    },
+    "musk": {
+      "label": "musk",
+      "group": "animal_and_skin",
+      "uses": 11
+    },
+    "musky-wood": {
+      "label": "musky wood",
+      "group": "misc",
+      "uses": 1
+    },
+    "musty": {
+      "label": "musty",
+      "group": "earth_and_stone",
+      "uses": 1
+    },
+    "narcotic": {
+      "label": "narcotic",
+      "group": "misc",
+      "uses": 1
+    },
+    "night-bloom": {
+      "label": "night bloom",
+      "group": "misc",
+      "uses": 1
+    },
+    "nutmeg": {
+      "label": "nutmeg",
+      "group": "misc",
+      "uses": 1
+    },
+    "nutty": {
+      "label": "nutty",
+      "group": "spice",
+      "uses": 6
+    },
+    "oily": {
+      "label": "oily",
+      "group": "texture",
+      "uses": 1
+    },
+    "old-paper": {
+      "label": "old paper",
+      "group": "misc",
+      "uses": 1
+    },
+    "orange": {
+      "label": "orange",
+      "group": "misc",
+      "uses": 1
+    },
+    "orange-blossom": {
+      "label": "orange blossom",
+      "group": "floral",
+      "uses": 2
+    },
+    "orris": {
+      "label": "orris",
+      "group": "floral",
+      "uses": 2
+    },
+    "oud": {
+      "label": "oud",
+      "group": "misc",
+      "uses": 3
+    },
+    "ozone": {
+      "label": "ozone",
+      "group": "clean",
+      "uses": 3
+    },
+    "paper": {
+      "label": "paper",
+      "group": "misc",
+      "uses": 1
+    },
+    "peach": {
+      "label": "peach",
+      "group": "fruit",
+      "uses": 5
+    },
+    "pear": {
+      "label": "pear",
+      "group": "fruit",
+      "uses": 6
+    },
+    "pencil": {
+      "label": "pencil",
+      "group": "wood_and_resin",
+      "uses": 2
+    },
+    "petrichor": {
+      "label": "petrichor",
+      "group": "misc",
+      "uses": 2
+    },
+    "phenol": {
+      "label": "phenol",
+      "group": "misc",
+      "uses": 2
+    },
+    "phenolic": {
+      "label": "phenolic",
+      "group": "smoke_and_burn",
+      "uses": 6
+    },
+    "pine": {
+      "label": "pine",
+      "group": "green",
+      "uses": 10
+    },
+    "plum": {
+      "label": "plum",
+      "group": "fruit",
+      "uses": 2
+    },
+    "powdery": {
+      "label": "powdery",
+      "group": "texture",
+      "uses": 25
+    },
+    "radiance": {
+      "label": "radiance",
+      "group": "misc",
+      "uses": 1
+    },
+    "radiant": {
+      "label": "radiant",
+      "group": "texture",
+      "uses": 1
+    },
+    "rain": {
+      "label": "rain",
+      "group": "misc",
+      "uses": 1
+    },
+    "resinous": {
+      "label": "resinous",
+      "group": "wood_and_resin",
+      "uses": 13
+    },
+    "ritual-smoke": {
+      "label": "ritual smoke",
+      "group": "misc",
+      "uses": 1
+    },
+    "roast": {
+      "label": "roast",
+      "group": "misc",
+      "uses": 1
+    },
+    "roasted": {
+      "label": "roasted",
+      "group": "smoke_and_burn",
+      "uses": 6
+    },
+    "root": {
+      "label": "root",
+      "group": "misc",
+      "uses": 3
+    },
+    "rooty": {
+      "label": "rooty",
+      "group": "earth_and_stone",
+      "uses": 9
+    },
+    "rose": {
+      "label": "rose",
+      "group": "misc",
+      "uses": 5
+    },
+    "rose-ketone": {
+      "label": "rose ketone",
+      "group": "misc",
+      "uses": 1
+    },
+    "rose-petal": {
+      "label": "rose petal",
+      "group": "misc",
+      "uses": 1
+    },
+    "rosy": {
+      "label": "rosy",
+      "group": "floral",
+      "uses": 11
+    },
+    "rubber": {
+      "label": "rubber",
+      "group": "texture",
+      "uses": 2
+    },
+    "sacred": {
+      "label": "sacred",
+      "group": "misc",
+      "uses": 1
+    },
+    "saffron": {
+      "label": "saffron",
+      "group": "misc",
+      "uses": 2
+    },
+    "salty": {
+      "label": "salty",
+      "group": "clean",
+      "uses": 2
+    },
+    "sandalwood": {
+      "label": "sandalwood",
+      "group": "wood_and_resin",
+      "uses": 7
+    },
+    "shade": {
+      "label": "shade",
+      "group": "misc",
+      "uses": 1
+    },
+    "sharp": {
+      "label": "sharp",
+      "group": "green",
+      "uses": 1
+    },
+    "skin": {
+      "label": "skin",
+      "group": "animal_and_skin",
+      "uses": 8
+    },
+    "skin-musk": {
+      "label": "skin musk",
+      "group": "misc",
+      "uses": 2
+    },
+    "smoky": {
+      "label": "smoky",
+      "group": "smoke_and_burn",
+      "uses": 24
+    },
+    "soap": {
+      "label": "soap",
+      "group": "misc",
+      "uses": 2
+    },
+    "soapy": {
+      "label": "soapy",
+      "group": "clean",
+      "uses": 6
+    },
+    "soft": {
+      "label": "soft",
+      "group": "texture",
+      "uses": 5
+    },
+    "soft-balsamic": {
+      "label": "soft balsamic",
+      "group": "misc",
+      "uses": 1
+    },
+    "soft-floral": {
+      "label": "soft floral",
+      "group": "misc",
+      "uses": 1
+    },
+    "soft-peach": {
+      "label": "soft peach",
+      "group": "misc",
+      "uses": 1
+    },
+    "spicy": {
+      "label": "spicy",
+      "group": "spice",
+      "uses": 31
+    },
+    "spicy-dry": {
+      "label": "spicy dry",
+      "group": "spice",
+      "uses": 1
+    },
+    "stem": {
+      "label": "stem",
+      "group": "green",
+      "uses": 3
+    },
+    "suede": {
+      "label": "suede",
+      "group": "texture",
+      "uses": 3
+    },
+    "sulfurous": {
+      "label": "sulfurous",
+      "group": "misc",
+      "uses": 3
+    },
+    "sweet": {
+      "label": "sweet",
+      "group": "sweet",
+      "uses": 32
+    },
+    "sweet-citrus": {
+      "label": "sweet citrus",
+      "group": "misc",
+      "uses": 2
+    },
+    "sweet-dust": {
+      "label": "sweet dust",
+      "group": "misc",
+      "uses": 1
+    },
+    "sweet-grass": {
+      "label": "sweet grass",
+      "group": "green",
+      "uses": 2
+    },
+    "sweet-musk": {
+      "label": "sweet musk",
+      "group": "misc",
+      "uses": 1
+    },
+    "tar": {
+      "label": "tar",
+      "group": "smoke_and_burn",
+      "uses": 2
+    },
+    "tart": {
+      "label": "tart",
+      "group": "fruit",
+      "uses": 1
+    },
+    "tart-fruity": {
+      "label": "tart fruity",
+      "group": "misc",
+      "uses": 1
+    },
+    "tea": {
+      "label": "tea",
+      "group": "floral",
+      "uses": 9
+    },
+    "terpenic": {
+      "label": "terpenic",
+      "group": "green",
+      "uses": 6
+    },
+    "tobacco": {
+      "label": "tobacco",
+      "group": "animal_and_skin",
+      "uses": 4
+    },
+    "tonka": {
+      "label": "tonka",
+      "group": "misc",
+      "uses": 2
+    },
+    "transparency": {
+      "label": "transparency",
+      "group": "misc",
+      "uses": 1
+    },
+    "transparent": {
+      "label": "transparent",
+      "group": "texture",
+      "uses": 2
+    },
+    "transparent-amber": {
+      "label": "transparent amber",
+      "group": "misc",
+      "uses": 1
+    },
+    "tropical": {
+      "label": "tropical",
+      "group": "misc",
+      "uses": 1
+    },
+    "turpentine": {
+      "label": "turpentine",
+      "group": "green",
+      "uses": 2
+    },
+    "vanilla": {
+      "label": "vanilla",
+      "group": "sweet",
+      "uses": 8
+    },
+    "vanillic": {
+      "label": "vanillic",
+      "group": "misc",
+      "uses": 1
+    },
+    "velvet": {
+      "label": "velvet",
+      "group": "misc",
+      "uses": 1
+    },
+    "velvet-wood": {
+      "label": "velvet wood",
+      "group": "misc",
+      "uses": 1
+    },
+    "velvety": {
+      "label": "velvety",
+      "group": "texture",
+      "uses": 2
+    },
+    "violet": {
+      "label": "violet",
+      "group": "floral",
+      "uses": 3
+    },
+    "volume": {
+      "label": "volume",
+      "group": "misc",
+      "uses": 1
+    },
+    "warm": {
+      "label": "warm",
+      "group": "misc",
+      "uses": 7
+    },
+    "warm-skin": {
+      "label": "warm skin",
+      "group": "animal_and_skin",
+      "uses": 3
+    },
+    "warm-spice": {
+      "label": "warm spice",
+      "group": "misc",
+      "uses": 3
+    },
+    "water": {
+      "label": "water",
+      "group": "misc",
+      "uses": 1
+    },
+    "watery": {
+      "label": "watery",
+      "group": "texture",
+      "uses": 4
+    },
+    "wax": {
+      "label": "wax",
+      "group": "misc",
+      "uses": 1
+    },
+    "waxy": {
+      "label": "waxy",
+      "group": "texture",
+      "uses": 7
+    },
+    "waxy-citrus": {
+      "label": "waxy citrus",
+      "group": "misc",
+      "uses": 1
+    },
+    "waxy-warm": {
+      "label": "waxy warm",
+      "group": "misc",
+      "uses": 1
+    },
+    "wet-earth": {
+      "label": "wet earth",
+      "group": "earth_and_stone",
+      "uses": 5
+    },
+    "wet-green": {
+      "label": "wet green",
+      "group": "misc",
+      "uses": 1
+    },
+    "wet-stone": {
+      "label": "wet stone",
+      "group": "misc",
+      "uses": 1
+    },
+    "white-floral": {
+      "label": "white floral",
+      "group": "misc",
+      "uses": 1
+    },
+    "woody": {
+      "label": "woody",
+      "group": "wood_and_resin",
+      "uses": 46
+    }
+  },
+  "bridges": {
+    "airy": {
+      "transparent": 0.8
+    },
+    "aldehydic": {
+      "metallic": 0.6,
+      "soapy": 0.6
+    },
+    "almond": {
+      "powdery": 0.5
+    },
+    "ambery": {
+      "dry-wood": 0.5
+    },
+    "animalic": {
+      "indolic": 0.7,
+      "leather": 0.6,
+      "skin": 0.5
+    },
+    "apple": {
+      "fruity": 0.7
+    },
+    "apricot": {
+      "fruity": 0.7
+    },
+    "balsamic": {
+      "resinous": 0.7,
+      "vanilla": 0.6
+    },
+    "banana": {
+      "fruity": 0.7
+    },
+    "beetroot": {
+      "earthy": 0.7
+    },
+    "berry": {
+      "fruity": 0.7,
+      "sulfurous": 0.5
+    },
+    "bitter": {
+      "citrus": 0.5,
+      "green": 0.6
+    },
+    "buttery": {
+      "creamy": 0.8
+    },
+    "camphor": {
+      "lavender": 0.6,
+      "medicinal": 0.7,
+      "pine": 0.6
+    },
+    "candy": {
+      "caramel": 0.7
+    },
+    "caramel": {
+      "candy": 0.7,
+      "cocoa": 0.5,
+      "vanilla": 0.6
+    },
+    "cellar": {
+      "earthy": 0.8
+    },
+    "citrus": {
+      "bitter": 0.5,
+      "citrus-peel": 0.85,
+      "fresh": 0.5
+    },
+    "citrus-peel": {
+      "citrus": 0.85
+    },
+    "citrus-rose": {
+      "rosy": 0.8
+    },
+    "clay": {
+      "earthy": 0.8
+    },
+    "clean": {
+      "laundry": 0.85,
+      "lavender": 0.5,
+      "linen": 0.8,
+      "soapy": 0.8
+    },
+    "cocoa": {
+      "caramel": 0.5,
+      "nutty": 0.6
+    },
+    "coconut": {
+      "creamy": 0.6,
+      "milky": 0.6,
+      "vanilla": 0.5
+    },
+    "creamy": {
+      "buttery": 0.8,
+      "coconut": 0.6,
+      "milky": 0.8,
+      "sandalwood": 0.6
+    },
+    "dry-wood": {
+      "ambery": 0.5,
+      "pencil": 0.7,
+      "woody": 0.75
+    },
+    "earthy": {
+      "beetroot": 0.7,
+      "cellar": 0.8,
+      "clay": 0.8,
+      "mineral": 0.7,
+      "moss": 0.6,
+      "musty": 0.7,
+      "rooty": 0.8
+    },
+    "fresh": {
+      "citrus": 0.5
+    },
+    "fruity": {
+      "apple": 0.7,
+      "apricot": 0.7,
+      "banana": 0.7,
+      "berry": 0.7,
+      "grape": 0.7,
+      "juicy": 0.8,
+      "peach": 0.7,
+      "pear": 0.7,
+      "plum": 0.7
+    },
+    "geranium": {
+      "rosy": 0.7
+    },
+    "grape": {
+      "fruity": 0.7
+    },
+    "green": {
+      "bitter": 0.6,
+      "leaf": 0.8,
+      "moss": 0.5,
+      "stem": 0.8,
+      "tea": 0.5
+    },
+    "hay": {
+      "sweet-grass": 0.8,
+      "tobacco": 0.7,
+      "vanilla": 0.4
+    },
+    "herbaceous": {
+      "lavender": 0.7
+    },
+    "honey": {
+      "rosy": 0.6
+    },
+    "indolic": {
+      "animalic": 0.7,
+      "jasmine": 0.7
+    },
+    "inky": {
+      "smoky": 0.6
+    },
+    "jasmine": {
+      "indolic": 0.7
+    },
+    "juicy": {
+      "fruity": 0.8
+    },
+    "laundry": {
+      "clean": 0.85
+    },
+    "lavender": {
+      "camphor": 0.6,
+      "clean": 0.5,
+      "herbaceous": 0.7
+    },
+    "leaf": {
+      "green": 0.8
+    },
+    "leather": {
+      "animalic": 0.6,
+      "smoky": 0.7,
+      "suede": 0.8,
+      "tobacco": 0.7
+    },
+    "linen": {
+      "clean": 0.8,
+      "soapy": 0.7
+    },
+    "medicinal": {
+      "camphor": 0.7,
+      "phenolic": 0.7
+    },
+    "metallic": {
+      "aldehydic": 0.6,
+      "mineral": 0.5,
+      "ozone": 0.6
+    },
+    "milky": {
+      "coconut": 0.6,
+      "creamy": 0.8
+    },
+    "mineral": {
+      "earthy": 0.7,
+      "metallic": 0.5,
+      "watery": 0.5
+    },
+    "moss": {
+      "earthy": 0.6,
+      "green": 0.5
+    },
+    "musk": {
+      "powdery": 0.6,
+      "skin": 0.7
+    },
+    "musty": {
+      "earthy": 0.7
+    },
+    "nutty": {
+      "cocoa": 0.6,
+      "roasted": 0.7
+    },
+    "orris": {
+      "powdery": 0.7
+    },
+    "ozone": {
+      "metallic": 0.6,
+      "watery": 0.7
+    },
+    "peach": {
+      "fruity": 0.7
+    },
+    "pear": {
+      "fruity": 0.7
+    },
+    "pencil": {
+      "dry-wood": 0.7
+    },
+    "phenolic": {
+      "medicinal": 0.7,
+      "smoky": 0.7
+    },
+    "pine": {
+      "camphor": 0.6,
+      "resinous": 0.6,
+      "turpentine": 0.8
+    },
+    "plum": {
+      "fruity": 0.7
+    },
+    "powdery": {
+      "almond": 0.5,
+      "musk": 0.6,
+      "orris": 0.7,
+      "vanilla": 0.6,
+      "violet": 0.7
+    },
+    "radiant": {
+      "transparent": 0.7
+    },
+    "resinous": {
+      "balsamic": 0.7,
+      "pine": 0.6,
+      "smoky": 0.6
+    },
+    "roasted": {
+      "nutty": 0.7,
+      "smoky": 0.6
+    },
+    "rooty": {
+      "earthy": 0.8
+    },
+    "rosy": {
+      "citrus-rose": 0.8,
+      "geranium": 0.7,
+      "honey": 0.6
+    },
+    "salty": {
+      "watery": 0.6
+    },
+    "sandalwood": {
+      "creamy": 0.6
+    },
+    "skin": {
+      "animalic": 0.5,
+      "musk": 0.7,
+      "warm-skin": 0.9
+    },
+    "smoky": {
+      "inky": 0.6,
+      "leather": 0.7,
+      "phenolic": 0.7,
+      "resinous": 0.6,
+      "roasted": 0.6,
+      "tar": 0.8
+    },
+    "soapy": {
+      "aldehydic": 0.6,
+      "clean": 0.8,
+      "linen": 0.7
+    },
+    "spicy": {
+      "spicy-dry": 0.8,
+      "warm": 0.5
+    },
+    "spicy-dry": {
+      "spicy": 0.8
+    },
+    "stem": {
+      "green": 0.8
+    },
+    "suede": {
+      "leather": 0.8
+    },
+    "sulfurous": {
+      "berry": 0.5,
+      "tart": 0.5
+    },
+    "sweet-grass": {
+      "hay": 0.8
+    },
+    "tar": {
+      "smoky": 0.8
+    },
+    "tart": {
+      "sulfurous": 0.5
+    },
+    "tea": {
+      "green": 0.5
+    },
+    "tobacco": {
+      "hay": 0.7,
+      "leather": 0.7
+    },
+    "transparent": {
+      "airy": 0.8,
+      "radiant": 0.7
+    },
+    "turpentine": {
+      "pine": 0.8
+    },
+    "vanilla": {
+      "balsamic": 0.6,
+      "caramel": 0.6,
+      "coconut": 0.5,
+      "hay": 0.4,
+      "powdery": 0.6
+    },
+    "violet": {
+      "powdery": 0.7
+    },
+    "warm": {
+      "spicy": 0.5
+    },
+    "warm-skin": {
+      "skin": 0.9
+    },
+    "watery": {
+      "mineral": 0.5,
+      "ozone": 0.7,
+      "salty": 0.6
+    },
+    "woody": {
+      "dry-wood": 0.75
+    }
+  }
+}

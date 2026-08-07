@@ -77,6 +77,8 @@ model Product {
   detailedDescription String
   status              ProductStatus         @default(DRAFT)
   archiveReason       ProductArchiveReason?
+  /// 10-dimension scent profile (0–4) for bespoke catalogue_select nodes.
+  scentProfileJson    Json?
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   collection          Collection            @relation(fields: [collectionId], references: [id], onDelete: Restrict)
@@ -139,6 +141,7 @@ model Customer {
   orders          Order[]
   reviews         Review[]
   bespokePerfumes BespokePerfume[]
+  bespokeSessions BespokeSession[]
   refreshTokens   CustomerRefreshToken[]
 
   @@map("customers")
@@ -198,7 +201,7 @@ model CartItem {
   updatedAt        DateTime        @updatedAt
   cart             Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
   productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id], onDelete: Restrict)
-  bespokePerfume   BespokePerfume? @relation(fields: [bespokePerfumeId], references: [id], onDelete: Cascade)
+  bespokePerfume   BespokePerfume? @relation(fields: [bespokePerfumeId], references: [id], onDelete: Restrict)
 
   @@unique([cartId, productVariantId])
   @@unique([cartId, bespokePerfumeId, bespokeSizeMl])
@@ -260,25 +263,77 @@ model OrderItem {
 }
 
 model BespokePerfume {
-  id            String     @id @default(uuid())
+  id            String          @id @default(uuid())
   customerId    String
   name          String
+  dedication    String?
+  /// Composite v2 snapshot: bottle + sample + fingerprint + colorTheme.
   formulaJson   Json
-  answersJson   Json
-  moodText      String
-  whyJson       Json
-  inspiredJson  Json?
+  stateJson     Json
+  colorThemeJson Json
+  graphVersion  String
   engineVersion String
   clientKey     String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  customer      Customer   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  deletedAt     DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  customer      Customer        @relation(fields: [customerId], references: [id], onDelete: Restrict)
   cartItems     CartItem[]
   orderItems    OrderItem[]
+  sessions      BespokeSession[]
 
   @@unique([customerId, clientKey])
   @@index([customerId, createdAt])
+  @@index([deletedAt])
   @@map("bespoke_perfumes")
+}
+
+enum BespokeSessionStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  CLAIMED
+}
+
+model BespokeSession {
+  id               String               @id @default(uuid())
+  tokenHash        String               @unique
+  customerId       String?
+  stateJson        Json
+  historyJson      Json
+  shortlistJson    Json?
+  resultJson       Json?
+  status           BespokeSessionStatus @default(ACTIVE)
+  version          Int                  @default(0)
+  expiresAt        DateTime
+  bespokePerfumeId String?
+  ipHash           String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  customer         Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  bespokePerfume   BespokePerfume?      @relation(fields: [bespokePerfumeId], references: [id], onDelete: SetNull)
+  events           BespokeQuizEvent[]
+
+  @@index([customerId])
+  @@index([status, expiresAt])
+  @@index([bespokePerfumeId])
+  @@map("bespoke_sessions")
+}
+
+model BespokeQuizEvent {
+  id         String         @id @default(uuid())
+  sessionId  String
+  type       String
+  nodeId     String
+  nodeText   String
+  optionIds  String[]       @default([])
+  optionLabels String[]     @default([])
+  at         DateTime       @default(now())
+  session    BespokeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, at])
+  @@index([at])
+  @@map("bespoke_quiz_events")
 }
 
 model Payment {

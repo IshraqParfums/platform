@@ -100,6 +100,56 @@ body {
   border-radius: 2px;
 }
 
+/* Brand scrollbars — thin gold thumb on cream track wherever overflow scrolls. */
+.scrollbar-brand {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gold-deep) var(--color-line);
+}
+
+.scrollbar-brand::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-brand::-webkit-scrollbar-track {
+  background: var(--color-line);
+  border-radius: 999px;
+}
+
+.scrollbar-brand::-webkit-scrollbar-thumb {
+  background: var(--color-gold-deep);
+  border-radius: 999px;
+  border: 2px solid var(--color-line);
+}
+
+.scrollbar-brand::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-deeper);
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gold-deep) var(--color-cream-soft);
+}
+
+html::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html::-webkit-scrollbar-track {
+  background: var(--color-cream-soft);
+}
+
+html::-webkit-scrollbar-thumb {
+  background: var(--color-gold-deep);
+  border-radius: 999px;
+  border: 2px solid var(--color-cream-soft);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-deeper);
+}
+
 /* Fraunces reads better slightly tightened at display sizes. */
 .font-display {
   font-optical-sizing: auto;

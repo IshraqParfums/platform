@@ -209,6 +209,28 @@ export function AccountHubView({
         </AccountSection>
 
         <AccountSection
+          title="Bespoke blends"
+          surface="muted"
+          action={{
+            href: "/bespoke/saved",
+            label: "View saved",
+          }}
+        >
+          <AccountEmpty>
+            Formulas from the bespoke consultation live here — open, size, and
+            add to cart when you&apos;re ready.
+          </AccountEmpty>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <ButtonLink href="/bespoke/saved" variant="emphasis" size="md">
+              Saved blends
+            </ButtonLink>
+            <ButtonLink href="/bespoke/quiz" variant="outline" size="md">
+              Take the quiz
+            </ButtonLink>
+          </div>
+        </AccountSection>
+
+        <AccountSection
           title="Delivery addresses"
           action={
             !addressesFailed ? (

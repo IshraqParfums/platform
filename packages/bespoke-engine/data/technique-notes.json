@@ -1,0 +1,3130 @@
+{
+  "meta": {
+    "purpose": "Bench notes: which combination goes with which, and why. Craft knowledge that the chemistry cannot derive — composition can show that two materials share a molecule, but not that clary sage is the material that walks a fougère top into an ambery drydown. Written as data so the Atelier can raise a note at the moment it applies.",
+    "firing": "requires_all: every listed material must be in the formula. requires_any: a list of groups, each of which needs at least one member present — two groups is how a bridging note waits until both sides of the gap exist before offering the bridge. A note with no requirements is general advice and is never pushed as a suggestion.",
+    "off_palette_note": "Some notes name materials this palette does not stock. They are kept and the missing materials listed, because a half-applicable note is still worth reading and the list doubles as a shopping list.",
+    "generated_by": "scripts/build_technique_notes.py",
+    "count": 106
+  },
+  "categories": {
+    "bridging": "Bridging & transitions",
+    "fixation": "Fixation & sillage",
+    "clarity": "Muddy, dense or heavy",
+    "substitution": "This or that",
+    "gourmand": "Gourmand mechanics",
+    "petrichor": "Petrichor, earth & water",
+    "floral": "Floral harmonisation",
+    "woody": "Woods, ambers & musks"
+  },
+  "off_palette_materials": [
+    "Birch tar",
+    "Castoreum",
+    "Cetalox",
+    "Ethyl linalool",
+    "Ethyl vanillin",
+    "Glucam P-20",
+    "Guaiacwood",
+    "Heliotropin",
+    "Oakmoss absolute",
+    "Triethyl citrate",
+    "Tuberose absolute"
+  ],
+  "notes": [
+    {
+      "id": "bridge-cardamom-coffee-earth",
+      "category": "bridging",
+      "title": "Cardamom carries coffee across to wet earth",
+      "body": "Cardamom holds cineole at one end and terpinyl acetate at the other — cold and volatile shading into spicy-herbal. That span is what lets an ozonic petrichor top reach a roasted coffee pyrazine without a seam in the middle.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "coffee_co2"
+        ],
+        [
+          "geosmin",
+          "attar_mitti",
+          "peatmoss",
+          "floralozone"
+        ]
+      ],
+      "suggests": [
+        "cardamom_oil"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "attar_mitti",
+        "cardamom_oil",
+        "coffee_co2",
+        "floralozone",
+        "geosmin",
+        "peatmoss"
+      ]
+    },
+    {
+      "id": "bridge-salicylate-citrus-floral",
+      "category": "bridging",
+      "title": "Blur the citrus-to-floral edge with benzyl salicylate",
+      "body": "Sparkling citrus against a heavy floral heart leaves a visible join. Benzyl salicylate sits across it — soft, balsamic-floral, no character of its own to argue with either side.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x",
+          "petitgrain"
+        ],
+        [
+          "jasmine_sambac",
+          "ylang_ylang",
+          "rose_wardia"
+        ]
+      ],
+      "suggests": [
+        "benzyl_salicylate"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "benzyl_salicylate",
+        "bergamot",
+        "jasmine_sambac",
+        "orange_10x",
+        "petitgrain",
+        "rose_wardia",
+        "ylang_ylang"
+      ]
+    },
+    {
+      "id": "bridge-linalool-citrus-floral",
+      "category": "bridging",
+      "title": "Or linalool, if you want the join to stay fresh",
+      "body": "The same citrus-to-floral gap, taken the other way. Linalool is already in most of both sides, so adding it as an isolate thickens the overlap rather than covering the seam.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x",
+          "petitgrain"
+        ],
+        [
+          "jasmine_sambac",
+          "ylang_ylang",
+          "rose_wardia",
+          "phenyl_ethyl_alcohol",
+          "geraniol_extra"
+        ]
+      ],
+      "suggests": [
+        "linalool"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "geraniol_extra",
+        "jasmine_sambac",
+        "linalool",
+        "orange_10x",
+        "petitgrain",
+        "phenyl_ethyl_alcohol",
+        "rose_wardia",
+        "ylang_ylang"
+      ]
+    },
+    {
+      "id": "bridge-clary-herbal-amber",
+      "category": "bridging",
+      "title": "Clary sage walks a herbal top into an ambery drydown",
+      "body": "Linalyl acetate at the front, sclareol at the back — the ambergris precursor itself. One material spanning fresh lavender to dry amber, which is why a fougère built on it never sounds like two perfumes stacked.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "lavandin_grosso",
+          "linalool",
+          "linalyl_acetate"
+        ],
+        [
+          "ambroxan",
+          "sylvamber",
+          "labdanum",
+          "iso_e_super",
+          "cedarwood"
+        ]
+      ],
+      "suggests": [
+        "clary_sage"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "ambroxan",
+        "cedarwood",
+        "clary_sage",
+        "iso_e_super",
+        "labdanum",
+        "lavandin_grosso",
+        "linalool",
+        "linalyl_acetate",
+        "sylvamber"
+      ]
+    },
+    {
+      "id": "bridge-safraleine-spice-leather",
+      "category": "bridging",
+      "title": "Safraleine ties spice to leather and rose",
+      "body": "A saffron-phenolic facet that reads as both. It connects a peppery, nutmeg-dry top straight into dark leather or a damask rose without either having to soften.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "cinnamon_bark_oil",
+          "clove_bud_eo",
+          "nutmeg_eo",
+          "black_pepper_oil"
+        ],
+        [
+          "oud_oliffac",
+          "norlimbanol",
+          "rose_wardia",
+          "cypriol"
+        ]
+      ],
+      "suggests": [
+        "safraleine"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "black_pepper_oil",
+        "cinnamon_bark_oil",
+        "clove_bud_eo",
+        "cypriol",
+        "norlimbanol",
+        "nutmeg_eo",
+        "oud_oliffac",
+        "rose_wardia",
+        "safraleine"
+      ]
+    },
+    {
+      "id": "bridge-petitgrain-citrus-wood",
+      "category": "bridging",
+      "title": "Petitgrain smooths the drop from citrus into green woods",
+      "body": "Bitter citrus leaf with a woody linalyl underside. It is the same tree as the bergamot above it and shares the wood's dryness below, so the descent stops feeling like a step.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x"
+        ],
+        [
+          "cedarwood",
+          "vetiver_eo"
+        ]
+      ],
+      "suggests": [
+        "petitgrain"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "cedarwood",
+        "orange_10x",
+        "petitgrain",
+        "vetiver_eo"
+      ]
+    },
+    {
+      "id": "bridge-pinkpepper-citrus-resin",
+      "category": "bridging",
+      "title": "Pink pepper lifts citrus into resin",
+      "body": "Fresh, fizzy, terpene-spicy — it keeps the sparkle of the top note alive far enough down to meet a balsamic resin coming up.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x",
+          "petitgrain"
+        ],
+        [
+          "frankincense",
+          "myrrh_resinoid",
+          "benzoin",
+          "labdanum"
+        ]
+      ],
+      "suggests": [
+        "pink_pepper"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "benzoin",
+        "bergamot",
+        "frankincense",
+        "labdanum",
+        "myrrh_resinoid",
+        "orange_10x",
+        "petitgrain",
+        "pink_pepper"
+      ]
+    },
+    {
+      "id": "bridge-cis3-fruit-green",
+      "category": "bridging",
+      "title": "cis-3 links dewy fruit to crushed leaf",
+      "body": "Connects a sweet peach or apple to wet botanical green without the metallic sharpness a stronger green would bring.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "gamma_undecalactone",
+          "fructone",
+          "delta_decalactone",
+          "blackcurrant_bud_replacer"
+        ],
+        [
+          "petitgrain",
+          "peme",
+          "pine_eo",
+          "peatmoss"
+        ]
+      ],
+      "suggests": [
+        "cis3_hexenyl_acetate"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "blackcurrant_bud_replacer",
+        "cis3_hexenyl_acetate",
+        "delta_decalactone",
+        "fructone",
+        "gamma_undecalactone",
+        "peatmoss",
+        "peme",
+        "petitgrain",
+        "pine_eo"
+      ]
+    },
+    {
+      "id": "bridge-geraniol-citrus-rose",
+      "category": "bridging",
+      "title": "Geraniol reaches from citrus into the rose",
+      "body": "It carries citrus-terpenic nuances at one end and is structural rose at the other — the same molecule doing both jobs.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x",
+          "petitgrain"
+        ],
+        [
+          "rose_wardia",
+          "phenyl_ethyl_alcohol"
+        ]
+      ],
+      "suggests": [
+        "geraniol_extra"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "geraniol_extra",
+        "orange_10x",
+        "petitgrain",
+        "phenyl_ethyl_alcohol",
+        "rose_wardia"
+      ]
+    },
+    {
+      "id": "bridge-anthranilate-citrus-indolic",
+      "category": "bridging",
+      "title": "Methyl anthranilate takes zest into narcotic white florals",
+      "body": "Grape-soda fruity and orange-blossom floral at once, with a foxy edge that meets indole halfway.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "orange_10x",
+          "bergamot"
+        ],
+        [
+          "jasmine_sambac",
+          "ylang_ylang"
+        ]
+      ],
+      "suggests": [
+        "methyl_anthranilate"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "jasmine_sambac",
+        "methyl_anthranilate",
+        "orange_10x",
+        "ylang_ylang"
+      ]
+    },
+    {
+      "id": "bridge-nutmeg-citrus-wood",
+      "category": "bridging",
+      "title": "Nutmeg drops bright citrus into dry timber",
+      "body": "Terpinyl-spicy and warm. It hands a bergamot top down to cedar or sandalwood without a gap where the freshness dies.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x"
+        ],
+        [
+          "cedarwood",
+          "bacdanol",
+          "ebanol",
+          "sylvamber"
+        ]
+      ],
+      "suggests": [
+        "nutmeg_eo"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bacdanol",
+        "bergamot",
+        "cedarwood",
+        "ebanol",
+        "nutmeg_eo",
+        "orange_10x",
+        "sylvamber"
+      ]
+    },
+    {
+      "id": "bridge-maltol-gourmand-resin",
+      "category": "bridging",
+      "title": "A trace of ethyl maltol joins edible sweetness to resin",
+      "body": "Burnt sugar reads as balsamic if you keep it small enough. At a trace it fuses a gourmand top to benzoin or labdanum; above that it eats the formula.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "vanillin",
+          "ethyl_maltol",
+          "gamma_nonalactone",
+          "delta_decalactone",
+          "coumarin"
+        ],
+        [
+          "benzoin",
+          "labdanum"
+        ]
+      ],
+      "suggests": [
+        "ethyl_maltol"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "ethyl_maltol": "trace — from a 10% solution, under 0.5% neat"
+      },
+      "off_palette": [],
+      "involves": [
+        "benzoin",
+        "coumarin",
+        "delta_decalactone",
+        "ethyl_maltol",
+        "gamma_nonalactone",
+        "labdanum",
+        "vanillin"
+      ]
+    },
+    {
+      "id": "bridge-pea-aquatic-rose",
+      "category": "bridging",
+      "title": "PEA gives a marine top the texture of rosewater",
+      "body": "Watery, honeyed and soft — it is the water in the flower, so an ozonic opening arrives at the petals already wet.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "floralozone",
+          "dihydromyrcenol"
+        ],
+        [
+          "rose_wardia",
+          "geraniol_extra"
+        ]
+      ],
+      "suggests": [
+        "phenyl_ethyl_alcohol"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "dihydromyrcenol",
+        "floralozone",
+        "geraniol_extra",
+        "phenyl_ethyl_alcohol",
+        "rose_wardia"
+      ]
+    },
+    {
+      "id": "bridge-c14-fruit-sandalwood",
+      "category": "bridging",
+      "title": "Peach lactone links juicy fruit to creamy sandalwood",
+      "body": "gamma-Undecalactone (Aldehyde C-14) is lactonic at both ends — fruit skin above, milky wood below. It meets Bacdanol and Ebanol on their own terms.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x",
+          "fructone",
+          "blackcurrant_bud_replacer"
+        ],
+        [
+          "bacdanol",
+          "ebanol"
+        ]
+      ],
+      "suggests": [
+        "gamma_undecalactone"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bacdanol",
+        "bergamot",
+        "blackcurrant_bud_replacer",
+        "ebanol",
+        "fructone",
+        "gamma_undecalactone",
+        "orange_10x"
+      ]
+    },
+    {
+      "id": "bridge-blackpepper-spice-patchouli",
+      "category": "bridging",
+      "title": "Black pepper walks fresh spice down into patchouli",
+      "body": "Caryophyllene is the shared floor: it is 28% of the pepper and 4% of the patchouli, and it is dry and woody in both.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "cardamom_oil",
+          "pink_pepper",
+          "nutmeg_eo"
+        ],
+        [
+          "patchouli"
+        ]
+      ],
+      "suggests": [
+        "black_pepper_oil"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "black_pepper_oil",
+        "cardamom_oil",
+        "nutmeg_eo",
+        "patchouli",
+        "pink_pepper"
+      ]
+    },
+    {
+      "id": "bridge-cashmeran-conifer-musk",
+      "category": "bridging",
+      "title": "Cashmeran turns a conifer top into a skin musk",
+      "body": "It is pine-woody and velvet-musky in the same molecule, so it belongs to both halves and the transition happens inside it.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "pine_eo",
+          "frankincense"
+        ],
+        [
+          "galaxolide",
+          "habanolide",
+          "ethylene_brassylate",
+          "exaltolide_total"
+        ]
+      ],
+      "suggests": [
+        "cashmeran"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "cashmeran",
+        "ethylene_brassylate",
+        "exaltolide_total",
+        "frankincense",
+        "galaxolide",
+        "habanolide",
+        "pine_eo"
+      ]
+    },
+    {
+      "id": "bridge-coumarin-herbal-tonka",
+      "category": "bridging",
+      "title": "Coumarin lands sharp herbals in hay and vanilla",
+      "body": "Lavender and clary sage go sweet-grass, then almond-powder, then warm. The classic fougère descent, done by one material.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "lavandin_grosso",
+          "clary_sage",
+          "linalool"
+        ],
+        [
+          "vanillin",
+          "ethyl_maltol",
+          "benzoin"
+        ]
+      ],
+      "suggests": [
+        "coumarin"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "benzoin",
+        "clary_sage",
+        "coumarin",
+        "ethyl_maltol",
+        "lavandin_grosso",
+        "linalool",
+        "vanillin"
+      ]
+    },
+    {
+      "id": "bridge-clove-gourmand-leather",
+      "category": "bridging",
+      "title": "Clove's eugenol reaches from baking spice to phenolic leather",
+      "body": "Eugenol is hot-sweet at the top of its range and frankly phenolic at the bottom. That is the whole distance from a cinnamon bun to a tarred hide.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "cinnamon_bark_oil",
+          "cardamom_oil",
+          "vanillin"
+        ],
+        [
+          "oud_oliffac",
+          "agarwood_artessence",
+          "cypriol",
+          "vertofix",
+          "safraleine",
+          "norlimbanol"
+        ]
+      ],
+      "suggests": [
+        "clove_bud_eo"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "agarwood_artessence",
+        "cardamom_oil",
+        "cinnamon_bark_oil",
+        "clove_bud_eo",
+        "cypriol",
+        "norlimbanol",
+        "oud_oliffac",
+        "safraleine",
+        "vanillin",
+        "vertofix"
+      ]
+    },
+    {
+      "id": "bridge-fructone-green-fruit",
+      "category": "bridging",
+      "title": "Fructone connects a green leaf snap to juicy fruit",
+      "body": "Apple and pear-drop over the top of crushed stem. It gives cis-3 somewhere sweet to go.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "cis3_hexenyl_acetate"
+        ],
+        [
+          "gamma_undecalactone",
+          "blackcurrant_bud_replacer"
+        ]
+      ],
+      "suggests": [
+        "fructone"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "blackcurrant_bud_replacer",
+        "cis3_hexenyl_acetate",
+        "fructone",
+        "gamma_undecalactone"
+      ]
+    },
+    {
+      "id": "bridge-labdanum-animal-amber",
+      "category": "bridging",
+      "title": "Labdanum fuses animalic dirt into sweet amber",
+      "body": "Leathery and honeyed at once, which is exactly the ground where civet and vanilla can meet without one of them looking like a mistake.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "civet"
+        ],
+        [
+          "vanillin",
+          "benzoin",
+          "ethylene_brassylate"
+        ]
+      ],
+      "suggests": [
+        "labdanum"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [
+        "Castoreum"
+      ],
+      "involves": [
+        "benzoin",
+        "civet",
+        "ethylene_brassylate",
+        "labdanum",
+        "vanillin"
+      ]
+    },
+    {
+      "id": "bridge-guaiacol-coffee-smoke",
+      "category": "bridging",
+      "title": "Guaiacol carries roasted coffee into smoked wood",
+      "body": "Guaiacol is already a coffee marker and already a smoke marker. Adding it as an isolate just thickens the overlap the two share.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "coffee_co2"
+        ],
+        [
+          "oud_oliffac",
+          "agarwood_artessence",
+          "cypriol",
+          "vertofix"
+        ]
+      ],
+      "suggests": [
+        "guaiacol"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [
+        "Guaiacwood",
+        "Birch tar"
+      ],
+      "involves": [
+        "agarwood_artessence",
+        "coffee_co2",
+        "cypriol",
+        "guaiacol",
+        "oud_oliffac",
+        "vertofix"
+      ]
+    },
+    {
+      "id": "fix-linalyl-top-extension",
+      "category": "fixation",
+      "title": "Stretch a citrus opening with linalyl acetate",
+      "body": "Bergamot is gone in two hours. Linalyl acetate is most of what makes it smell like bergamot and lasts longer than the oil does, so adding the isolate holds the opening into the first half-hour instead of letting it fall off a cliff.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x"
+        ]
+      ],
+      "suggests": [
+        "linalyl_acetate"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "linalyl_acetate",
+        "orange_10x"
+      ]
+    },
+    {
+      "id": "fix-benzyl-benzoate-anchor",
+      "category": "fixation",
+      "title": "Anchor volatile tops with a heavy, quiet solvent",
+      "body": "Benzyl benzoate slows the evaporation of everything dissolved in it and contributes almost no odour of its own. It buys time without changing the smell.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x",
+          "petitgrain",
+          "cis3_hexenyl_acetate"
+        ]
+      ],
+      "suggests": [
+        "benzyl_benzoate"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [
+        "Glucam P-20"
+      ],
+      "involves": [
+        "benzyl_benzoate",
+        "bergamot",
+        "cis3_hexenyl_acetate",
+        "orange_10x",
+        "petitgrain"
+      ]
+    },
+    {
+      "id": "fix-galaxolide-citrus-cushion",
+      "category": "fixation",
+      "title": "Cushion citrus on a clean musk",
+      "body": "Galaxolide gives volatile oils something to sit on. It does not smell of anything the citrus has to fight, and it keeps the top on skin well past where it would otherwise leave.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x"
+        ]
+      ],
+      "suggests": [
+        "galaxolide"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "galaxolide": "5–10%"
+      },
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "galaxolide",
+        "orange_10x"
+      ]
+    },
+    {
+      "id": "fix-isoe-sillage",
+      "category": "fixation",
+      "title": "Iso E Super expands the whole thing outward",
+      "body": "At high loading it adds projection and atmospheric volume to tops and hearts alike without adding weight. Invisible to the wearer, obvious to the room.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [
+        "iso_e_super"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "iso_e_super": "20–35%"
+      },
+      "off_palette": [],
+      "involves": [
+        "iso_e_super"
+      ]
+    },
+    {
+      "id": "fix-hedione-bloom",
+      "category": "fixation",
+      "title": "Hedione makes it bloom on the spray",
+      "body": "It lifts heavy heart notes and elevates the top at the same moment, which reads as luminosity rather than as more perfume.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [
+        "hedione"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "hedione": "15–30%"
+      },
+      "off_palette": [],
+      "involves": [
+        "hedione"
+      ]
+    },
+    {
+      "id": "fix-dhm-lift",
+      "category": "fixation",
+      "title": "A little DHM for initial impact",
+      "body": "Clean, diffusive, citrus-marine. It hits before anything else does and makes the first second louder.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [
+        "dihydromyrcenol"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "dihydromyrcenol": "1–3%"
+      },
+      "off_palette": [],
+      "involves": [
+        "dihydromyrcenol"
+      ]
+    },
+    {
+      "id": "fix-c12-cold-air",
+      "category": "fixation",
+      "title": "Aldehyde C-12 MNA for cold-air lift",
+      "body": "A micro-dose gives an immediate metallic, airy coldness to a flat opening. More than a micro-dose gives you soap.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [
+        "aldehyde_c12_mna"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "aldehyde_c12_mna": "0.1–0.5% of a 10% dilution"
+      },
+      "off_palette": [],
+      "involves": [
+        "aldehyde_c12_mna"
+      ]
+    },
+    {
+      "id": "fix-cedarwood-ground-citrus",
+      "category": "fixation",
+      "title": "Ground a citrus top on cedar",
+      "body": "A slow-evaporating natural timber under a fast top stops it dissipating into thin air. The citrus reads as sitting on something.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x"
+        ]
+      ],
+      "suggests": [
+        "cedarwood"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "cedarwood",
+        "orange_10x"
+      ]
+    },
+    {
+      "id": "fix-damascone-halo",
+      "category": "fixation",
+      "title": "Beta-damascone for a jammy halo in the heart",
+      "body": "At the level of a rounding error it injects a radiant, fruity bloom into the top and mid. At any more it is a rose jam perfume.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [
+        "damascone_beta"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "damascone_beta": "0.05–0.2% of a 10% dilution"
+      },
+      "off_palette": [],
+      "involves": [
+        "damascone_beta"
+      ]
+    },
+    {
+      "id": "fix-ambroxan-trail",
+      "category": "fixation",
+      "title": "Ambroxan for a trail that outlives the top",
+      "body": "Dry, radiant, ambergris-mineral. It projects at a distance long after everything volatile has gone.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [
+        "ambroxan"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "ambroxan": "0.5–2%"
+      },
+      "off_palette": [],
+      "involves": [
+        "ambroxan"
+      ]
+    },
+    {
+      "id": "fix-ionone-mid-extension",
+      "category": "fixation",
+      "title": "Methyl ionone extends the heart under everything",
+      "body": "A long powdery violet-iris cushion that holds delicate floral and fruity notes up for hours after they would otherwise thin out.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [
+        "methyl_ionone_gamma"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "methyl_ionone_gamma": "3–8%"
+      },
+      "off_palette": [],
+      "involves": [
+        "methyl_ionone_gamma"
+      ]
+    },
+    {
+      "id": "fix-frankincense-terpene-lock",
+      "category": "fixation",
+      "title": "Frankincense fixes terpenic tops to itself",
+      "body": "Its own monoterpenes match the citrus above it while its resinous base stays on skin — so the top note is held by something it already resembles.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x",
+          "petitgrain",
+          "pine_eo"
+        ]
+      ],
+      "suggests": [
+        "frankincense"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "frankincense",
+        "orange_10x",
+        "petitgrain",
+        "pine_eo"
+      ]
+    },
+    {
+      "id": "fix-exaltolide-trail",
+      "category": "fixation",
+      "title": "Exaltolide Total ties the trail together",
+      "body": "A macrocyclic musk fixative that pulls volatile tops into one velvety continuous trail rather than a sequence of separate notes.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [
+        "exaltolide_total"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "exaltolide_total"
+      ]
+    },
+    {
+      "id": "fix-ethyl-linalool",
+      "category": "fixation",
+      "title": "Ethyl linalool if you need linalool to last",
+      "body": "Smoother, longer and less volatile than linalool for the same fresh-floral effect — worth stocking if a formula keeps losing its linalool by the first hour.",
+      "requires_all": [
+        "linalool"
+      ],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [
+        "Ethyl linalool"
+      ],
+      "involves": [
+        "linalool"
+      ]
+    },
+    {
+      "id": "fix-tec-flash",
+      "category": "fixation",
+      "title": "A co-solvent to slow flash evaporation",
+      "body": "Triethyl citrate as a co-solvent when compounding very volatile citrus slows the immediate vapour-pressure release. Not currently in the palette.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "bergamot",
+          "orange_10x",
+          "petitgrain"
+        ]
+      ],
+      "suggests": [],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [
+        "Triethyl citrate"
+      ],
+      "involves": [
+        "bergamot",
+        "orange_10x",
+        "petitgrain"
+      ]
+    },
+    {
+      "id": "clear-hedione-demud",
+      "category": "clarity",
+      "title": "Naturals gone muddy: take 30% out and put air in",
+      "body": "Patchouli, vetiver and labdanum stacked together turn the heart opaque. Cut the naturals by about a third and push hedione up — the matrix opens without losing the material.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "patchouli",
+          "vetiver_eo",
+          "labdanum"
+        ]
+      ],
+      "suggests": [
+        "hedione"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "hedione": "20–30%"
+      },
+      "off_palette": [],
+      "involves": [
+        "hedione",
+        "labdanum",
+        "patchouli",
+        "vetiver_eo"
+      ]
+    },
+    {
+      "id": "clear-peatmoss-vs-oakmoss",
+      "category": "clarity",
+      "title": "Peatmoss instead of raw oakmoss",
+      "body": "Raw oakmoss darkens a base and muddies it. Peatmoss gives the same mossy, saline mineral dryness without the murk — and without the restriction.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [
+        "peatmoss"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [
+        "Oakmoss absolute"
+      ],
+      "involves": [
+        "peatmoss"
+      ]
+    },
+    {
+      "id": "clear-dhm-cut-resin",
+      "category": "clarity",
+      "title": "Cut through sticky resins with a trace of DHM",
+      "body": "Benzoin and myrrh go thick and syrupy together. A very small amount of dihydromyrcenol restores clarity without reading as fresh.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "benzoin",
+          "myrrh_resinoid",
+          "labdanum"
+        ]
+      ],
+      "suggests": [
+        "dihydromyrcenol"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "dihydromyrcenol": "0.5–1.5%"
+      },
+      "off_palette": [],
+      "involves": [
+        "benzoin",
+        "dihydromyrcenol",
+        "labdanum",
+        "myrrh_resinoid"
+      ]
+    },
+    {
+      "id": "clear-isoe-unclog-floral",
+      "category": "clarity",
+      "title": "Dense florals collapse — replace a fifth of the mass with Iso E",
+      "body": "Floral absolutes stacked on each other stop being distinguishable. Swapping about 20% of the floral load for Iso E Super opens the heart back up.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "jasmine_sambac",
+          "ylang_ylang",
+          "rose_wardia",
+          "phenyl_ethyl_alcohol",
+          "geraniol_extra"
+        ]
+      ],
+      "suggests": [
+        "iso_e_super"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "geraniol_extra",
+        "iso_e_super",
+        "jasmine_sambac",
+        "phenyl_ethyl_alcohol",
+        "rose_wardia",
+        "ylang_ylang"
+      ]
+    },
+    {
+      "id": "clear-cis3-cut-sugar",
+      "category": "clarity",
+      "title": "Cloying gourmand: a green leaf snap cuts it",
+      "body": "A vanilla-maltol base goes thick and sickly. A trace of cis-3-hexenyl acetate from a dilution cuts the density without turning the perfume green.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "vanillin",
+          "ethyl_maltol",
+          "gamma_nonalactone"
+        ]
+      ],
+      "suggests": [
+        "cis3_hexenyl_acetate"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "cis3_hexenyl_acetate": "0.5–1% of a 10% dilution"
+      },
+      "off_palette": [],
+      "involves": [
+        "cis3_hexenyl_acetate",
+        "ethyl_maltol",
+        "gamma_nonalactone",
+        "vanillin"
+      ]
+    },
+    {
+      "id": "clear-vertofix-for-patchouli",
+      "category": "clarity",
+      "title": "Murky patchouli: pull it back and put Vertofix under it",
+      "body": "Reduce the patchouli and let acetylated cedarwood carry the woody-amber depth instead. Cleaner, more structured, same weight.",
+      "requires_all": [
+        "patchouli"
+      ],
+      "requires_any": [],
+      "suggests": [
+        "vertofix"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "patchouli",
+        "vertofix"
+      ]
+    },
+    {
+      "id": "clear-ambroxan-density-to-diffusion",
+      "category": "clarity",
+      "title": "Trade physical weight for radiance",
+      "body": "Swap a heavy animalic or resinous fixative for Ambroxan and you get the longevity back as projection rather than as oil weight sitting on the skin.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "civet",
+          "labdanum",
+          "benzoin"
+        ]
+      ],
+      "suggests": [
+        "ambroxan"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "ambroxan",
+        "benzoin",
+        "civet",
+        "labdanum"
+      ]
+    },
+    {
+      "id": "clear-floralozone-transparency",
+      "category": "clarity",
+      "title": "Floralozone turns dense soil into wet atmosphere",
+      "body": "A heavy earthy or woody accord reads as dirt. A little floralozone lifts it into airy, rained-on air — same materials, different weather.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "geosmin",
+          "attar_mitti",
+          "peatmoss",
+          "patchouli",
+          "vetiver_eo"
+        ]
+      ],
+      "suggests": [
+        "floralozone"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "floralozone": "0.5–1.5%"
+      },
+      "off_palette": [],
+      "involves": [
+        "attar_mitti",
+        "floralozone",
+        "geosmin",
+        "patchouli",
+        "peatmoss",
+        "vetiver_eo"
+      ]
+    },
+    {
+      "id": "clear-jasmine-reconstruct",
+      "category": "clarity",
+      "title": "Indolic jasmine dragging the formula down",
+      "body": "Jasmine absolute turns a composition dark and heavy. Benzyl acetate for the top of the flower and hedione for its body keeps the white floral crisp.",
+      "requires_all": [
+        "jasmine_sambac"
+      ],
+      "requires_any": [],
+      "suggests": [
+        "benzyl_acetate",
+        "hedione"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "benzyl_acetate",
+        "hedione",
+        "jasmine_sambac"
+      ]
+    },
+    {
+      "id": "clear-dilute-high-impact",
+      "category": "clarity",
+      "title": "Never add a high-impact material neat",
+      "body": "Geosmin, pyrazines and aldehydes go in as 0.1% or 1% dilutions in DPG. Weighed neat they suffocate everything delicate in the heart before you notice.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "geosmin",
+          "aldehyde_c10",
+          "aldehyde_c12_mna",
+          "coffee_co2"
+        ]
+      ],
+      "suggests": [],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "aldehyde_c10",
+        "aldehyde_c12_mna",
+        "coffee_co2",
+        "geosmin"
+      ]
+    },
+    {
+      "id": "clear-ethyl-vanillin",
+      "category": "clarity",
+      "title": "Ethyl vanillin if the vanilla is going sluggish",
+      "body": "Roughly three to four times the strength of vanillin, so you weigh less powder for the same sweetness and the formula stays thinner and paler.",
+      "requires_all": [
+        "vanillin"
+      ],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [
+        "Ethyl vanillin"
+      ],
+      "involves": [
+        "vanillin"
+      ]
+    },
+    {
+      "id": "clear-linalool-clean-herbals",
+      "category": "clarity",
+      "title": "Swap crude herbals for the isolate to clean them up",
+      "body": "Replacing part of a herbal oil with pure linalool removes the earthy impurities that come with the distillation while keeping the botanical lift.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "lavandin_grosso",
+          "clary_sage"
+        ]
+      ],
+      "suggests": [
+        "linalool"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "clary_sage",
+        "lavandin_grosso",
+        "linalool"
+      ]
+    },
+    {
+      "id": "clear-civet-to-cashmeran",
+      "category": "clarity",
+      "title": "Animalic funk gone wrong: pull it down and warm it instead",
+      "body": "If the civet reads as grime rather than skin, take it under 0.1% and let cashmeran supply the cosiness. Same warmth, none of the dirt.",
+      "requires_all": [
+        "civet"
+      ],
+      "requires_any": [],
+      "suggests": [
+        "cashmeran"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "civet": "under 0.1%"
+      },
+      "off_palette": [],
+      "involves": [
+        "cashmeran",
+        "civet"
+      ]
+    },
+    {
+      "id": "clear-creamy-woods",
+      "category": "clarity",
+      "title": "Smooth a tarry wood with a creamy sandalwood synthetic",
+      "body": "Bacdanol or Ebanol in place of some of the raw dark wood gives transparency where there was tar.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "oud_oliffac",
+          "agarwood_artessence",
+          "cypriol",
+          "vertofix"
+        ]
+      ],
+      "suggests": [
+        "bacdanol",
+        "ebanol"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [
+        "Guaiacwood"
+      ],
+      "involves": [
+        "agarwood_artessence",
+        "bacdanol",
+        "cypriol",
+        "ebanol",
+        "oud_oliffac",
+        "vertofix"
+      ]
+    },
+    {
+      "id": "clear-bergamot-opens-spice",
+      "category": "clarity",
+      "title": "Give a heavy spice accord room to breathe",
+      "body": "Cinnamon, clove and nutmeg together close the top of an oriental. Bergamot cuts straight through and gives it an opening.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "cinnamon_bark_oil",
+          "clove_bud_eo",
+          "nutmeg_eo"
+        ]
+      ],
+      "suggests": [
+        "bergamot"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "bergamot": "3–5%"
+      },
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "cinnamon_bark_oil",
+        "clove_bud_eo",
+        "nutmeg_eo"
+      ]
+    },
+    {
+      "id": "sub-cardamom-clove",
+      "category": "substitution",
+      "title": "Cardamom or clove for the spice",
+      "body": "Cardamom is cineolic and volatile — a fresh, airy spice in the top and heart. Clove is eugenolic and heavy — warm spice that survives into the drydown. Safraleine does the same job as clove with a saffron-leather angle instead of a phenolic one.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "cardamom_oil",
+        "clove_bud_eo"
+      ],
+      "compare_labels": [
+        "Cardamom — fresh, airy, top-and-heart",
+        "Clove — eugenolic, warm, drydown"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "cardamom_oil",
+        "clove_bud_eo"
+      ]
+    },
+    {
+      "id": "sub-isoe-sylvamber",
+      "category": "substitution",
+      "title": "Iso E Super or Sylvamber for the wood",
+      "body": "Iso E for smooth transparent cedar-amber volume. Sylvamber for higher impact, woodier warmth and stronger diffusion at a lower loading.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "iso_e_super",
+        "sylvamber"
+      ],
+      "compare_labels": [
+        "Iso E — transparent volume",
+        "Sylvamber — impact at low dose"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "iso_e_super",
+        "sylvamber"
+      ]
+    },
+    {
+      "id": "sub-vanillin-maltol",
+      "category": "substitution",
+      "title": "Vanillin or ethyl maltol for the sweetness",
+      "body": "Vanillin is warm, powdery, authentically vanilla. Ethyl maltol is caramelised sugar, candyfloss and burnt fruit — a different kind of sweet entirely, and far easier to overdo.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "vanillin",
+        "ethyl_maltol"
+      ],
+      "compare_labels": [
+        "Vanillin — powdery, creamy, real",
+        "Ethyl maltol — burnt sugar, candy"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "ethyl_maltol",
+        "vanillin"
+      ]
+    },
+    {
+      "id": "sub-c10-c12",
+      "category": "substitution",
+      "title": "C-10 or C-12 MNA for the aldehyde",
+      "body": "C-10 is zesty, juicy orange-peel sparkle. C-12 MNA is cold, metallic, soapy — ironed linen and fresh air.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "aldehyde_c10",
+        "aldehyde_c12_mna"
+      ],
+      "compare_labels": [
+        "C-10 — orange peel sparkle",
+        "C-12 MNA — cold soap and linen"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "aldehyde_c10",
+        "aldehyde_c12_mna"
+      ]
+    },
+    {
+      "id": "sub-lactones",
+      "category": "substitution",
+      "title": "C-14 or C-18 for the lactone",
+      "body": "gamma-Undecalactone (C-14) is velvety peach and apricot skin. gamma-Nonalactone (C-18) is coconut pulp and warm milk. Delta-decalactone sits between them as butter and cream.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "gamma_undecalactone",
+        "gamma_nonalactone"
+      ],
+      "compare_labels": [
+        "C-14 — peach, apricot skin",
+        "C-18 — coconut, milk"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "gamma_nonalactone",
+        "gamma_undecalactone"
+      ]
+    },
+    {
+      "id": "sub-musks",
+      "category": "substitution",
+      "title": "Brassylate or Exaltolide for the musk",
+      "body": "Ethylene brassylate is the broad, cheap, powdery workhorse. Exaltolide Total is silkier and more refined, with a macrocyclic animal edge to the trail.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "ethylene_brassylate",
+        "exaltolide_total"
+      ],
+      "compare_labels": [
+        "Brassylate — powdery workhorse",
+        "Exaltolide — silky, refined trail"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "ethylene_brassylate",
+        "exaltolide_total"
+      ]
+    },
+    {
+      "id": "sub-earth",
+      "category": "substitution",
+      "title": "Patchouli or nagarmotha for the earth",
+      "body": "Patchouli is damp, musty, cellar-soil richness from patchoulol. Cypriol is dry, woody, leathery and smoky. They are both 'earthy' and they are nothing alike.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "patchouli",
+        "cypriol"
+      ],
+      "compare_labels": [
+        "Patchouli — damp cellar soil",
+        "Cypriol — dry smoky leather-earth"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "cypriol",
+        "patchouli"
+      ]
+    },
+    {
+      "id": "sub-clean-musks",
+      "category": "substitution",
+      "title": "Galaxolide or Habanolide for the clean musk",
+      "body": "Galaxolide is a soft, floral-sweet laundry cushion. Habanolide is airier and slightly metallic — candle wax rather than fabric softener.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "galaxolide",
+        "habanolide"
+      ],
+      "compare_labels": [
+        "Galaxolide — soft laundry cushion",
+        "Habanolide — airy, waxy, crisp"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "galaxolide",
+        "habanolide"
+      ]
+    },
+    {
+      "id": "sub-sandalwood",
+      "category": "substitution",
+      "title": "Bacdanol or Ebanol for the sandalwood",
+      "body": "Bacdanol is milky and natural-feeling — it blends into things. Ebanol is more powerful and darker-woody — it announces itself.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "bacdanol",
+        "ebanol"
+      ],
+      "compare_labels": [
+        "Bacdanol — milky, blends in",
+        "Ebanol — powerful, dark, woody"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bacdanol",
+        "ebanol"
+      ]
+    },
+    {
+      "id": "sub-rose",
+      "category": "substitution",
+      "title": "Rose Wardia or PEA for the rose",
+      "body": "Rose Wardia is a complete red-rose bouquet out of the bottle. PEA is one facet of it — clear, watery, honeyed rosewater — and much easier to build around.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "rose_wardia",
+        "phenyl_ethyl_alcohol"
+      ],
+      "compare_labels": [
+        "Rose Wardia — the whole flower",
+        "PEA — rosewater, one facet"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "phenyl_ethyl_alcohol",
+        "rose_wardia"
+      ]
+    },
+    {
+      "id": "sub-pepper",
+      "category": "substitution",
+      "title": "Pink or black for the pepper",
+      "body": "Pink peppercorn is radiant, fizzy and berry-spicy — it lifts. Black pepper is sharp, dark and caryophyllenic — it grounds.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "pink_pepper",
+        "black_pepper_oil"
+      ],
+      "compare_labels": [
+        "Pink — fizzy, berry, lifts",
+        "Black — dark, woody, grounds"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "black_pepper_oil",
+        "pink_pepper"
+      ]
+    },
+    {
+      "id": "sub-citrus",
+      "category": "substitution",
+      "title": "Orange tenfold or Bergamot INDI for the citrus",
+      "body": "Orange 10x is concentrated, deep, sweet peel and not phototoxic. Bergamot INDI is Earl Grey freshness with a sparkling floral-citrus lift.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "orange_10x",
+        "bergamot"
+      ],
+      "compare_labels": [
+        "Orange 10x — deep sweet peel",
+        "Bergamot INDI — Earl Grey lift"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "orange_10x"
+      ]
+    },
+    {
+      "id": "sub-cedar",
+      "category": "substitution",
+      "title": "Cedarwood or Vertofix for the dry timber",
+      "body": "Cedarwood oil is natural, balsamic cedar bark. Vertofix is a cleaner, structured, slightly leathery synthetic booster built from the same terpenes.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "cedarwood",
+        "vertofix"
+      ],
+      "compare_labels": [
+        "Cedarwood — natural bark",
+        "Vertofix — clean, structured, leathery"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "cedarwood",
+        "vertofix"
+      ]
+    },
+    {
+      "id": "sub-jasmine",
+      "category": "substitution",
+      "title": "Jasmine Sambac or benzyl acetate for the jasmine",
+      "body": "The absolute gives authentic, narcotic, indolic night-bloom realism and drags weight with it. Benzyl acetate gives a bright, fruity, high-impact jasmine top and nothing underneath.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "jasmine_sambac",
+        "benzyl_acetate"
+      ],
+      "compare_labels": [
+        "Sambac — narcotic, indolic, heavy",
+        "Benzyl acetate — bright top, no weight"
+      ],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "benzyl_acetate",
+        "jasmine_sambac"
+      ]
+    },
+    {
+      "id": "sub-amber",
+      "category": "substitution",
+      "title": "Ambroxan or Cetalox for the ambergris",
+      "body": "Ambroxan is warm, dry, woody-ambergris radiance. Cetalox is cleaner and more powerful with a velvety amber-musk trail — not currently in the palette.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [
+        "ambroxan"
+      ],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [
+        "Cetalox"
+      ],
+      "involves": [
+        "ambroxan"
+      ]
+    },
+    {
+      "id": "gourmand-tame-maltol",
+      "category": "gourmand",
+      "title": "Keep ethyl maltol under half a percent",
+      "body": "Above that you are no longer making a perfume with a sweet facet, you are making candyfloss. Unless candyfloss is the brief.",
+      "requires_all": [
+        "ethyl_maltol"
+      ],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "ethyl_maltol": "under 0.5% neat in the concentrate"
+      },
+      "off_palette": [],
+      "involves": [
+        "ethyl_maltol"
+      ]
+    },
+    {
+      "id": "gourmand-dark-chocolate",
+      "category": "gourmand",
+      "title": "Dark chocolate accord",
+      "body": "Bitter cacao rather than sweet chocolate — the guaiacol is what stops it reading as a dessert.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "patchouli",
+          "pct": "5–8%"
+        },
+        {
+          "material": "coumarin",
+          "pct": "2–3%"
+        },
+        {
+          "material": "guaiacol",
+          "pct": "0.1–0.3%"
+        },
+        {
+          "material": "ethyl_maltol",
+          "pct": "0.2%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "coumarin",
+        "ethyl_maltol",
+        "guaiacol",
+        "patchouli"
+      ]
+    },
+    {
+      "id": "gourmand-milk",
+      "category": "gourmand",
+      "title": "Warm condensed milk accord",
+      "body": "Lactone, vanilla and a creamy sandalwood. The Bacdanol is what makes it milk rather than custard.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "gamma_nonalactone",
+          "pct": "0.3–0.8%"
+        },
+        {
+          "material": "vanillin",
+          "pct": "1–2%"
+        },
+        {
+          "material": "bacdanol",
+          "pct": "2–4%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bacdanol",
+        "gamma_nonalactone",
+        "vanillin"
+      ]
+    },
+    {
+      "id": "gourmand-coffee",
+      "category": "gourmand",
+      "title": "Roasted coffee beans",
+      "body": "Coffee CO2 alone smells like burnt syrup. The guaiacol supplies the roast and the cardamom supplies the steam.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "coffee_co2",
+          "pct": "2–5%"
+        },
+        {
+          "material": "cardamom_oil",
+          "pct": "1%"
+        },
+        {
+          "material": "guaiacol",
+          "pct": "0.1%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "cardamom_oil",
+        "coffee_co2",
+        "guaiacol"
+      ]
+    },
+    {
+      "id": "gourmand-frangipane",
+      "category": "gourmand",
+      "title": "Toasted almond and pastry dough",
+      "body": "Coumarin does the baked-good work; the ionone keeps it from being flat.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "coumarin",
+          "pct": "3–5%"
+        },
+        {
+          "material": "vanillin",
+          "pct": "1.5%"
+        },
+        {
+          "material": "methyl_ionone_gamma",
+          "pct": "1–2%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [
+        "Heliotropin"
+      ],
+      "involves": [
+        "coumarin",
+        "methyl_ionone_gamma",
+        "vanillin"
+      ]
+    },
+    {
+      "id": "gourmand-cut-sickly",
+      "category": "gourmand",
+      "title": "Counter a sickly gourmand with tart acidity",
+      "body": "Heavy vanilla and caramel need something sour against them or they read as sugar syrup.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "vanillin",
+          "ethyl_maltol"
+        ]
+      ],
+      "suggests": [
+        "pink_pepper",
+        "blackcurrant_bud_replacer"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "pink_pepper": "1–2%",
+        "blackcurrant_bud_replacer": "0.5%"
+      },
+      "off_palette": [],
+      "involves": [
+        "blackcurrant_bud_replacer",
+        "ethyl_maltol",
+        "pink_pepper",
+        "vanillin"
+      ]
+    },
+    {
+      "id": "gourmand-salted-butterscotch",
+      "category": "gourmand",
+      "title": "Salted butterscotch",
+      "body": "The Ambroxan is the trick — its saline mineral facet is what turns plain caramel into salted caramel.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "ethyl_maltol",
+          "pct": "0.3%"
+        },
+        {
+          "material": "vanillin",
+          "pct": "2%"
+        },
+        {
+          "material": "ambroxan",
+          "pct": "1%"
+        },
+        {
+          "material": "labdanum",
+          "pct": "0.5%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "ambroxan",
+        "ethyl_maltol",
+        "labdanum",
+        "vanillin"
+      ]
+    },
+    {
+      "id": "gourmand-bakery-crust",
+      "category": "gourmand",
+      "title": "Oven-baked pastry crust",
+      "body": "Sits underneath a fruit or vanilla accord and makes it read as baked rather than raw.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "coumarin",
+          "pct": "2%"
+        },
+        {
+          "material": "benzoin",
+          "pct": "3%"
+        },
+        {
+          "material": "nutmeg_eo",
+          "pct": "1%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "benzoin",
+        "coumarin",
+        "nutmeg_eo"
+      ]
+    },
+    {
+      "id": "gourmand-honey",
+      "category": "gourmand",
+      "title": "Honey accord",
+      "body": "PEA supplies the nectar, benzoin the wax and body, and the trace of kewra or methyl anthranilate the slight animal edge real honey has.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "phenyl_ethyl_alcohol",
+          "pct": "4%"
+        },
+        {
+          "material": "benzoin",
+          "pct": "3%"
+        },
+        {
+          "material": "attar_kewra",
+          "pct": "trace"
+        },
+        {
+          "material": "methyl_anthranilate",
+          "pct": "trace"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "attar_kewra",
+        "benzoin",
+        "methyl_anthranilate",
+        "phenyl_ethyl_alcohol"
+      ]
+    },
+    {
+      "id": "gourmand-steam",
+      "category": "gourmand",
+      "title": "Rising steam over a hot drink",
+      "body": "Put these above a tea or coffee accord and it stops being a cup on a table and starts being a cup you just poured.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "black_pepper_oil",
+          "pct": "0.5%"
+        },
+        {
+          "material": "dihydromyrcenol",
+          "pct": "1%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "black_pepper_oil",
+        "dihydromyrcenol"
+      ]
+    },
+    {
+      "id": "earth-geosmin-dosing",
+      "category": "petrichor",
+      "title": "Geosmin: the number, not the feeling",
+      "body": "Pre-dilute to 0.1% or 0.01% in DPG and target 5–20 ppm of active geosmin in the finished concentrate. That is 0.0005% to 0.002%. Weighed any other way it is a mistake you cannot take back out.",
+      "requires_all": [
+        "geosmin"
+      ],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "geosmin": "0.0005–0.002% active (5–20 ppm)"
+      },
+      "off_palette": [],
+      "involves": [
+        "geosmin"
+      ]
+    },
+    {
+      "id": "earth-mitti-anchors-geosmin",
+      "category": "petrichor",
+      "title": "Anchor geosmin in clay",
+      "body": "Synthetic geosmin on its own reads fungal. Attar mitti at roughly ten times the active geosmin grounds it in mineral clay warmth and makes it read as ground rather than as mould.",
+      "requires_all": [
+        "geosmin"
+      ],
+      "requires_any": [],
+      "suggests": [
+        "attar_mitti"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "attar_mitti": "≈10× the active geosmin"
+      },
+      "off_palette": [],
+      "involves": [
+        "attar_mitti",
+        "geosmin"
+      ]
+    },
+    {
+      "id": "earth-soil-vs-leaves",
+      "category": "petrichor",
+      "title": "Rain on soil is not rain on leaves",
+      "body": "Wet soil is vetiver and nagarmotha. Rain falling through foliage is cis-3 and floralozone. Deciding which one you are making resolves half the formula.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "geosmin",
+          "floralozone",
+          "attar_mitti"
+        ]
+      ],
+      "suggests": [
+        "vetiver_eo",
+        "cypriol",
+        "cis3_hexenyl_acetate",
+        "floralozone"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "attar_mitti",
+        "cis3_hexenyl_acetate",
+        "cypriol",
+        "floralozone",
+        "geosmin",
+        "vetiver_eo"
+      ]
+    },
+    {
+      "id": "earth-pre-storm-ozone",
+      "category": "petrichor",
+      "title": "The ionised air before rain",
+      "body": "Not water — the cold electric smell that arrives first.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "floralozone",
+          "pct": "0.5–1%"
+        },
+        {
+          "material": "dihydromyrcenol",
+          "pct": "1.5%"
+        },
+        {
+          "material": "aldehyde_c12_mna",
+          "pct": "0.05%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "aldehyde_c12_mna",
+        "dihydromyrcenol",
+        "floralozone"
+      ]
+    },
+    {
+      "id": "earth-peatmoss-wet-stone",
+      "category": "petrichor",
+      "title": "Peatmoss for wet rock",
+      "body": "Damp, saline, lichen-textured. It is what makes a petrichor smell like stone rather than like dirt.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "geosmin",
+          "attar_mitti",
+          "peatmoss"
+        ]
+      ],
+      "suggests": [
+        "peatmoss"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "peatmoss": "0.5–1.5%"
+      },
+      "off_palette": [],
+      "involves": [
+        "attar_mitti",
+        "geosmin",
+        "peatmoss"
+      ]
+    },
+    {
+      "id": "earth-not-mould",
+      "category": "petrichor",
+      "title": "Stop the petrichor smelling like mould",
+      "body": "Earth notes go stale and fungal when they have nothing around them. Surround geosmin with transparent diffusers and it stays open, airy and clean.",
+      "requires_all": [
+        "geosmin"
+      ],
+      "requires_any": [],
+      "suggests": [
+        "hedione",
+        "iso_e_super"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "hedione": "20–25%",
+        "iso_e_super": "20%"
+      },
+      "off_palette": [],
+      "involves": [
+        "geosmin",
+        "hedione",
+        "iso_e_super"
+      ]
+    },
+    {
+      "id": "earth-forest-floor",
+      "category": "petrichor",
+      "title": "Shift baked clay to damp forest floor",
+      "body": "Add humus and leaf litter under the rain and the location changes from a courtyard to a wood.",
+      "requires_all": [
+        "geosmin"
+      ],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "patchouli",
+          "pct": "3–5%"
+        },
+        {
+          "material": "cedarwood",
+          "pct": "8–12%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "cedarwood",
+        "geosmin",
+        "patchouli"
+      ]
+    },
+    {
+      "id": "earth-rain-on-petals",
+      "category": "petrichor",
+      "title": "Make the flowers look rained on",
+      "body": "PEA and geraniol are the moisture bridges — they carry water texture into the petals so the floral reads as freshly drenched rather than merely present.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "geosmin",
+          "attar_mitti",
+          "peatmoss",
+          "floralozone"
+        ],
+        [
+          "jasmine_sambac",
+          "ylang_ylang",
+          "rose_wardia",
+          "phenyl_ethyl_alcohol",
+          "geraniol_extra"
+        ]
+      ],
+      "suggests": [
+        "phenyl_ethyl_alcohol",
+        "geraniol_extra"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "attar_mitti",
+        "floralozone",
+        "geosmin",
+        "geraniol_extra",
+        "jasmine_sambac",
+        "peatmoss",
+        "phenyl_ethyl_alcohol",
+        "rose_wardia",
+        "ylang_ylang"
+      ]
+    },
+    {
+      "id": "earth-river-stones",
+      "category": "petrichor",
+      "title": "Sun-baked river stones cooled by water",
+      "body": "Mineral, warm and wet at once.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "attar_mitti",
+          "pct": "5–10%"
+        },
+        {
+          "material": "ambroxan",
+          "pct": "1–2%"
+        },
+        {
+          "material": "floralozone",
+          "pct": "0.5%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "ambroxan",
+        "attar_mitti",
+        "floralozone"
+      ]
+    },
+    {
+      "id": "earth-geosmin-fatigue",
+      "category": "petrichor",
+      "title": "Geosmin fatigue is real — plan around it",
+      "body": "Receptors desensitise to geosmin within minutes and the wearer stops smelling the thing they bought. Surround it with dynamic top notes so the earth arrives in bursts rather than as a constant the nose edits out.",
+      "requires_all": [
+        "geosmin"
+      ],
+      "requires_any": [],
+      "suggests": [
+        "pink_pepper",
+        "bergamot"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "geosmin",
+        "pink_pepper"
+      ]
+    },
+    {
+      "id": "floral-damascone-rose",
+      "category": "floral",
+      "title": "Beta-damascone lifts a flat rose",
+      "body": "A jammy, plum-like bloom over the top of the rose. Stay under the IFRA ceiling — it is very low and very easy to pass.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "rose_wardia",
+          "geraniol_extra",
+          "phenyl_ethyl_alcohol"
+        ]
+      ],
+      "suggests": [
+        "damascone_beta"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "damascone_beta": "under 0.043% of the finished product"
+      },
+      "off_palette": [],
+      "involves": [
+        "damascone_beta",
+        "geraniol_extra",
+        "phenyl_ethyl_alcohol",
+        "rose_wardia"
+      ]
+    },
+    {
+      "id": "floral-dew",
+      "category": "floral",
+      "title": "Water droplets on petals",
+      "body": "The cis-3 is what makes it a droplet rather than a mist.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "phenyl_ethyl_alcohol",
+          "pct": "5–10%"
+        },
+        {
+          "material": "hedione",
+          "pct": "20%"
+        },
+        {
+          "material": "cis3_hexenyl_acetate",
+          "pct": "0.1%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "cis3_hexenyl_acetate",
+        "hedione",
+        "phenyl_ethyl_alcohol"
+      ]
+    },
+    {
+      "id": "floral-salicylate-smooth",
+      "category": "floral",
+      "title": "Round off a sharp white floral",
+      "body": "Benzyl salicylate is both solvent and fixative here. It takes the edge off indolic tuberose and jasmine without muting them.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "jasmine_sambac",
+          "ylang_ylang"
+        ]
+      ],
+      "suggests": [
+        "benzyl_salicylate"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "benzyl_salicylate": "5–12%"
+      },
+      "off_palette": [
+        "Tuberose absolute"
+      ],
+      "involves": [
+        "benzyl_salicylate",
+        "jasmine_sambac",
+        "ylang_ylang"
+      ]
+    },
+    {
+      "id": "floral-indolic-not-dirty",
+      "category": "floral",
+      "title": "Indolic realism that does not turn fecal",
+      "body": "Keep the absolute low and let benzyl acetate carry the volume. Authentic night-blooming jasmine, no barnyard.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "jasmine_sambac",
+          "pct": "1–3%"
+        },
+        {
+          "material": "benzyl_acetate",
+          "pct": "2–4%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "benzyl_acetate",
+        "jasmine_sambac"
+      ]
+    },
+    {
+      "id": "floral-ionone-velvet",
+      "category": "floral",
+      "title": "Give the rose a velvet, powdery texture",
+      "body": "Methyl ionone into a rose core reads as violet-hued petal rather than as a second flower.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "rose_wardia"
+        ]
+      ],
+      "suggests": [
+        "methyl_ionone_gamma"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "methyl_ionone_gamma": "2–4%"
+      },
+      "off_palette": [],
+      "involves": [
+        "methyl_ionone_gamma",
+        "rose_wardia"
+      ]
+    },
+    {
+      "id": "floral-hedione-bloom",
+      "category": "floral",
+      "title": "Hedione amplifies any floral it touches",
+      "body": "It does not smell of much on its own, and it makes a floral accord read as markedly more natural and more diffusive.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "jasmine_sambac",
+          "ylang_ylang",
+          "rose_wardia",
+          "phenyl_ethyl_alcohol",
+          "geraniol_extra"
+        ]
+      ],
+      "suggests": [
+        "hedione"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "hedione": "20–30%"
+      },
+      "off_palette": [],
+      "involves": [
+        "geraniol_extra",
+        "hedione",
+        "jasmine_sambac",
+        "phenyl_ethyl_alcohol",
+        "rose_wardia",
+        "ylang_ylang"
+      ]
+    },
+    {
+      "id": "floral-orange-blossom",
+      "category": "floral",
+      "title": "Bright orange blossom, top to heart",
+      "body": "Sparkling rather than heavy — the bergamot keeps the anthranilate from going grape-soda.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "methyl_anthranilate",
+          "pct": "1–2%"
+        },
+        {
+          "material": "linalool",
+          "pct": "4%"
+        },
+        {
+          "material": "bergamot",
+          "pct": "5%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "bergamot",
+        "linalool",
+        "methyl_anthranilate"
+      ]
+    },
+    {
+      "id": "floral-tropical-humidity",
+      "category": "floral",
+      "title": "Monsoon humidity in a white floral",
+      "body": "Attar kewra brings an exotic, honeyed, tropical wetness that no synthetic in the palette reproduces.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "jasmine_sambac",
+          "ylang_ylang"
+        ]
+      ],
+      "suggests": [
+        "attar_kewra"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "attar_kewra": "2–5%"
+      },
+      "off_palette": [],
+      "involves": [
+        "attar_kewra",
+        "jasmine_sambac",
+        "ylang_ylang"
+      ]
+    },
+    {
+      "id": "floral-peme-green-edge",
+      "category": "floral",
+      "title": "A crisp green edge on heavy petals",
+      "body": "PEME gives a clover-like green-floral top that brightens a white floral without making it herbal.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "jasmine_sambac",
+          "ylang_ylang"
+        ]
+      ],
+      "suggests": [
+        "peme"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "peme": "0.5–1.5%"
+      },
+      "off_palette": [],
+      "involves": [
+        "jasmine_sambac",
+        "peme",
+        "ylang_ylang"
+      ]
+    },
+    {
+      "id": "floral-carnation",
+      "category": "floral",
+      "title": "Spiced carnation heart",
+      "body": "Rose plus eugenol is carnation — the oldest trick in the book, and it still works.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "rose_wardia",
+          "pct": "5%"
+        },
+        {
+          "material": "clove_bud_eo",
+          "pct": "1%"
+        },
+        {
+          "material": "iso_e_super",
+          "pct": "20%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "clove_bud_eo",
+        "iso_e_super",
+        "rose_wardia"
+      ]
+    },
+    {
+      "id": "wood-trinity",
+      "category": "woody",
+      "title": "The trinity chassis",
+      "body": "Iso E, hedione and galaxolide together make a transparent base that will carry almost any family put on top of it. If a formula has no structure, start here and build onto it.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "iso_e_super",
+          "pct": "20–30%"
+        },
+        {
+          "material": "hedione",
+          "pct": "15–25%"
+        },
+        {
+          "material": "galaxolide",
+          "pct": "10–15%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "galaxolide",
+        "hedione",
+        "iso_e_super"
+      ]
+    },
+    {
+      "id": "wood-soften-harsh-amber",
+      "category": "woody",
+      "title": "Surround a harsh woody-amber with macrocyclic musk",
+      "body": "Sylvamber and Norlimbanol are scratchy on their own. Macrocyclic musks and cashmeran give them something soft to sit in.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "sylvamber",
+          "norlimbanol"
+        ]
+      ],
+      "suggests": [
+        "ethylene_brassylate",
+        "exaltolide_total",
+        "cashmeran"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "cashmeran",
+        "ethylene_brassylate",
+        "exaltolide_total",
+        "norlimbanol",
+        "sylvamber"
+      ]
+    },
+    {
+      "id": "wood-laundry-musk",
+      "category": "woody",
+      "title": "Fresh-out-of-the-dryer musk",
+      "body": "Three musks doing three different jobs: cushion, air and sweetness.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "galaxolide",
+          "pct": "10–15%"
+        },
+        {
+          "material": "ethylene_brassylate",
+          "pct": "10%"
+        },
+        {
+          "material": "habanolide",
+          "pct": "3–5%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "ethylene_brassylate",
+        "galaxolide",
+        "habanolide"
+      ]
+    },
+    {
+      "id": "wood-ambergris-base",
+      "category": "woody",
+      "title": "Ambergris fixative base",
+      "body": "Long, radiant and quiet. Good under almost anything that needs a floor.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "ambroxan",
+          "pct": "1–2%"
+        },
+        {
+          "material": "galaxolide",
+          "pct": "5%"
+        },
+        {
+          "material": "labdanum",
+          "pct": "0.5%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "ambroxan",
+        "galaxolide",
+        "labdanum"
+      ]
+    },
+    {
+      "id": "wood-soften-cedar",
+      "category": "woody",
+      "title": "Stop the cedar being scratchy",
+      "body": "Cedarwood on its own is pencil shavings. A creamy sandalwood synthetic under it takes the splinters out.",
+      "requires_all": [
+        "cedarwood"
+      ],
+      "requires_any": [],
+      "suggests": [
+        "bacdanol"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "bacdanol": "3–5%"
+      },
+      "off_palette": [],
+      "involves": [
+        "bacdanol",
+        "cedarwood"
+      ]
+    },
+    {
+      "id": "wood-cashmere",
+      "category": "woody",
+      "title": "Velvet cashmere skin scent",
+      "body": "Tactile rather than fragrant — it reads as a texture more than a smell.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "cashmeran",
+          "pct": "3–5%"
+        },
+        {
+          "material": "iso_e_super",
+          "pct": "20%"
+        },
+        {
+          "material": "methyl_ionone_gamma",
+          "pct": "5%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "cashmeran",
+        "iso_e_super",
+        "methyl_ionone_gamma"
+      ]
+    },
+    {
+      "id": "wood-modern-oud",
+      "category": "woody",
+      "title": "Keep the oud smoke airy",
+      "body": "A dense oud base collapses under its own weight. Ambroxan for radiance, bergamot for an opening and a lot of hedione for air.",
+      "requires_all": [],
+      "requires_any": [
+        [
+          "oud_oliffac",
+          "agarwood_artessence"
+        ]
+      ],
+      "suggests": [
+        "ambroxan",
+        "bergamot",
+        "hedione"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "ambroxan": "1.5%",
+        "bergamot": "5%",
+        "hedione": "20%"
+      },
+      "off_palette": [],
+      "involves": [
+        "agarwood_artessence",
+        "ambroxan",
+        "bergamot",
+        "hedione",
+        "oud_oliffac"
+      ]
+    },
+    {
+      "id": "wood-norlimbanol-caution",
+      "category": "woody",
+      "title": "Norlimbanol will take the formula over if you let it",
+      "body": "Keep it to a fraction of a percent from a 10% dilution. Above that it is bone-dry synthetic timber scratch and nothing else survives it.",
+      "requires_all": [
+        "norlimbanol"
+      ],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "norlimbanol": "0.1–0.5% of a 10% dilution"
+      },
+      "off_palette": [],
+      "involves": [
+        "norlimbanol"
+      ]
+    },
+    {
+      "id": "wood-fix-vanillin",
+      "category": "woody",
+      "title": "Stop the vanillin subliming off",
+      "body": "Vanillin leaves the skin faster than its molecular weight suggests. Benzoin and a macrocyclic musk hold it down.",
+      "requires_all": [
+        "vanillin"
+      ],
+      "requires_any": [],
+      "suggests": [
+        "benzoin",
+        "ethylene_brassylate"
+      ],
+      "recipe": [],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {
+        "benzoin": "3–5%",
+        "ethylene_brassylate": "10%"
+      },
+      "off_palette": [],
+      "involves": [
+        "benzoin",
+        "ethylene_brassylate",
+        "vanillin"
+      ]
+    },
+    {
+      "id": "wood-leather",
+      "category": "woody",
+      "title": "Calfskin, not industrial tar",
+      "body": "The Iso E is not optional here — without it the same three materials read as a tannery.",
+      "requires_all": [],
+      "requires_any": [],
+      "suggests": [],
+      "recipe": [
+        {
+          "material": "safraleine",
+          "pct": "0.5–1%"
+        },
+        {
+          "material": "cypriol",
+          "pct": "1–2%"
+        },
+        {
+          "material": "patchouli",
+          "pct": "3%"
+        },
+        {
+          "material": "iso_e_super",
+          "pct": "20%"
+        }
+      ],
+      "compare": [],
+      "compare_labels": [],
+      "dose": {},
+      "off_palette": [],
+      "involves": [
+        "cypriol",
+        "iso_e_super",
+        "patchouli",
+        "safraleine"
+      ]
+    }
+  ]
+}

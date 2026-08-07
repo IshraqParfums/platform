@@ -1,0 +1,2261 @@
+{
+  "meta": {
+    "purpose": "What each palette material is made of, molecule by molecule. Exists so 'these two materials go together' can be checked rather than asserted: two materials that share 40% of their mass cannot clash, and a formula's total linalool across six different naturals is a number no per-material field can show.",
+    "basis": "Indicative typical GC-FID area percentages, not certificates of analysis.",
+    "caveat": "Naturals vary by origin, harvest, distillation and age. Every percentage here is the middle of a published range, not a measurement of your drum. Treat them as proportions to reason with, not numbers to certify against.",
+    "allergen_note": "`eu_allergen` marks the EU Annex III declarable list. It is a labelling duty triggered by the finished product's total, summed across every source — which is exactly what a per-material field cannot see and this layer can. It is not a ban and not an IFRA limit.",
+    "generated_by": "scripts/build_chemistry.py",
+    "count": 154
+  },
+  "constituents": [
+    {
+      "id": "limonene",
+      "name": "d-Limonene",
+      "cas": "5989-27-5",
+      "chemical_class": "monoterpene",
+      "odour": "Bright, sweet orange peel. Thin, fast, oxidises.",
+      "facets": [
+        "citrus",
+        "citrus-peel",
+        "fresh"
+      ],
+      "volatility": "top",
+      "eu_allergen": true,
+      "note": "Oxidation products are the sensitiser; keep citrus oils cold and dark."
+    },
+    {
+      "id": "alpha_pinene",
+      "name": "alpha-Pinene",
+      "cas": "80-56-8",
+      "chemical_class": "monoterpene",
+      "odour": "Dry pine needle, turpentine, cold air.",
+      "facets": [
+        "pine",
+        "turpentine",
+        "resinous"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "beta_pinene",
+      "name": "beta-Pinene",
+      "cas": "127-91-3",
+      "chemical_class": "monoterpene",
+      "odour": "Drier and woodier than alpha, less sweet.",
+      "facets": [
+        "pine",
+        "woody",
+        "terpenic"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "myrcene",
+      "name": "beta-Myrcene",
+      "cas": "123-35-3",
+      "chemical_class": "monoterpene",
+      "odour": "Balsamic, faintly metallic herbal.",
+      "facets": [
+        "terpenic",
+        "green"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "sabinene",
+      "name": "Sabinene",
+      "cas": "3387-41-5",
+      "chemical_class": "monoterpene",
+      "odour": "Peppery-woody, fresh, slightly nutmeg.",
+      "facets": [
+        "spicy",
+        "woody",
+        "terpenic"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "gamma_terpinene",
+      "name": "gamma-Terpinene",
+      "cas": "99-85-4",
+      "chemical_class": "monoterpene",
+      "odour": "Citrus-terpenic, slightly bitter.",
+      "facets": [
+        "citrus",
+        "bitter",
+        "terpenic"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "alpha_phellandrene",
+      "name": "alpha-Phellandrene",
+      "cas": "99-83-2",
+      "chemical_class": "monoterpene",
+      "odour": "Peppery-citrus with a green bite. The pink-pepper sparkle.",
+      "facets": [
+        "spicy",
+        "citrus",
+        "green"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "beta_phellandrene",
+      "name": "beta-Phellandrene",
+      "cas": "555-10-2",
+      "chemical_class": "monoterpene",
+      "odour": "Minty-peppery, thinner than alpha.",
+      "facets": [
+        "spicy",
+        "green"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "delta_3_carene",
+      "name": "delta-3-Carene",
+      "cas": "13466-78-9",
+      "chemical_class": "monoterpene",
+      "odour": "Sweet, resinous pine, slightly lemony.",
+      "facets": [
+        "pine",
+        "resinous",
+        "sweet"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "camphene",
+      "name": "Camphene",
+      "cas": "79-92-5",
+      "chemical_class": "monoterpene",
+      "odour": "Camphoraceous, dry, woody.",
+      "facets": [
+        "camphor",
+        "woody"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "terpinolene",
+      "name": "Terpinolene",
+      "cas": "586-62-9",
+      "chemical_class": "monoterpene",
+      "odour": "Fresh, piney, a little sweet.",
+      "facets": [
+        "pine",
+        "fresh"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "p_cymene",
+      "name": "para-Cymene",
+      "cas": "99-87-6",
+      "chemical_class": "aromatic hydrocarbon",
+      "odour": "Dry, papery, faintly citrus-solvent.",
+      "facets": [
+        "dry",
+        "terpenic"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "alpha_thujene",
+      "name": "alpha-Thujene",
+      "cas": "2867-05-2",
+      "chemical_class": "monoterpene",
+      "odour": "Green-woody, faintly peppery.",
+      "facets": [
+        "green",
+        "woody"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "beta_caryophyllene",
+      "name": "beta-Caryophyllene",
+      "cas": "87-44-5",
+      "chemical_class": "sesquiterpene",
+      "odour": "Dry woody-peppery, the backbone of black pepper.",
+      "facets": [
+        "spicy",
+        "woody",
+        "dry"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "alpha_humulene",
+      "name": "alpha-Humulene",
+      "cas": "6753-98-6",
+      "chemical_class": "sesquiterpene",
+      "odour": "Woody, hoppy, dry.",
+      "facets": [
+        "woody",
+        "dry"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "germacrene_d",
+      "name": "Germacrene D",
+      "cas": "23986-74-5",
+      "chemical_class": "sesquiterpene",
+      "odour": "Woody-green, faintly spicy.",
+      "facets": [
+        "woody",
+        "green"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "delta_cadinene",
+      "name": "delta-Cadinene",
+      "cas": "483-76-1",
+      "chemical_class": "sesquiterpene",
+      "odour": "Dry woody, faintly herbal.",
+      "facets": [
+        "woody",
+        "dry"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "beta_elemene",
+      "name": "beta-Elemene",
+      "cas": "515-13-9",
+      "chemical_class": "sesquiterpene",
+      "odour": "Fresh-woody, green-spicy.",
+      "facets": [
+        "woody",
+        "green"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "valencene",
+      "name": "Valencene",
+      "cas": "4630-07-3",
+      "chemical_class": "sesquiterpene",
+      "odour": "Sweet woody-citrus, orange rind.",
+      "facets": [
+        "citrus-peel",
+        "woody"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "alpha_cedrene",
+      "name": "alpha-Cedrene",
+      "cas": "469-61-4",
+      "chemical_class": "sesquiterpene",
+      "odour": "Dry cedar, pencil shavings.",
+      "facets": [
+        "dry-wood",
+        "pencil"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "beta_cedrene",
+      "name": "beta-Cedrene",
+      "cas": "546-28-1",
+      "chemical_class": "sesquiterpene",
+      "odour": "Softer, woodier cedar.",
+      "facets": [
+        "dry-wood"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "thujopsene",
+      "name": "Thujopsene",
+      "cas": "470-40-6",
+      "chemical_class": "sesquiterpene",
+      "odour": "Dry, slightly sharp cedar-wood.",
+      "facets": [
+        "dry-wood",
+        "dry"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "cuparene",
+      "name": "Cuparene",
+      "cas": "16982-00-6",
+      "chemical_class": "sesquiterpene",
+      "odour": "Faint dry wood.",
+      "facets": [
+        "dry-wood"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "alpha_guaiene",
+      "name": "alpha-Guaiene",
+      "cas": "3691-12-1",
+      "chemical_class": "sesquiterpene",
+      "odour": "Woody-peppery; oxidises to rotundone.",
+      "facets": [
+        "woody",
+        "spicy"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "alpha_bulnesene",
+      "name": "alpha-Bulnesene",
+      "cas": "3691-11-0",
+      "chemical_class": "sesquiterpene",
+      "odour": "Woody-balsamic, patchouli backbone.",
+      "facets": [
+        "woody",
+        "balsamic"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "seychellene",
+      "name": "Seychellene",
+      "cas": "20085-93-2",
+      "chemical_class": "sesquiterpene",
+      "odour": "Dry woody-camphoraceous.",
+      "facets": [
+        "woody",
+        "camphor"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "alpha_patchoulene",
+      "name": "alpha-Patchoulene",
+      "cas": "560-32-7",
+      "chemical_class": "sesquiterpene",
+      "odour": "Dry earthy-woody.",
+      "facets": [
+        "earthy",
+        "woody"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "beta_patchoulene",
+      "name": "beta-Patchoulene",
+      "cas": "514-51-2",
+      "chemical_class": "sesquiterpene",
+      "odour": "Earthy-woody, faintly cocoa.",
+      "facets": [
+        "earthy",
+        "cocoa"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "cyperene",
+      "name": "Cyperene",
+      "cas": "2387-78-2",
+      "chemical_class": "sesquiterpene",
+      "odour": "Dry, smoky-woody, the nagarmotha spine.",
+      "facets": [
+        "dry-wood",
+        "smoky"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "beta_vetivenene",
+      "name": "beta-Vetivenene",
+      "cas": "68129-81-7",
+      "chemical_class": "sesquiterpene",
+      "odour": "Dry, smoky, rooty.",
+      "facets": [
+        "rooty",
+        "smoky"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "alpha_farnesene",
+      "name": "alpha-Farnesene",
+      "cas": "502-61-4",
+      "chemical_class": "sesquiterpene",
+      "odour": "Green-fruity, apple skin, faintly floral.",
+      "facets": [
+        "green",
+        "fruity"
+      ],
+      "volatility": "heart",
+      "eu_allergen": true,
+      "note": ""
+    },
+    {
+      "id": "alpha_copaene",
+      "name": "alpha-Copaene",
+      "cas": "3856-25-5",
+      "chemical_class": "sesquiterpene",
+      "odour": "Dry woody-spicy.",
+      "facets": [
+        "woody",
+        "spicy"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "linalool",
+      "name": "Linalool",
+      "cas": "78-70-6",
+      "chemical_class": "terpene alcohol",
+      "odour": "Fresh floral-woody with a lavender lift. The most-used molecule in perfumery.",
+      "facets": [
+        "lavender",
+        "floral",
+        "fresh",
+        "woody"
+      ],
+      "volatility": "top",
+      "eu_allergen": true,
+      "note": "Oxidises to sensitising hydroperoxides. A formula's total across all sources is what matters."
+    },
+    {
+      "id": "geraniol",
+      "name": "Geraniol",
+      "cas": "106-24-1",
+      "chemical_class": "terpene alcohol",
+      "odour": "Sweet rose-geranium, slightly waxy.",
+      "facets": [
+        "rosy",
+        "geranium",
+        "green"
+      ],
+      "volatility": "heart",
+      "eu_allergen": true,
+      "note": ""
+    },
+    {
+      "id": "nerol",
+      "name": "Nerol",
+      "cas": "106-25-2",
+      "chemical_class": "terpene alcohol",
+      "odour": "Fresher, greener, less sweet than geraniol.",
+      "facets": [
+        "rosy",
+        "green",
+        "fresh"
+      ],
+      "volatility": "heart",
+      "eu_allergen": true,
+      "note": ""
+    },
+    {
+      "id": "terpinen_4_ol",
+      "name": "Terpinen-4-ol",
+      "cas": "562-74-3",
+      "chemical_class": "terpene alcohol",
+      "odour": "Earthy-woody, medicinal, tea-tree.",
+      "facets": [
+        "medicinal",
+        "earthy",
+        "woody"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "alpha_terpineol",
+      "name": "alpha-Terpineol",
+      "cas": "98-55-5",
+      "chemical_class": "terpene alcohol",
+      "odour": "Lilac-pine, soft, slightly soapy.",
+      "facets": [
+        "floral",
+        "pine",
+        "soapy"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "borneol",
+      "name": "Borneol",
+      "cas": "507-70-0",
+      "chemical_class": "bicyclic alcohol",
+      "odour": "Camphoraceous, dry, medicinal.",
+      "facets": [
+        "camphor",
+        "medicinal"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "cedrol",
+      "name": "Cedrol",
+      "cas": "77-53-2",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "Soft dry cedar, faintly powdery. Very tenacious.",
+      "facets": [
+        "dry-wood",
+        "powdery"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "patchoulol",
+      "name": "Patchoulol",
+      "cas": "5986-55-0",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "The patchouli itself: earthy, woody, faintly cocoa-sweet.",
+      "facets": [
+        "earthy",
+        "woody",
+        "cocoa"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "norpatchoulenol",
+      "name": "Norpatchoulenol",
+      "cas": "41429-52-1",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "Trace-level, disproportionately responsible for patchouli's character.",
+      "facets": [
+        "earthy",
+        "woody"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": "Present under 1% but a major driver of the odour."
+    },
+    {
+      "id": "pogostol",
+      "name": "Pogostol",
+      "cas": "21698-41-9",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "Damp woody-earthy.",
+      "facets": [
+        "earthy",
+        "woody"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "khusimol",
+      "name": "Khusimol",
+      "cas": "16223-63-5",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "The main vetiver alcohol: dry, rooty, woody.",
+      "facets": [
+        "rooty",
+        "dry-wood"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "vetiselinenol",
+      "name": "Vetiselinenol",
+      "cas": "1460-73-7",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "Woody-rooty, soft.",
+      "facets": [
+        "rooty",
+        "woody"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "isovalencenol",
+      "name": "Isovalencenol",
+      "cas": "78785-34-1",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "Woody, faintly grapefruit-rooty.",
+      "facets": [
+        "rooty",
+        "woody"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "sclareol",
+      "name": "Sclareol",
+      "cas": "515-03-7",
+      "chemical_class": "labdane diterpene alcohol",
+      "odour": "Nearly odourless itself; the ambergris precursor.",
+      "facets": [
+        "ambery"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": "Feedstock for Ambroxan."
+    },
+    {
+      "id": "phenylethyl_alcohol",
+      "name": "2-Phenylethanol",
+      "cas": "60-12-8",
+      "chemical_class": "aromatic alcohol",
+      "odour": "Soft rose petal with a honey edge. Gentle, watery, never sharp.",
+      "facets": [
+        "rosy",
+        "honey",
+        "soft"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "benzyl_alcohol",
+      "name": "Benzyl alcohol",
+      "cas": "100-51-6",
+      "chemical_class": "aromatic alcohol",
+      "odour": "Faint, sweet-balsamic, almost a solvent.",
+      "facets": [
+        "balsamic",
+        "soft"
+      ],
+      "volatility": "heart",
+      "eu_allergen": true,
+      "note": ""
+    },
+    {
+      "id": "farnesol",
+      "name": "Farnesol",
+      "cas": "4602-84-0",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "Delicate linden-floral, waxy, very soft.",
+      "facets": [
+        "floral",
+        "waxy"
+      ],
+      "volatility": "base",
+      "eu_allergen": true,
+      "note": ""
+    },
+    {
+      "id": "alpha_santalol",
+      "name": "alpha-Santalol",
+      "cas": "115-71-9",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "The creamy, milky, sacred half of sandalwood.",
+      "facets": [
+        "sandalwood",
+        "creamy",
+        "milky"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "beta_santalol",
+      "name": "beta-Santalol",
+      "cas": "77-42-9",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "Drier, woodier, more radiant than alpha-santalol.",
+      "facets": [
+        "sandalwood",
+        "dry-wood"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "widdrol",
+      "name": "Widdrol",
+      "cas": "6892-80-4",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "Dry woody, faint.",
+      "facets": [
+        "dry-wood"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "viridiflorol",
+      "name": "Viridiflorol",
+      "cas": "552-02-3",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "Woody-earthy, faintly balsamic.",
+      "facets": [
+        "woody",
+        "earthy"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "ledol",
+      "name": "Ledol",
+      "cas": "577-27-5",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "Dry balsamic-woody.",
+      "facets": [
+        "balsamic",
+        "woody"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "elemol",
+      "name": "Elemol",
+      "cas": "639-99-6",
+      "chemical_class": "sesquiterpene alcohol",
+      "odour": "Soft woody-green, faintly peppery.",
+      "facets": [
+        "woody",
+        "green"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "furfuryl_alcohol",
+      "name": "Furfuryl alcohol",
+      "cas": "98-00-0",
+      "chemical_class": "furan",
+      "odour": "Warm, bready, faintly burnt.",
+      "facets": [
+        "roasted",
+        "nutty"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "linalyl_acetate",
+      "name": "Linalyl acetate",
+      "cas": "115-95-7",
+      "chemical_class": "terpene ester",
+      "odour": "Sweet lavender-bergamot, fruity-fresh, pear-like.",
+      "facets": [
+        "lavender",
+        "fruity",
+        "pear",
+        "bergamot"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": "Hydrolyses back to linalool in acidic or wet media."
+    },
+    {
+      "id": "geranyl_acetate",
+      "name": "Geranyl acetate",
+      "cas": "105-87-3",
+      "chemical_class": "terpene ester",
+      "odour": "Sweet rosy-fruity, softer than geraniol.",
+      "facets": [
+        "rosy",
+        "fruity",
+        "sweet"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "neryl_acetate",
+      "name": "Neryl acetate",
+      "cas": "141-12-8",
+      "chemical_class": "terpene ester",
+      "odour": "Fresh rosy-fruity, slightly green.",
+      "facets": [
+        "rosy",
+        "fruity",
+        "green"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "alpha_terpinyl_acetate",
+      "name": "alpha-Terpinyl acetate",
+      "cas": "80-26-2",
+      "chemical_class": "terpene ester",
+      "odour": "Sweet herbal-fruity; the cardamom roundness.",
+      "facets": [
+        "spicy",
+        "fruity",
+        "herbaceous"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "bornyl_acetate",
+      "name": "Bornyl acetate",
+      "cas": "76-49-3",
+      "chemical_class": "terpene ester",
+      "odour": "Fresh pine-needle, camphoraceous.",
+      "facets": [
+        "pine",
+        "camphor",
+        "fresh"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "lavandulyl_acetate",
+      "name": "Lavandulyl acetate",
+      "cas": "25905-14-0",
+      "chemical_class": "terpene ester",
+      "odour": "Herbal-lavender, softer and rounder than linalyl acetate.",
+      "facets": [
+        "lavender",
+        "herbaceous"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "benzyl_acetate",
+      "name": "Benzyl acetate",
+      "cas": "140-11-4",
+      "chemical_class": "aromatic ester",
+      "odour": "Jasmine-fruity, banana-pear, sweet and thin.",
+      "facets": [
+        "jasmine",
+        "fruity",
+        "banana",
+        "pear"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "benzyl_benzoate",
+      "name": "Benzyl benzoate",
+      "cas": "120-51-4",
+      "chemical_class": "aromatic ester",
+      "odour": "Very faint sweet-balsamic. Mostly a fixative and a solvent.",
+      "facets": [
+        "balsamic",
+        "sweet"
+      ],
+      "volatility": "base",
+      "eu_allergen": true,
+      "note": ""
+    },
+    {
+      "id": "benzyl_salicylate",
+      "name": "Benzyl salicylate",
+      "cas": "118-58-1",
+      "chemical_class": "aromatic ester",
+      "odour": "Soft balsamic-floral. Adds volume you cannot name.",
+      "facets": [
+        "balsamic",
+        "floral",
+        "powdery"
+      ],
+      "volatility": "base",
+      "eu_allergen": true,
+      "note": "Restricted; check the current amendment."
+    },
+    {
+      "id": "methyl_benzoate",
+      "name": "Methyl benzoate",
+      "cas": "93-58-3",
+      "chemical_class": "aromatic ester",
+      "odour": "Sweet, ylang-fruity, slightly medicinal.",
+      "facets": [
+        "fruity",
+        "floral"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "methyl_salicylate",
+      "name": "Methyl salicylate",
+      "cas": "119-36-8",
+      "chemical_class": "aromatic ester",
+      "odour": "Wintergreen: sharp, medicinal, sweet.",
+      "facets": [
+        "medicinal",
+        "sweet"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "methyl_anthranilate",
+      "name": "Methyl anthranilate",
+      "cas": "134-20-3",
+      "chemical_class": "aromatic ester",
+      "odour": "Grape soda and orange blossom; a foxy, animal edge.",
+      "facets": [
+        "grape",
+        "orange-blossom",
+        "foxy"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "cis3_hexenyl_acetate",
+      "name": "cis-3-Hexenyl acetate",
+      "cas": "3681-71-8",
+      "chemical_class": "aliphatic ester",
+      "odour": "Cut grass and crushed stem — the smell of a broken leaf.",
+      "facets": [
+        "green",
+        "stem",
+        "fruity-green"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "cis3_hexenyl_benzoate",
+      "name": "cis-3-Hexenyl benzoate",
+      "cas": "25152-85-6",
+      "chemical_class": "aromatic ester",
+      "odour": "Green-floral, soft, long.",
+      "facets": [
+        "green",
+        "floral"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "coniferyl_benzoate",
+      "name": "Coniferyl benzoate",
+      "cas": "20521-45-3",
+      "chemical_class": "aromatic ester",
+      "odour": "The bulk of Siam benzoin: sweet balsamic, faintly vanillic.",
+      "facets": [
+        "balsamic",
+        "sweet",
+        "vanilla"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": "Largely non-volatile; a fixative mass more than an odour."
+    },
+    {
+      "id": "cinnamyl_benzoate",
+      "name": "Cinnamyl benzoate",
+      "cas": "5320-75-2",
+      "chemical_class": "aromatic ester",
+      "odour": "Sweet balsamic, faint cinnamon.",
+      "facets": [
+        "balsamic",
+        "sweet"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "cinnamyl_acetate",
+      "name": "Cinnamyl acetate",
+      "cas": "103-54-8",
+      "chemical_class": "aromatic ester",
+      "odour": "Sweet-spicy, balsamic cinnamon.",
+      "facets": [
+        "spicy",
+        "balsamic"
+      ],
+      "volatility": "heart",
+      "eu_allergen": true,
+      "note": ""
+    },
+    {
+      "id": "eugenyl_acetate",
+      "name": "Eugenyl acetate",
+      "cas": "93-28-7",
+      "chemical_class": "phenolic ester",
+      "odour": "Softer, sweeter, rounder clove than eugenol.",
+      "facets": [
+        "spicy",
+        "sweet"
+      ],
+      "volatility": "heart",
+      "eu_allergen": true,
+      "note": ""
+    },
+    {
+      "id": "methyl_dihydrojasmonate",
+      "name": "Methyl dihydrojasmonate",
+      "cas": "24851-98-7",
+      "chemical_class": "cyclopentanone ester",
+      "odour": "Transparent jasmine-tea with a citrus-peel lift. Adds air, not smell.",
+      "facets": [
+        "jasmine",
+        "tea",
+        "citrus-peel",
+        "airy"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "methyl_jasmonate",
+      "name": "Methyl jasmonate",
+      "cas": "1211-29-6",
+      "chemical_class": "cyclopentanone ester",
+      "odour": "Rich, warm jasmine with a hay edge.",
+      "facets": [
+        "jasmine",
+        "hay"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "octyl_acetate",
+      "name": "Octyl acetate",
+      "cas": "112-14-1",
+      "chemical_class": "aliphatic ester",
+      "odour": "Green-fruity, waxy, orange-like.",
+      "facets": [
+        "fruity",
+        "green",
+        "waxy"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "fructone",
+      "name": "Fructone",
+      "cas": "6413-10-1",
+      "chemical_class": "dioxolane ester",
+      "odour": "Green apple and pear drop. Sweet, juicy, synthetic in the best way.",
+      "facets": [
+        "apple",
+        "pear",
+        "fruity",
+        "candy"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "cedryl_acetate",
+      "name": "Cedryl acetate",
+      "cas": "77-54-3",
+      "chemical_class": "sesquiterpene ester",
+      "odour": "Soft, dry, slightly sweet cedar.",
+      "facets": [
+        "dry-wood",
+        "sweet"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "decanal",
+      "name": "Decanal (Aldehyde C-10)",
+      "cas": "112-31-2",
+      "chemical_class": "aliphatic aldehyde",
+      "odour": "Waxy orange peel with a metallic sparkle.",
+      "facets": [
+        "aldehydic",
+        "citrus-peel",
+        "waxy",
+        "metallic"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "octanal",
+      "name": "Octanal (Aldehyde C-8)",
+      "cas": "124-13-0",
+      "chemical_class": "aliphatic aldehyde",
+      "odour": "Sharp, fatty citrus peel.",
+      "facets": [
+        "aldehydic",
+        "citrus-peel",
+        "fatty"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "mna",
+      "name": "2-Methylundecanal (Aldehyde C-12 MNA)",
+      "cas": "110-41-8",
+      "chemical_class": "aliphatic aldehyde",
+      "odour": "Ironed linen and soap. The Chanel aldehyde.",
+      "facets": [
+        "aldehydic",
+        "linen",
+        "soapy",
+        "metallic"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "citral",
+      "name": "Citral (neral + geranial)",
+      "cas": "5392-40-5",
+      "chemical_class": "terpene aldehyde",
+      "odour": "Sharp lemon, green and slightly metallic.",
+      "facets": [
+        "citrus",
+        "green",
+        "metallic"
+      ],
+      "volatility": "top",
+      "eu_allergen": true,
+      "note": "Sensitiser; usually quenched with a terpene alcohol."
+    },
+    {
+      "id": "cinnamaldehyde",
+      "name": "Cinnamaldehyde",
+      "cas": "104-55-2",
+      "chemical_class": "aromatic aldehyde",
+      "odour": "Hot cinnamon, sweet and burning.",
+      "facets": [
+        "spicy",
+        "sweet",
+        "warm"
+      ],
+      "volatility": "heart",
+      "eu_allergen": true,
+      "note": "Strong sensitiser. Tightly restricted."
+    },
+    {
+      "id": "benzaldehyde",
+      "name": "Benzaldehyde",
+      "cas": "100-52-7",
+      "chemical_class": "aromatic aldehyde",
+      "odour": "Bitter almond, marzipan.",
+      "facets": [
+        "almond",
+        "sweet"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "vanillin",
+      "name": "Vanillin",
+      "cas": "121-33-5",
+      "chemical_class": "phenolic aldehyde",
+      "odour": "Vanilla: sweet, powdery, faintly phenolic and balsamic.",
+      "facets": [
+        "vanilla",
+        "sweet",
+        "powdery",
+        "balsamic"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": "Discolours in alcohol and can yellow a formula."
+    },
+    {
+      "id": "floralozone",
+      "name": "Floralozone",
+      "cas": "67634-15-5",
+      "chemical_class": "aromatic aldehyde",
+      "odour": "Ozone and cut water with a green-floral edge.",
+      "facets": [
+        "ozone",
+        "watery",
+        "green-floral",
+        "metallic"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "furfural",
+      "name": "Furfural",
+      "cas": "98-01-1",
+      "chemical_class": "furan aldehyde",
+      "odour": "Almond-bready, faintly burnt.",
+      "facets": [
+        "almond",
+        "roasted"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "methylfurfural",
+      "name": "5-Methylfurfural",
+      "cas": "620-02-0",
+      "chemical_class": "furan aldehyde",
+      "odour": "Caramel-bready, warm.",
+      "facets": [
+        "caramel",
+        "roasted"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "otne",
+      "name": "OTNE (Iso E Super)",
+      "cas": "54464-57-2",
+      "chemical_class": "polycyclic ketone",
+      "odour": "Dry transparent cedar-amber with a skin halo. Barely a smell; mostly volume.",
+      "facets": [
+        "dry-wood",
+        "ambery",
+        "velvety",
+        "transparent",
+        "skin"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "methyl_ionone_gamma",
+      "name": "gamma-Methylionone",
+      "cas": "127-51-5",
+      "chemical_class": "ionone",
+      "odour": "Violet, orris and old paper. Powdery-woody, suede-dry.",
+      "facets": [
+        "violet",
+        "orris",
+        "powdery",
+        "suede",
+        "dry-wood"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "damascone_beta",
+      "name": "beta-Damascone",
+      "cas": "23726-91-2",
+      "chemical_class": "rose ketone",
+      "odour": "Rose jam, plum and dried fruit. Enormous at trace level.",
+      "facets": [
+        "rosy",
+        "plum",
+        "dried-fruit",
+        "tea"
+      ],
+      "volatility": "heart",
+      "eu_allergen": true,
+      "note": ""
+    },
+    {
+      "id": "alpha_vetivone",
+      "name": "alpha-Vetivone",
+      "cas": "15764-04-2",
+      "chemical_class": "sesquiterpene ketone",
+      "odour": "Woody-rooty, slightly sweet.",
+      "facets": [
+        "rooty",
+        "woody"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "beta_vetivone",
+      "name": "beta-Vetivone",
+      "cas": "18444-79-6",
+      "chemical_class": "sesquiterpene ketone",
+      "odour": "Dry, earthy-woody, faintly smoky.",
+      "facets": [
+        "rooty",
+        "earthy",
+        "smoky"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "khusimone",
+      "name": "Khusimone",
+      "cas": "63314-79-4",
+      "chemical_class": "sesquiterpene ketone",
+      "odour": "Dry, powerful, rooty-woody.",
+      "facets": [
+        "rooty",
+        "dry-wood"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "cyperotundone",
+      "name": "Cyperotundone",
+      "cas": "3466-15-7",
+      "chemical_class": "sesquiterpene ketone",
+      "odour": "Smoky, dry, leathery-woody.",
+      "facets": [
+        "smoky",
+        "leather",
+        "dry-wood"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "alpha_cyperone",
+      "name": "alpha-Cyperone",
+      "cas": "473-08-5",
+      "chemical_class": "sesquiterpene ketone",
+      "odour": "Woody-spicy, faintly smoky.",
+      "facets": [
+        "woody",
+        "spicy",
+        "smoky"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "mustakone",
+      "name": "Mustakone",
+      "cas": "17787-99-6",
+      "chemical_class": "sesquiterpene ketone",
+      "odour": "Dry, inky, smoky-woody.",
+      "facets": [
+        "inky",
+        "smoky",
+        "dry-wood"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "patchoulenone",
+      "name": "Patchoulenone",
+      "cas": "5947-04-6",
+      "chemical_class": "sesquiterpene ketone",
+      "odour": "Earthy-woody, faintly camphoraceous.",
+      "facets": [
+        "earthy",
+        "woody"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "rotundone",
+      "name": "Rotundone",
+      "cas": "18374-76-0",
+      "chemical_class": "sesquiterpene ketone",
+      "odour": "Pure black pepper. Detectable in the parts per trillion.",
+      "facets": [
+        "spicy"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": "Odour threshold is around 8 ng/L — among the lowest known."
+    },
+    {
+      "id": "cis_jasmone",
+      "name": "cis-Jasmone",
+      "cas": "488-10-8",
+      "chemical_class": "cyclopentenone",
+      "odour": "Warm, celery-jasmine, slightly fruity.",
+      "facets": [
+        "jasmine",
+        "fruity"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "acetophenone",
+      "name": "Acetophenone",
+      "cas": "98-86-2",
+      "chemical_class": "aromatic ketone",
+      "odour": "Sweet, almond-like, faintly chemical.",
+      "facets": [
+        "almond",
+        "sweet"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "dpmi",
+      "name": "DPMI (Cashmeran)",
+      "cas": "33704-61-9",
+      "chemical_class": "indanone",
+      "odour": "Velvet musk-wood with a pine-spice top and a powdery warmth.",
+      "facets": [
+        "musk",
+        "woody",
+        "pine",
+        "spicy",
+        "powdery"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "civetone",
+      "name": "Civetone",
+      "cas": "542-46-1",
+      "chemical_class": "macrocyclic ketone",
+      "odour": "Warm, fatty, animal-musky. Sweet at dilution, fecal above it.",
+      "facets": [
+        "animalic",
+        "musk",
+        "warm-skin"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "curzerenone",
+      "name": "Curzerenone",
+      "cas": "20493-56-5",
+      "chemical_class": "sesquiterpene ketone",
+      "odour": "Bitter, resinous, medicinal.",
+      "facets": [
+        "bitter",
+        "resinous",
+        "medicinal"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "verbenone",
+      "name": "Verbenone",
+      "cas": "80-57-9",
+      "chemical_class": "terpene ketone",
+      "odour": "Camphoraceous-minty, dry.",
+      "facets": [
+        "camphor",
+        "dry"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "camphor",
+      "name": "Camphor",
+      "cas": "76-22-2",
+      "chemical_class": "terpene ketone",
+      "odour": "Sharp, cold, medicinal. Clears a room.",
+      "facets": [
+        "camphor",
+        "medicinal",
+        "cold"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "trimethylcyclohexanone",
+      "name": "2,2,6-Trimethylcyclohexanone",
+      "cas": "2408-37-9",
+      "chemical_class": "cyclic ketone",
+      "odour": "Dry, ambery-woody, faintly camphoraceous.",
+      "facets": [
+        "ambery",
+        "dry-wood"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "eugenol",
+      "name": "Eugenol",
+      "cas": "97-53-0",
+      "chemical_class": "phenol",
+      "odour": "Clove: hot, sweet, phenolic, faintly medicinal.",
+      "facets": [
+        "spicy",
+        "phenolic",
+        "medicinal",
+        "sweet"
+      ],
+      "volatility": "heart",
+      "eu_allergen": true,
+      "note": "Restricted; also a strong quencher of other materials."
+    },
+    {
+      "id": "isoeugenol",
+      "name": "Isoeugenol",
+      "cas": "97-54-1",
+      "chemical_class": "phenol",
+      "odour": "Softer, sweeter, more floral clove than eugenol.",
+      "facets": [
+        "spicy",
+        "floral",
+        "sweet"
+      ],
+      "volatility": "heart",
+      "eu_allergen": true,
+      "note": "Tightly restricted."
+    },
+    {
+      "id": "guaiacol",
+      "name": "Guaiacol",
+      "cas": "90-05-1",
+      "chemical_class": "phenol",
+      "odour": "Woodsmoke and creosote. Medicinal, tarry, unmistakable.",
+      "facets": [
+        "smoky",
+        "phenolic",
+        "medicinal",
+        "tar"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "vinylguaiacol",
+      "name": "4-Vinylguaiacol",
+      "cas": "7786-61-0",
+      "chemical_class": "phenol",
+      "odour": "Smoky-spicy, clove-like, a coffee marker.",
+      "facets": [
+        "smoky",
+        "spicy",
+        "phenolic"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "p_cresyl_methyl_ether",
+      "name": "para-Cresyl methyl ether",
+      "cas": "104-93-8",
+      "chemical_class": "aromatic ether",
+      "odour": "Narcotic ylang-floral with a rubbery, animal underside.",
+      "facets": [
+        "floral",
+        "rubber",
+        "animalic"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "peme",
+      "name": "Phenylethyl methyl ether",
+      "cas": "3558-60-9",
+      "chemical_class": "aromatic ether",
+      "odour": "Green-floral with an anise lift. The kewra molecule.",
+      "facets": [
+        "green-floral",
+        "anise",
+        "fresh"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "cineole",
+      "name": "1,8-Cineole (Eucalyptol)",
+      "cas": "470-82-6",
+      "chemical_class": "terpene oxide",
+      "odour": "Cold, clean, medicinal eucalyptus.",
+      "facets": [
+        "camphor",
+        "medicinal",
+        "cold",
+        "fresh"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "caryophyllene_oxide",
+      "name": "Caryophyllene oxide",
+      "cas": "1139-30-6",
+      "chemical_class": "sesquiterpene oxide",
+      "odour": "Dry woody-spicy, faintly earthy.",
+      "facets": [
+        "woody",
+        "spicy",
+        "earthy"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "myristicin",
+      "name": "Myristicin",
+      "cas": "607-91-0",
+      "chemical_class": "phenylpropene",
+      "odour": "Warm, dry nutmeg with a faint narcotic edge.",
+      "facets": [
+        "spicy",
+        "warm",
+        "dry"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": "Naturally restricted in nutmeg oil dosage."
+    },
+    {
+      "id": "elemicin",
+      "name": "Elemicin",
+      "cas": "487-11-6",
+      "chemical_class": "phenylpropene",
+      "odour": "Warm-spicy, faintly floral-woody.",
+      "facets": [
+        "spicy",
+        "woody"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "safrole",
+      "name": "Safrole",
+      "cas": "94-59-7",
+      "chemical_class": "phenylpropene",
+      "odour": "Sweet, root-beer-like, warm.",
+      "facets": [
+        "sweet",
+        "spicy"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": "IFRA-prohibited as an isolate; trace levels in natural oils are limited."
+    },
+    {
+      "id": "incensole_acetate",
+      "name": "Incensole acetate",
+      "cas": "34701-53-6",
+      "chemical_class": "diterpene ester",
+      "odour": "Cool, resinous, faintly balsamic. Frankincense's calm.",
+      "facets": [
+        "resinous",
+        "cold",
+        "balsamic"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "indole",
+      "name": "Indole",
+      "cas": "120-72-9",
+      "chemical_class": "indole",
+      "odour": "Mothball and jasmine and something faintly fecal.",
+      "facets": [
+        "indolic",
+        "animalic",
+        "jasmine"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "skatole",
+      "name": "3-Methylindole (Skatole)",
+      "cas": "83-34-1",
+      "chemical_class": "indole",
+      "odour": "Fecal at strength; warm, floral, animal at trace.",
+      "facets": [
+        "animalic",
+        "warm-skin"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "geosmin",
+      "name": "Geosmin",
+      "cas": "16423-14-2",
+      "chemical_class": "bicyclic alcohol",
+      "odour": "Wet earth after rain, beetroot, a cellar floor.",
+      "facets": [
+        "earthy",
+        "wet-earth",
+        "beetroot",
+        "cellar"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": "Detectable around 5 parts per trillion. Always dosed dilute."
+    },
+    {
+      "id": "methyl_atrarate",
+      "name": "Methyl atrarate",
+      "cas": "4707-47-5",
+      "chemical_class": "aromatic ester",
+      "odour": "Dry, inky, mossy. The compliant oakmoss stand-in.",
+      "facets": [
+        "moss",
+        "inky",
+        "earthy",
+        "dry"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "furfurylthiol",
+      "name": "2-Furfurylthiol",
+      "cas": "98-02-2",
+      "chemical_class": "thiol",
+      "odour": "Roasted coffee. Sulfurous and burnt at strength.",
+      "facets": [
+        "roasted",
+        "sulfurous"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": "Effective in the parts per billion."
+    },
+    {
+      "id": "pyrazines",
+      "name": "Alkylpyrazines (as a class)",
+      "cas": null,
+      "chemical_class": "pyrazine",
+      "odour": "Roasted, nutty, toasted-bread.",
+      "facets": [
+        "roasted",
+        "nutty"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": "Recorded as a class; coffee CO2 carries dozens."
+    },
+    {
+      "id": "coumarin",
+      "name": "Coumarin",
+      "cas": "91-64-5",
+      "chemical_class": "lactone",
+      "odour": "New-mown hay and tonka, with an almond-powder sweetness.",
+      "facets": [
+        "hay",
+        "almond",
+        "sweet-grass",
+        "powdery"
+      ],
+      "volatility": "base",
+      "eu_allergen": true,
+      "note": "Restricted."
+    },
+    {
+      "id": "gamma_nonalactone",
+      "name": "gamma-Nonalactone",
+      "cas": "104-61-0",
+      "chemical_class": "lactone",
+      "odour": "Coconut and warm milk with a vanilla edge.",
+      "facets": [
+        "coconut",
+        "milky",
+        "vanilla",
+        "creamy"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "gamma_undecalactone",
+      "name": "gamma-Undecalactone",
+      "cas": "104-67-6",
+      "chemical_class": "lactone",
+      "odour": "Ripe peach and apricot skin, creamy and waxy.",
+      "facets": [
+        "peach",
+        "apricot",
+        "creamy",
+        "coconut",
+        "waxy"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "delta_decalactone",
+      "name": "delta-Decalactone",
+      "cas": "705-86-2",
+      "chemical_class": "lactone",
+      "odour": "Butter, cream and soft peach. Dairy without the sourness.",
+      "facets": [
+        "buttery",
+        "creamy",
+        "peach",
+        "milky"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "pentadecanolide",
+      "name": "omega-Pentadecalactone",
+      "cas": "106-02-5",
+      "chemical_class": "macrolactone",
+      "odour": "Warm, waxy, skin-musk. Almost no top, all presence.",
+      "facets": [
+        "musk",
+        "skin",
+        "waxy",
+        "warm"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "pentadecenolide",
+      "name": "(E)-Pentadec-11-enolide (Habanolide)",
+      "cas": "111879-80-2",
+      "chemical_class": "macrolactone",
+      "odour": "Clean, airy laundry musk with a faint fruity-floral lift.",
+      "facets": [
+        "musk",
+        "clean",
+        "laundry",
+        "fruity-floral"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "ethylene_brassylate",
+      "name": "Ethylene brassylate",
+      "cas": "105-95-3",
+      "chemical_class": "macrocyclic diester",
+      "odour": "Sweet, soft, slightly ambery musk. Cheap volume.",
+      "facets": [
+        "musk",
+        "sweet",
+        "ambery",
+        "powdery"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "hhcb",
+      "name": "HHCB (Galaxolide)",
+      "cas": "1222-05-5",
+      "chemical_class": "polycyclic musk",
+      "odour": "Clean laundry musk: sweet, powdery, cotton-soft.",
+      "facets": [
+        "musk",
+        "clean",
+        "powdery",
+        "sweet",
+        "cotton"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": "Persistent in the environment; several markets are reducing it."
+    },
+    {
+      "id": "ambroxide",
+      "name": "Ambroxide (Ambroxan)",
+      "cas": "6790-58-5",
+      "chemical_class": "terpenoid ether",
+      "odour": "Dry mineral amber with a salt-skin transparency.",
+      "facets": [
+        "ambery",
+        "mineral",
+        "salty",
+        "skin",
+        "dry-wood"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "norlimbanol",
+      "name": "Norlimbanol",
+      "cas": "104485-08-7",
+      "chemical_class": "terpenoid alcohol",
+      "odour": "Extremely dry woody-amber with a leather-animal edge. Brutal at overdose.",
+      "facets": [
+        "dry-wood",
+        "ambery",
+        "leather",
+        "animalic",
+        "mineral"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "ebanol",
+      "name": "Ebanol",
+      "cas": "67801-20-1",
+      "chemical_class": "sandalwood alcohol",
+      "odour": "Creamy sandalwood with a nutty, buttery softness.",
+      "facets": [
+        "sandalwood",
+        "creamy",
+        "nutty",
+        "buttery"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "bacdanol",
+      "name": "Bacdanol",
+      "cas": "28219-61-6",
+      "chemical_class": "sandalwood alcohol",
+      "odour": "Creamy-milky sandalwood with a rosy warmth.",
+      "facets": [
+        "sandalwood",
+        "creamy",
+        "milky",
+        "rosy"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "acetyl_cedrene",
+      "name": "Acetyl cedrene",
+      "cas": "32388-55-9",
+      "chemical_class": "sesquiterpene ketone",
+      "odour": "Dry woody-ambery with a smoky, rooty underside.",
+      "facets": [
+        "dry-wood",
+        "ambery",
+        "smoky",
+        "rooty"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "dihydromyrcenol",
+      "name": "Dihydromyrcenol",
+      "cas": "18479-58-8",
+      "chemical_class": "terpene alcohol",
+      "odour": "Clean, soapy, citrus-lavender with a metallic edge. The 1990s.",
+      "facets": [
+        "clean",
+        "soapy",
+        "citrus",
+        "lavender",
+        "metallic"
+      ],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "ethyl_maltol",
+      "name": "Ethyl maltol",
+      "cas": "4940-11-8",
+      "chemical_class": "pyranone",
+      "odour": "Burnt sugar, candyfloss, strawberry jam.",
+      "facets": [
+        "caramel",
+        "candy",
+        "sweet",
+        "fruity"
+      ],
+      "volatility": "heart",
+      "eu_allergen": false,
+      "note": "Overwhelms a formula above a fraction of a percent."
+    },
+    {
+      "id": "labdane_diterpenes",
+      "name": "Labdane diterpenes (labdanolic acid and relatives)",
+      "cas": null,
+      "chemical_class": "diterpene acid",
+      "odour": "The dark, sweet, leathery mass of labdanum. Barely volatile.",
+      "facets": [
+        "ambery",
+        "leather",
+        "balsamic"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": "Recorded as a class. Most of a labdanum resinoid's weight."
+    },
+    {
+      "id": "benzoic_acid",
+      "name": "Benzoic acid",
+      "cas": "65-85-0",
+      "chemical_class": "aromatic acid",
+      "odour": "Faint, dry, balsamic-medicinal.",
+      "facets": [
+        "balsamic",
+        "medicinal"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "siaresinolic",
+      "name": "Siaresinolic acid and resin acids",
+      "cas": null,
+      "chemical_class": "triterpene acid",
+      "odour": "Odourless resin mass. Fixative weight, not smell.",
+      "facets": [],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": "Non-volatile."
+    },
+    {
+      "id": "furanoeudesma_diene",
+      "name": "Furanoeudesma-1,3-diene",
+      "cas": "87605-93-4",
+      "chemical_class": "furanosesquiterpene",
+      "odour": "The bitter, medicinal heart of myrrh.",
+      "facets": [
+        "bitter",
+        "medicinal",
+        "resinous"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "curzerene",
+      "name": "Curzerene",
+      "cas": "17910-09-7",
+      "chemical_class": "furanosesquiterpene",
+      "odour": "Balsamic-medicinal, faintly smoky.",
+      "facets": [
+        "balsamic",
+        "medicinal",
+        "smoky"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "lindestrene",
+      "name": "Lindestrene",
+      "cas": "2221-92-3",
+      "chemical_class": "furanosesquiterpene",
+      "odour": "Dry, resinous, faintly bitter.",
+      "facets": [
+        "resinous",
+        "bitter"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "germacrene_b",
+      "name": "Germacrene B",
+      "cas": "15423-57-1",
+      "chemical_class": "sesquiterpene",
+      "odour": "Woody-green, soft.",
+      "facets": [
+        "woody",
+        "green"
+      ],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "isophytol",
+      "name": "Isophytol",
+      "cas": "505-32-8",
+      "chemical_class": "diterpene alcohol",
+      "odour": "Practically odourless; a natural fixative and diluent.",
+      "facets": [],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "lipids_waxes",
+      "name": "Lipids, waxes and other non-volatiles",
+      "cas": null,
+      "chemical_class": "non-volatile",
+      "odour": "No odour of their own. Carrier mass in a CO2 total extract.",
+      "facets": [],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": "Non-volatile."
+    },
+    {
+      "id": "caffeine",
+      "name": "Caffeine",
+      "cas": "58-08-2",
+      "chemical_class": "alkaloid",
+      "odour": "Odourless. Rides along in a coffee extract.",
+      "facets": [],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": "Non-volatile."
+    },
+    {
+      "id": "dpg",
+      "name": "Dipropylene glycol",
+      "cas": "25265-71-8",
+      "chemical_class": "glycol solvent",
+      "odour": "Odourless. The default diluent.",
+      "facets": [],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "ipm",
+      "name": "Isopropyl myristate",
+      "cas": "110-27-0",
+      "chemical_class": "fatty ester solvent",
+      "odour": "Odourless, very slightly oily on skin.",
+      "facets": [],
+      "volatility": "base",
+      "eu_allergen": false,
+      "note": ""
+    },
+    {
+      "id": "ethanol",
+      "name": "Ethanol",
+      "cas": "64-17-5",
+      "chemical_class": "alcohol solvent",
+      "odour": "Sharp and volatile; gone in seconds.",
+      "facets": [],
+      "volatility": "top",
+      "eu_allergen": false,
+      "note": ""
+    }
+  ]
+}

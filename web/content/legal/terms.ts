@@ -39,7 +39,7 @@ export const termsContent: LegalDocumentContent = {
       id: "bespoke",
       title: "Bespoke products",
       paragraphs: [
-        "Bespoke blends are composed from your questionnaire answers. Once ordered, they may be made to order. Availability, sizing, and pricing follow what is shown when you add a formula to your cart.",
+        "Bespoke blends are composed from your questionnaire answers. Once ordered, they may be made to order. Every bespoke bottle includes a complimentary 2 ml divergent sample; the sample is not sold separately and is not a cart line. Availability, sizing, and pricing follow what is shown when you add a formula to your cart. Saved formulas can be deleted from your account; if a deleted formula is still in a cart, checkout for that line will be blocked.",
       ],
     },
     {

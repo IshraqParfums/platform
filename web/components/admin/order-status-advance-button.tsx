@@ -3,7 +3,7 @@
 import type { OrderStatus } from "@ishraqparfums/shared";
 import { ORDER_FULFILLMENT_SEQUENCE } from "@ishraqparfums/shared";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { toast } from "@/components/ui/toaster";
@@ -16,18 +16,26 @@ import {
 export function OrderStatusAdvanceButton({
   orderId,
   status,
+  onStatusChange,
 }: {
   orderId: string;
   status: OrderStatus;
+  /** Optional optimistic sync for sibling chip on the same page. */
+  onStatusChange?: (next: OrderStatus) => void;
 }) {
   const router = useRouter();
+  const [localStatus, setLocalStatus] = useState(status);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const currentIndex = ORDER_FULFILLMENT_SEQUENCE.indexOf(status);
+  useEffect(() => {
+    setLocalStatus(status);
+  }, [status]);
+
+  const currentIndex = ORDER_FULFILLMENT_SEQUENCE.indexOf(localStatus);
   const nextStatus =
     currentIndex >= 0 ? ORDER_FULFILLMENT_SEQUENCE[currentIndex + 1] : undefined;
-  const actionLabel = adminOrderAdvanceVerb(status);
+  const actionLabel = adminOrderAdvanceVerb(localStatus);
 
   if (!nextStatus || !actionLabel) {
     return null;
@@ -35,6 +43,12 @@ export function OrderStatusAdvanceButton({
 
   async function advance() {
     setSubmitting(true);
+    const previous = localStatus;
+    // Optimistic: flip button/chip immediately; roll back on failure.
+    setLocalStatus(nextStatus!);
+    onStatusChange?.(nextStatus!);
+    setConfirmOpen(false);
+
     try {
       const response = await adminFetch(`/api/admin/orders/${orderId}/status`, {
         method: "PATCH",
@@ -52,9 +66,10 @@ export function OrderStatusAdvanceButton({
       toast.success(
         `Order marked as ${adminOrderStatusLabel(nextStatus!).toLowerCase()}`,
       );
-      setConfirmOpen(false);
       router.refresh();
     } catch (error) {
+      setLocalStatus(previous);
+      onStatusChange?.(previous);
       toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setSubmitting(false);
@@ -71,7 +86,7 @@ export function OrderStatusAdvanceButton({
         onClick={() => setConfirmOpen(true)}
         className="cursor-pointer"
       >
-        {actionLabel}
+        {submitting ? "Updating…" : actionLabel}
       </Button>
 
       <Modal

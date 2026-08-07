@@ -2,13 +2,17 @@ import type { AdminOrderDetail } from "@ishraqparfums/shared";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AdminBackLink } from "@/components/admin/admin-back-link";
-import { AdminOrderStatusChip } from "@/components/admin/admin-order-status-chip";
+import {
+  BespokeOrderBadge,
+  OrderBespokeCompositionLink,
+} from "@/components/admin/order-bespoke-composition-button";
 import { OrderCustomerStrip } from "@/components/admin/order-customer-strip";
-import { OrderStatusAdvanceButton } from "@/components/admin/order-status-advance-button";
+import { OrderStatusToolbar } from "@/components/admin/order-status-toolbar";
 import { adminPageFetch } from "@/lib/admin/admin-page-fetch";
 import { NestApiError } from "@/lib/api/errors";
 import { formatPaise } from "@/lib/format/money";
 import { formatOrderDateTime, orderReference } from "@/lib/orders/order-status";
+import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = { title: "Order detail" };
 
@@ -51,8 +55,7 @@ export default async function AdminOrderDetailPage({ params }: RouteParams) {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <AdminOrderStatusChip status={order.status} showHelp />
-          <OrderStatusAdvanceButton orderId={order.id} status={order.status} />
+          <OrderStatusToolbar orderId={order.id} status={order.status} />
         </div>
       </div>
 
@@ -67,23 +70,43 @@ export default async function AdminOrderDetailPage({ params }: RouteParams) {
 
           <div className="rounded-lg border border-ink/10 bg-card p-4">
             <h2 className="font-display text-lg font-semibold text-ink">Items</h2>
-            <div className="mt-3 flex flex-col divide-y divide-ink/[0.06]">
-              {order.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between gap-4 py-2.5"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate font-medium text-ink">{item.productName}</p>
-                    <p className="text-sm text-ink-faint">
-                      {item.sizeMl} ml · Qty {item.quantity}
+            <div className="mt-3 flex flex-col gap-2">
+              {order.items.map((item) => {
+                const isBespoke = Boolean(item.bespokePerfumeId);
+                return (
+                  <div
+                    key={item.id}
+                    className={cn(
+                      "flex items-center justify-between gap-4 rounded-lg px-3 py-3",
+                      isBespoke
+                        ? "border border-gold/35 bg-gold/[0.07]"
+                        : "border border-transparent",
+                    )}
+                  >
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate font-medium text-ink">
+                          {item.productName}
+                        </p>
+                        {isBespoke ? <BespokeOrderBadge /> : null}
+                      </div>
+                      <p className="mt-1 text-sm text-ink-faint">
+                        {item.sizeMl} ml · Qty {item.quantity}
+                      </p>
+                      {item.bespokePerfumeId ? (
+                        <div className="mt-2">
+                          <OrderBespokeCompositionLink
+                            bespokePerfumeId={item.bespokePerfumeId}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+                    <p className="shrink-0 font-medium text-ink">
+                      {formatPaise(item.lineTotalPaise)}
                     </p>
                   </div>
-                  <p className="shrink-0 font-medium text-ink">
-                    {formatPaise(item.lineTotalPaise)}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="mt-3 flex flex-col gap-1 border-t border-ink/[0.08] pt-3 text-sm">

@@ -1,0 +1,6862 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "spec_ref": "BESPOKE_ENGINE_SPEC.md",
+    "scale_resolution_g": 0.01,
+    "min_weighable_g": 0.05,
+    "default_batch_g": 10,
+    "field_provenance": {
+      "measured_or_published": [
+        "chemical_family",
+        "composition",
+        "functional_group",
+        "key_chemistry",
+        "note_position",
+        "stock_dilution"
+      ],
+      "perfumer_judgement": [
+        "strength",
+        "evap_index",
+        "evap_curve",
+        "temperature",
+        "polarity",
+        "min_effective_pct",
+        "typical_neat_range",
+        "max_neat",
+        "effect_in_mixture",
+        "pairs_with",
+        "bridges",
+        "bridge_effect"
+      ],
+      "brand_authored_subjective": [
+        "colour_percept",
+        "emotion",
+        "perceptual_cluster"
+      ],
+      "requires_verification_before_sale": [
+        "ifra_cat4_pct"
+      ]
+    },
+    "receptor_disclaimer": "Olfactory receptor mapping is NOT included. Only a small fraction of the ~400 human OR genes have characterised ligands and almost no perfumery material has published receptor-level data. Any dataset claiming per-material receptor activation is fabricated. The 'perceptual_cluster' field is offered instead: it records which facets co-activate perceptually, which is what accord construction actually needs.",
+    "ifra_disclaimer": "All ifra_cat4_pct values are WORKING APPROXIMATIONS for formulation guidance only. They must be verified against the current IFRA amendment before any commercial sale. Where confidence is marked 'verify', treat the number as a starting point, not a legal limit.",
+    "scales": {
+      "strength": "1 (nearly odourless) to 10 (single-drop dominant)",
+      "evap_index": "0 (never leaves) to 100 (gone in minutes). Normalised, not a measured rate.",
+      "temperature": "-5 (cold: pine, frankincense) to +5 (hot: cinnamon, clove)",
+      "polarity": "-5 (transparent/airy/fresh) to +5 (dense/opaque/rich)"
+    },
+    "composition_disclaimer": "`composition` percentages are indicative typical GC ranges, not a certificate of analysis. Proprietary bases declare nothing and book the whole 100% as undisclosed rather than guessing — a guessed constituent would be indistinguishable from a real one downstream. See data/constituents.json."
+  },
+  "materials": [
+    {
+      "id": "iso_e_super",
+      "name": "Iso E Super",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Smooth, dry, transparent cedar-amber. Velvety, almost not there.",
+      "facets_primary": [
+        "woody",
+        "amber"
+      ],
+      "facets_secondary": [
+        "velvety",
+        "transparent",
+        "skin"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Octahydrotetramethyl acetophenone (OTNE)",
+      "chemical_family": "polycyclic ketone",
+      "functional_group": "ketone",
+      "colour_percept": "pale grey-gold, translucent",
+      "emotion": [
+        "calm",
+        "spacious",
+        "restraint"
+      ],
+      "strength": 4,
+      "odt_ppb": 500,
+      "vp_mmhg_25c": 0.0025,
+      "evap_index": 18,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "cashmeran",
+        "sylvamber"
+      ],
+      "tenacity_hours": 72,
+      "temperature": 1,
+      "polarity": -1,
+      "min_effective_pct": 2.0,
+      "typical_neat_range": [
+        8,
+        35
+      ],
+      "max_neat": 50,
+      "effect_in_mixture": "Adds air, volume and a skin-like halo without adding a smell of its own. The single best diffusion carrier in this palette. Overdose is invisible to the wearer and obvious to everyone else.",
+      "pairs_with": [
+        "hedione",
+        "cedarwood",
+        "vetiver_eo",
+        "ambroxan",
+        "methyl_ionone_gamma",
+        "geosmin"
+      ],
+      "bridges": [
+        "woody",
+        "musky",
+        "floral"
+      ],
+      "bridge_effect": "Dissolves the seam between top-note brightness and base-note density. Use whenever a composition feels like two perfumes stacked.",
+      "perceptual_cluster": [
+        "dry-wood",
+        "transparent-amber",
+        "skin-musk"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted. Verify current amendment.",
+      "families": {
+        "woody": 4,
+        "musky": 2,
+        "earthy": 1
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Commercial OTNE, an isomer mixture.",
+        "declared_pct": 95.0,
+        "undisclosed_pct": 5.0,
+        "constituents": [
+          {
+            "id": "otne",
+            "pct": 95.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "hedione",
+      "name": "Hedione (methyl dihydrojasmonate)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Faint, airy jasmine-tea with a citric lift. More texture than smell.",
+      "facets_primary": [
+        "jasmine",
+        "airy"
+      ],
+      "facets_secondary": [
+        "tea",
+        "citrus-peel",
+        "watery"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Methyl dihydrojasmonate",
+      "chemical_family": "jasmonate ester",
+      "functional_group": "ester/ketone",
+      "colour_percept": "pale yellow-green light",
+      "emotion": [
+        "ease",
+        "openness",
+        "daylight"
+      ],
+      "strength": 3,
+      "odt_ppb": null,
+      "vp_mmhg_25c": 0.0004,
+      "evap_index": 30,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "benzyl_salicylate"
+      ],
+      "tenacity_hours": 48,
+      "temperature": 0,
+      "polarity": -2,
+      "min_effective_pct": 3.0,
+      "typical_neat_range": [
+        5,
+        30
+      ],
+      "max_neat": 45,
+      "effect_in_mixture": "Expands everything around it and softens sharp edges. Makes florals radiate and makes woods breathe. Does almost nothing on its own.",
+      "pairs_with": [
+        "iso_e_super",
+        "jasmine_sambac",
+        "rose_wardia",
+        "bergamot",
+        "floralozone"
+      ],
+      "bridges": [
+        "floral",
+        "citrus",
+        "woody"
+      ],
+      "bridge_effect": "The standard bridge between a bright top and a heavy base. If a formula smells 'gappy' at 20 minutes, this is the fix.",
+      "perceptual_cluster": [
+        "airy-floral",
+        "tea",
+        "transparency"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "floral": 3,
+        "green": 1,
+        "citrus": 1
+      },
+      "confidence": {
+        "vp_mmhg_25c": "estimate",
+        "evap_curve": "corrected_from_plateau_to_match_evap_curve_like"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Methyl dihydrojasmonate, standard grade (roughly 10% of the more powerful cis isomer).",
+        "declared_pct": 96.0,
+        "undisclosed_pct": 4.0,
+        "constituents": [
+          {
+            "id": "methyl_dihydrojasmonate",
+            "pct": 96.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "benzyl_benzoate",
+      "name": "Benzyl Benzoate",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Very faint, sweet-balsamic, almost neutral.",
+      "facets_primary": [
+        "balsamic"
+      ],
+      "facets_secondary": [
+        "faint-sweet",
+        "oily"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Benzyl benzoate",
+      "chemical_family": "benzoate ester",
+      "functional_group": "ester",
+      "colour_percept": "clear amber-neutral",
+      "emotion": [
+        "steadiness"
+      ],
+      "strength": 1,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 10,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [],
+      "tenacity_hours": 96,
+      "temperature": 1,
+      "polarity": 2,
+      "min_effective_pct": 1.0,
+      "typical_neat_range": [
+        2,
+        20
+      ],
+      "max_neat": 30,
+      "effect_in_mixture": "Fixative and solvent in one. Holds crystalline materials in solution and slows the whole base down. Slightly flattens top-note lift.",
+      "pairs_with": [
+        "benzoin",
+        "labdanum",
+        "vanillin",
+        "coumarin"
+      ],
+      "bridges": [
+        "gourmand",
+        "woody"
+      ],
+      "bridge_effect": "Carries resinoids into an otherwise thin base without adding character.",
+      "perceptual_cluster": [
+        "balsamic",
+        "fixative"
+      ],
+      "ifra_cat4_pct": 4.0,
+      "ifra_note": "Restricted as a sensitiser. VERIFY against current amendment.",
+      "families": {
+        "gourmand": 1,
+        "woody": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.5,
+        "undisclosed_pct": 0.5,
+        "constituents": [
+          {
+            "id": "benzyl_benzoate",
+            "pct": 99.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "galaxolide",
+      "name": "Galaxolide (50%)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 0.5,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Clean, sweet, slightly powdery white musk. Laundry warmth.",
+      "facets_primary": [
+        "musk",
+        "clean"
+      ],
+      "facets_secondary": [
+        "powdery",
+        "sweet",
+        "cotton"
+      ],
+      "note_position": "base",
+      "key_chemistry": "HHCB (polycyclic musk)",
+      "chemical_family": "polycyclic musk",
+      "functional_group": "ether",
+      "colour_percept": "white, soft-edged",
+      "emotion": [
+        "comfort",
+        "cleanliness",
+        "safety"
+      ],
+      "strength": 4,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 8,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "exaltolide_total",
+        "ethylene_brassylate"
+      ],
+      "tenacity_hours": 200,
+      "temperature": 1,
+      "polarity": 1,
+      "min_effective_pct": 1.0,
+      "typical_neat_range": [
+        3,
+        25
+      ],
+      "max_neat": 40,
+      "effect_in_mixture": "Rounds, sweetens and lengthens. Makes anything smell more finished and less handmade. Commonly anosmic — see anosmia probe.",
+      "pairs_with": [
+        "iso_e_super",
+        "hedione",
+        "ambroxan",
+        "benzyl_salicylate",
+        "cashmeran"
+      ],
+      "bridges": [
+        "floral",
+        "woody",
+        "gourmand"
+      ],
+      "bridge_effect": "Universal softener. Fills the mid-base gap between florals and woods.",
+      "perceptual_cluster": [
+        "clean-musk",
+        "powder"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Restricted in some categories; commonly permitted at high levels in Cat 4. VERIFY.",
+      "families": {
+        "musky": 4,
+        "gourmand": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "supplier-declared",
+        "basis": "HHCB supplied as a 50% solution in IPM — half of what you weigh is solvent, which the neat-percentage column already accounts for.",
+        "declared_pct": 100.0,
+        "undisclosed_pct": 0.0,
+        "constituents": [
+          {
+            "id": "hhcb",
+            "pct": 50.0
+          },
+          {
+            "id": "ipm",
+            "pct": 50.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "exaltolide_total",
+      "name": "Exaltolide Total",
+      "supplier": "dsm-firmenich",
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Warm, waxy, skin-like macrocyclic musk. Human rather than clean.",
+      "facets_primary": [
+        "musk",
+        "skin"
+      ],
+      "facets_secondary": [
+        "waxy",
+        "warm",
+        "milky"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Pentadecanolide",
+      "chemical_family": "macrocyclic lactone",
+      "functional_group": "lactone",
+      "colour_percept": "warm cream",
+      "emotion": [
+        "intimacy",
+        "warmth",
+        "nearness"
+      ],
+      "strength": 4,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 7,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "galaxolide",
+        "ethylene_brassylate"
+      ],
+      "tenacity_hours": 250,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 0.5,
+      "typical_neat_range": [
+        1,
+        12
+      ],
+      "max_neat": 20,
+      "effect_in_mixture": "Adds body heat. Where Galaxolide reads as laundry, this reads as skin. Best fixative in the palette for intimate compositions.",
+      "pairs_with": [
+        "ambroxan",
+        "bacdanol",
+        "benzoin",
+        "civet",
+        "delta_decalactone"
+      ],
+      "bridges": [
+        "musky",
+        "gourmand",
+        "animalic"
+      ],
+      "bridge_effect": "Turns an animalic note from dirty to warm. Softens civet dramatically.",
+      "perceptual_cluster": [
+        "skin-musk",
+        "waxy-warm"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "musky": 4,
+        "gourmand": 1,
+        "animalic": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "supplier-declared",
+        "basis": "Firmenich Exaltolide Total: pentadecanolide with related macrocycles.",
+        "declared_pct": 98.0,
+        "undisclosed_pct": 2.0,
+        "constituents": [
+          {
+            "id": "pentadecanolide",
+            "pct": 90.0
+          },
+          {
+            "id": "pentadecenolide",
+            "pct": 8.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "ethylene_brassylate",
+      "name": "Ethylene Brassylate",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Sweet, ambery-musk with a faint powdery lift. Golden.",
+      "facets_primary": [
+        "musk",
+        "sweet"
+      ],
+      "facets_secondary": [
+        "ambery",
+        "powdery"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Ethylene brassylate",
+      "chemical_family": "macrocyclic diester",
+      "functional_group": "diester",
+      "colour_percept": "soft gold",
+      "emotion": [
+        "warmth",
+        "nostalgia"
+      ],
+      "strength": 3,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 9,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "galaxolide"
+      ],
+      "tenacity_hours": 180,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 1.0,
+      "typical_neat_range": [
+        3,
+        20
+      ],
+      "max_neat": 30,
+      "effect_in_mixture": "Golden cushion. Binds resin to wood and sweetens without going gourmand.",
+      "pairs_with": [
+        "benzoin",
+        "labdanum",
+        "vanillin",
+        "cardamom_oil",
+        "methyl_ionone_gamma"
+      ],
+      "bridges": [
+        "gourmand",
+        "woody",
+        "musky"
+      ],
+      "bridge_effect": "The 'gold' connector — links balsamic resins to dry woods.",
+      "perceptual_cluster": [
+        "sweet-musk",
+        "amber"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "musky": 3,
+        "gourmand": 2,
+        "woody": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.0,
+        "undisclosed_pct": 1.0,
+        "constituents": [
+          {
+            "id": "ethylene_brassylate",
+            "pct": 99.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "ambroxan",
+      "name": "Ambroxan (10% DPG)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 0.1,
+      "solvent": "DPG",
+      "attar_safe": true,
+      "odour": "Dry, mineral, salty-woody amber. Radiant and abstract.",
+      "facets_primary": [
+        "amber",
+        "mineral"
+      ],
+      "facets_secondary": [
+        "salty",
+        "skin",
+        "woody-dry"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Ambroxide",
+      "chemical_family": "terpenoid ether",
+      "functional_group": "ether",
+      "colour_percept": "pale sand, sunlit",
+      "emotion": [
+        "clarity",
+        "distance",
+        "poise"
+      ],
+      "strength": 7,
+      "odt_ppb": 0.3,
+      "vp_mmhg_25c": null,
+      "evap_index": 12,
+      "evap_curve": "plateau",
+      "evap_curve_like": [
+        "sylvamber",
+        "norlimbanol"
+      ],
+      "tenacity_hours": 120,
+      "temperature": 1,
+      "polarity": 0,
+      "min_effective_pct": 0.2,
+      "typical_neat_range": [
+        0.5,
+        2.5
+      ],
+      "max_neat": 5,
+      "effect_in_mixture": "Radiance and salt. Pushes a composition outward and gives it a dry mineral floor. Commonly anosmic.",
+      "pairs_with": [
+        "iso_e_super",
+        "exaltolide_total",
+        "labdanum",
+        "cypriol",
+        "norlimbanol",
+        "bacdanol"
+      ],
+      "bridges": [
+        "woody",
+        "musky",
+        "animalic"
+      ],
+      "bridge_effect": "Lifts heavy resins off the ground. Makes oud and labdanum wearable in daylight.",
+      "perceptual_cluster": [
+        "dry-amber",
+        "mineral-salt",
+        "skin"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "woody": 3,
+        "musky": 3,
+        "earthy": 1
+      },
+      "confidence": {
+        "odt_ppb": "estimate"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Ambroxide, predominantly the (-)-isomer.",
+        "declared_pct": 99.0,
+        "undisclosed_pct": 1.0,
+        "constituents": [
+          {
+            "id": "ambroxide",
+            "pct": 99.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "cedarwood",
+      "name": "Cedarwood",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Dry, pencil-shaving wood with a faint sour-resin edge.",
+      "facets_primary": [
+        "wood",
+        "dry"
+      ],
+      "facets_secondary": [
+        "pencil",
+        "resinous",
+        "dusty"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Cedrol, cedrene, thujopsene",
+      "chemical_family": "sesquiterpene",
+      "functional_group": "alcohol/hydrocarbon",
+      "colour_percept": "warm brown-grey",
+      "emotion": [
+        "order",
+        "quiet",
+        "study"
+      ],
+      "strength": 5,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 20,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [
+        "vertofix",
+        "patchouli"
+      ],
+      "tenacity_hours": 60,
+      "temperature": 0,
+      "polarity": 0,
+      "min_effective_pct": 1.0,
+      "typical_neat_range": [
+        2,
+        12
+      ],
+      "max_neat": 20,
+      "effect_in_mixture": "Structural dryness. The spine of any library, paper or desk accord. Can go sour if overdosed.",
+      "pairs_with": [
+        "iso_e_super",
+        "vetiver_eo",
+        "methyl_ionone_gamma",
+        "frankincense",
+        "peatmoss"
+      ],
+      "bridges": [
+        "woody",
+        "earthy"
+      ],
+      "bridge_effect": "Anchors green and earthy notes to a wood floor.",
+      "perceptual_cluster": [
+        "dry-wood",
+        "paper",
+        "dust"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "woody": 4,
+        "earthy": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Juniperus virginiana (Virginian cedar) oil.",
+        "declared_pct": 92.0,
+        "undisclosed_pct": 8.0,
+        "constituents": [
+          {
+            "id": "cedrol",
+            "pct": 32.0
+          },
+          {
+            "id": "alpha_cedrene",
+            "pct": 25.0
+          },
+          {
+            "id": "thujopsene",
+            "pct": 20.0
+          },
+          {
+            "id": "beta_cedrene",
+            "pct": 8.0
+          },
+          {
+            "id": "cuparene",
+            "pct": 3.0
+          },
+          {
+            "id": "cedryl_acetate",
+            "pct": 2.0
+          },
+          {
+            "id": "widdrol",
+            "pct": 2.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "bacdanol",
+      "name": "Bacdanol",
+      "supplier": "IFF",
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Creamy, milky sandalwood with a soft rosy-woody top.",
+      "facets_primary": [
+        "sandalwood",
+        "creamy"
+      ],
+      "facets_secondary": [
+        "milky",
+        "rosy",
+        "warm"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Ebanol-type sandalwood alcohol",
+      "chemical_family": "terpene alcohol",
+      "functional_group": "alcohol",
+      "colour_percept": "pale cream-gold",
+      "emotion": [
+        "devotion",
+        "softness",
+        "ceremony"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 15,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "exaltolide_total"
+      ],
+      "tenacity_hours": 100,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 0.5,
+      "typical_neat_range": [
+        1,
+        8
+      ],
+      "max_neat": 15,
+      "effect_in_mixture": "Turns a dry wood base creamy and skin-close. Essential for mukhallat, temple and sandalwood-paste accords.",
+      "pairs_with": [
+        "exaltolide_total",
+        "rose_wardia",
+        "cardamom_oil",
+        "oud_oliffac",
+        "benzoin",
+        "delta_decalactone"
+      ],
+      "bridges": [
+        "woody",
+        "floral",
+        "gourmand"
+      ],
+      "bridge_effect": "The mukhallat bridge. Makes rose and oud read as one material rather than two.",
+      "perceptual_cluster": [
+        "creamy-wood",
+        "milk",
+        "sacred"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "woody": 4,
+        "gourmand": 1,
+        "musky": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "IFF sandalwood alcohol.",
+        "declared_pct": 96.0,
+        "undisclosed_pct": 4.0,
+        "constituents": [
+          {
+            "id": "bacdanol",
+            "pct": 96.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "vertofix",
+      "name": "Vertofix Coeur",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Dry woody-ambery with a vetiver-like earthiness. Slightly smoky.",
+      "facets_primary": [
+        "woody",
+        "earthy"
+      ],
+      "facets_secondary": [
+        "smoky",
+        "ambery",
+        "rooty"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Acetylated cedarwood derivative",
+      "chemical_family": "cedrane ketone",
+      "functional_group": "ketone",
+      "colour_percept": "dark umber",
+      "emotion": [
+        "gravity",
+        "age"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 13,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "cedarwood",
+        "cypriol"
+      ],
+      "tenacity_hours": 140,
+      "temperature": 1,
+      "polarity": 1,
+      "min_effective_pct": 0.5,
+      "typical_neat_range": [
+        1,
+        10
+      ],
+      "max_neat": 18,
+      "effect_in_mixture": "Cheap, powerful depth. Substitutes for vetiver where you want the shadow but not the grapefruit-rooty top.",
+      "pairs_with": [
+        "vetiver_eo",
+        "patchouli",
+        "labdanum",
+        "iso_e_super",
+        "cashmeran"
+      ],
+      "bridges": [
+        "woody",
+        "earthy",
+        "animalic"
+      ],
+      "bridge_effect": "Grounds bright woods; keeps smoke from smelling thin.",
+      "perceptual_cluster": [
+        "dry-wood",
+        "smoke",
+        "root"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "woody": 4,
+        "earthy": 2
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "supplier-declared",
+        "basis": "Acetylated cedarwood terpenes: acetyl cedrene on a residue of the cedrene hydrocarbons it was made from.",
+        "declared_pct": 94.0,
+        "undisclosed_pct": 6.0,
+        "constituents": [
+          {
+            "id": "acetyl_cedrene",
+            "pct": 70.0
+          },
+          {
+            "id": "alpha_cedrene",
+            "pct": 12.0
+          },
+          {
+            "id": "thujopsene",
+            "pct": 8.0
+          },
+          {
+            "id": "beta_cedrene",
+            "pct": 4.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "sylvamber",
+      "name": "Sylvamber",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Dry, radiant, woody-amber with a slightly camphoraceous lift.",
+      "facets_primary": [
+        "amber",
+        "woody-dry"
+      ],
+      "facets_secondary": [
+        "radiant",
+        "mineral"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Woody amber (proprietary)",
+      "chemical_family": "woody amber",
+      "functional_group": "proprietary",
+      "colour_percept": "bleached wood in sun",
+      "emotion": [
+        "expanse",
+        "dryness"
+      ],
+      "strength": 7,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 14,
+      "evap_curve": "plateau",
+      "evap_curve_like": [
+        "ambroxan",
+        "norlimbanol"
+      ],
+      "tenacity_hours": 130,
+      "temperature": 0,
+      "polarity": 0,
+      "min_effective_pct": 0.2,
+      "typical_neat_range": [
+        0.5,
+        4
+      ],
+      "max_neat": 8,
+      "effect_in_mixture": "Projection engine. Adds carrying power to a base that sits too close to skin.",
+      "pairs_with": [
+        "ambroxan",
+        "iso_e_super",
+        "cashmeran",
+        "cypriol"
+      ],
+      "bridges": [
+        "woody",
+        "musky"
+      ],
+      "bridge_effect": "Extends dry woods outward into the room.",
+      "perceptual_cluster": [
+        "dry-amber",
+        "radiance"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation.",
+      "families": {
+        "woody": 4,
+        "musky": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "proprietary-undisclosed",
+        "basis": "Symrise woody amber. Composition not declared.",
+        "declared_pct": 0,
+        "undisclosed_pct": 100.0,
+        "constituents": []
+      }
+    },
+    {
+      "id": "cashmeran",
+      "name": "Cashmeran",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Warm, musky-woody, slightly spicy-pine with a velvet powder finish.",
+      "facets_primary": [
+        "musky-wood",
+        "velvet"
+      ],
+      "facets_secondary": [
+        "pine",
+        "spice",
+        "powder"
+      ],
+      "note_position": "base",
+      "key_chemistry": "DPMI (Cashmeran)",
+      "chemical_family": "indanone",
+      "functional_group": "ketone",
+      "colour_percept": "dusty violet-grey",
+      "emotion": [
+        "softness",
+        "enclosure",
+        "memory"
+      ],
+      "strength": 7,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 16,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "iso_e_super"
+      ],
+      "tenacity_hours": 150,
+      "temperature": 1,
+      "polarity": 1,
+      "min_effective_pct": 0.3,
+      "typical_neat_range": [
+        0.5,
+        5
+      ],
+      "max_neat": 10,
+      "effect_in_mixture": "Blurs a composition into softness. Powerful — one slipped drop reshapes a 10 g trial. SHOULD BE DILUTED TO 10%.",
+      "pairs_with": [
+        "iso_e_super",
+        "galaxolide",
+        "methyl_ionone_gamma",
+        "patchouli",
+        "vertofix"
+      ],
+      "bridges": [
+        "woody",
+        "musky",
+        "spicy"
+      ],
+      "bridge_effect": "Merges spice into wood so neither reads separately. Key to 'old cupboard' and 'shawl' accords.",
+      "perceptual_cluster": [
+        "velvet-wood",
+        "powder",
+        "warm-spice"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "woody": 3,
+        "musky": 3,
+        "spicy": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "DPMI.",
+        "declared_pct": 98.0,
+        "undisclosed_pct": 2.0,
+        "constituents": [
+          {
+            "id": "dpmi",
+            "pct": 98.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "oud_oliffac",
+      "name": "Oud Oliffac",
+      "supplier": "IFF",
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Dry, leathery, medicinal-woody oud reconstruction. Barnyard edge.",
+      "facets_primary": [
+        "oud",
+        "leather"
+      ],
+      "facets_secondary": [
+        "medicinal",
+        "animalic",
+        "smoky"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Proprietary oud base",
+      "chemical_family": "base/speciality",
+      "functional_group": "mixed",
+      "colour_percept": "black-brown, oiled",
+      "emotion": [
+        "ritual",
+        "authority",
+        "distance"
+      ],
+      "strength": 8,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 11,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "labdanum",
+        "cypriol"
+      ],
+      "tenacity_hours": 200,
+      "temperature": 2,
+      "polarity": 3,
+      "min_effective_pct": 0.1,
+      "typical_neat_range": [
+        0.2,
+        3
+      ],
+      "max_neat": 6,
+      "effect_in_mixture": "Instant gravity and cultural signal. Dominates fast — start at 0.3% and work up.",
+      "pairs_with": [
+        "rose_wardia",
+        "bacdanol",
+        "safraleine",
+        "labdanum",
+        "ambroxan",
+        "cypriol"
+      ],
+      "bridges": [
+        "animalic",
+        "woody",
+        "floral"
+      ],
+      "bridge_effect": "The rose-oud axis. With Safraleine it becomes the classic mukhallat triangle.",
+      "perceptual_cluster": [
+        "leather",
+        "medicinal-wood",
+        "animal"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation for constituent restrictions.",
+      "families": {
+        "woody": 3,
+        "animalic": 3,
+        "earthy": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "proprietary-undisclosed",
+        "basis": "Supplier oud base. Composition not declared.",
+        "declared_pct": 0,
+        "undisclosed_pct": 100.0,
+        "constituents": []
+      }
+    },
+    {
+      "id": "patchouli",
+      "name": "Patchouli",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Damp earth, dark wood, faint camphor and cocoa.",
+      "facets_primary": [
+        "earthy",
+        "woody"
+      ],
+      "facets_secondary": [
+        "camphor",
+        "cocoa",
+        "musty"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Patchoulol, norpatchoulenol",
+      "chemical_family": "sesquiterpene alcohol",
+      "functional_group": "alcohol",
+      "colour_percept": "deep brown-green",
+      "emotion": [
+        "groundedness",
+        "memory",
+        "earth"
+      ],
+      "strength": 7,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 14,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "vetiver_eo",
+        "vertofix"
+      ],
+      "tenacity_hours": 180,
+      "temperature": 1,
+      "polarity": 2,
+      "min_effective_pct": 0.3,
+      "typical_neat_range": [
+        0.5,
+        6
+      ],
+      "max_neat": 12,
+      "effect_in_mixture": "Depth and damp. Small doses read as soil; large doses take over completely.",
+      "pairs_with": [
+        "vetiver_eo",
+        "labdanum",
+        "geosmin",
+        "peatmoss",
+        "rose_wardia",
+        "coffee_co2"
+      ],
+      "bridges": [
+        "earthy",
+        "woody",
+        "gourmand"
+      ],
+      "bridge_effect": "Links wet-earth accords to sweet-balsamic bases without a seam.",
+      "perceptual_cluster": [
+        "wet-earth",
+        "dark-wood",
+        "cocoa"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "earthy": 4,
+        "woody": 2
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Pogostemon cablin oil, aged Indonesian type.",
+        "declared_pct": 85.4,
+        "undisclosed_pct": 14.6,
+        "constituents": [
+          {
+            "id": "patchoulol",
+            "pct": 32.0
+          },
+          {
+            "id": "alpha_bulnesene",
+            "pct": 16.0
+          },
+          {
+            "id": "alpha_guaiene",
+            "pct": 15.0
+          },
+          {
+            "id": "seychellene",
+            "pct": 8.0
+          },
+          {
+            "id": "alpha_patchoulene",
+            "pct": 5.0
+          },
+          {
+            "id": "beta_caryophyllene",
+            "pct": 4.0
+          },
+          {
+            "id": "beta_patchoulene",
+            "pct": 3.0
+          },
+          {
+            "id": "pogostol",
+            "pct": 2.0
+          },
+          {
+            "id": "norpatchoulenol",
+            "pct": 0.4
+          }
+        ]
+      }
+    },
+    {
+      "id": "vetiver_eo",
+      "name": "Vetiver EO",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Dry root, smoke, grapefruit-rind bitterness, warm earth.",
+      "facets_primary": [
+        "root",
+        "earthy"
+      ],
+      "facets_secondary": [
+        "smoky",
+        "citrus-bitter",
+        "nutty"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Khusimol, vetiverols, vetivones",
+      "chemical_family": "sesquiterpene",
+      "functional_group": "alcohol/ketone",
+      "colour_percept": "dark olive-brown",
+      "emotion": [
+        "stillness",
+        "dignity"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 13,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "patchouli"
+      ],
+      "tenacity_hours": 190,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 0.3,
+      "typical_neat_range": [
+        0.5,
+        6
+      ],
+      "max_neat": 12,
+      "effect_in_mixture": "Warm rooty floor. Where patchouli is damp, vetiver is dry and smoky.",
+      "pairs_with": [
+        "cedarwood",
+        "iso_e_super",
+        "peatmoss",
+        "cypriol",
+        "frankincense"
+      ],
+      "bridges": [
+        "earthy",
+        "woody",
+        "green"
+      ],
+      "bridge_effect": "Connects green tops to earthy bases; stops a wet accord smelling only wet.",
+      "perceptual_cluster": [
+        "root",
+        "smoke",
+        "dry-earth"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "earthy": 4,
+        "woody": 2,
+        "green": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Vetiveria zizanioides, Haitian. Vetiver is genuinely under-characterised — well over half the oil is a mixture of sesquiterpenoids with no single dominant peak, which is why no synthetic reproduces it.",
+        "declared_pct": 39.5,
+        "undisclosed_pct": 60.5,
+        "constituents": [
+          {
+            "id": "khusimol",
+            "pct": 15.0
+          },
+          {
+            "id": "isovalencenol",
+            "pct": 5.0
+          },
+          {
+            "id": "alpha_vetivone",
+            "pct": 5.0
+          },
+          {
+            "id": "beta_vetivone",
+            "pct": 4.0
+          },
+          {
+            "id": "vetiselinenol",
+            "pct": 4.0
+          },
+          {
+            "id": "beta_vetivenene",
+            "pct": 3.0
+          },
+          {
+            "id": "khusimone",
+            "pct": 2.0
+          },
+          {
+            "id": "valencene",
+            "pct": 1.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "cypriol",
+      "name": "Cypriol (Nagarmotha)",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Dry, smoky, leathery-woody with an inky earthiness.",
+      "facets_primary": [
+        "smoke",
+        "dry-earth"
+      ],
+      "facets_secondary": [
+        "leather",
+        "ink",
+        "spice"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Cyperene, cyperotundone",
+      "chemical_family": "sesquiterpene",
+      "functional_group": "ketone/hydrocarbon",
+      "colour_percept": "charcoal with brown edges",
+      "emotion": [
+        "age",
+        "ritual",
+        "ash"
+      ],
+      "strength": 7,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 12,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "oud_oliffac"
+      ],
+      "tenacity_hours": 200,
+      "temperature": 1,
+      "polarity": 2,
+      "min_effective_pct": 0.1,
+      "typical_neat_range": [
+        0.2,
+        3
+      ],
+      "max_neat": 6,
+      "effect_in_mixture": "Dry smoke without fire. The single most useful material for 'old', 'dusty' and 'ash' accords. Aggressive above 2%.",
+      "pairs_with": [
+        "oud_oliffac",
+        "labdanum",
+        "peatmoss",
+        "frankincense",
+        "cedarwood",
+        "guaiacol"
+      ],
+      "bridges": [
+        "earthy",
+        "woody",
+        "animalic"
+      ],
+      "bridge_effect": "Turns a clean wood into an old one. This is the patina renderer.",
+      "perceptual_cluster": [
+        "smoke",
+        "ink",
+        "dry-earth",
+        "leather"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "earthy": 4,
+        "woody": 2,
+        "animalic": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Cyperus scariosus (nagarmotha) root oil.",
+        "declared_pct": 50.5,
+        "undisclosed_pct": 49.5,
+        "constituents": [
+          {
+            "id": "cyperene",
+            "pct": 20.0
+          },
+          {
+            "id": "cyperotundone",
+            "pct": 12.0
+          },
+          {
+            "id": "alpha_cyperone",
+            "pct": 8.0
+          },
+          {
+            "id": "patchoulenone",
+            "pct": 4.0
+          },
+          {
+            "id": "mustakone",
+            "pct": 3.0
+          },
+          {
+            "id": "caryophyllene_oxide",
+            "pct": 3.0
+          },
+          {
+            "id": "rotundone",
+            "pct": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "peatmoss",
+      "name": "Peatmoss (Veramoss equivalent, 10% DPG)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 0.1,
+      "solvent": "DPG",
+      "attar_safe": true,
+      "odour": "Damp stone, forest floor, faint inky-green bitterness.",
+      "facets_primary": [
+        "moss",
+        "damp-stone"
+      ],
+      "facets_secondary": [
+        "inky",
+        "green-bitter",
+        "earth"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Methyl atrarate",
+      "chemical_family": "aromatic ester",
+      "functional_group": "ester",
+      "colour_percept": "wet slate-green",
+      "emotion": [
+        "melancholy",
+        "shade",
+        "age"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 15,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "cypriol"
+      ],
+      "tenacity_hours": 160,
+      "temperature": -1,
+      "polarity": 1,
+      "min_effective_pct": 0.05,
+      "typical_neat_range": [
+        0.1,
+        1.5
+      ],
+      "max_neat": 3,
+      "effect_in_mixture": "Instant age and damp. The chypre floor. Not restricted the way true oakmoss is.",
+      "pairs_with": [
+        "patchouli",
+        "cypriol",
+        "geosmin",
+        "labdanum",
+        "cedarwood",
+        "bergamot"
+      ],
+      "bridges": [
+        "earthy",
+        "green",
+        "woody"
+      ],
+      "bridge_effect": "Makes green notes read as wet ground rather than cut leaf.",
+      "perceptual_cluster": [
+        "moss",
+        "wet-stone",
+        "shade"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Methyl atrarate is not subject to the oakmoss restriction. VERIFY.",
+      "families": {
+        "earthy": 4,
+        "green": 2
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "supplier-declared",
+        "basis": "Built on methyl atrarate, the compliant oakmoss marker.",
+        "declared_pct": 80.0,
+        "undisclosed_pct": 20.0,
+        "constituents": [
+          {
+            "id": "methyl_atrarate",
+            "pct": 40.0
+          },
+          {
+            "id": "dpg",
+            "pct": 40.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "geosmin",
+      "name": "Geosmin (0.1% working dilution)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 0.001,
+      "solvent": "DPG",
+      "attar_safe": true,
+      "odour": "Wet earth, beetroot, the smell of rain on dust. Unmistakable.",
+      "facets_primary": [
+        "wet-earth",
+        "petrichor"
+      ],
+      "facets_secondary": [
+        "beetroot",
+        "mineral",
+        "cellar"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Geosmin (trans-1,10-dimethyl-trans-9-decalol)",
+      "chemical_family": "bicyclic alcohol",
+      "functional_group": "alcohol",
+      "colour_percept": "dark wet brown",
+      "emotion": [
+        "rain",
+        "homecoming",
+        "relief"
+      ],
+      "strength": 10,
+      "odt_ppb": 0.005,
+      "vp_mmhg_25c": null,
+      "evap_index": 20,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [],
+      "tenacity_hours": 70,
+      "temperature": -1,
+      "polarity": 1,
+      "min_effective_pct": 0.0005,
+      "typical_neat_range": [
+        0.001,
+        0.01
+      ],
+      "max_neat": 0.02,
+      "effect_in_mixture": "The entire rain category lives here. Trace doses convert a woody-green accord into petrichor. Overdose gives beetroot and pond water and cannot be washed out of a blend.",
+      "pairs_with": [
+        "floralozone",
+        "cis3_hexenyl_acetate",
+        "patchouli",
+        "vetiver_eo",
+        "peatmoss",
+        "cedarwood"
+      ],
+      "bridges": [
+        "earthy",
+        "green",
+        "aldehydic"
+      ],
+      "bridge_effect": "The petrichor backbone: geosmin supplies the earth, floralozone supplies the air just before the rain lands.",
+      "perceptual_cluster": [
+        "wet-earth",
+        "rain",
+        "mineral"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted at these doses. VERIFY.",
+      "families": {
+        "earthy": 4,
+        "green": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "supplier-declared",
+        "basis": "Geosmin, supplied dilute because neat is unusable — the neat-percentage column already accounts for the dilution.",
+        "declared_pct": 100.0,
+        "undisclosed_pct": 0.0,
+        "constituents": [
+          {
+            "id": "geosmin",
+            "pct": 1.0
+          },
+          {
+            "id": "dpg",
+            "pct": 99.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "frankincense",
+      "name": "Frankincense (Olibanum)",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Cool, dry, lemony-resinous with a peppery smoke.",
+      "facets_primary": [
+        "resin",
+        "cool-smoke"
+      ],
+      "facets_secondary": [
+        "citrus-peel",
+        "pepper",
+        "dust"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Alpha-pinene, limonene, incensole",
+      "chemical_family": "terpene/resin",
+      "functional_group": "hydrocarbon/alcohol",
+      "colour_percept": "pale silver-gold smoke",
+      "emotion": [
+        "reverence",
+        "clarity",
+        "height"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 45,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [
+        "black_pepper_oil"
+      ],
+      "tenacity_hours": 24,
+      "temperature": -2,
+      "polarity": 0,
+      "min_effective_pct": 0.5,
+      "typical_neat_range": [
+        1,
+        8
+      ],
+      "max_neat": 15,
+      "effect_in_mixture": "Cool, elevating smoke. The temperature contrast that stops warm resins going cloying.",
+      "pairs_with": [
+        "cedarwood",
+        "cypriol",
+        "labdanum",
+        "bergamot",
+        "pink_pepper",
+        "vetiver_eo"
+      ],
+      "bridges": [
+        "woody",
+        "citrus",
+        "spicy"
+      ],
+      "bridge_effect": "Cools a warm base. Use whenever an amber accord feels heavy or sugary.",
+      "perceptual_cluster": [
+        "cool-resin",
+        "smoke",
+        "citrus-dust"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Oxidation-sensitive; store cold. VERIFY limits.",
+      "families": {
+        "woody": 2,
+        "spicy": 2,
+        "citrus": 1,
+        "earthy": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Boswellia carterii oil. Boswellic acids stay in the resin and do not distil over.",
+        "declared_pct": 82.0,
+        "undisclosed_pct": 18.0,
+        "constituents": [
+          {
+            "id": "alpha_pinene",
+            "pct": 35.0
+          },
+          {
+            "id": "limonene",
+            "pct": 12.0
+          },
+          {
+            "id": "alpha_thujene",
+            "pct": 8.0
+          },
+          {
+            "id": "myrcene",
+            "pct": 6.0
+          },
+          {
+            "id": "p_cymene",
+            "pct": 5.0
+          },
+          {
+            "id": "sabinene",
+            "pct": 4.0
+          },
+          {
+            "id": "octyl_acetate",
+            "pct": 3.0
+          },
+          {
+            "id": "beta_pinene",
+            "pct": 3.0
+          },
+          {
+            "id": "beta_caryophyllene",
+            "pct": 3.0
+          },
+          {
+            "id": "incensole_acetate",
+            "pct": 2.0
+          },
+          {
+            "id": "verbenone",
+            "pct": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "benzoin",
+      "name": "Benzoin Resinoid 70 DEP (diluted 50% in BB)",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 0.35,
+      "solvent": "benzyl benzoate",
+      "attar_safe": true,
+      "odour": "Sweet, warm, vanillic-balsamic. Almost edible.",
+      "facets_primary": [
+        "balsamic",
+        "vanillic"
+      ],
+      "facets_secondary": [
+        "caramel",
+        "powder",
+        "resin"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Benzoic acid esters, vanillin, coniferyl benzoate",
+      "chemical_family": "resinoid",
+      "functional_group": "ester/acid",
+      "colour_percept": "deep amber gold",
+      "emotion": [
+        "comfort",
+        "nostalgia",
+        "warmth"
+      ],
+      "strength": 5,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 10,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "labdanum",
+        "vanillin"
+      ],
+      "tenacity_hours": 200,
+      "temperature": 3,
+      "polarity": 3,
+      "min_effective_pct": 0.5,
+      "typical_neat_range": [
+        1,
+        10
+      ],
+      "max_neat": 18,
+      "effect_in_mixture": "Golden sweetness and fixation together. The core of any 'gold', 'palace' or 'old cupboard' accord.",
+      "pairs_with": [
+        "vanillin",
+        "coumarin",
+        "labdanum",
+        "ethylene_brassylate",
+        "methyl_ionone_gamma",
+        "bacdanol"
+      ],
+      "bridges": [
+        "gourmand",
+        "woody",
+        "floral"
+      ],
+      "bridge_effect": "Makes powdery florals read as warm rather than cosmetic. Fuses spice into sweetness.",
+      "perceptual_cluster": [
+        "balsamic-sweet",
+        "vanilla",
+        "powder"
+      ],
+      "ifra_cat4_pct": 2.0,
+      "ifra_note": "Benzoin restricted as sensitiser. VERIFY current limit.",
+      "families": {
+        "gourmand": 3,
+        "woody": 1,
+        "floral": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Siam benzoin (Styrax tonkinensis) resinoid. Mostly non-volatile — it is a fixative that happens to smell of vanilla.",
+        "declared_pct": 92.0,
+        "undisclosed_pct": 8.0,
+        "constituents": [
+          {
+            "id": "coniferyl_benzoate",
+            "pct": 65.0
+          },
+          {
+            "id": "benzoic_acid",
+            "pct": 12.0
+          },
+          {
+            "id": "siaresinolic",
+            "pct": 8.0
+          },
+          {
+            "id": "cinnamyl_benzoate",
+            "pct": 3.0
+          },
+          {
+            "id": "vanillin",
+            "pct": 2.0
+          },
+          {
+            "id": "benzyl_benzoate",
+            "pct": 2.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "labdanum",
+      "name": "Labdanum Resinoid (50% in BB)",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 0.5,
+      "solvent": "benzyl benzoate",
+      "attar_safe": true,
+      "odour": "Dark, leathery-ambery, honeyed and slightly animal.",
+      "facets_primary": [
+        "amber",
+        "leather"
+      ],
+      "facets_secondary": [
+        "honey",
+        "animalic",
+        "smoke"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Labdane diterpenes, ambrein precursors",
+      "chemical_family": "resinoid",
+      "functional_group": "mixed",
+      "colour_percept": "dark honey-brown",
+      "emotion": [
+        "antiquity",
+        "richness",
+        "dusk"
+      ],
+      "strength": 7,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 9,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "benzoin",
+        "oud_oliffac"
+      ],
+      "tenacity_hours": 220,
+      "temperature": 3,
+      "polarity": 3,
+      "min_effective_pct": 0.3,
+      "typical_neat_range": [
+        0.5,
+        6
+      ],
+      "max_neat": 12,
+      "effect_in_mixture": "The amber accord's dark half. Adds age, leather and a faint animal warmth.",
+      "pairs_with": [
+        "benzoin",
+        "ambroxan",
+        "cypriol",
+        "oud_oliffac",
+        "vanillin",
+        "frankincense"
+      ],
+      "bridges": [
+        "gourmand",
+        "animalic",
+        "woody"
+      ],
+      "bridge_effect": "Classic amber accord = labdanum + benzoin + vanillin. Also the bridge from resin to leather.",
+      "perceptual_cluster": [
+        "dark-amber",
+        "leather",
+        "honey"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Restricted; VERIFY current limit.",
+      "families": {
+        "woody": 2,
+        "gourmand": 2,
+        "animalic": 2,
+        "earthy": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Cistus ladanifer resinoid. The odour lives in a few percent of volatiles on top of a large diterpene mass.",
+        "declared_pct": 52.5,
+        "undisclosed_pct": 47.5,
+        "constituents": [
+          {
+            "id": "labdane_diterpenes",
+            "pct": 45.0
+          },
+          {
+            "id": "viridiflorol",
+            "pct": 1.5
+          },
+          {
+            "id": "ledol",
+            "pct": 1.0
+          },
+          {
+            "id": "trimethylcyclohexanone",
+            "pct": 1.0
+          },
+          {
+            "id": "alpha_pinene",
+            "pct": 2.0
+          },
+          {
+            "id": "bornyl_acetate",
+            "pct": 1.5
+          },
+          {
+            "id": "acetophenone",
+            "pct": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "jasmine_sambac",
+      "name": "Jasmine Sambac",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Rich, narcotic white floral with green and faintly animalic depths.",
+      "facets_primary": [
+        "jasmine",
+        "narcotic"
+      ],
+      "facets_secondary": [
+        "green",
+        "indolic",
+        "tea"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Benzyl acetate, linalool, indole, methyl anthranilate",
+      "chemical_family": "floral absolute",
+      "functional_group": "ester/amine",
+      "colour_percept": "warm white with a shadow",
+      "emotion": [
+        "desire",
+        "night",
+        "abundance"
+      ],
+      "strength": 8,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 35,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [
+        "rose_wardia"
+      ],
+      "tenacity_hours": 40,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 0.2,
+      "typical_neat_range": [
+        0.5,
+        5
+      ],
+      "max_neat": 10,
+      "effect_in_mixture": "Living flower. Even 0.5% makes a floral accord stop smelling synthetic.",
+      "pairs_with": [
+        "hedione",
+        "methyl_ionone_gamma",
+        "bacdanol",
+        "exaltolide_total",
+        "gamma_undecalactone"
+      ],
+      "bridges": [
+        "floral",
+        "animalic",
+        "green"
+      ],
+      "bridge_effect": "Its indole content links clean florals to skin and musk without a gap.",
+      "perceptual_cluster": [
+        "white-floral",
+        "indole",
+        "night-bloom"
+      ],
+      "ifra_cat4_pct": 0.7,
+      "ifra_note": "Jasmine absolute restricted. VERIFY current limit.",
+      "families": {
+        "floral": 4,
+        "animalic": 1,
+        "green": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Jasminum sambac absolute. The indole is 5% of the mass and most of the personality.",
+        "declared_pct": 73.0,
+        "undisclosed_pct": 27.0,
+        "constituents": [
+          {
+            "id": "benzyl_acetate",
+            "pct": 22.0
+          },
+          {
+            "id": "linalool",
+            "pct": 12.0
+          },
+          {
+            "id": "benzyl_alcohol",
+            "pct": 8.0
+          },
+          {
+            "id": "alpha_farnesene",
+            "pct": 8.0
+          },
+          {
+            "id": "indole",
+            "pct": 5.0
+          },
+          {
+            "id": "benzyl_benzoate",
+            "pct": 5.0
+          },
+          {
+            "id": "methyl_anthranilate",
+            "pct": 3.0
+          },
+          {
+            "id": "cis_jasmone",
+            "pct": 3.0
+          },
+          {
+            "id": "isophytol",
+            "pct": 3.0
+          },
+          {
+            "id": "cis3_hexenyl_benzoate",
+            "pct": 2.0
+          },
+          {
+            "id": "methyl_jasmonate",
+            "pct": 1.0
+          },
+          {
+            "id": "eugenol",
+            "pct": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rose_wardia",
+      "name": "Rose Wardia BM",
+      "supplier": "dsm-firmenich",
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Fresh, dewy rose with a clean modern lift and light fruit.",
+      "facets_primary": [
+        "rose",
+        "dewy"
+      ],
+      "facets_secondary": [
+        "fruity",
+        "green",
+        "honey"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Proprietary rose base",
+      "chemical_family": "base/speciality",
+      "functional_group": "mixed",
+      "colour_percept": "soft pink with water on it",
+      "emotion": [
+        "tenderness",
+        "celebration"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 38,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [
+        "jasmine_sambac"
+      ],
+      "tenacity_hours": 30,
+      "temperature": 0,
+      "polarity": 1,
+      "min_effective_pct": 0.3,
+      "typical_neat_range": [
+        0.5,
+        8
+      ],
+      "max_neat": 15,
+      "effect_in_mixture": "Rose without the cost. Reads modern and clean rather than antique.",
+      "pairs_with": [
+        "damascone_beta",
+        "oud_oliffac",
+        "safraleine",
+        "bacdanol",
+        "hedione",
+        "patchouli"
+      ],
+      "bridges": [
+        "floral",
+        "fruity",
+        "woody"
+      ],
+      "bridge_effect": "With damascone beta it deepens into a dried-rose; with oud and saffron it becomes the mukhallat triangle.",
+      "perceptual_cluster": [
+        "fresh-rose",
+        "dew",
+        "light-fruit"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation.",
+      "families": {
+        "floral": 4,
+        "green": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "proprietary-undisclosed",
+        "basis": "Supplier base. Nothing is declared, so nothing is listed here — a rose base's obvious constituents are guessable but a guess is not data, and the affinity engine would treat it as fact.",
+        "declared_pct": 0,
+        "undisclosed_pct": 100.0,
+        "constituents": []
+      }
+    },
+    {
+      "id": "ylang_ylang",
+      "name": "Ylang Ylang",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Creamy, banana-custard floral with clove-spice and rubbery depths.",
+      "facets_primary": [
+        "floral-creamy",
+        "spicy"
+      ],
+      "facets_secondary": [
+        "banana",
+        "clove",
+        "rubber"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Linalool, benzyl acetate, p-cresyl methyl ether, isoeugenol",
+      "chemical_family": "floral EO",
+      "functional_group": "ester/ether",
+      "colour_percept": "thick cream-yellow",
+      "emotion": [
+        "languor",
+        "tropical heat",
+        "celebration"
+      ],
+      "strength": 7,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 36,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [
+        "jasmine_sambac"
+      ],
+      "tenacity_hours": 36,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 0.2,
+      "typical_neat_range": [
+        0.5,
+        4
+      ],
+      "max_neat": 8,
+      "effect_in_mixture": "Fills the gap between white floral and spice. Does the heavy lifting in wedding and garden accords where jasmine alone is too narrow.",
+      "pairs_with": [
+        "jasmine_sambac",
+        "clove_bud_eo",
+        "bacdanol",
+        "gamma_undecalactone",
+        "benzoin"
+      ],
+      "bridges": [
+        "floral",
+        "spicy",
+        "gourmand"
+      ],
+      "bridge_effect": "The only material in this palette that is simultaneously flower, spice and cream.",
+      "perceptual_cluster": [
+        "creamy-floral",
+        "clove",
+        "tropical"
+      ],
+      "ifra_cat4_pct": 0.8,
+      "ifra_note": "Isoeugenol content drives the restriction. VERIFY.",
+      "families": {
+        "floral": 4,
+        "spicy": 1,
+        "gourmand": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Cananga odorata, extra/first grade. Later fractions carry more sesquiterpene and less ester.",
+        "declared_pct": 80.0,
+        "undisclosed_pct": 20.0,
+        "constituents": [
+          {
+            "id": "linalool",
+            "pct": 18.0
+          },
+          {
+            "id": "benzyl_acetate",
+            "pct": 12.0
+          },
+          {
+            "id": "germacrene_d",
+            "pct": 12.0
+          },
+          {
+            "id": "p_cresyl_methyl_ether",
+            "pct": 8.0
+          },
+          {
+            "id": "methyl_benzoate",
+            "pct": 6.0
+          },
+          {
+            "id": "benzyl_benzoate",
+            "pct": 6.0
+          },
+          {
+            "id": "beta_caryophyllene",
+            "pct": 6.0
+          },
+          {
+            "id": "geranyl_acetate",
+            "pct": 5.0
+          },
+          {
+            "id": "benzyl_salicylate",
+            "pct": 3.0
+          },
+          {
+            "id": "farnesol",
+            "pct": 2.0
+          },
+          {
+            "id": "isoeugenol",
+            "pct": 1.0
+          },
+          {
+            "id": "methyl_salicylate",
+            "pct": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "methyl_ionone_gamma",
+      "name": "Methyl Ionone Gamma",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Powdery violet-orris with a dry woody-suede finish.",
+      "facets_primary": [
+        "violet",
+        "orris"
+      ],
+      "facets_secondary": [
+        "powder",
+        "suede",
+        "dry-wood"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Gamma-methylionone",
+      "chemical_family": "ionone",
+      "functional_group": "ketone",
+      "colour_percept": "grey-violet, matte",
+      "emotion": [
+        "memory",
+        "restraint",
+        "faded elegance"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 25,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "cashmeran"
+      ],
+      "tenacity_hours": 90,
+      "temperature": -1,
+      "polarity": 0,
+      "min_effective_pct": 0.3,
+      "typical_neat_range": [
+        1,
+        8
+      ],
+      "max_neat": 15,
+      "effect_in_mixture": "THE PATINA MATERIAL. Turns any fresh floral into a remembered one. Central to pressed-flower, old-paper and almirah accords.",
+      "pairs_with": [
+        "benzoin",
+        "coumarin",
+        "cedarwood",
+        "iso_e_super",
+        "peatmoss",
+        "rose_wardia"
+      ],
+      "bridges": [
+        "floral",
+        "woody",
+        "gourmand"
+      ],
+      "bridge_effect": "Makes a flower and a piece of wood read as one aged object rather than two materials.",
+      "perceptual_cluster": [
+        "powder",
+        "violet",
+        "suede",
+        "old-paper"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "floral": 3,
+        "woody": 2,
+        "gourmand": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "supplier-declared",
+        "basis": "Commercial gamma-methylionone: an isomer mixture in which gamma predominates.",
+        "declared_pct": 68.0,
+        "undisclosed_pct": 32.0,
+        "constituents": [
+          {
+            "id": "methyl_ionone_gamma",
+            "pct": 68.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "phenyl_ethyl_alcohol",
+      "name": "Phenyl Ethyl Alcohol (PEA)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Soft, honeyed rose-petal. Mild and diffusive.",
+      "facets_primary": [
+        "rose-petal",
+        "honey"
+      ],
+      "facets_secondary": [
+        "soft",
+        "watery",
+        "sweet"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "2-Phenylethanol",
+      "chemical_family": "aromatic alcohol",
+      "functional_group": "alcohol",
+      "colour_percept": "pale rose-white",
+      "emotion": [
+        "gentleness",
+        "innocence"
+      ],
+      "strength": 3,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 40,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 20,
+      "temperature": 1,
+      "polarity": 1,
+      "min_effective_pct": 2.0,
+      "typical_neat_range": [
+        3,
+        20
+      ],
+      "max_neat": 35,
+      "effect_in_mixture": "Volume filler for florals. Cheap body. Adds honey without stickiness.",
+      "pairs_with": [
+        "rose_wardia",
+        "hedione",
+        "benzoin",
+        "galaxolide"
+      ],
+      "bridges": [
+        "floral",
+        "gourmand"
+      ],
+      "bridge_effect": "Its honey facet locks onto benzoin's vanillic facet — a classic resonance pair.",
+      "perceptual_cluster": [
+        "rose",
+        "honey",
+        "soft"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "floral": 3,
+        "gourmand": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.0,
+        "undisclosed_pct": 1.0,
+        "constituents": [
+          {
+            "id": "phenylethyl_alcohol",
+            "pct": 99.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "damascone_beta",
+      "name": "Beta-Damascone",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Fruity-plummy rose ketone with dried-fruit and tea depths.",
+      "facets_primary": [
+        "rose-ketone",
+        "plum"
+      ],
+      "facets_secondary": [
+        "dried-fruit",
+        "tea",
+        "woody"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Beta-damascone",
+      "chemical_family": "rose ketone",
+      "functional_group": "ketone",
+      "colour_percept": "deep red-purple",
+      "emotion": [
+        "opulence",
+        "dusk"
+      ],
+      "strength": 9,
+      "odt_ppb": 0.1,
+      "vp_mmhg_25c": null,
+      "evap_index": 33,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 60,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 0.005,
+      "typical_neat_range": [
+        0.01,
+        0.15
+      ],
+      "max_neat": 0.2,
+      "effect_in_mixture": "Deepens and dries a rose without adding more rose. Enormous power — dilute to 1% before use.",
+      "pairs_with": [
+        "rose_wardia",
+        "oud_oliffac",
+        "safraleine",
+        "benzoin",
+        "patchouli"
+      ],
+      "bridges": [
+        "floral",
+        "gourmand",
+        "woody"
+      ],
+      "bridge_effect": "Turns a fresh rose into a dried, jammy one. The wedding-and-mukhallat connector.",
+      "perceptual_cluster": [
+        "rose",
+        "dried-fruit",
+        "jam"
+      ],
+      "ifra_cat4_pct": 0.02,
+      "ifra_note": "ROSE KETONES ARE TIGHTLY RESTRICTED. VERIFY before any commercial batch.",
+      "families": {
+        "floral": 3,
+        "gourmand": 2,
+        "woody": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify",
+        "odt_ppb": "estimate"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 98.0,
+        "undisclosed_pct": 2.0,
+        "constituents": [
+          {
+            "id": "damascone_beta",
+            "pct": 98.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "cardamom_oil",
+      "name": "Cardamom Oil RCO",
+      "supplier": "BULKAROMA",
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Bright, camphoraceous-sweet spice with a warm terpenic body.",
+      "facets_primary": [
+        "cardamom",
+        "fresh-spice"
+      ],
+      "facets_secondary": [
+        "camphor",
+        "citrus",
+        "warm-sweet"
+      ],
+      "note_position": "top",
+      "key_chemistry": "1,8-Cineole, alpha-terpinyl acetate",
+      "chemical_family": "oxide/ester",
+      "functional_group": "ether/ester",
+      "colour_percept": "pale green-gold",
+      "emotion": [
+        "welcome",
+        "hospitality",
+        "morning"
+      ],
+      "strength": 7,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 75,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [
+        "black_pepper_oil"
+      ],
+      "tenacity_hours": 6,
+      "temperature": 0,
+      "polarity": 0,
+      "min_effective_pct": 0.2,
+      "typical_neat_range": [
+        0.5,
+        4
+      ],
+      "max_neat": 8,
+      "effect_in_mixture": "Lifts a heavy base into daylight. The signature of chai, kulfi, biryani and every warm-welcome accord in this brand.",
+      "pairs_with": [
+        "clove_bud_eo",
+        "bacdanol",
+        "benzoin",
+        "rose_wardia",
+        "coffee_co2",
+        "delta_decalactone"
+      ],
+      "bridges": [
+        "spicy",
+        "citrus",
+        "gourmand"
+      ],
+      "bridge_effect": "The only spice here that is simultaneously fresh and warm — bridges a citrus top to a resin base in one step.",
+      "perceptual_cluster": [
+        "fresh-spice",
+        "camphor",
+        "chai"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "spicy": 4,
+        "citrus": 1,
+        "green": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Elettaria cardamomum seed oil, Guatemalan type.",
+        "declared_pct": 87.6,
+        "undisclosed_pct": 12.4,
+        "constituents": [
+          {
+            "id": "alpha_terpinyl_acetate",
+            "pct": 38.0
+          },
+          {
+            "id": "cineole",
+            "pct": 32.0
+          },
+          {
+            "id": "linalool",
+            "pct": 4.0
+          },
+          {
+            "id": "limonene",
+            "pct": 4.0
+          },
+          {
+            "id": "sabinene",
+            "pct": 3.0
+          },
+          {
+            "id": "alpha_terpineol",
+            "pct": 2.5
+          },
+          {
+            "id": "linalyl_acetate",
+            "pct": 2.0
+          },
+          {
+            "id": "myrcene",
+            "pct": 1.5
+          },
+          {
+            "id": "geraniol",
+            "pct": 0.6
+          }
+        ]
+      }
+    },
+    {
+      "id": "clove_bud_eo",
+      "name": "Clove Bud EO",
+      "supplier": "Bulkaroma PL-100AP",
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Hot, sweet, phenolic-medicinal spice.",
+      "facets_primary": [
+        "clove",
+        "phenolic"
+      ],
+      "facets_secondary": [
+        "sweet",
+        "medicinal",
+        "woody"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Eugenol (~80%), eugenyl acetate",
+      "chemical_family": "phenylpropanoid",
+      "functional_group": "phenol",
+      "colour_percept": "dark red-brown",
+      "emotion": [
+        "ceremony",
+        "heat",
+        "winter"
+      ],
+      "strength": 8,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 42,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 48,
+      "temperature": 3,
+      "polarity": 2,
+      "min_effective_pct": 0.05,
+      "typical_neat_range": [
+        0.1,
+        0.6
+      ],
+      "max_neat": 0.7,
+      "effect_in_mixture": "Ceremonial heat. Tiny doses read as warmth; anything above 1% reads as dentist.",
+      "pairs_with": [
+        "cardamom_oil",
+        "cinnamon_bark_oil",
+        "benzoin",
+        "ylang_ylang",
+        "vanillin",
+        "bacdanol"
+      ],
+      "bridges": [
+        "spicy",
+        "gourmand",
+        "floral"
+      ],
+      "bridge_effect": "Its eugenol locks onto ylang and carnation facets — the wedding-garland accord.",
+      "perceptual_cluster": [
+        "hot-spice",
+        "phenol",
+        "clove"
+      ],
+      "ifra_cat4_pct": 0.5,
+      "ifra_note": "CONFIRMED true essential oil, ~80-85% eugenol. Eugenol Cat 4 limit approx 0.5% => clove bud oil caps around 0.6% of finished product. Supplier code does not change this. VERIFY against current amendment.",
+      "families": {
+        "spicy": 4,
+        "gourmand": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Syzygium aromaticum bud oil.",
+        "declared_pct": 98.5,
+        "undisclosed_pct": 1.5,
+        "constituents": [
+          {
+            "id": "eugenol",
+            "pct": 80.0
+          },
+          {
+            "id": "beta_caryophyllene",
+            "pct": 12.0
+          },
+          {
+            "id": "eugenyl_acetate",
+            "pct": 5.0
+          },
+          {
+            "id": "alpha_humulene",
+            "pct": 1.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "cinnamon_bark_oil",
+      "name": "Cinnamon Bark Oil",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Sweet, hot, woody-spicy with a sharp aldehydic bite.",
+      "facets_primary": [
+        "cinnamon",
+        "hot-spice"
+      ],
+      "facets_secondary": [
+        "sweet",
+        "woody",
+        "aldehydic"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Cinnamaldehyde (~65-75%), eugenol",
+      "chemical_family": "phenylpropanoid",
+      "functional_group": "aldehyde/phenol",
+      "colour_percept": "burnt orange",
+      "emotion": [
+        "festivity",
+        "heat"
+      ],
+      "strength": 9,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 45,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 40,
+      "temperature": 4,
+      "polarity": 2,
+      "min_effective_pct": 0.01,
+      "typical_neat_range": [
+        0.02,
+        0.08
+      ],
+      "max_neat": 0.1,
+      "effect_in_mixture": "Extremely strong sensitiser. Use at trace only. Bark oil is far more restricted than leaf oil.",
+      "pairs_with": [
+        "clove_bud_eo",
+        "benzoin",
+        "vanillin",
+        "orange_10x",
+        "coffee_co2"
+      ],
+      "bridges": [
+        "spicy",
+        "gourmand"
+      ],
+      "bridge_effect": "Sharpens a sweet base; adds festival heat.",
+      "perceptual_cluster": [
+        "hot-spice",
+        "cinnamon"
+      ],
+      "ifra_cat4_pct": 0.05,
+      "ifra_note": "CINNAMALDEHYDE TIGHTLY RESTRICTED. Approximate value — VERIFY before any commercial batch.",
+      "families": {
+        "spicy": 4,
+        "gourmand": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Cinnamomum verum bark oil — bark, not leaf; leaf oil is eugenol-dominant instead.",
+        "declared_pct": 90.5,
+        "undisclosed_pct": 9.5,
+        "constituents": [
+          {
+            "id": "cinnamaldehyde",
+            "pct": 70.0
+          },
+          {
+            "id": "eugenol",
+            "pct": 7.0
+          },
+          {
+            "id": "beta_caryophyllene",
+            "pct": 4.0
+          },
+          {
+            "id": "linalool",
+            "pct": 3.0
+          },
+          {
+            "id": "cinnamyl_acetate",
+            "pct": 3.0
+          },
+          {
+            "id": "p_cymene",
+            "pct": 2.0
+          },
+          {
+            "id": "benzaldehyde",
+            "pct": 1.0
+          },
+          {
+            "id": "coumarin",
+            "pct": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "black_pepper_oil",
+      "name": "Black Pepper Oil",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Dry, woody-terpenic pepper with a green bite.",
+      "facets_primary": [
+        "pepper",
+        "dry-spice"
+      ],
+      "facets_secondary": [
+        "woody",
+        "green",
+        "terpenic"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Beta-caryophyllene, limonene, pinene",
+      "chemical_family": "sesquiterpene/monoterpene",
+      "functional_group": "hydrocarbon",
+      "colour_percept": "dusty grey-green",
+      "emotion": [
+        "alertness",
+        "dryness"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 78,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [
+        "pink_pepper"
+      ],
+      "tenacity_hours": 4,
+      "temperature": 1,
+      "polarity": 0,
+      "min_effective_pct": 0.1,
+      "typical_neat_range": [
+        0.2,
+        2
+      ],
+      "max_neat": 4,
+      "effect_in_mixture": "Adds bite and texture to a top without sweetness. Stops citrus reading as juice.",
+      "pairs_with": [
+        "pink_pepper",
+        "frankincense",
+        "cardamom_oil",
+        "vetiver_eo",
+        "bergamot"
+      ],
+      "bridges": [
+        "spicy",
+        "citrus",
+        "woody"
+      ],
+      "bridge_effect": "Roughens a smooth top so the heart doesn't arrive too suddenly.",
+      "perceptual_cluster": [
+        "dry-spice",
+        "pepper",
+        "green-bite"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "spicy": 3,
+        "woody": 1,
+        "green": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Piper nigrum steam-distilled oil. Rotundone is the pepper percept and sits far below 1%.",
+        "declared_pct": 90.52,
+        "undisclosed_pct": 9.48,
+        "constituents": [
+          {
+            "id": "beta_caryophyllene",
+            "pct": 28.0
+          },
+          {
+            "id": "limonene",
+            "pct": 18.0
+          },
+          {
+            "id": "beta_pinene",
+            "pct": 11.0
+          },
+          {
+            "id": "alpha_pinene",
+            "pct": 9.0
+          },
+          {
+            "id": "delta_3_carene",
+            "pct": 8.0
+          },
+          {
+            "id": "sabinene",
+            "pct": 5.0
+          },
+          {
+            "id": "myrcene",
+            "pct": 3.0
+          },
+          {
+            "id": "alpha_humulene",
+            "pct": 3.0
+          },
+          {
+            "id": "delta_cadinene",
+            "pct": 2.0
+          },
+          {
+            "id": "beta_elemene",
+            "pct": 2.0
+          },
+          {
+            "id": "alpha_copaene",
+            "pct": 1.5
+          },
+          {
+            "id": "rotundone",
+            "pct": 0.02
+          }
+        ]
+      }
+    },
+    {
+      "id": "pink_pepper",
+      "name": "Pink Pepper",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Bright, rosy-peppery with a fruity sparkle.",
+      "facets_primary": [
+        "pepper",
+        "rosy"
+      ],
+      "facets_secondary": [
+        "fruity",
+        "fresh",
+        "resinous"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Alpha-phellandrene, limonene, myrcene",
+      "chemical_family": "monoterpene",
+      "functional_group": "hydrocarbon",
+      "colour_percept": "coral pink",
+      "emotion": [
+        "playfulness",
+        "sparkle"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 82,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [
+        "black_pepper_oil"
+      ],
+      "tenacity_hours": 3,
+      "temperature": 1,
+      "polarity": -1,
+      "min_effective_pct": 0.1,
+      "typical_neat_range": [
+        0.3,
+        3
+      ],
+      "max_neat": 5,
+      "effect_in_mixture": "Sparkle without citrus. Adds a modern opening to otherwise antique compositions.",
+      "pairs_with": [
+        "bergamot",
+        "rose_wardia",
+        "cashmeran",
+        "frankincense",
+        "orange_10x"
+      ],
+      "bridges": [
+        "spicy",
+        "floral",
+        "citrus"
+      ],
+      "bridge_effect": "Links a citrus top to a rose heart in one material.",
+      "perceptual_cluster": [
+        "bright-spice",
+        "rosy",
+        "fruit-sparkle"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Oxidation-sensitive. VERIFY.",
+      "families": {
+        "spicy": 3,
+        "citrus": 1,
+        "floral": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Schinus molle berry oil. Not botanically a pepper — hence the rosy-fruity lift a true pepper does not have.",
+        "declared_pct": 85.0,
+        "undisclosed_pct": 15.0,
+        "constituents": [
+          {
+            "id": "alpha_phellandrene",
+            "pct": 25.0
+          },
+          {
+            "id": "limonene",
+            "pct": 20.0
+          },
+          {
+            "id": "myrcene",
+            "pct": 12.0
+          },
+          {
+            "id": "beta_phellandrene",
+            "pct": 8.0
+          },
+          {
+            "id": "alpha_pinene",
+            "pct": 6.0
+          },
+          {
+            "id": "delta_3_carene",
+            "pct": 5.0
+          },
+          {
+            "id": "beta_caryophyllene",
+            "pct": 4.0
+          },
+          {
+            "id": "p_cymene",
+            "pct": 3.0
+          },
+          {
+            "id": "elemol",
+            "pct": 2.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "nutmeg_eo",
+      "name": "Nutmeg EO",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Warm, sweet-woody spice with a faint camphor-terpene lift.",
+      "facets_primary": [
+        "nutmeg",
+        "warm-spice"
+      ],
+      "facets_secondary": [
+        "woody",
+        "camphor",
+        "sweet"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Sabinene, alpha-pinene, myristicin",
+      "chemical_family": "monoterpene/phenylpropanoid",
+      "functional_group": "hydrocarbon/ether",
+      "colour_percept": "warm tan",
+      "emotion": [
+        "home",
+        "kitchen",
+        "comfort"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 70,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 6,
+      "temperature": 2,
+      "polarity": 1,
+      "min_effective_pct": 0.1,
+      "typical_neat_range": [
+        0.2,
+        2
+      ],
+      "max_neat": 4,
+      "effect_in_mixture": "Rounds a spice accord and stops cardamom reading as soap. Core to biryani and masala accords.",
+      "pairs_with": [
+        "cardamom_oil",
+        "clove_bud_eo",
+        "coffee_co2",
+        "benzoin",
+        "safraleine"
+      ],
+      "bridges": [
+        "spicy",
+        "gourmand",
+        "woody"
+      ],
+      "bridge_effect": "The kitchen bridge — connects fresh spice to cooked sweetness.",
+      "perceptual_cluster": [
+        "warm-spice",
+        "kitchen",
+        "wood"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Myristicin content — VERIFY.",
+      "families": {
+        "spicy": 4,
+        "woody": 1,
+        "gourmand": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Myristica fragrans seed oil, East Indian type.",
+        "declared_pct": 85.0,
+        "undisclosed_pct": 15.0,
+        "constituents": [
+          {
+            "id": "sabinene",
+            "pct": 22.0
+          },
+          {
+            "id": "alpha_pinene",
+            "pct": 20.0
+          },
+          {
+            "id": "beta_pinene",
+            "pct": 14.0
+          },
+          {
+            "id": "limonene",
+            "pct": 6.0
+          },
+          {
+            "id": "myristicin",
+            "pct": 6.0
+          },
+          {
+            "id": "terpinen_4_ol",
+            "pct": 6.0
+          },
+          {
+            "id": "gamma_terpinene",
+            "pct": 4.0
+          },
+          {
+            "id": "myrcene",
+            "pct": 3.0
+          },
+          {
+            "id": "elemicin",
+            "pct": 1.5
+          },
+          {
+            "id": "safrole",
+            "pct": 1.5
+          },
+          {
+            "id": "alpha_terpineol",
+            "pct": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "safraleine",
+      "name": "Safraleine",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Saffron, leather and tobacco with a rosy-spicy warmth.",
+      "facets_primary": [
+        "saffron",
+        "leather"
+      ],
+      "facets_secondary": [
+        "tobacco",
+        "rosy",
+        "spicy-dry"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Safraleine (proprietary)",
+      "chemical_family": "pyranone/speciality",
+      "functional_group": "ketone",
+      "colour_percept": "deep saffron orange-red",
+      "emotion": [
+        "ceremony",
+        "opulence",
+        "wedding"
+      ],
+      "strength": 8,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 28,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [],
+      "tenacity_hours": 90,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 0.1,
+      "typical_neat_range": [
+        0.3,
+        1.5
+      ],
+      "max_neat": 3,
+      "effect_in_mixture": "Instant ceremony. The single most on-brand material you own for weddings, biryani and mukhallat. SHOULD BE DILUTED TO 10%.",
+      "pairs_with": [
+        "rose_wardia",
+        "oud_oliffac",
+        "bacdanol",
+        "damascone_beta",
+        "labdanum",
+        "nutmeg_eo"
+      ],
+      "bridges": [
+        "spicy",
+        "floral",
+        "animalic"
+      ],
+      "bridge_effect": "Completes the rose-oud-saffron triangle. Also makes leather read as fabric rather than hide.",
+      "perceptual_cluster": [
+        "saffron",
+        "leather",
+        "tobacco"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation.",
+      "families": {
+        "spicy": 3,
+        "animalic": 2,
+        "floral": 1,
+        "woody": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "proprietary-undisclosed",
+        "basis": "Givaudan captive. Composition not declared.",
+        "declared_pct": 0,
+        "undisclosed_pct": 100.0,
+        "constituents": []
+      }
+    },
+    {
+      "id": "bergamot",
+      "name": "Bergamot INDI (reconstitution) - dsm-firmenich",
+      "supplier": "dsm-firmenich / Bulkaroma",
+      "class": "reconstitution",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Bright, clean floral-citrus. Simpler and less bitter than natural expressed bergamot.",
+      "facets_primary": [
+        "citrus",
+        "floral-citrus"
+      ],
+      "facets_secondary": [
+        "tea",
+        "lavender",
+        "clean-green"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Mixture. Linalool, linalyl acetate, limonene and related. NO bergapten.",
+      "chemical_family": "reconstitution / speciality base",
+      "functional_group": "hydrocarbon/ester",
+      "colour_percept": "green-gold light",
+      "emotion": [
+        "freshness",
+        "morning",
+        "optimism"
+      ],
+      "strength": 5,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 92,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [
+        "orange_10x",
+        "petitgrain"
+      ],
+      "tenacity_hours": 2,
+      "temperature": -2,
+      "polarity": -2,
+      "min_effective_pct": 0.5,
+      "typical_neat_range": [
+        1,
+        8
+      ],
+      "max_neat": 12,
+      "effect_in_mixture": "The classic opening. Reads brighter and more modern than natural bergamot — no dirty earthy facet. More oxidation-stable. For period/nostalgic accords, add a trace of petitgrain or frankincense to restore the bitterness a natural would have supplied.",
+      "pairs_with": [
+        "petitgrain",
+        "hedione",
+        "peatmoss",
+        "frankincense",
+        "pink_pepper",
+        "clary_sage"
+      ],
+      "bridges": [
+        "citrus",
+        "green",
+        "floral"
+      ],
+      "bridge_effect": "Softens a green top into a floral heart.",
+      "perceptual_cluster": [
+        "citrus",
+        "bitter-green",
+        "tea"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "RESOLVED: this is a RECONSTITUTION (Bergamot RCO/RECO/RC), CAS listed as Mixture. It contains NO bergapten and is NOT phototoxic — the 0.4% expressed-bergamot limit does NOT apply. HOWEVER it carries linalool and limonene, which have their own oxidation/sensitiser limits; count its contribution toward those totals. Supplier lists no IFRA data for any category.",
+      "families": {
+        "citrus": 4,
+        "green": 1,
+        "floral": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "resolved_not_phototoxic",
+        "composition": "supplier-declared mixture"
+      },
+      "composition": {
+        "confidence": "supplier-declared",
+        "basis": "Reconstitution; supplier declares a mixture of the constituents below with no bergapten.",
+        "declared_pct": 92.8,
+        "undisclosed_pct": 7.2,
+        "constituents": [
+          {
+            "id": "limonene",
+            "pct": 35.0
+          },
+          {
+            "id": "linalyl_acetate",
+            "pct": 28.0
+          },
+          {
+            "id": "linalool",
+            "pct": 12.0
+          },
+          {
+            "id": "gamma_terpinene",
+            "pct": 7.0
+          },
+          {
+            "id": "beta_pinene",
+            "pct": 6.0
+          },
+          {
+            "id": "alpha_pinene",
+            "pct": 1.2
+          },
+          {
+            "id": "myrcene",
+            "pct": 1.0
+          },
+          {
+            "id": "sabinene",
+            "pct": 1.5
+          },
+          {
+            "id": "geranyl_acetate",
+            "pct": 0.6
+          },
+          {
+            "id": "neryl_acetate",
+            "pct": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "orange_10x",
+      "name": "Orange 10-fold Oil",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Sweet, concentrated orange peel. Juicy and round.",
+      "facets_primary": [
+        "orange",
+        "sweet-citrus"
+      ],
+      "facets_secondary": [
+        "juicy",
+        "peel",
+        "candied"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Limonene (concentrated), aldehydes",
+      "chemical_family": "monoterpene",
+      "functional_group": "hydrocarbon",
+      "colour_percept": "bright orange",
+      "emotion": [
+        "cheer",
+        "childhood",
+        "celebration"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 88,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [
+        "bergamot"
+      ],
+      "tenacity_hours": 3,
+      "temperature": 1,
+      "polarity": -1,
+      "min_effective_pct": 0.3,
+      "typical_neat_range": [
+        0.5,
+        6
+      ],
+      "max_neat": 10,
+      "effect_in_mixture": "Ten-fold means less limonene and more tenacity than standard orange. Good for gourmand tops.",
+      "pairs_with": [
+        "cinnamon_bark_oil",
+        "vanillin",
+        "cardamom_oil",
+        "gamma_undecalactone",
+        "ethyl_maltol"
+      ],
+      "bridges": [
+        "citrus",
+        "gourmand"
+      ],
+      "bridge_effect": "The only citrus here that survives contact with a sweet base.",
+      "perceptual_cluster": [
+        "sweet-citrus",
+        "peel",
+        "candy"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Sweet orange is not phototoxic. VERIFY.",
+      "families": {
+        "citrus": 4,
+        "gourmand": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Tenfold-concentrated sweet orange; folding strips terpenes, so limonene is lower and the aldehydes higher than in the single oil.",
+        "declared_pct": 95.5,
+        "undisclosed_pct": 4.5,
+        "constituents": [
+          {
+            "id": "limonene",
+            "pct": 88.0
+          },
+          {
+            "id": "myrcene",
+            "pct": 2.0
+          },
+          {
+            "id": "decanal",
+            "pct": 1.4
+          },
+          {
+            "id": "octanal",
+            "pct": 1.0
+          },
+          {
+            "id": "valencene",
+            "pct": 1.0
+          },
+          {
+            "id": "alpha_pinene",
+            "pct": 0.6
+          },
+          {
+            "id": "sabinene",
+            "pct": 0.5
+          },
+          {
+            "id": "linalool",
+            "pct": 0.6
+          },
+          {
+            "id": "citral",
+            "pct": 0.4
+          }
+        ]
+      }
+    },
+    {
+      "id": "petitgrain",
+      "name": "Petitgrain RC",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Green, woody-citrus leaf with a bitter floral edge.",
+      "facets_primary": [
+        "green-citrus",
+        "leaf"
+      ],
+      "facets_secondary": [
+        "woody",
+        "bitter",
+        "floral"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Linalyl acetate, linalool, geranyl acetate",
+      "chemical_family": "ester/terpene alcohol",
+      "functional_group": "ester",
+      "colour_percept": "grey-green",
+      "emotion": [
+        "clarity",
+        "cool morning"
+      ],
+      "strength": 5,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 85,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [
+        "bergamot"
+      ],
+      "tenacity_hours": 3,
+      "temperature": -2,
+      "polarity": -2,
+      "min_effective_pct": 0.3,
+      "typical_neat_range": [
+        0.5,
+        5
+      ],
+      "max_neat": 10,
+      "effect_in_mixture": "Bitter-green lift. Stops a citrus top reading as sweet.",
+      "pairs_with": [
+        "bergamot",
+        "clary_sage",
+        "cis3_hexenyl_acetate",
+        "frankincense",
+        "vetiver_eo"
+      ],
+      "bridges": [
+        "green",
+        "citrus",
+        "woody"
+      ],
+      "bridge_effect": "Cools and dries a citrus opening.",
+      "perceptual_cluster": [
+        "green-citrus",
+        "leaf",
+        "bitter"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "citrus": 3,
+        "green": 3
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Petitgrain bigarade, Paraguay/Tunisian type.",
+        "declared_pct": 93.0,
+        "undisclosed_pct": 7.0,
+        "constituents": [
+          {
+            "id": "linalyl_acetate",
+            "pct": 52.0
+          },
+          {
+            "id": "linalool",
+            "pct": 22.0
+          },
+          {
+            "id": "alpha_terpineol",
+            "pct": 6.0
+          },
+          {
+            "id": "geranyl_acetate",
+            "pct": 3.5
+          },
+          {
+            "id": "geraniol",
+            "pct": 2.5
+          },
+          {
+            "id": "myrcene",
+            "pct": 2.0
+          },
+          {
+            "id": "limonene",
+            "pct": 2.0
+          },
+          {
+            "id": "neryl_acetate",
+            "pct": 2.0
+          },
+          {
+            "id": "nerol",
+            "pct": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "cis3_hexenyl_acetate",
+      "name": "Cis-3-Hexenyl Acetate",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Violently green — cut grass, snapped stem, crushed leaf.",
+      "facets_primary": [
+        "cut-grass",
+        "green"
+      ],
+      "facets_secondary": [
+        "fruity-green",
+        "stem",
+        "sharp"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Cis-3-hexenyl acetate",
+      "chemical_family": "aliphatic ester",
+      "functional_group": "ester",
+      "colour_percept": "vivid grass green",
+      "emotion": [
+        "freshness",
+        "childhood",
+        "rain"
+      ],
+      "strength": 9,
+      "odt_ppb": 0.3,
+      "vp_mmhg_25c": null,
+      "evap_index": 95,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 2,
+      "temperature": -3,
+      "polarity": -3,
+      "min_effective_pct": 0.02,
+      "typical_neat_range": [
+        0.05,
+        0.4
+      ],
+      "max_neat": 0.8,
+      "effect_in_mixture": "Savage at 0.3%. Provides the wet-lawn facet of petrichor. Dilute to 10% before dosing.",
+      "pairs_with": [
+        "geosmin",
+        "floralozone",
+        "petitgrain",
+        "hedione",
+        "peatmoss"
+      ],
+      "bridges": [
+        "green",
+        "aldehydic",
+        "earthy"
+      ],
+      "bridge_effect": "Completes the rain triad with geosmin and floralozone — grass, air and earth.",
+      "perceptual_cluster": [
+        "cut-grass",
+        "stem",
+        "wet-green"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "green": 4
+      },
+      "confidence": {
+        "odt_ppb": "estimate"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.0,
+        "undisclosed_pct": 1.0,
+        "constituents": [
+          {
+            "id": "cis3_hexenyl_acetate",
+            "pct": 99.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "floralozone",
+      "name": "Floralozone",
+      "supplier": "IFF",
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Airy, ozonic, watery-floral with a metallic clean edge.",
+      "facets_primary": [
+        "ozone",
+        "airy"
+      ],
+      "facets_secondary": [
+        "watery",
+        "metallic",
+        "green-floral"
+      ],
+      "note_position": "top",
+      "key_chemistry": "4-(4-methylpentyl)cyclohexene carboxaldehyde",
+      "chemical_family": "aldehyde",
+      "functional_group": "aldehyde",
+      "colour_percept": "pale silver-blue",
+      "emotion": [
+        "anticipation",
+        "openness",
+        "before-rain"
+      ],
+      "strength": 8,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 80,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 8,
+      "temperature": -3,
+      "polarity": -3,
+      "min_effective_pct": 0.05,
+      "typical_neat_range": [
+        0.1,
+        1.2
+      ],
+      "max_neat": 2,
+      "effect_in_mixture": "The air before the rain lands. Pairs with geosmin as the standard petrichor backbone.",
+      "pairs_with": [
+        "geosmin",
+        "cis3_hexenyl_acetate",
+        "hedione",
+        "dihydromyrcenol",
+        "aldehyde_c10"
+      ],
+      "bridges": [
+        "aldehydic",
+        "green",
+        "floral"
+      ],
+      "bridge_effect": "Opens up a heavy earthy base so it reads as weather rather than soil.",
+      "perceptual_cluster": [
+        "ozone",
+        "water",
+        "metal-air"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted. VERIFY.",
+      "families": {
+        "aldehydic": 4,
+        "green": 2,
+        "floral": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 98.0,
+        "undisclosed_pct": 2.0,
+        "constituents": [
+          {
+            "id": "floralozone",
+            "pct": 98.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "dihydromyrcenol",
+      "name": "Dihydromyrcenol",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Clean, citrus-lavender, soapy-fresh. Instantly recognisable as 'modern fresh'.",
+      "facets_primary": [
+        "fresh",
+        "soapy"
+      ],
+      "facets_secondary": [
+        "citrus",
+        "lavender",
+        "metallic"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Dihydromyrcenol",
+      "chemical_family": "terpene alcohol",
+      "functional_group": "alcohol",
+      "colour_percept": "pale blue-white",
+      "emotion": [
+        "cleanliness",
+        "modernity"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 86,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 5,
+      "temperature": -2,
+      "polarity": -3,
+      "min_effective_pct": 0.5,
+      "typical_neat_range": [
+        1,
+        10
+      ],
+      "max_neat": 20,
+      "effect_in_mixture": "Adds soapy freshness. Use with care in a nostalgic brand — it reads as contemporary and can break a period accord.",
+      "pairs_with": [
+        "floralozone",
+        "bergamot",
+        "linalyl_acetate",
+        "galaxolide"
+      ],
+      "bridges": [
+        "aldehydic",
+        "citrus"
+      ],
+      "bridge_effect": "Stretches a citrus top by hours.",
+      "perceptual_cluster": [
+        "soap",
+        "fresh",
+        "metal"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "aldehydic": 3,
+        "citrus": 2,
+        "green": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.0,
+        "undisclosed_pct": 1.0,
+        "constituents": [
+          {
+            "id": "dihydromyrcenol",
+            "pct": 99.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "clary_sage",
+      "name": "Clary Sage Oil",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Herbal, ambery-green with a tea-tobacco and musky-sweet undertone.",
+      "facets_primary": [
+        "herbal",
+        "ambery-green"
+      ],
+      "facets_secondary": [
+        "tea",
+        "tobacco",
+        "musky"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Linalyl acetate, linalool, sclareol",
+      "chemical_family": "ester/diterpene",
+      "functional_group": "ester/alcohol",
+      "colour_percept": "sage green-gold",
+      "emotion": [
+        "contemplation",
+        "dusk"
+      ],
+      "strength": 5,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 68,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 10,
+      "temperature": 0,
+      "polarity": 0,
+      "min_effective_pct": 0.2,
+      "typical_neat_range": [
+        0.5,
+        4
+      ],
+      "max_neat": 8,
+      "effect_in_mixture": "Herbal-ambery connector. Adds a natural, slightly wild texture to otherwise clean compositions.",
+      "pairs_with": [
+        "bergamot",
+        "petitgrain",
+        "labdanum",
+        "ambroxan",
+        "frankincense"
+      ],
+      "bridges": [
+        "green",
+        "gourmand",
+        "woody"
+      ],
+      "bridge_effect": "Its sclareol content pre-echoes ambroxan — a natural handoff into the base.",
+      "perceptual_cluster": [
+        "herbal",
+        "amber-green",
+        "tobacco"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "green": 3,
+        "woody": 1,
+        "spicy": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Salvia sclarea oil. Sclareol is a trace in the oil and the bulk of the concrete.",
+        "declared_pct": 91.4,
+        "undisclosed_pct": 8.6,
+        "constituents": [
+          {
+            "id": "linalyl_acetate",
+            "pct": 62.0
+          },
+          {
+            "id": "linalool",
+            "pct": 18.0
+          },
+          {
+            "id": "germacrene_d",
+            "pct": 4.0
+          },
+          {
+            "id": "geranyl_acetate",
+            "pct": 2.5
+          },
+          {
+            "id": "alpha_terpineol",
+            "pct": 2.0
+          },
+          {
+            "id": "beta_caryophyllene",
+            "pct": 1.5
+          },
+          {
+            "id": "sclareol",
+            "pct": 0.8
+          },
+          {
+            "id": "geraniol",
+            "pct": 0.6
+          }
+        ]
+      }
+    },
+    {
+      "id": "pine_eo",
+      "name": "Pine Essential Oil",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Sharp, resinous, cold forest. Turpentine edge.",
+      "facets_primary": [
+        "pine",
+        "resinous"
+      ],
+      "facets_secondary": [
+        "cold",
+        "turpentine",
+        "green"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Alpha-pinene, beta-pinene, limonene",
+      "chemical_family": "monoterpene",
+      "functional_group": "hydrocarbon",
+      "colour_percept": "dark green-blue",
+      "emotion": [
+        "cold",
+        "altitude",
+        "solitude"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 90,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 3,
+      "temperature": -4,
+      "polarity": -2,
+      "min_effective_pct": 0.2,
+      "typical_neat_range": [
+        0.3,
+        3
+      ],
+      "max_neat": 5,
+      "effect_in_mixture": "Cold forest and hill roads. Trigeminal — reads as temperature as much as smell. Oxidises fast; store cold.",
+      "pairs_with": [
+        "frankincense",
+        "cedarwood",
+        "vetiver_eo",
+        "cis3_hexenyl_acetate",
+        "geosmin"
+      ],
+      "bridges": [
+        "green",
+        "woody"
+      ],
+      "bridge_effect": "Makes a forest-rain accord read as cold rather than merely wet.",
+      "perceptual_cluster": [
+        "cold-resin",
+        "pine",
+        "altitude"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "OXIDATION-RESTRICTED. Peroxide value limits apply. VERIFY.",
+      "families": {
+        "green": 3,
+        "woody": 2
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Pinus sylvestris needle oil.",
+        "declared_pct": 93.0,
+        "undisclosed_pct": 7.0,
+        "constituents": [
+          {
+            "id": "alpha_pinene",
+            "pct": 35.0
+          },
+          {
+            "id": "beta_pinene",
+            "pct": 20.0
+          },
+          {
+            "id": "delta_3_carene",
+            "pct": 12.0
+          },
+          {
+            "id": "limonene",
+            "pct": 10.0
+          },
+          {
+            "id": "camphene",
+            "pct": 5.0
+          },
+          {
+            "id": "myrcene",
+            "pct": 4.0
+          },
+          {
+            "id": "bornyl_acetate",
+            "pct": 3.0
+          },
+          {
+            "id": "terpinolene",
+            "pct": 2.0
+          },
+          {
+            "id": "beta_caryophyllene",
+            "pct": 2.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "linalool",
+      "name": "Linalool",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Soft floral-woody-citrus. Lavender-coriander, gentle.",
+      "facets_primary": [
+        "floral-fresh"
+      ],
+      "facets_secondary": [
+        "lavender",
+        "citrus",
+        "woody"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Linalool",
+      "chemical_family": "terpene alcohol",
+      "functional_group": "alcohol",
+      "colour_percept": "pale lilac-white",
+      "emotion": [
+        "ease",
+        "calm"
+      ],
+      "strength": 4,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 76,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 8,
+      "temperature": 0,
+      "polarity": -1,
+      "min_effective_pct": 0.5,
+      "typical_neat_range": [
+        1,
+        10
+      ],
+      "max_neat": 20,
+      "effect_in_mixture": "Smoothing agent. Fills the gap between citrus and floral. Oxidation-sensitive sensitiser.",
+      "pairs_with": [
+        "linalyl_acetate",
+        "bergamot",
+        "hedione",
+        "rose_wardia"
+      ],
+      "bridges": [
+        "citrus",
+        "floral",
+        "green"
+      ],
+      "bridge_effect": "Universal top-to-heart smoother.",
+      "perceptual_cluster": [
+        "soft-floral",
+        "lavender"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Oxidation-restricted sensitiser. VERIFY.",
+      "families": {
+        "floral": 2,
+        "citrus": 1,
+        "green": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Racemic synthetic linalool.",
+        "declared_pct": 99.0,
+        "undisclosed_pct": 1.0,
+        "constituents": [
+          {
+            "id": "linalool",
+            "pct": 99.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "linalyl_acetate",
+      "name": "Linalyl Acetate",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Fresh, fruity-floral lavender-bergamot. Sweeter than linalool.",
+      "facets_primary": [
+        "lavender",
+        "fruity-fresh"
+      ],
+      "facets_secondary": [
+        "bergamot",
+        "pear",
+        "green"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Linalyl acetate",
+      "chemical_family": "terpene ester",
+      "functional_group": "ester",
+      "colour_percept": "pale green-lilac",
+      "emotion": [
+        "cleanliness",
+        "order"
+      ],
+      "strength": 5,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 80,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 6,
+      "temperature": -1,
+      "polarity": -2,
+      "min_effective_pct": 0.5,
+      "typical_neat_range": [
+        1,
+        10
+      ],
+      "max_neat": 18,
+      "effect_in_mixture": "Fresh fougère/lavender character. Extends bergamot cheaply.",
+      "pairs_with": [
+        "bergamot",
+        "petitgrain",
+        "clary_sage",
+        "coumarin",
+        "dihydromyrcenol"
+      ],
+      "bridges": [
+        "citrus",
+        "green",
+        "gourmand"
+      ],
+      "bridge_effect": "With coumarin it forms the classic fougère spine.",
+      "perceptual_cluster": [
+        "lavender",
+        "fresh-fruit"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "green": 2,
+        "citrus": 2,
+        "floral": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 98.0,
+        "undisclosed_pct": 2.0,
+        "constituents": [
+          {
+            "id": "linalyl_acetate",
+            "pct": 98.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "peme",
+      "name": "PEME (Phenyl Ethyl Methyl Ether)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Green-floral, slightly aniseed-fruity. Diffusive.",
+      "facets_primary": [
+        "green-floral"
+      ],
+      "facets_secondary": [
+        "anise",
+        "fruity",
+        "fresh"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Phenylethyl methyl ether",
+      "chemical_family": "aromatic ether",
+      "functional_group": "ether",
+      "colour_percept": "light green",
+      "emotion": [
+        "freshness",
+        "lift"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 83,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 4,
+      "temperature": -1,
+      "polarity": -2,
+      "min_effective_pct": 0.1,
+      "typical_neat_range": [
+        0.2,
+        2
+      ],
+      "max_neat": 4,
+      "effect_in_mixture": "Adds green lift to a floral heart without adding leaf.",
+      "pairs_with": [
+        "hedione",
+        "rose_wardia",
+        "phenyl_ethyl_alcohol",
+        "floralozone"
+      ],
+      "bridges": [
+        "floral",
+        "green"
+      ],
+      "bridge_effect": "Lifts heavy florals into the air.",
+      "perceptual_cluster": [
+        "green-floral",
+        "anise"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "VERIFY.",
+      "families": {
+        "floral": 2,
+        "green": 3
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.0,
+        "undisclosed_pct": 1.0,
+        "constituents": [
+          {
+            "id": "peme",
+            "pct": 99.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "aldehyde_c10",
+      "name": "Aldehyde C-10 (Decanal, 10%)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 0.1,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Sharp, waxy-citrus, orange-peel aldehydic sparkle.",
+      "facets_primary": [
+        "aldehydic",
+        "waxy-citrus"
+      ],
+      "facets_secondary": [
+        "orange-peel",
+        "soapy",
+        "metallic"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Decanal",
+      "chemical_family": "aliphatic aldehyde",
+      "functional_group": "aldehyde",
+      "colour_percept": "white-gold sparkle",
+      "emotion": [
+        "glamour",
+        "formality"
+      ],
+      "strength": 9,
+      "odt_ppb": 0.1,
+      "vp_mmhg_25c": null,
+      "evap_index": 87,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 5,
+      "temperature": 0,
+      "polarity": -2,
+      "min_effective_pct": 0.01,
+      "typical_neat_range": [
+        0.02,
+        0.3
+      ],
+      "max_neat": 0.6,
+      "effect_in_mixture": "The 'aunties' perfume' signal — mid-century aldehydic glamour. Overdoses instantly.",
+      "pairs_with": [
+        "aldehyde_c12_mna",
+        "gamma_undecalactone",
+        "rose_wardia",
+        "galaxolide",
+        "ylang_ylang"
+      ],
+      "bridges": [
+        "aldehydic",
+        "citrus",
+        "floral"
+      ],
+      "bridge_effect": "Puts a formal, dressed sheen over a floral heart.",
+      "perceptual_cluster": [
+        "aldehyde",
+        "wax",
+        "citrus-sparkle"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "VERIFY.",
+      "families": {
+        "aldehydic": 4,
+        "citrus": 2
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Decanal.",
+        "declared_pct": 96.0,
+        "undisclosed_pct": 4.0,
+        "constituents": [
+          {
+            "id": "decanal",
+            "pct": 96.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "aldehyde_c12_mna",
+      "name": "Aldehyde C-12 MNA (10%)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 0.1,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Clean, soapy-metallic, laundered-linen aldehyde.",
+      "facets_primary": [
+        "aldehydic",
+        "soapy"
+      ],
+      "facets_secondary": [
+        "linen",
+        "metallic",
+        "fatty"
+      ],
+      "note_position": "top",
+      "key_chemistry": "2-Methylundecanal",
+      "chemical_family": "aliphatic aldehyde",
+      "functional_group": "aldehyde",
+      "colour_percept": "starched white",
+      "emotion": [
+        "cleanliness",
+        "formality",
+        "memory"
+      ],
+      "strength": 9,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 78,
+      "evap_curve": "steep-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 10,
+      "temperature": 0,
+      "polarity": -2,
+      "min_effective_pct": 0.01,
+      "typical_neat_range": [
+        0.02,
+        0.25
+      ],
+      "max_neat": 0.5,
+      "effect_in_mixture": "Sun-dried cloth. Essential for 'washed clothes' and 'aunties' perfume' accords.",
+      "pairs_with": [
+        "aldehyde_c10",
+        "galaxolide",
+        "exaltolide_total",
+        "rose_wardia",
+        "ylang_ylang"
+      ],
+      "bridges": [
+        "aldehydic",
+        "musky",
+        "floral"
+      ],
+      "bridge_effect": "Links a clean musk base to a floral heart — the classic aldehydic floral.",
+      "perceptual_cluster": [
+        "aldehyde",
+        "linen",
+        "soap"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "VERIFY.",
+      "families": {
+        "aldehydic": 4,
+        "musky": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "2-Methylundecanal.",
+        "declared_pct": 96.0,
+        "undisclosed_pct": 4.0,
+        "constituents": [
+          {
+            "id": "mna",
+            "pct": 96.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "gamma_undecalactone",
+      "name": "Gamma Undecalactone (Aldehyde C-14)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Rich, creamy peach-apricot with a coconut edge.",
+      "facets_primary": [
+        "peach",
+        "creamy-fruit"
+      ],
+      "facets_secondary": [
+        "coconut",
+        "apricot",
+        "waxy"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Gamma-undecalactone",
+      "chemical_family": "lactone",
+      "functional_group": "lactone",
+      "colour_percept": "warm apricot",
+      "emotion": [
+        "indulgence",
+        "childhood",
+        "summer"
+      ],
+      "strength": 8,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 32,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "gamma_nonalactone"
+      ],
+      "tenacity_hours": 80,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 0.05,
+      "typical_neat_range": [
+        0.1,
+        1.5
+      ],
+      "max_neat": 3,
+      "effect_in_mixture": "Soft fruit flesh. Rounds sharp florals and makes gourmands feel edible rather than sugary.",
+      "pairs_with": [
+        "ylang_ylang",
+        "jasmine_sambac",
+        "vanillin",
+        "orange_10x",
+        "bacdanol",
+        "damascone_beta"
+      ],
+      "bridges": [
+        "gourmand",
+        "floral",
+        "fruity"
+      ],
+      "bridge_effect": "The mango and osmanthus-substitute route. Adds flesh to a fruit accord.",
+      "perceptual_cluster": [
+        "peach",
+        "cream",
+        "coconut"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "gourmand": 3,
+        "floral": 1,
+        "citrus": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 98.0,
+        "undisclosed_pct": 2.0,
+        "constituents": [
+          {
+            "id": "gamma_undecalactone",
+            "pct": 98.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "gamma_nonalactone",
+      "name": "Gamma Nonalactone (Aldehyde C-18)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Coconut-vanilla lactone, sweet and milky.",
+      "facets_primary": [
+        "coconut",
+        "milky"
+      ],
+      "facets_secondary": [
+        "vanilla",
+        "creamy",
+        "sweet"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Gamma-nonalactone",
+      "chemical_family": "lactone",
+      "functional_group": "lactone",
+      "colour_percept": "milk white-cream",
+      "emotion": [
+        "comfort",
+        "childhood"
+      ],
+      "strength": 8,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 34,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "gamma_undecalactone"
+      ],
+      "tenacity_hours": 75,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 0.05,
+      "typical_neat_range": [
+        0.1,
+        1.2
+      ],
+      "max_neat": 2.5,
+      "effect_in_mixture": "Milk and coconut. Core to kulfi, kheer and any Indian dairy-sweet accord.",
+      "pairs_with": [
+        "vanillin",
+        "cardamom_oil",
+        "bacdanol",
+        "exaltolide_total",
+        "ethyl_maltol"
+      ],
+      "bridges": [
+        "gourmand",
+        "woody"
+      ],
+      "bridge_effect": "Makes sandalwood read as milk rather than wood.",
+      "perceptual_cluster": [
+        "coconut",
+        "milk",
+        "vanilla"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "gourmand": 4
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 98.0,
+        "undisclosed_pct": 2.0,
+        "constituents": [
+          {
+            "id": "gamma_nonalactone",
+            "pct": 98.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "delta_decalactone",
+      "name": "Delta-Decalactone (wishlist)",
+      "supplier": null,
+      "class": "wishlist",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Creamy, buttery-peach dairy lactone. Softer than gamma.",
+      "facets_primary": [
+        "dairy",
+        "creamy"
+      ],
+      "facets_secondary": [
+        "peach",
+        "butter",
+        "coconut"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Delta-decalactone",
+      "chemical_family": "lactone",
+      "functional_group": "lactone",
+      "colour_percept": "butter cream",
+      "emotion": [
+        "softness",
+        "nourishment"
+      ],
+      "strength": 7,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 36,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [],
+      "tenacity_hours": 60,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 0.05,
+      "typical_neat_range": [
+        0.1,
+        1.0
+      ],
+      "max_neat": 2,
+      "effect_in_mixture": "Milk rather than fruit. Softens woody-amber bases into something skin-like. Fills the only real gap left in the palette.",
+      "pairs_with": [
+        "bacdanol",
+        "cashmeran",
+        "iso_e_super",
+        "cardamom_oil",
+        "vanillin"
+      ],
+      "bridges": [
+        "gourmand",
+        "woody",
+        "musky"
+      ],
+      "bridge_effect": "The kulhad-chai and kulfi renderer.",
+      "perceptual_cluster": [
+        "dairy",
+        "butter",
+        "soft-peach"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "gourmand": 3,
+        "musky": 1
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 98.0,
+        "undisclosed_pct": 2.0,
+        "constituents": [
+          {
+            "id": "delta_decalactone",
+            "pct": 98.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "vanillin",
+      "name": "Vanillin (40% DPG — migrate, see spec)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 0.4,
+      "solvent": "DPG",
+      "attar_safe": true,
+      "odour": "Sweet, warm, powdery vanilla. Slightly phenolic.",
+      "facets_primary": [
+        "vanilla",
+        "sweet"
+      ],
+      "facets_secondary": [
+        "powdery",
+        "phenolic",
+        "balsamic"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Vanillin",
+      "chemical_family": "phenolic aldehyde",
+      "functional_group": "aldehyde/phenol",
+      "colour_percept": "warm cream-brown",
+      "emotion": [
+        "comfort",
+        "childhood",
+        "safety"
+      ],
+      "strength": 7,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 13,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "benzoin",
+        "coumarin"
+      ],
+      "tenacity_hours": 200,
+      "temperature": 3,
+      "polarity": 3,
+      "min_effective_pct": 0.1,
+      "typical_neat_range": [
+        0.3,
+        3
+      ],
+      "max_neat": 6,
+      "effect_in_mixture": "Universal sweetener and fixative. Yellows over time and will tint pale compositions.",
+      "pairs_with": [
+        "benzoin",
+        "coumarin",
+        "labdanum",
+        "gamma_nonalactone",
+        "ethyl_maltol",
+        "cardamom_oil"
+      ],
+      "bridges": [
+        "gourmand",
+        "woody",
+        "floral"
+      ],
+      "bridge_effect": "Amber accord core: labdanum + benzoin + vanillin.",
+      "perceptual_cluster": [
+        "vanilla",
+        "powder",
+        "balsamic"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted. VERIFY.",
+      "families": {
+        "gourmand": 4,
+        "woody": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.5,
+        "undisclosed_pct": 0.5,
+        "constituents": [
+          {
+            "id": "vanillin",
+            "pct": 99.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "coumarin",
+      "name": "Coumarin (40% DPG — migrate, see spec)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 0.4,
+      "solvent": "DPG",
+      "attar_safe": true,
+      "odour": "Sweet hay, tonka, almond and new-mown grass.",
+      "facets_primary": [
+        "hay",
+        "tonka"
+      ],
+      "facets_secondary": [
+        "almond",
+        "sweet-grass",
+        "powdery"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Coumarin",
+      "chemical_family": "benzopyrone",
+      "functional_group": "lactone",
+      "colour_percept": "golden straw",
+      "emotion": [
+        "nostalgia",
+        "fields",
+        "summer's end"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 17,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "vanillin"
+      ],
+      "tenacity_hours": 170,
+      "temperature": 2,
+      "polarity": 2,
+      "min_effective_pct": 0.1,
+      "typical_neat_range": [
+        0.3,
+        1.6
+      ],
+      "max_neat": 1.6,
+      "effect_in_mixture": "Hay, dust and sweetness at once. Essential to village, hayfield and faded-paper accords.",
+      "pairs_with": [
+        "linalyl_acetate",
+        "benzoin",
+        "methyl_ionone_gamma",
+        "vanillin",
+        "peatmoss",
+        "cypriol"
+      ],
+      "bridges": [
+        "gourmand",
+        "green",
+        "woody"
+      ],
+      "bridge_effect": "Fougère spine with linalyl acetate. Also the sweet dust in a pressed-flower accord.",
+      "perceptual_cluster": [
+        "hay",
+        "tonka",
+        "sweet-dust"
+      ],
+      "ifra_cat4_pct": 1.6,
+      "ifra_note": "Restricted. Approximate — VERIFY.",
+      "families": {
+        "gourmand": 3,
+        "green": 1,
+        "woody": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.5,
+        "undisclosed_pct": 0.5,
+        "constituents": [
+          {
+            "id": "coumarin",
+            "pct": 99.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "ethyl_maltol",
+      "name": "Ethyl Maltol",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Burnt sugar, candyfloss, caramel. Intensely sweet.",
+      "facets_primary": [
+        "caramel",
+        "candy"
+      ],
+      "facets_secondary": [
+        "burnt-sugar",
+        "fruity",
+        "cotton-candy"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Ethyl maltol",
+      "chemical_family": "pyranone",
+      "functional_group": "ketone/enol",
+      "colour_percept": "pink-gold",
+      "emotion": [
+        "indulgence",
+        "fairground",
+        "childhood"
+      ],
+      "strength": 9,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 26,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [],
+      "tenacity_hours": 100,
+      "temperature": 3,
+      "polarity": 3,
+      "min_effective_pct": 0.02,
+      "typical_neat_range": [
+        0.05,
+        0.8
+      ],
+      "max_neat": 1.5,
+      "effect_in_mixture": "Extremely dominant. Reads as modern and commercial — use sparingly in a nostalgic brand or it flattens everything into dessert.",
+      "pairs_with": [
+        "vanillin",
+        "gamma_nonalactone",
+        "orange_10x",
+        "coffee_co2",
+        "benzoin"
+      ],
+      "bridges": [
+        "gourmand"
+      ],
+      "bridge_effect": "Sweetens across the whole pyramid but adds no structure.",
+      "perceptual_cluster": [
+        "caramel",
+        "candy",
+        "burnt-sugar"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not restricted.",
+      "families": {
+        "gourmand": 4
+      },
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.5,
+        "undisclosed_pct": 0.5,
+        "constituents": [
+          {
+            "id": "ethyl_maltol",
+            "pct": 99.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "coffee_co2",
+      "name": "Coffee CO2 (10%)",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 0.1,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Dark roasted coffee — bitter, smoky, faintly sulphurous and nutty.",
+      "facets_primary": [
+        "roasted",
+        "coffee"
+      ],
+      "facets_secondary": [
+        "bitter",
+        "smoky",
+        "nutty",
+        "sulphurous"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Pyrazines, furfuryl compounds",
+      "chemical_family": "pyrazine/heterocycle",
+      "functional_group": "mixed",
+      "colour_percept": "near-black brown",
+      "emotion": [
+        "waking",
+        "focus",
+        "bitterness"
+      ],
+      "strength": 9,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 30,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 40,
+      "temperature": 2,
+      "polarity": 3,
+      "min_effective_pct": 0.02,
+      "typical_neat_range": [
+        0.05,
+        0.5
+      ],
+      "max_neat": 1.0,
+      "effect_in_mixture": "Powerhouse. At micro-dose it reads as ink, tobacco and old paper rather than coffee — that is the more useful application.",
+      "pairs_with": [
+        "cardamom_oil",
+        "vanillin",
+        "patchouli",
+        "guaiacol",
+        "benzoin",
+        "cypriol"
+      ],
+      "bridges": [
+        "gourmand",
+        "earthy",
+        "animalic"
+      ],
+      "bridge_effect": "Its roasted facet meets guaiacol's smoke — the ink-and-parchment accord.",
+      "perceptual_cluster": [
+        "roast",
+        "bitter",
+        "ink"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "VERIFY.",
+      "families": {
+        "gourmand": 3,
+        "earthy": 2,
+        "woody": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Coffea arabica CO2 total extract. A total extract carries the lipids too, so most of the weight has no smell — the roast lives in a few percent.",
+        "declared_pct": 78.3,
+        "undisclosed_pct": 21.7,
+        "constituents": [
+          {
+            "id": "lipids_waxes",
+            "pct": 58.0
+          },
+          {
+            "id": "furfuryl_alcohol",
+            "pct": 5.0
+          },
+          {
+            "id": "pyrazines",
+            "pct": 6.0
+          },
+          {
+            "id": "furfural",
+            "pct": 3.0
+          },
+          {
+            "id": "caffeine",
+            "pct": 2.0
+          },
+          {
+            "id": "methylfurfural",
+            "pct": 2.0
+          },
+          {
+            "id": "guaiacol",
+            "pct": 1.0
+          },
+          {
+            "id": "vinylguaiacol",
+            "pct": 1.0
+          },
+          {
+            "id": "furfurylthiol",
+            "pct": 0.3
+          }
+        ]
+      }
+    },
+    {
+      "id": "guaiacol",
+      "name": "Guaiacol (1%)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 0.01,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Smoky, phenolic, medicinal-woody. Campfire and creosote.",
+      "facets_primary": [
+        "smoke",
+        "phenolic"
+      ],
+      "facets_secondary": [
+        "medicinal",
+        "tar",
+        "woody"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Guaiacol (2-methoxyphenol)",
+      "chemical_family": "phenol",
+      "functional_group": "phenol/ether",
+      "colour_percept": "charcoal black-brown",
+      "emotion": [
+        "fire",
+        "memory",
+        "village"
+      ],
+      "strength": 10,
+      "odt_ppb": 1.0,
+      "vp_mmhg_25c": null,
+      "evap_index": 40,
+      "evap_curve": "steady-decay",
+      "evap_curve_like": [],
+      "tenacity_hours": 60,
+      "temperature": 3,
+      "polarity": 3,
+      "min_effective_pct": 0.001,
+      "typical_neat_range": [
+        0.002,
+        0.05
+      ],
+      "max_neat": 0.1,
+      "effect_in_mixture": "Real smoke. Trace doses convert wood into fire. The dung-cake, wood-fire and ash accords depend on it. Overdose smells of disinfectant.",
+      "pairs_with": [
+        "cypriol",
+        "coffee_co2",
+        "labdanum",
+        "cedarwood",
+        "peatmoss",
+        "frankincense"
+      ],
+      "bridges": [
+        "earthy",
+        "woody",
+        "gourmand"
+      ],
+      "bridge_effect": "Turns a dry wood into a burnt one in a single trace.",
+      "perceptual_cluster": [
+        "smoke",
+        "phenol",
+        "fire"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Phenolic sensitiser. VERIFY.",
+      "families": {
+        "earthy": 3,
+        "woody": 2,
+        "spicy": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify",
+        "odt_ppb": "estimate"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.0,
+        "undisclosed_pct": 1.0,
+        "constituents": [
+          {
+            "id": "guaiacol",
+            "pct": 99.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "benzyl_salicylate",
+      "name": "Benzyl Salicylate",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Very faint sweet-floral balsamic. Almost odourless, hugely useful.",
+      "facets_primary": [
+        "balsamic-floral"
+      ],
+      "facets_secondary": [
+        "faint-sweet",
+        "powdery"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Benzyl salicylate",
+      "chemical_family": "salicylate ester",
+      "functional_group": "ester",
+      "colour_percept": "pale gold, translucent",
+      "emotion": [
+        "softness"
+      ],
+      "strength": 2,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 19,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [],
+      "tenacity_hours": 120,
+      "temperature": 1,
+      "polarity": 1,
+      "min_effective_pct": 1.0,
+      "typical_neat_range": [
+        2,
+        15
+      ],
+      "max_neat": 25,
+      "effect_in_mixture": "Volume and fixation with almost no smell of its own. Extends florals dramatically.",
+      "pairs_with": [
+        "hedione",
+        "galaxolide",
+        "jasmine_sambac",
+        "ylang_ylang",
+        "iso_e_super"
+      ],
+      "bridges": [
+        "floral",
+        "musky"
+      ],
+      "bridge_effect": "Adds body to a thin floral heart without changing its character.",
+      "perceptual_cluster": [
+        "soft-balsamic",
+        "volume"
+      ],
+      "ifra_cat4_pct": 0.5,
+      "ifra_note": "Restricted sensitiser. Approximate — VERIFY.",
+      "families": {
+        "floral": 2,
+        "gourmand": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.0,
+        "undisclosed_pct": 1.0,
+        "constituents": [
+          {
+            "id": "benzyl_salicylate",
+            "pct": 99.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "civet",
+      "name": "Civet (1%)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 0.01,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Fecal-animalic, warm, sweet and skin-like when heavily diluted.",
+      "facets_primary": [
+        "animalic",
+        "fecal"
+      ],
+      "facets_secondary": [
+        "warm-skin",
+        "sweet",
+        "leather"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Civetone, skatole (in synthetic bases)",
+      "chemical_family": "macrocyclic ketone",
+      "functional_group": "ketone",
+      "colour_percept": "dark yellow-brown",
+      "emotion": [
+        "desire",
+        "transgression",
+        "intimacy"
+      ],
+      "strength": 10,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 8,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [],
+      "tenacity_hours": 250,
+      "temperature": 3,
+      "polarity": 3,
+      "min_effective_pct": 0.001,
+      "typical_neat_range": [
+        0.002,
+        0.05
+      ],
+      "max_neat": 0.1,
+      "effect_in_mixture": "Warmth and life at trace; disaster above it. Makes a floral smell like a person wore it.",
+      "pairs_with": [
+        "exaltolide_total",
+        "jasmine_sambac",
+        "labdanum",
+        "oud_oliffac",
+        "benzoin"
+      ],
+      "bridges": [
+        "animalic",
+        "floral",
+        "musky"
+      ],
+      "bridge_effect": "Fuses a flower to skin. Exaltolide softens it from dirty to warm.",
+      "perceptual_cluster": [
+        "animal",
+        "skin",
+        "warm-sweet"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Confirm synthetic/vegan sourcing. VERIFY.",
+      "families": {
+        "animalic": 4,
+        "musky": 2
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "proprietary-partial",
+        "basis": "Synthetic civet base. Civetone and skatole are declared; the carrier and the rest of the accord are not.",
+        "declared_pct": 65.2,
+        "undisclosed_pct": 34.8,
+        "constituents": [
+          {
+            "id": "civetone",
+            "pct": 5.0
+          },
+          {
+            "id": "skatole",
+            "pct": 0.2
+          },
+          {
+            "id": "dpg",
+            "pct": 60.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "norlimbanol",
+      "name": "Norlimbanol (50% — STEP DOWN TO 1%)",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 0.5,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Extremely dry, powerful woody-amber with an animalic leather edge.",
+      "facets_primary": [
+        "dry-wood",
+        "amber"
+      ],
+      "facets_secondary": [
+        "leather",
+        "animalic",
+        "mineral"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Norlimbanol",
+      "chemical_family": "woody amber",
+      "functional_group": "alcohol",
+      "colour_percept": "bone-dry pale brown",
+      "emotion": [
+        "austerity",
+        "distance"
+      ],
+      "strength": 10,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 6,
+      "evap_curve": "plateau",
+      "evap_curve_like": [],
+      "tenacity_hours": 300,
+      "temperature": 0,
+      "polarity": 1,
+      "min_effective_pct": 0.01,
+      "typical_neat_range": [
+        0.05,
+        0.5
+      ],
+      "max_neat": 1.0,
+      "effect_in_mixture": "Extreme dryness and tenacity. UNUSABLE AT 50% ON A 0.01 g SCALE — a real dose at 10 g batch is 0.001-0.01 g of stock. Step down to 1%.",
+      "pairs_with": [
+        "ambroxan",
+        "sylvamber",
+        "oud_oliffac",
+        "cypriol",
+        "labdanum"
+      ],
+      "bridges": [
+        "woody",
+        "animalic",
+        "musky"
+      ],
+      "bridge_effect": "Drives a desert/mukhallat base outward for hours.",
+      "perceptual_cluster": [
+        "dry-amber",
+        "leather",
+        "mineral"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "VERIFY.",
+      "families": {
+        "woody": 4,
+        "animalic": 2,
+        "musky": 1
+      },
+      "confidence": {
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Commercial Norlimbanol, an isomer mixture.",
+        "declared_pct": 95.0,
+        "undisclosed_pct": 5.0,
+        "constituents": [
+          {
+            "id": "norlimbanol",
+            "pct": 95.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "dpg",
+      "name": "Dipropylene Glycol",
+      "supplier": null,
+      "class": "solvent",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Odourless.",
+      "facets_primary": [],
+      "facets_secondary": [],
+      "note_position": "base",
+      "key_chemistry": "",
+      "chemical_family": "glycol",
+      "functional_group": "alcohol",
+      "colour_percept": "",
+      "emotion": [],
+      "strength": 0,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 5,
+      "evap_curve": "linear",
+      "evap_curve_like": [],
+      "tenacity_hours": null,
+      "temperature": 0,
+      "polarity": 0,
+      "min_effective_pct": null,
+      "typical_neat_range": null,
+      "max_neat": null,
+      "effect_in_mixture": "Universal carrier. Chosen for both sprays and attars. Poor skin substantivity — raise fixative load on the attar path to compensate.",
+      "pairs_with": [],
+      "bridges": [],
+      "bridge_effect": "",
+      "perceptual_cluster": [],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not a fragrance material.",
+      "families": {},
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "Solvent.",
+        "declared_pct": 100.0,
+        "undisclosed_pct": 0.0,
+        "constituents": [
+          {
+            "id": "dpg",
+            "pct": 100.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "ipm",
+      "name": "Isopropyl Myristate",
+      "supplier": null,
+      "class": "solvent",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Odourless, light, non-greasy.",
+      "facets_primary": [],
+      "facets_secondary": [],
+      "note_position": "base",
+      "key_chemistry": "",
+      "chemical_family": "fatty acid ester",
+      "functional_group": "ester",
+      "colour_percept": "",
+      "emotion": [],
+      "strength": 0,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 5,
+      "evap_curve": "linear",
+      "evap_curve_like": [],
+      "tenacity_hours": null,
+      "temperature": 0,
+      "polarity": 0,
+      "min_effective_pct": null,
+      "typical_neat_range": null,
+      "max_neat": null,
+      "effect_in_mixture": "Held in reserve. Dissolves Ambroxan better than DPG; better skin feel in oils. Poorly miscible with DPG in large loads.",
+      "pairs_with": [],
+      "bridges": [],
+      "bridge_effect": "",
+      "perceptual_cluster": [],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not a fragrance material.",
+      "families": {},
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "Solvent.",
+        "declared_pct": 100.0,
+        "undisclosed_pct": 0.0,
+        "constituents": [
+          {
+            "id": "ipm",
+            "pct": 100.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "ethanol",
+      "name": "Perfumer's Alcohol",
+      "supplier": null,
+      "class": "solvent",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": false,
+      "odour": "Sharp, volatile, clean.",
+      "facets_primary": [],
+      "facets_secondary": [],
+      "note_position": "top",
+      "key_chemistry": "",
+      "chemical_family": "alcohol",
+      "functional_group": "alcohol",
+      "colour_percept": "",
+      "emotion": [],
+      "strength": 1,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 100,
+      "evap_curve": "linear",
+      "evap_curve_like": [],
+      "tenacity_hours": null,
+      "temperature": 0,
+      "polarity": 0,
+      "min_effective_pct": null,
+      "typical_neat_range": null,
+      "max_neat": null,
+      "effect_in_mixture": "Final dilution for sprays only. NEVER permitted in an attar formula — see attar_safe flag.",
+      "pairs_with": [],
+      "bridges": [],
+      "bridge_effect": "",
+      "perceptual_cluster": [],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Not a fragrance material.",
+      "families": {},
+      "confidence": {},
+      "composition": {
+        "confidence": "assay",
+        "basis": "Solvent.",
+        "declared_pct": 100.0,
+        "undisclosed_pct": 0.0,
+        "constituents": [
+          {
+            "id": "ethanol",
+            "pct": 100.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "agarwood_artessence",
+      "name": "Agarwood Artessence",
+      "supplier": "IFF",
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Dry, smoky, medicinal-woody with a faint leather edge. A cleaner, more abstract oud than the real resin.",
+      "facets_primary": [
+        "oud",
+        "woody",
+        "smoky"
+      ],
+      "facets_secondary": [
+        "medicinal",
+        "dry",
+        "leather"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Proprietary IFF captive blend",
+      "chemical_family": "aromachemical blend",
+      "functional_group": null,
+      "colour_percept": "dark amber-brown",
+      "emotion": [
+        "ritual",
+        "depth",
+        "mystery"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 15,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "oud_oliffac"
+      ],
+      "tenacity_hours": 60,
+      "temperature": 0,
+      "polarity": 3,
+      "min_effective_pct": 1.0,
+      "typical_neat_range": [
+        2,
+        10
+      ],
+      "max_neat": 15,
+      "effect_in_mixture": "A cleaner, more controllable oud than Oud Oliffac — use where the barnyard/animalic edge needs dialling back but the smoky-woody oud signature must stay recognisable.",
+      "pairs_with": [
+        "oud_oliffac",
+        "safraleine",
+        "labdanum",
+        "cedarwood"
+      ],
+      "bridges": [
+        "woody",
+        "animalic"
+      ],
+      "bridge_effect": "Softens the transition between Oud Oliffac's raw animalic edge and a cleaner woody base.",
+      "perceptual_cluster": [
+        "oud",
+        "dry-smoke"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation.",
+      "families": {
+        "woody": 3,
+        "animalic": 1
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate"
+      },
+      "composition": {
+        "confidence": "proprietary-undisclosed",
+        "basis": "IFF captive. Composition not declared.",
+        "declared_pct": 0,
+        "undisclosed_pct": 100.0,
+        "constituents": []
+      }
+    },
+    {
+      "id": "attar_kewra",
+      "name": "Attar Kewra",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Sweet, green-floral, hay-like with a honeyed, slightly medicinal warmth. Distinctly Indian — rosewater's sibling.",
+      "facets_primary": [
+        "floral",
+        "green"
+      ],
+      "facets_secondary": [
+        "hay",
+        "honeyed",
+        "medicinal"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Complex natural distillate (Pandanus odoratissimus)",
+      "chemical_family": "natural attar",
+      "functional_group": null,
+      "colour_percept": "pale golden",
+      "emotion": [
+        "festivity",
+        "tradition",
+        "welcome"
+      ],
+      "strength": 7,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 35,
+      "evap_curve": "mid",
+      "evap_curve_like": [],
+      "tenacity_hours": 24,
+      "temperature": 1,
+      "polarity": 1,
+      "min_effective_pct": 0.5,
+      "typical_neat_range": [
+        1,
+        4
+      ],
+      "max_neat": 8,
+      "effect_in_mixture": "Extremely potent and distinctive — a little goes a long way. Reads instantly as ceremonial/Indian; anchors rosewater, cardamom and saffron-forward compositions.",
+      "pairs_with": [
+        "cardamom_oil",
+        "safraleine",
+        "rose_wardia"
+      ],
+      "bridges": [
+        "floral",
+        "spicy"
+      ],
+      "bridge_effect": "Bridges rose-forward florals into spice-forward ceremony accords.",
+      "perceptual_cluster": [
+        "kewra",
+        "hay-floral"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation for constituent restrictions.",
+      "families": {
+        "floral": 3,
+        "green": 1
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Pandanus odoratissimus distillate. Note the principal: this attar is two-thirds the same molecule as the palette's PEME.",
+        "declared_pct": 88.0,
+        "undisclosed_pct": 12.0,
+        "constituents": [
+          {
+            "id": "peme",
+            "pct": 65.0
+          },
+          {
+            "id": "terpinen_4_ol",
+            "pct": 12.0
+          },
+          {
+            "id": "phenylethyl_alcohol",
+            "pct": 6.0
+          },
+          {
+            "id": "alpha_terpineol",
+            "pct": 3.0
+          },
+          {
+            "id": "p_cymene",
+            "pct": 2.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "attar_mitti",
+      "name": "Attar Mitti",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Baked clay, wet dust, the exact smell of the first rain on dry earth. The genuine article behind every synthetic petrichor accord.",
+      "facets_primary": [
+        "earthy",
+        "wet-earth"
+      ],
+      "facets_secondary": [
+        "mineral",
+        "clay",
+        "dust"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Traditional Kannauj clay distillate (sandalwood oil base)",
+      "chemical_family": "natural attar",
+      "functional_group": null,
+      "colour_percept": "deep amber-brown",
+      "emotion": [
+        "rain",
+        "homecoming",
+        "relief"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 12,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "geosmin"
+      ],
+      "tenacity_hours": 72,
+      "temperature": -1,
+      "polarity": 4,
+      "min_effective_pct": 1.0,
+      "typical_neat_range": [
+        2,
+        8
+      ],
+      "max_neat": 15,
+      "effect_in_mixture": "The real thing Geosmin only gestures at. Use wherever a rain/earth accord needs to feel authentic rather than synthetic-clean — pairs directly with Geosmin rather than replacing it.",
+      "pairs_with": [
+        "geosmin",
+        "peatmoss",
+        "vetiver_eo",
+        "cedarwood"
+      ],
+      "bridges": [
+        "earthy",
+        "woody"
+      ],
+      "bridge_effect": "Grounds a synthetic petrichor accord (geosmin/floralozone) in something that reads as genuinely mineral rather than ozonic.",
+      "perceptual_cluster": [
+        "petrichor",
+        "clay"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation for constituent restrictions.",
+      "families": {
+        "earthy": 4
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Kannauj mitti attar: baked clay hydro-distilled into a sandalwood receiver. The carrier is most of the weight; the petrichor is trace.",
+        "declared_pct": 60.002,
+        "undisclosed_pct": 39.998,
+        "constituents": [
+          {
+            "id": "alpha_santalol",
+            "pct": 40.0
+          },
+          {
+            "id": "beta_santalol",
+            "pct": 20.0
+          },
+          {
+            "id": "geosmin",
+            "pct": 0.002
+          }
+        ]
+      }
+    },
+    {
+      "id": "benzyl_acetate",
+      "name": "Benzyl Acetate",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Sweet, fruity-floral — banana and pear over a jasmine-adjacent base. Simple, a little cheap neat, useful in small doses.",
+      "facets_primary": [
+        "fruity",
+        "floral"
+      ],
+      "facets_secondary": [
+        "banana",
+        "pear",
+        "sweet"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Benzyl acetate",
+      "chemical_family": "acetate ester",
+      "functional_group": "ester",
+      "colour_percept": "clear, pale yellow",
+      "emotion": [
+        "sweetness",
+        "playfulness",
+        "childhood"
+      ],
+      "strength": 5,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 60,
+      "evap_curve": "fast",
+      "evap_curve_like": [],
+      "tenacity_hours": 4,
+      "temperature": 2,
+      "polarity": -1,
+      "min_effective_pct": 0.5,
+      "typical_neat_range": [
+        0.5,
+        3
+      ],
+      "max_neat": 5,
+      "effect_in_mixture": "A fast, cheerful fruity-floral lift. Overdose reads as synthetic/candy-like fast — keep it a supporting player, not a lead.",
+      "pairs_with": [
+        "jasmine_sambac",
+        "gamma_undecalactone",
+        "fructone"
+      ],
+      "bridges": [
+        "floral",
+        "gourmand"
+      ],
+      "bridge_effect": "Softens the seam between a floral heart and a fruity-gourmand top.",
+      "perceptual_cluster": [
+        "fruity-floral",
+        "banana"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation.",
+      "families": {
+        "floral": 2,
+        "gourmand": 1
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.5,
+        "undisclosed_pct": 0.5,
+        "constituents": [
+          {
+            "id": "benzyl_acetate",
+            "pct": 99.5
+          }
+        ]
+      }
+    },
+    {
+      "id": "blackcurrant_bud_replacer",
+      "name": "Black Currant Bud Absolute Replacer",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Sharp, tart, green-fruity with a sulfurous edge — tomato leaf and unripe berry. The modern fruity-chypre opening note.",
+      "facets_primary": [
+        "fruity",
+        "green"
+      ],
+      "facets_secondary": [
+        "sulfurous",
+        "tart",
+        "berry"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Cassis base accord (replacer for the restricted natural absolute)",
+      "chemical_family": "base accord",
+      "functional_group": null,
+      "colour_percept": "pale green-yellow",
+      "emotion": [
+        "youth",
+        "sharpness",
+        "energy"
+      ],
+      "strength": 8,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 65,
+      "evap_curve": "fast",
+      "evap_curve_like": [],
+      "tenacity_hours": 3,
+      "temperature": 2,
+      "polarity": -2,
+      "min_effective_pct": 0.2,
+      "typical_neat_range": [
+        0.2,
+        1.5
+      ],
+      "max_neat": 3,
+      "effect_in_mixture": "Extremely potent and sharp — overdoses fast at percentages that look modest on paper. Use at trace to add tart, youthful energy to a top note without turning the whole composition sour.",
+      "pairs_with": [
+        "fructone",
+        "bergamot",
+        "rose_wardia"
+      ],
+      "bridges": [
+        "green",
+        "citrus"
+      ],
+      "bridge_effect": "Bridges a citrus opening into a fruitier heart without a dead patch in between.",
+      "perceptual_cluster": [
+        "cassis",
+        "tart-fruity"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation.",
+      "families": {
+        "green": 2,
+        "citrus": 1
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate"
+      },
+      "composition": {
+        "confidence": "proprietary-undisclosed",
+        "basis": "Cassis base built as a replacer for the restricted absolute. Composition not declared; the character comes from sulfur-bearing buchu-type materials at trace level.",
+        "declared_pct": 0,
+        "undisclosed_pct": 100.0,
+        "constituents": []
+      }
+    },
+    {
+      "id": "ebanol",
+      "name": "Ebanol",
+      "supplier": "Givaudan",
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Creamy, soft sandalwood with a nutty, slightly buttery warmth. Quieter and less rosy than Bacdanol.",
+      "facets_primary": [
+        "sandalwood",
+        "creamy"
+      ],
+      "facets_secondary": [
+        "nutty",
+        "buttery",
+        "soft"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Ebanol (Givaudan)",
+      "chemical_family": "sandalwood substitute",
+      "functional_group": "alcohol",
+      "colour_percept": "pale cream",
+      "emotion": [
+        "softness",
+        "warmth",
+        "devotion"
+      ],
+      "strength": 4,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 16,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "bacdanol"
+      ],
+      "tenacity_hours": 60,
+      "temperature": 1,
+      "polarity": -1,
+      "min_effective_pct": 2.0,
+      "typical_neat_range": [
+        3,
+        15
+      ],
+      "max_neat": 25,
+      "effect_in_mixture": "A second sandalwood voice alongside Bacdanol — swap in where the composition needs sandalwood's creaminess without Bacdanol's rosy top.",
+      "pairs_with": [
+        "bacdanol",
+        "gamma_nonalactone",
+        "exaltolide_total"
+      ],
+      "bridges": [
+        "woody",
+        "musky"
+      ],
+      "bridge_effect": "Smooths the seam between a dry cedar base and a musk-heavy skin accord.",
+      "perceptual_cluster": [
+        "sandalwood",
+        "creamy-wood"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation.",
+      "families": {
+        "woody": 3
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Givaudan sandalwood alcohol.",
+        "declared_pct": 96.0,
+        "undisclosed_pct": 4.0,
+        "constituents": [
+          {
+            "id": "ebanol",
+            "pct": 96.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "fructone",
+      "name": "Fructone",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Sweet apple and pear, intensely fruity. One of the most potent fruity materials in perfumery — a trace reads as a whole fruit bowl.",
+      "facets_primary": [
+        "fruity",
+        "apple"
+      ],
+      "facets_secondary": [
+        "pear",
+        "sweet",
+        "candy"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Fructone (dioxolane ester)",
+      "chemical_family": "dioxolane ester",
+      "functional_group": "ester",
+      "colour_percept": "clear, colourless",
+      "emotion": [
+        "youth",
+        "freshness",
+        "indulgence"
+      ],
+      "strength": 9,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 55,
+      "evap_curve": "fast",
+      "evap_curve_like": [],
+      "tenacity_hours": 5,
+      "temperature": 1,
+      "polarity": -2,
+      "min_effective_pct": 0.05,
+      "typical_neat_range": [
+        0.05,
+        0.5
+      ],
+      "max_neat": 1,
+      "effect_in_mixture": "Famous for being wildly overdosed by beginners — 0.1% already reads as a strong apple note. Treat every dose as if it were ten times what it looks like on paper.",
+      "pairs_with": [
+        "gamma_undecalactone",
+        "benzyl_acetate",
+        "methyl_anthranilate"
+      ],
+      "bridges": [
+        "gourmand",
+        "green"
+      ],
+      "bridge_effect": "Brightens a creamy-lactone gourmand base into something that reads as fresh fruit rather than dessert.",
+      "perceptual_cluster": [
+        "apple",
+        "fruity-ester"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation.",
+      "families": {
+        "gourmand": 2,
+        "green": 1
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate",
+        "typical_neat_range": "estimate"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 98.0,
+        "undisclosed_pct": 2.0,
+        "constituents": [
+          {
+            "id": "fructone",
+            "pct": 98.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "geraniol_extra",
+      "name": "Geraniol Extra",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Rosy, green, faintly citrus — softer and simpler than a true rose, closer to geranium leaf.",
+      "facets_primary": [
+        "rose",
+        "green"
+      ],
+      "facets_secondary": [
+        "geranium",
+        "citrus-rose",
+        "fresh"
+      ],
+      "note_position": "heart",
+      "key_chemistry": "Geraniol",
+      "chemical_family": "monoterpene alcohol",
+      "functional_group": "alcohol",
+      "colour_percept": "clear, pale",
+      "emotion": [
+        "freshness",
+        "tenderness"
+      ],
+      "strength": 4,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 40,
+      "evap_curve": "mid",
+      "evap_curve_like": [],
+      "tenacity_hours": 10,
+      "temperature": 0,
+      "polarity": 0,
+      "min_effective_pct": 1.0,
+      "typical_neat_range": [
+        2,
+        10
+      ],
+      "max_neat": 15,
+      "effect_in_mixture": "A simpler, greener rose voice than Rose Wardia — useful where the composition needs rose's freshness without its full dewy-fruity complexity.",
+      "pairs_with": [
+        "rose_wardia",
+        "linalool",
+        "petitgrain"
+      ],
+      "bridges": [
+        "floral",
+        "green"
+      ],
+      "bridge_effect": "Bridges a green top note into a rose heart without a gap.",
+      "perceptual_cluster": [
+        "rose",
+        "green-floral"
+      ],
+      "ifra_cat4_pct": 4.3,
+      "ifra_note": "Restricted as a sensitiser (one of the EU's declared fragrance allergens). VERIFY against current amendment.",
+      "families": {
+        "floral": 3,
+        "green": 1
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate",
+        "ifra_cat4_pct": "verify"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Geraniol with the usual nerol companion.",
+        "declared_pct": 98.0,
+        "undisclosed_pct": 2.0,
+        "constituents": [
+          {
+            "id": "geraniol",
+            "pct": 96.0
+          },
+          {
+            "id": "nerol",
+            "pct": 2.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "habanolide",
+      "name": "Habanolide",
+      "supplier": "Firmenich",
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Clean, fresh macrocyclic musk with a soft fruity-floral undertone. Brighter and less skin-warm than Exaltolide.",
+      "facets_primary": [
+        "musk",
+        "clean"
+      ],
+      "facets_secondary": [
+        "fresh",
+        "fruity-floral",
+        "laundry"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Habanolide (Firmenich)",
+      "chemical_family": "macrocyclic musk",
+      "functional_group": "lactone",
+      "colour_percept": "clear",
+      "emotion": [
+        "cleanliness",
+        "comfort",
+        "freshness"
+      ],
+      "strength": 3,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 8,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "exaltolide_total"
+      ],
+      "tenacity_hours": 96,
+      "temperature": 0,
+      "polarity": -1,
+      "min_effective_pct": 1.0,
+      "typical_neat_range": [
+        3,
+        15
+      ],
+      "max_neat": 25,
+      "effect_in_mixture": "A fresher, less skin-warm musk than Exaltolide — use where the base needs to stay 'clean laundry' rather than 'warm skin.'",
+      "pairs_with": [
+        "galaxolide",
+        "exaltolide_total",
+        "dihydromyrcenol"
+      ],
+      "bridges": [
+        "musky",
+        "aldehydic"
+      ],
+      "bridge_effect": "Bridges a soapy-aldehydic top into a musk base without the seam showing.",
+      "perceptual_cluster": [
+        "clean-musk",
+        "laundry"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation.",
+      "families": {
+        "musky": 4
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate"
+      },
+      "composition": {
+        "confidence": "supplier-declared",
+        "basis": "Firmenich Habanolide: pentadecenolide with some saturated macrolactone.",
+        "declared_pct": 95.0,
+        "undisclosed_pct": 5.0,
+        "constituents": [
+          {
+            "id": "pentadecenolide",
+            "pct": 85.0
+          },
+          {
+            "id": "pentadecanolide",
+            "pct": 10.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "lavandin_grosso",
+      "name": "Lavandin Grosso",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Herbaceous lavender with a sharper camphor-menthol edge than true lavender. The backbone of every classic fougère.",
+      "facets_primary": [
+        "lavender",
+        "herbaceous"
+      ],
+      "facets_secondary": [
+        "camphor",
+        "clean",
+        "medicinal"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Lavandin Grosso essential oil (Lavandula x intermedia)",
+      "chemical_family": "natural essential oil",
+      "functional_group": null,
+      "colour_percept": "pale yellow-green",
+      "emotion": [
+        "cleanliness",
+        "order",
+        "alertness"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 50,
+      "evap_curve": "mid",
+      "evap_curve_like": [],
+      "tenacity_hours": 8,
+      "temperature": -1,
+      "polarity": -2,
+      "min_effective_pct": 1.0,
+      "typical_neat_range": [
+        2,
+        8
+      ],
+      "max_neat": 12,
+      "effect_in_mixture": "Sharper and cheaper than true lavender — reads as 'clean/soap' fast. Pairs directly with Coumarin and Linalyl Acetate for a textbook fougère spine.",
+      "pairs_with": [
+        "coumarin",
+        "linalyl_acetate",
+        "bergamot"
+      ],
+      "bridges": [
+        "green",
+        "aldehydic"
+      ],
+      "bridge_effect": "The classic fougère bridge between a citrus top and a coumarin-musk base.",
+      "perceptual_cluster": [
+        "lavender",
+        "fougere"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation for constituent restrictions.",
+      "families": {
+        "green": 3
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate"
+      },
+      "composition": {
+        "confidence": "published-range",
+        "basis": "Lavandula x intermedia 'Grosso'. Higher camphor and cineole than true lavender — that is the hybrid's signature, not a fault.",
+        "declared_pct": 80.5,
+        "undisclosed_pct": 19.5,
+        "constituents": [
+          {
+            "id": "linalyl_acetate",
+            "pct": 30.0
+          },
+          {
+            "id": "linalool",
+            "pct": 28.0
+          },
+          {
+            "id": "camphor",
+            "pct": 7.0
+          },
+          {
+            "id": "cineole",
+            "pct": 6.0
+          },
+          {
+            "id": "borneol",
+            "pct": 2.5
+          },
+          {
+            "id": "terpinen_4_ol",
+            "pct": 2.5
+          },
+          {
+            "id": "beta_caryophyllene",
+            "pct": 2.5
+          },
+          {
+            "id": "lavandulyl_acetate",
+            "pct": 2.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "methyl_anthranilate",
+      "name": "Methyl Anthranilate",
+      "supplier": null,
+      "class": "synthetic",
+      "stock_dilution": 1.0,
+      "solvent": null,
+      "attar_safe": true,
+      "odour": "Sweet, grapey, faintly orange-blossom — the classic 'grape soda' smell, foxy and unmistakable.",
+      "facets_primary": [
+        "grape",
+        "fruity"
+      ],
+      "facets_secondary": [
+        "orange-blossom",
+        "foxy",
+        "sweet"
+      ],
+      "note_position": "top",
+      "key_chemistry": "Methyl anthranilate",
+      "chemical_family": "anthranilate ester",
+      "functional_group": "ester",
+      "colour_percept": "pale yellow",
+      "emotion": [
+        "youth",
+        "playfulness",
+        "sweetness"
+      ],
+      "strength": 6,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 45,
+      "evap_curve": "mid",
+      "evap_curve_like": [],
+      "tenacity_hours": 8,
+      "temperature": 1,
+      "polarity": -1,
+      "min_effective_pct": 0.3,
+      "typical_neat_range": [
+        0.3,
+        2
+      ],
+      "max_neat": 4,
+      "effect_in_mixture": "Very recognisable — overdose reads as literal grape candy. Use in restraint alongside Fructone or Black Currant for a youthful fruity top that doesn't tip into soda territory.",
+      "pairs_with": [
+        "fructone",
+        "blackcurrant_bud_replacer",
+        "orange_10x"
+      ],
+      "bridges": [
+        "floral",
+        "gourmand"
+      ],
+      "bridge_effect": "Bridges an orange-blossom floral into a fruity-gourmand top.",
+      "perceptual_cluster": [
+        "grape",
+        "foxy-fruity"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation.",
+      "families": {
+        "floral": 1,
+        "gourmand": 2
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate"
+      },
+      "composition": {
+        "confidence": "assay",
+        "basis": "Single molecule.",
+        "declared_pct": 99.0,
+        "undisclosed_pct": 1.0,
+        "constituents": [
+          {
+            "id": "methyl_anthranilate",
+            "pct": 99.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "myrrh_resinoid",
+      "name": "Myrrh Resinoid",
+      "supplier": null,
+      "class": "natural",
+      "stock_dilution": 0.5,
+      "solvent": "BB",
+      "attar_safe": true,
+      "odour": "Dark, bitter-balsamic resin with a medicinal, slightly smoky warmth. Heavier and less lemony than Frankincense.",
+      "facets_primary": [
+        "resin",
+        "balsamic"
+      ],
+      "facets_secondary": [
+        "bitter",
+        "medicinal",
+        "smoky"
+      ],
+      "note_position": "base",
+      "key_chemistry": "Commiphora myrrha resinoid, 50% in benzyl benzoate",
+      "chemical_family": "natural resinoid",
+      "functional_group": null,
+      "colour_percept": "dark reddish-brown",
+      "emotion": [
+        "reverence",
+        "antiquity",
+        "ritual"
+      ],
+      "strength": 5,
+      "odt_ppb": null,
+      "vp_mmhg_25c": null,
+      "evap_index": 10,
+      "evap_curve": "long-tail",
+      "evap_curve_like": [
+        "frankincense",
+        "labdanum"
+      ],
+      "tenacity_hours": 84,
+      "temperature": -1,
+      "polarity": 4,
+      "min_effective_pct": 1.0,
+      "typical_neat_range": [
+        2,
+        8
+      ],
+      "max_neat": 15,
+      "effect_in_mixture": "Frankincense's darker, more bitter sibling — pair the two for a fuller ritual-resin accord, or use myrrh alone where the composition needs weight without Frankincense's cool citrus lift.",
+      "pairs_with": [
+        "frankincense",
+        "labdanum",
+        "cypriol"
+      ],
+      "bridges": [
+        "woody",
+        "earthy"
+      ],
+      "bridge_effect": "Deepens a Frankincense-led resin accord without adding sweetness.",
+      "perceptual_cluster": [
+        "resin",
+        "ritual-smoke"
+      ],
+      "ifra_cat4_pct": null,
+      "ifra_note": "Check supplier documentation for constituent restrictions.",
+      "families": {
+        "woody": 2,
+        "earthy": 1
+      },
+      "confidence": {
+        "odt_ppb": "estimate",
+        "vp_mmhg_25c": "estimate",
+        "evap_index": "estimate",
+        "stock_dilution": "confirmed"
+      },
+      "composition": {
+        "confidence": "supplier-declared",
+        "basis": "Commiphora myrrha resinoid supplied at 50% in benzyl benzoate — half of what you weigh is the solvent, and that solvent is itself a fixative with a faint balsamic odour.",
+        "declared_pct": 80.0,
+        "undisclosed_pct": 20.0,
+        "constituents": [
+          {
+            "id": "benzyl_benzoate",
+            "pct": 50.0
+          },
+          {
+            "id": "curzerene",
+            "pct": 8.0
+          },
+          {
+            "id": "furanoeudesma_diene",
+            "pct": 8.0
+          },
+          {
+            "id": "lindestrene",
+            "pct": 5.0
+          },
+          {
+            "id": "germacrene_b",
+            "pct": 3.0
+          },
+          {
+            "id": "beta_elemene",
+            "pct": 3.0
+          },
+          {
+            "id": "curzerenone",
+            "pct": 3.0
+          }
+        ]
+      }
+    }
+  ]
+}

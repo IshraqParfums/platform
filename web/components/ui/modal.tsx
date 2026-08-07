@@ -1,7 +1,17 @@
 "use client";
 
-import { useEffect, useId, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+
+type Size = "md" | "xl";
+
+const SIZES: Record<Size, string> = {
+  md: "max-w-md max-h-[min(90dvh,44rem)]",
+  xl: "max-w-4xl max-h-[min(92dvh,56rem)]",
+};
+
+const FOCUSABLE =
+  'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex]:not([tabindex="-1"])';
 
 /**
  * Shop dialog shell — cream panel over a dimmed page.
@@ -13,6 +23,7 @@ export function Modal({
   children,
   footer,
   dismissible = true,
+  size = "md",
   onClose,
   className,
   panelClassName,
@@ -22,11 +33,13 @@ export function Modal({
   children: ReactNode;
   footer?: ReactNode;
   dismissible?: boolean;
+  size?: Size;
   onClose?: () => void;
   className?: string;
   panelClassName?: string;
 }) {
   const titleId = useId();
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -34,8 +47,45 @@ export function Modal({
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape" && dismissible) {
         onClose?.();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const panel = panelRef.current;
+      if (!panel) return;
+
+      const focusable = Array.from(
+        panel.querySelectorAll<HTMLElement>(FOCUSABLE),
+      ).filter((node) => node.offsetParent !== null || node === document.activeElement);
+
+      if (focusable.length === 0) {
+        event.preventDefault();
+        panel.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (!panel.contains(active)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+        return;
+      }
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
       }
     }
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
 
     document.addEventListener("keydown", onKeyDown);
     const previousOverflow = document.body.style.overflow;
@@ -44,6 +94,7 @@ export function Modal({
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus?.();
     };
   }, [open, dismissible, onClose]);
 
@@ -68,11 +119,14 @@ export function Modal({
       )}
 
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        tabIndex={-1}
         className={cn(
-          "relative z-10 flex w-full max-h-[min(90dvh,44rem)] max-w-md flex-col",
+          "relative z-10 flex w-full flex-col outline-none",
+          SIZES[size],
           "border border-ink/10 bg-cream-soft shadow-[0_16px_40px_rgba(28,22,18,0.18)]",
           panelClassName,
         )}

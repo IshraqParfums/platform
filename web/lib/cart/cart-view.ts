@@ -13,6 +13,7 @@ export type CartViewLine = {
   /** Nest cart item id — null for guest lines. */
   itemId: string | null;
   variantId: string | null;
+  bespokePerfumeId: string | null;
   quantity: number;
   sizeMl: number;
   pricePaise: number;
@@ -56,6 +57,7 @@ function lineFromCatalog(item: CatalogCartItemResponse): CartViewLine {
     kind: "catalog",
     itemId: item.id,
     variantId: item.variantId,
+    bespokePerfumeId: null,
     quantity: item.quantity,
     sizeMl: item.sizeMl,
     pricePaise: item.pricePaise,
@@ -79,13 +81,14 @@ function lineFromServerItem(item: CartItemResponse): CartViewLine {
       kind: "bespoke",
       itemId: item.id,
       variantId: null,
+      bespokePerfumeId: item.bespokePerfumeId,
       quantity: item.quantity,
       sizeMl: item.sizeMl,
       pricePaise: item.pricePaise,
       compareAtPricePaise: null,
       stockQty: null,
-      isAvailable: true,
-      unavailableReason: null,
+      isAvailable: item.isAvailable,
+      unavailableReason: item.unavailableReason,
       productName: item.productName,
       productSlug: item.productSlug,
       collectionName: "Bespoke",
@@ -142,6 +145,7 @@ export function cartViewFromGuest(items: GuestCartLine[]): CartView {
       kind: "catalog" as const,
       itemId: null,
       variantId: item.variantId,
+      bespokePerfumeId: null,
       quantity,
       sizeMl: item.sizeMl,
       pricePaise: item.pricePaise,
@@ -183,6 +187,40 @@ export function findCartLineByVariantId(
   variantId: string,
 ): CartViewLine | null {
   return view.lines.find((line) => line.variantId === variantId) ?? null;
+}
+
+export function findCartLineByBespokeSize(
+  view: CartView,
+  bespokePerfumeId: string,
+  sizeMl: number,
+): CartViewLine | null {
+  return (
+    view.lines.find(
+      (line) =>
+        line.kind === "bespoke" &&
+        line.bespokePerfumeId === bespokePerfumeId &&
+        line.sizeMl === sizeMl,
+    ) ?? null
+  );
+}
+
+/** Qty already in cart for each size of a given brew. */
+export function bespokeSizeQuantitiesInCart(
+  view: CartView | null,
+  bespokePerfumeId: string,
+): Record<number, number> {
+  if (!view) return {};
+  const out: Record<number, number> = {};
+  for (const line of view.lines) {
+    if (
+      line.kind === "bespoke" &&
+      line.bespokePerfumeId === bespokePerfumeId &&
+      line.quantity > 0
+    ) {
+      out[line.sizeMl] = (out[line.sizeMl] ?? 0) + line.quantity;
+    }
+  }
+  return out;
 }
 
 /**

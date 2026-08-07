@@ -35,6 +35,9 @@ export interface BespokeCartItemResponse {
   quantity: number;
   sizeMl: number;
   pricePaise: number;
+  /** False once the owner has deleted the brew the line points at. */
+  isAvailable: boolean;
+  unavailableReason: CartUnavailableReason | null;
   productName: string;
   productSlug: 'bespoke';
   primaryImageUrl: null;
@@ -82,6 +85,10 @@ export interface CartMutationSummary {
   stockQty: number | null;
   /** Catalog variant id when known (add / catalog update); null for bespoke. */
   variantId: string | null;
+  /** Bespoke brew id when the mutated line is bespoke. */
+  bespokePerfumeId?: string | null;
+  /** Bottle size for a bespoke line (ml). */
+  sizeMl?: number | null;
 }
 
 export type CartMutationResult = CartResponse | CartMutationSummary;

@@ -106,6 +106,8 @@ export class CartService {
         lineTotalPaise: pricePaise * item.quantity,
         stockQty: null,
         variantId: null,
+        bespokePerfumeId,
+        sizeMl,
       },
       view,
     );
@@ -155,6 +157,8 @@ export class CartService {
         lineTotalPaise: null,
         stockQty: null,
         variantId: null,
+        bespokePerfumeId: null,
+        sizeMl: null,
       };
       return summary;
     }
@@ -317,6 +321,8 @@ export class CartService {
         lineTotalPaise,
         stockQty: availableStock,
         variantId: row.productVariantId,
+        bespokePerfumeId: row.bespokePerfumeId,
+        sizeMl: row.bespokeSizeMl,
       };
       return Promise.resolve(summary);
     }
@@ -332,6 +338,8 @@ export class CartService {
       lineTotalPaise: number | null;
       stockQty: number | null;
       variantId: string | null;
+      bespokePerfumeId?: string | null;
+      sizeMl?: number | null;
     },
     view: CartMutationView,
   ): Promise<CartMutationResult> {
@@ -347,6 +355,8 @@ export class CartService {
         lineTotalPaise: fields.lineTotalPaise,
         stockQty: fields.stockQty,
         variantId: fields.variantId,
+        bespokePerfumeId: fields.bespokePerfumeId ?? null,
+        sizeMl: fields.sizeMl ?? null,
       };
     }
 
