@@ -241,19 +241,39 @@ export class OrderRepository {
     });
   }
 
-  async markExpired(
+  /**
+   * Atomically claim a pending checkout as expired. Returns false if the order
+   * is no longer PENDING_PAYMENT (already abandoned, paid, or reviewed).
+   */
+  async tryClaimPendingAsExpired(
     orderId: string,
     tx: Prisma.TransactionClient = this.prisma,
-  ): Promise<void> {
-    await tx.order.update({
-      where: { id: orderId },
+  ): Promise<boolean> {
+    const result = await tx.order.updateMany({
+      where: {
+        id: orderId,
+        status: OrderStatus.PENDING_PAYMENT,
+      },
       data: { status: OrderStatus.EXPIRED },
     });
+
+    if (result.count !== 1) {
+      return false;
+    }
 
     await tx.payment.updateMany({
       where: { orderId, status: PaymentStatus.CREATED },
       data: { status: PaymentStatus.FAILED },
     });
+
+    return true;
+  }
+
+  async markExpired(
+    orderId: string,
+    tx: Prisma.TransactionClient = this.prisma,
+  ): Promise<void> {
+    await this.tryClaimPendingAsExpired(orderId, tx);
   }
 
   async tryMarkOrderReceived(

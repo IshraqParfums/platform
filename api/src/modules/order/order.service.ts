@@ -394,7 +394,7 @@ export class OrderService {
 
     for (const order of expired) {
       try {
-        await this.reconcileOneExpired(order);
+        await this.reconcilePendingCheckout(order);
       } catch (error) {
         this.logger.error(
           `Failed reconciling order ${order.id}`,
@@ -404,7 +404,31 @@ export class OrderService {
     }
   }
 
-  private async reconcileOneExpired(order: OrderWithRelations): Promise<void> {
+  /**
+   * Customer abandoned Razorpay (dismiss / failure) — release the hard stock
+   * hold immediately when unpaid. Idempotent; safe if the TTL sweeper races.
+   */
+  async abandonCheckout(customerId: string, orderId: string): Promise<void> {
+    const order = await this.orderRepository.findById(orderId);
+
+    if (!order || order.customerId !== customerId) {
+      throw new NotFoundException(`Order with id "${orderId}" not found`);
+    }
+
+    if (order.status !== OrderStatus.PENDING_PAYMENT) {
+      return;
+    }
+
+    await this.reconcilePendingCheckout(order);
+  }
+
+  /**
+   * Resolve a PENDING_PAYMENT checkout: finalize if Razorpay already captured,
+   * otherwise release reservations and expire. Shared by abandon + TTL sweeper.
+   */
+  private async reconcilePendingCheckout(
+    order: OrderWithRelations,
+  ): Promise<void> {
     if (!order.razorpayOrderId) {
       await this.releaseAndExpire(order);
       return;
@@ -419,7 +443,7 @@ export class OrderService {
         await this.finalizePaidOrder({
           razorpayOrderId: order.razorpayOrderId,
           razorpayPaymentId: paymentId,
-          rawPayload: { source: 'expiry-sweeper' },
+          rawPayload: { source: 'checkout-reconcile' },
         });
         return;
       } catch {
@@ -448,11 +472,20 @@ export class OrderService {
       return;
     }
 
-    await this.releaseAndExpire(pending);
+    await this.reconcilePendingCheckout(pending);
   }
 
   private async releaseAndExpire(order: OrderWithRelations): Promise<void> {
     await this.orderRepository.client.$transaction(async (tx) => {
+      const claimed = await this.orderRepository.tryClaimPendingAsExpired(
+        order.id,
+        tx,
+      );
+
+      if (!claimed) {
+        return;
+      }
+
       for (const item of order.items) {
         if (!item.productVariantId) {
           continue;
@@ -463,8 +496,6 @@ export class OrderService {
           tx,
         );
       }
-
-      await this.orderRepository.markExpired(order.id, tx);
     });
   }
 

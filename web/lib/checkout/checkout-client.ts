@@ -13,3 +13,17 @@ export async function startCheckout(
   if (!response.ok) throw await apiErrorFrom(response, "Could not start checkout");
   return (await response.json()) as CheckoutResponse;
 }
+
+/**
+ * Release hard stock holds after Razorpay dismiss / failure.
+ * Best-effort: TTL sweeper remains the safety net if this call fails.
+ */
+export async function abandonCheckout(orderId: string): Promise<void> {
+  try {
+    await shopFetch(`/api/checkout/${encodeURIComponent(orderId)}/abandon`, {
+      method: "POST",
+    });
+  } catch {
+    // Network blips are fine — expiry cron still releases.
+  }
+}

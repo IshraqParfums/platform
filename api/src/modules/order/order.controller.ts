@@ -33,6 +33,18 @@ export class OrderController {
     return this.orderService.checkout(request.user.customerId, body);
   }
 
+  @Post('checkout/:orderId/abandon')
+  async abandonCheckout(
+    @Req() request: RequestWithCustomer,
+    @Param('orderId', ParseUUIDPipe) orderId: string,
+  ): Promise<{ ok: true }> {
+    await this.orderService.abandonCheckout(
+      request.user.customerId,
+      orderId,
+    );
+    return { ok: true };
+  }
+
   @Get('orders')
   list(
     @Req() request: RequestWithCustomer,

@@ -21,7 +21,7 @@ import {
   cartHasSellableLines,
   type CartView,
 } from "@/lib/cart/cart-view";
-import { startCheckout } from "@/lib/checkout/checkout-client";
+import { abandonCheckout, startCheckout } from "@/lib/checkout/checkout-client";
 import {
   addressDraftToBody,
   emptyAddressDraft,
@@ -248,6 +248,7 @@ export function CheckoutPageClient() {
           customerPhone: selected?.phone ?? me.phone ?? draft.phone,
         });
       } catch (err) {
+        await abandonCheckout(checkout.orderId);
         if (err instanceof RazorpayDismissedError) {
           toast.message("Payment cancelled", "Your cart is still waiting.");
           return;
