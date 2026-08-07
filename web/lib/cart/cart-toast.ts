@@ -22,7 +22,8 @@ export function toastAddedToCart(productName: string) {
 
 /**
  * Soft-remove toast: Undo cancels the pending delete; dismiss/timeout commits it.
- * Callers should update UI optimistically before invoking this.
+ * Callers should update UI optimistically and register the commit with
+ * `pending-cart-commits` before invoking this.
  */
 export function toastRemovedFromCart({
   productName,
@@ -32,7 +33,7 @@ export function toastRemovedFromCart({
   productName: string;
   onUndo: () => void;
   onCommit: () => void;
-}) {
+}): string | number {
   let settled = false;
 
   const finish = (fn: () => void) => {

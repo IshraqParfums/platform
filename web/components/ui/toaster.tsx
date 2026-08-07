@@ -76,4 +76,7 @@ export const toast = {
         : descriptionOrOptions;
     return sonnerToast(message, toSonnerOptions(options));
   },
+  dismiss(id?: string | number) {
+    sonnerToast.dismiss(id);
+  },
 };

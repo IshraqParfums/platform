@@ -1,11 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { ButtonLink } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { toast } from "@/components/ui/toaster";
 import {
   cartHasSellableLines,
   type CartView,
 } from "@/lib/cart/cart-view";
+import { flushPendingCartCommits } from "@/lib/cart/pending-cart-commits";
 import { SHIPPING_PAISE } from "@/lib/cart/shipping";
 import { formatPaise } from "@/lib/format/money";
 import { cn } from "@/lib/cn";
@@ -27,10 +31,29 @@ export function CartSummary({
   authenticated: boolean;
   className?: string;
 }) {
+  const router = useRouter();
+  const [flushing, setFlushing] = useState(false);
   const canCheckout = cartHasSellableLines(view);
   const checkoutHref = authenticated
     ? "/checkout"
     : "/login?next=/checkout";
+
+  async function proceedToCheckout() {
+    if (!canCheckout || flushing) return;
+
+    setFlushing(true);
+    try {
+      await flushPendingCartCommits();
+      router.push(checkoutHref);
+    } catch (err) {
+      toast.error(
+        "Could not update cart",
+        err instanceof Error ? err.message : "Try again before checkout",
+      );
+    } finally {
+      setFlushing(false);
+    }
+  }
 
   return (
     <aside
@@ -78,22 +101,34 @@ export function CartSummary({
         </p>
       ) : null}
 
-      <ButtonLink
-        href={checkoutHref}
-        variant="emphasis"
-        size="md"
-        className={cn(
-          "mt-8 w-full cursor-pointer rounded-full",
-          !canCheckout && "pointer-events-none opacity-55",
-        )}
-        aria-disabled={!canCheckout}
-        tabIndex={canCheckout ? undefined : -1}
-        onClick={(event) => {
-          if (!canCheckout) event.preventDefault();
-        }}
-      >
-        {authenticated ? "Proceed to checkout" : "Sign in to checkout"}
-      </ButtonLink>
+      {canCheckout ? (
+        <Button
+          type="button"
+          variant="emphasis"
+          size="md"
+          disabled={flushing}
+          className="mt-8 w-full cursor-pointer rounded-full"
+          onClick={() => void proceedToCheckout()}
+        >
+          {flushing
+            ? "Updating cart…"
+            : authenticated
+              ? "Proceed to checkout"
+              : "Sign in to checkout"}
+        </Button>
+      ) : (
+        <ButtonLink
+          href={checkoutHref}
+          variant="emphasis"
+          size="md"
+          className="mt-8 w-full cursor-pointer rounded-full pointer-events-none opacity-55"
+          aria-disabled
+          tabIndex={-1}
+          onClick={(event) => event.preventDefault()}
+        >
+          {authenticated ? "Proceed to checkout" : "Sign in to checkout"}
+        </ButtonLink>
+      )}
 
       <ul className="mt-6 space-y-2 border-t border-ink/[0.07] pt-5">
         {ASSURANCES.map((label) => (

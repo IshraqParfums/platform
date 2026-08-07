@@ -26,6 +26,11 @@ import {
 import { emitCartChanged, subscribeCartChanged } from "@/lib/cart/cart-events";
 import { toastRemovedFromCart } from "@/lib/cart/cart-toast";
 import {
+  cancelPendingCartCommit,
+  registerPendingCartCommit,
+  runPendingCartCommit,
+} from "@/lib/cart/pending-cart-commits";
+import {
   withLineQuantity,
   withLineRestored,
   type CartView,
@@ -131,30 +136,36 @@ export function CartPageClient() {
 
   function removeLine(line: CartViewLine, current: CartView) {
     const optimistic = withLineQuantity(current, line.key, 0);
+    const commitId = line.key;
     setError(null);
     publishView(optimistic);
 
-    toastRemovedFromCart({
+    const toastId = toastRemovedFromCart({
       productName: line.productName,
       onUndo: () => {
+        cancelPendingCartCommit(commitId);
         restoreRemovedLine(line, optimistic);
       },
       onCommit: () => {
-        startTransition(async () => {
-          try {
-            const next = await removeCartLine(line, current.mode);
-            viewRef.current = next;
-            setView(next);
-          } catch (err) {
-            const message =
-              err instanceof Error ? err.message : "Update failed";
-            setError(message);
-            toast.error("Could not update cart", message);
-            restoreRemovedLine(line, optimistic);
-          }
+        void runPendingCartCommit(commitId).catch((err) => {
+          const message =
+            err instanceof Error ? err.message : "Update failed";
+          setError(message);
+          toast.error("Could not update cart", message);
+          restoreRemovedLine(line, optimistic);
         });
       },
     });
+
+    registerPendingCartCommit(
+      commitId,
+      async () => {
+        const next = await removeCartLine(line, current.mode);
+        viewRef.current = next;
+        setView(next);
+      },
+      toastId,
+    );
   }
 
   if (view === null) {
