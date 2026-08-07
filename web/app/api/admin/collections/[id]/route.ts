@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { adminAuthFetch } from "@/lib/api/auth-fetch";
 import { jsonFromNestError, unauthorizedResponse } from "@/lib/api/route-response";
 import { getAdminAccessToken } from "@/lib/auth/session";
+import { revalidateCatalogCollections } from "@/lib/catalog/catalog-cache";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -27,6 +28,7 @@ export async function PATCH(
       `/admin/collections/${encodeURIComponent(id)}`,
       { method: "PATCH", body: body as UpdateCollectionBody },
     );
+    revalidateCatalogCollections();
     return NextResponse.json(data);
   } catch (error) {
     return jsonFromNestError(error);

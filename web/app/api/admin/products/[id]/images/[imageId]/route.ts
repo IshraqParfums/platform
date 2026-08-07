@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { adminAuthFetch } from "@/lib/api/auth-fetch";
 import { jsonFromNestError, unauthorizedResponse } from "@/lib/api/route-response";
 import { getAdminAccessToken } from "@/lib/auth/session";
+import { revalidateCatalogProducts } from "@/lib/catalog/catalog-cache";
 
 type RouteContext = { params: Promise<{ id: string; imageId: string }> };
 
@@ -27,6 +28,7 @@ export async function PATCH(
       `/admin/products/${encodeURIComponent(id)}/images/${encodeURIComponent(imageId)}`,
       { method: "PATCH", body: body as UpdateImageBody },
     );
+    revalidateCatalogProducts();
     return NextResponse.json(data);
   } catch (error) {
     return jsonFromNestError(error);
@@ -47,6 +49,7 @@ export async function DELETE(
       `/admin/products/${encodeURIComponent(id)}/images/${encodeURIComponent(imageId)}`,
       { method: "DELETE" },
     );
+    revalidateCatalogProducts();
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     return jsonFromNestError(error);

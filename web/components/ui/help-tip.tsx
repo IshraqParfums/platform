@@ -6,8 +6,7 @@ import { cn } from "@/lib/cn";
 
 /**
  * Lightweight accessible help popover — no extra deps.
- * Anchors to the right edge of the trigger so it stays in-viewport near
- * page edges. Closes on outside click and Escape.
+ * Opens below the trigger (left-aligned). Closes on outside click and Escape.
  */
 export function HelpTip({
   label,
@@ -60,7 +59,7 @@ export function HelpTip({
         <span
           id={tipId}
           role="tooltip"
-          className="absolute right-0 top-full z-40 mt-2 w-64 max-w-[min(16rem,calc(100vw-2rem))] rounded-md border border-ink/10 bg-cream-soft px-3 py-2 text-left text-xs leading-relaxed text-ink-soft shadow-[0_8px_24px_rgba(28,22,18,0.12)]"
+          className="absolute left-0 top-full z-[60] mt-2 w-64 max-w-[min(16rem,calc(100vw-2rem))] rounded-md border border-ink/10 bg-cream-soft px-3 py-2 text-left text-xs leading-relaxed text-ink-soft shadow-[0_8px_24px_rgba(28,22,18,0.12)]"
         >
           {children}
         </span>

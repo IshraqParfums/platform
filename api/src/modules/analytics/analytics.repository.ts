@@ -41,9 +41,14 @@ export class AnalyticsRepository {
   }
 
   countLowStockVariants(threshold: number): Promise<number> {
-    return this.prisma.productVariant.count({
-      where: { isAvailable: true, stockQty: { lte: threshold } },
-    });
+    return this.prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*)::bigint AS count
+      FROM product_variants v
+      INNER JOIN products p ON p.id = v."productId"
+      WHERE v."isAvailable" = true
+        AND p.status = CAST('ACTIVE' AS "ProductStatus")
+        AND GREATEST(0, v."stockQty" - v."reservedQty") <= ${threshold}
+    `.then((rows) => Number(rows[0]?.count ?? 0));
   }
 
   /** All-time first paid-order date per customer, keyed by customerId. */

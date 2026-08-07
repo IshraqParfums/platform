@@ -49,7 +49,7 @@ export function VariantFormModal({
   variant?: AdminProductVariant;
   open: boolean;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (variant: AdminProductVariant) => void;
 }) {
   const isEdit = Boolean(variant);
   const initialPrice = variant ? Math.round(variant.pricePaise / 100) : null;
@@ -177,6 +177,8 @@ export function VariantFormModal({
 
     setSubmitting(true);
     try {
+      let saved: AdminProductVariant;
+
       if (isEdit && variant) {
         const response = await adminFetch(
           `/api/admin/products/${productId}/variants/${variant.id}`,
@@ -198,6 +200,8 @@ export function VariantFormModal({
           throw new Error(body?.message ?? "Could not update variant");
         }
 
+        saved = (await response.json()) as AdminProductVariant;
+
         const nextStockQty = Number(stockQty);
         if (nextStockQty !== variant.stockQty) {
           const stockResponse = await adminFetch(
@@ -211,6 +215,10 @@ export function VariantFormModal({
           if (!stockResponse.ok) {
             throw new Error("Could not update stock");
           }
+          const stockUpdated = (await stockResponse.json().catch(() => null)) as
+            | AdminProductVariant
+            | null;
+          saved = stockUpdated ?? { ...saved, stockQty: nextStockQty };
         }
       } else {
         const response = await adminFetch(`/api/admin/products/${productId}/variants`, {
@@ -230,10 +238,11 @@ export function VariantFormModal({
             | null;
           throw new Error(body?.message ?? "Could not create variant");
         }
+        saved = (await response.json()) as AdminProductVariant;
       }
 
       toast.success(isEdit ? "Variant updated" : "Variant added");
-      onSaved();
+      onSaved(saved);
       onClose();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Something went wrong");

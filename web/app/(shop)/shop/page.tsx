@@ -67,6 +67,7 @@ export default async function ShopPage({
         <Container size="wide">
           <ShopFilterRail
             homepageCollections={homepageCollections}
+            activeCollection={activeCollection}
             totalCollectionCount={collections.length}
             collection={collection}
             q={q}
@@ -80,6 +81,7 @@ export default async function ShopPage({
                 collections={collections}
                 emptyQuery={q}
                 emptyCollectionName={activeCollection?.name}
+                emptyCollectionSlug={activeCollection?.slug}
                 buildPageHref={(pageNumber) =>
                   buildShopHref({
                     collection,

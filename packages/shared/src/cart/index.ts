@@ -9,6 +9,7 @@ export type {
   CartMutationSummary,
   CartMutationView,
   CartResponse,
+  CartUnavailableReason,
   CatalogCartItemResponse,
   MergeCartBody,
   MergeCartItemBody,

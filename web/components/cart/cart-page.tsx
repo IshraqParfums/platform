@@ -11,6 +11,7 @@ import { CartEmpty } from "@/components/cart/cart-empty";
 import { CartLine } from "@/components/cart/cart-line";
 import { CartSkeleton } from "@/components/cart/cart-skeleton";
 import { CartSummary } from "@/components/cart/cart-summary";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toaster";
 import { ensureShopSession } from "@/lib/auth/shop-session";
 import {
@@ -31,6 +32,7 @@ import {
   runPendingCartCommit,
 } from "@/lib/cart/pending-cart-commits";
 import {
+  cartUnavailableLines,
   withLineQuantity,
   withLineRestored,
   type CartView,
@@ -39,9 +41,7 @@ import {
 
 /**
  * Client cart orchestrator — loads guest or server cart and handles mutations.
- * Title + lines share the left column; Summary sticks to the top on desktop.
- * Remove is soft: UI updates immediately, server/guest write waits for toast
- * dismiss unless Undo restores the line.
+ * On load: auto-removes DISCONTINUED lines, toasts unavailable lines.
  */
 export function CartPageClient() {
   const [view, setView] = useState<CartView | null>(null);
@@ -50,6 +50,7 @@ export function CartPageClient() {
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const viewRef = useRef<CartView | null>(null);
+  const reconciledLoadRef = useRef(false);
 
   viewRef.current = view;
 
@@ -60,13 +61,49 @@ export function CartPageClient() {
     emitCartChanged({ itemCount: next.itemCount, view: next });
   }, []);
 
+  const reconcileLoadedCart = useCallback(
+    async (next: CartView): Promise<CartView> => {
+      const discontinued = next.lines.filter(
+        (line) => line.unavailableReason === "DISCONTINUED",
+      );
+
+      let working = next;
+      if (discontinued.length > 0) {
+        for (const line of discontinued) {
+          working = await removeCartLine(line, working.mode);
+        }
+        const label =
+          discontinued.length === 1
+            ? "1 item is no longer available and was removed."
+            : `${discontinued.length} items are no longer available and were removed.`;
+        toast.message(label);
+      }
+
+      const unavailable = cartUnavailableLines(working);
+      if (unavailable.length > 0) {
+        const label =
+          unavailable.length === 1
+            ? "1 item in your cart isn't available right now."
+            : `${unavailable.length} items in your cart aren't available right now.`;
+        toast.message(label);
+      }
+
+      return working;
+    },
+    [],
+  );
+
   const refresh = useCallback(() => {
     startTransition(async () => {
       try {
-        const [auth, next] = await Promise.all([
+        const [auth, loaded] = await Promise.all([
           ensureShopSession(),
           loadCart(),
         ]);
+        const next = reconciledLoadRef.current
+          ? loaded
+          : await reconcileLoadedCart(loaded);
+        reconciledLoadRef.current = true;
         setAuthenticated(auth || next.mode === "server");
         viewRef.current = next;
         setView(next);
@@ -78,7 +115,7 @@ export function CartPageClient() {
         setError("Could not load your cart.");
       }
     });
-  }, []);
+  }, [reconcileLoadedCart]);
 
   useEffect(() => {
     refresh();
@@ -102,6 +139,26 @@ export function CartPageClient() {
         });
     });
   }, [refresh]);
+
+  /** Silent refresh when returning to this tab — catches admin availability changes. */
+  useEffect(() => {
+    function onVisibility() {
+      if (document.visibilityState !== "visible") return;
+      if (!reconciledLoadRef.current) return;
+      void loadCart()
+        .then((next) => {
+          viewRef.current = next;
+          setView(next);
+          emitCartChanged({ itemCount: next.itemCount, view: next });
+        })
+        .catch(() => {
+          /* keep current view */
+        });
+    }
+
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
 
   function runMutation(
     key: string,
@@ -168,6 +225,39 @@ export function CartPageClient() {
     );
   }
 
+  function removeUnavailable(current: CartView) {
+    const unavailable = cartUnavailableLines(current);
+    if (unavailable.length === 0) return;
+
+    let optimistic = current;
+    for (const line of unavailable) {
+      optimistic = withLineQuantity(optimistic, line.key, 0);
+    }
+    publishView(optimistic);
+
+    startTransition(async () => {
+      try {
+        let working = current;
+        for (const line of unavailable) {
+          working = await removeCartLine(line, working.mode);
+        }
+        viewRef.current = working;
+        setView(working);
+        toast.success(
+          unavailable.length === 1
+            ? "Unavailable item removed"
+            : "Unavailable items removed",
+        );
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Update failed";
+        setError(message);
+        toast.error("Could not update cart", message);
+        refresh();
+      }
+    });
+  }
+
   if (view === null) {
     return <CartSkeleton />;
   }
@@ -175,6 +265,8 @@ export function CartPageClient() {
   if (view.lines.length === 0) {
     return <CartEmpty authenticated={authenticated} />;
   }
+
+  const unavailableCount = cartUnavailableLines(view).length;
 
   return (
     <div className="grid gap-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(17rem,21rem)] lg:items-start lg:gap-14 xl:gap-20">
@@ -217,7 +309,21 @@ export function CartPageClient() {
         </div>
       </div>
 
-      <CartSummary view={view} authenticated={authenticated} />
+      <div className="space-y-4">
+        {unavailableCount > 0 ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="md"
+            className="w-full cursor-pointer"
+            onClick={() => removeUnavailable(view)}
+            disabled={isPending}
+          >
+            Remove unavailable items
+          </Button>
+        ) : null}
+        <CartSummary view={view} authenticated={authenticated} />
+      </div>
     </div>
   );
 }

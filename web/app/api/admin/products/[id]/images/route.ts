@@ -4,6 +4,7 @@ import { NestApiError, readNestErrorBody } from "@/lib/api/errors";
 import { getNestApiBaseUrl } from "@/lib/config";
 import { jsonFromNestError, unauthorizedResponse } from "@/lib/api/route-response";
 import { getAdminAccessToken } from "@/lib/auth/session";
+import { revalidateCatalogProducts } from "@/lib/catalog/catalog-cache";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -38,6 +39,7 @@ export async function POST(
     }
 
     const data = (await response.json()) as AdminProductImage;
+    revalidateCatalogProducts();
     return NextResponse.json(data);
   } catch (error) {
     return jsonFromNestError(error);

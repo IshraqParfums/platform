@@ -9,6 +9,7 @@ import type {
 } from '@ishraqparfums/shared';
 import { NestApiError } from '@/lib/api/errors';
 import { nestFetch } from '@/lib/api/nest';
+import { CATALOG_CACHE_TAGS } from '@/lib/catalog/catalog-cache';
 
 /** Public catalog changes rarely; serve from cache and revalidate in the background. */
 const CATALOG_REVALIDATE_SECONDS = 300;
@@ -28,7 +29,10 @@ async function safe<T>(work: () => Promise<T>, fallback: T): Promise<T> {
 export function getCollections(): Promise<CollectionSummary[]> {
   return safe(async () => {
     const { data } = await nestFetch<CollectionSummary[]>('/collections', {
-      next: { revalidate: CATALOG_REVALIDATE_SECONDS },
+      next: {
+        revalidate: CATALOG_REVALIDATE_SECONDS,
+        tags: [CATALOG_CACHE_TAGS.collections],
+      },
     });
     return data;
   }, []);
@@ -39,7 +43,12 @@ export function getHomepageCollections(): Promise<CollectionSummary[]> {
   return safe(async () => {
     const { data } = await nestFetch<CollectionSummary[]>(
       '/collections?homepage=true',
-      { next: { revalidate: CATALOG_REVALIDATE_SECONDS } },
+      {
+        next: {
+          revalidate: CATALOG_REVALIDATE_SECONDS,
+          tags: [CATALOG_CACHE_TAGS.collections],
+        },
+      },
     );
     return data;
   }, []);
@@ -64,7 +73,12 @@ export function getProducts(params?: {
     async () => {
       const { data } = await nestFetch<PaginatedResponse<ProductListItem>>(
         `/products${qs ? `?${qs}` : ''}`,
-        { next: { revalidate: CATALOG_REVALIDATE_SECONDS } },
+        {
+          next: {
+            revalidate: CATALOG_REVALIDATE_SECONDS,
+            tags: [CATALOG_CACHE_TAGS.products],
+          },
+        },
       );
       return data;
     },
@@ -82,7 +96,15 @@ export async function getProductBySlug(
   try {
     const { data } = await nestFetch<ProductDetail>(
       `/products/${encodeURIComponent(slug)}`,
-      { next: { revalidate: CATALOG_REVALIDATE_SECONDS } },
+      {
+        next: {
+          revalidate: CATALOG_REVALIDATE_SECONDS,
+          tags: [
+            CATALOG_CACHE_TAGS.products,
+            CATALOG_CACHE_TAGS.product(slug),
+          ],
+        },
+      },
     );
     return data;
   } catch (error) {

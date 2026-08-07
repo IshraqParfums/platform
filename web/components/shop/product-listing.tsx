@@ -15,6 +15,7 @@ export function ProductListing({
   emptyMessage,
   emptyQuery,
   emptyCollectionName,
+  emptyCollectionSlug,
 }: {
   page: PaginatedResponse<ProductListItem>;
   collections: CollectionSummary[];
@@ -22,6 +23,8 @@ export function ProductListing({
   emptyMessage?: string;
   emptyQuery?: string;
   emptyCollectionName?: string;
+  /** Active collection filter — excluded from “try another” chips. */
+  emptyCollectionSlug?: string;
 }) {
   if (page.items.length === 0) {
     const query = emptyQuery?.trim();
@@ -31,7 +34,9 @@ export function ProductListing({
         ? `Nothing in ${emptyCollectionName} yet`
         : emptyMessage ?? "No products match your filters yet.";
 
-    const suggestions = collections.slice(0, 4);
+    const suggestions = collections
+      .filter((item) => item.slug !== emptyCollectionSlug)
+      .slice(0, 4);
 
     return (
       <div className="rounded-3xl border border-line/60 bg-card px-6 py-14 text-center sm:px-10 sm:py-16">
@@ -60,10 +65,9 @@ export function ProductListing({
 
         <Link
           href="/shop"
-          className="mt-7 inline-flex items-center gap-2 font-mono text-label uppercase text-rose-deep transition-colors hover:text-ink"
+          className="mt-8 inline-flex items-center justify-center rounded-full border border-ink/20 px-4 py-2 text-[13px] font-medium text-ink transition-colors hover:border-ink/40 hover:bg-ink/5"
         >
-          Clear filters
-          <span aria-hidden="true">→</span>
+          View all perfumes
         </Link>
       </div>
     );

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import {
   PRODUCT_LIST_SORT_DEFAULT,
+  type AdminLowStockVariant,
   type AdminProductDetail,
   type AdminProductImage,
   type AdminProductListItem,
@@ -54,10 +55,10 @@ import {
   archiveReasonForStatusChange,
   isCollectionCascadeArchive,
   reasonForCollectionArchive,
-  reasonForManualArchive,
 } from './product-archive-reason';
 import { assertValidProductStatusTransition } from './product-status-transitions';
 import { ProductRepository } from './product.repository';
+import { isVariantSellable } from './variant-availability';
 
 type DbClient = Prisma.TransactionClient | PrismaService;
 
@@ -146,7 +147,7 @@ export class ProductService {
   }
 
   async getBySlug(slug: string): Promise<ProductDetail> {
-    const product = await this.requireActiveBySlug(slug);
+    const product = await this.requireVisibleBySlug(slug);
     const ratingRows = await this.prisma.review.groupBy({
       by: ['productId'],
       where: { productId: product.id },
@@ -168,6 +169,19 @@ export class ProductService {
     slug: string,
   ): Promise<ProductWithCatalogRelations> {
     const product = await this.productRepository.findActiveBySlug(slug);
+
+    if (!product) {
+      throw new NotFoundException(`Product with slug "${slug}" not found`);
+    }
+
+    return product;
+  }
+
+  /** ACTIVE or ARCHIVED — used for PDP so archived cart links don't 404. */
+  async requireVisibleBySlug(
+    slug: string,
+  ): Promise<ProductWithCatalogRelations> {
+    const product = await this.productRepository.findVisibleBySlug(slug);
 
     if (!product) {
       throw new NotFoundException(`Product with slug "${slug}" not found`);
@@ -231,20 +245,18 @@ export class ProductService {
   }): void {
     if (variant.product.status !== ProductStatus.ACTIVE) {
       throw new BadRequestException(
-        `Product "${variant.product.name}" is not available for purchase`,
+        'This fragrance isn\'t available to buy right now.',
       );
     }
 
     if (!variant.isAvailable) {
       throw new BadRequestException(
-        `Variant (${variant.sizeMl}ml) is currently unavailable`,
+        'That size isn\'t available right now.',
       );
     }
 
     if (this.availableQty(variant) < 1) {
-      throw new BadRequestException(
-        `Variant (${variant.sizeMl}ml) is out of stock`,
-      );
+      throw new BadRequestException('That size is out of stock.');
     }
   }
 
@@ -292,13 +304,13 @@ export class ProductService {
 
     if (variant.product.status !== ProductStatus.ACTIVE) {
       throw new BadRequestException(
-        `Product "${variant.product.name}" is not available for purchase`,
+        'This fragrance isn\'t available to buy right now.',
       );
     }
 
     if (!variant.isAvailable) {
       throw new BadRequestException(
-        `Variant (${variant.sizeMl}ml) is currently unavailable`,
+        'That size isn\'t available right now.',
       );
     }
 
@@ -421,6 +433,18 @@ export class ProductService {
     );
   }
 
+  async listLowStock(threshold: number): Promise<AdminLowStockVariant[]> {
+    const rows = await this.productRepository.findLowStockVariants(threshold);
+    return rows.map((row) => ({
+      productId: row.product.id,
+      productName: row.product.name,
+      variantId: row.id,
+      sizeMl: row.sizeMl,
+      stockQty: row.stockQty,
+      reservedQty: row.reservedQty,
+    }));
+  }
+
   async getAdminById(id: string): Promise<AdminProductDetail> {
     const product = await this.requireAdminById(id);
     return toAdminProductDetail(product);
@@ -441,7 +465,7 @@ export class ProductService {
     this.assertCanPlaceActiveProduct(collection.status, nextStatus);
 
     if (nextStatus === ProductStatus.ACTIVE) {
-      this.assertActivatable([]);
+      this.assertActivatable([], 0);
     }
 
     try {
@@ -466,6 +490,7 @@ export class ProductService {
     input: UpdateProductDto,
   ): Promise<AdminProductDetail> {
     const current = await this.requireAdminById(id);
+    this.assertMutable(current);
 
     const destinationCollectionId =
       input.collectionId !== undefined
@@ -493,7 +518,7 @@ export class ProductService {
         input.status === ProductStatus.ACTIVE &&
         current.status !== ProductStatus.ACTIVE
       ) {
-        this.assertActivatable(current.variants);
+        this.assertActivatable(current.variants, current.images.length);
       }
 
       nextStatus = input.status;
@@ -509,7 +534,7 @@ export class ProductService {
         currentStatus: nextStatus,
         currentArchiveReason: nextArchiveReason,
         destinationStatus: destinationCollection.status,
-        variantCount: current.variants.length,
+        variants: current.variants,
         statusExplicitlySet: input.status !== undefined,
       });
       nextStatus = move.status;
@@ -549,7 +574,9 @@ export class ProductService {
     currentStatus: ProductStatus;
     currentArchiveReason: ProductArchiveReason | null;
     destinationStatus: CollectionStatus;
-    variantCount: number;
+    variants: Array<
+      Pick<ProductVariant, 'isAvailable' | 'stockQty' | 'reservedQty'>
+    >;
     statusExplicitlySet: boolean;
   }): {
     status: ProductStatus;
@@ -578,16 +605,17 @@ export class ProductService {
       };
     }
 
-    if (input.variantCount > 0) {
+    if (input.variants.some(isVariantSellable)) {
       return {
         status: ProductStatus.ACTIVE,
         archiveReason: null,
       };
     }
 
+    // No sellable sizes yet — park as draft rather than a manual archive.
     return {
-      status: ProductStatus.ARCHIVED,
-      archiveReason: reasonForManualArchive(),
+      status: ProductStatus.DRAFT,
+      archiveReason: null,
     };
   }
 
@@ -605,10 +633,28 @@ export class ProductService {
     }
   }
 
-  private assertActivatable(variants: { length: number }): void {
-    if (variants.length === 0) {
+  private assertActivatable(
+    variants: Array<
+      Pick<ProductVariant, 'isAvailable' | 'stockQty' | 'reservedQty'>
+    >,
+    imageCount: number,
+  ): void {
+    if (!variants.some(isVariantSellable)) {
       throw new BadRequestException(
-        'Add at least one variant before activating this product',
+        'Add at least one available size with stock before activating this product',
+      );
+    }
+    if (imageCount < 1) {
+      throw new BadRequestException(
+        'Add at least one product image before activating this product',
+      );
+    }
+  }
+
+  private assertMutable(product: { status: ProductStatus }): void {
+    if (product.status === ProductStatus.DELETED) {
+      throw new BadRequestException(
+        'Deleted products cannot be edited. Restore is not supported.',
       );
     }
   }
@@ -648,7 +694,8 @@ export class ProductService {
     productId: string,
     input: CreateVariantDto,
   ): Promise<AdminProductVariant> {
-    await this.requireAdminById(productId);
+    const product = await this.requireAdminById(productId);
+    this.assertMutable(product);
 
     try {
       const variant = await this.productRepository.createVariant(productId, {
@@ -679,6 +726,8 @@ export class ProductService {
     variantId: string,
     input: UpdateVariantDto,
   ): Promise<AdminProductVariant> {
+    const product = await this.requireAdminById(productId);
+    this.assertMutable(product);
     await this.requireVariantOfProduct(productId, variantId);
 
     const variant = await this.productRepository.updateVariant(variantId, {
@@ -719,6 +768,9 @@ export class ProductService {
     variantId: string,
     input: AdjustStockDto,
   ): Promise<AdminProductVariant> {
+    const product = await this.requireAdminById(productId);
+    this.assertMutable(product);
+
     const hasAdjustment = input.adjustment !== undefined;
     const hasAbsolute = input.stockQty !== undefined;
 
@@ -761,7 +813,8 @@ export class ProductService {
     file: Express.Multer.File,
     input: CreateImageDto,
   ): Promise<AdminProductImage> {
-    await this.requireAdminById(productId);
+    const product = await this.requireAdminById(productId);
+    this.assertMutable(product);
 
     const uploaded = await this.mediaService.uploadProductImage(
       productId,
@@ -788,6 +841,8 @@ export class ProductService {
     imageId: string,
     input: UpdateImageDto,
   ): Promise<AdminProductImage> {
+    const product = await this.requireAdminById(productId);
+    this.assertMutable(product);
     await this.requireImageOfProduct(productId, imageId);
 
     const image = await this.productRepository.updateImage(imageId, {
@@ -801,9 +856,80 @@ export class ProductService {
   }
 
   async removeImage(productId: string, imageId: string): Promise<void> {
+    const product = await this.requireAdminById(productId);
+    this.assertMutable(product);
     const image = await this.requireImageOfProduct(productId, imageId);
     await this.mediaService.remove(image.storagePath);
     await this.productRepository.deleteImage(imageId);
+  }
+
+  /**
+   * Narrow park path for create-and-release into an archived collection.
+   * Does not open DRAFT→ARCHIVED for general admin edits — only this endpoint.
+   * Product stays off the shop until the collection is restored (COLLECTION cascade).
+   */
+  async parkReadyProductInArchivedCollection(
+    id: string,
+  ): Promise<AdminProductDetail> {
+    const product = await this.requireAdminById(id);
+    this.assertMutable(product);
+
+    if (product.status !== ProductStatus.DRAFT) {
+      throw new BadRequestException(
+        'Only draft products can be parked into an archived collection',
+      );
+    }
+
+    if (product.collection.status !== CollectionStatus.ARCHIVED) {
+      throw new BadRequestException(
+        'Collection is not archived — activate the product instead',
+      );
+    }
+
+    this.assertActivatable(product.variants, product.images.length);
+
+    const updated = await this.productRepository.update(id, {
+      status: ProductStatus.ARCHIVED,
+      archiveReason: reasonForCollectionArchive(),
+    });
+
+    return toAdminProductDetail(updated);
+  }
+
+  /**
+   * Shelf-off: keep product ACTIVE but mark every size unavailable.
+   * Removes the product from shop listings once no sellable sizes remain.
+   */
+  async makeAllVariantsUnavailable(
+    productId: string,
+  ): Promise<AdminProductDetail> {
+    const product = await this.requireAdminById(productId);
+    this.assertMutable(product);
+
+    if (product.status !== ProductStatus.ACTIVE) {
+      throw new BadRequestException(
+        'Only ACTIVE products can have all sizes made unavailable',
+      );
+    }
+
+    await this.prisma.productVariant.updateMany({
+      where: { productId, isAvailable: true },
+      data: { isAvailable: false },
+    });
+
+    return this.getAdminById(productId);
+  }
+
+  /** Distinct carts that currently hold any of this product's variants. */
+  async countCartsHoldingProduct(productId: string): Promise<number> {
+    const rows = await this.prisma.cartItem.findMany({
+      where: {
+        productVariant: { productId },
+      },
+      select: { cartId: true },
+      distinct: ['cartId'],
+    });
+    return rows.length;
   }
 
   private async requireImageOfProduct(productId: string, imageId: string) {

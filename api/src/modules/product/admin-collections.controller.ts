@@ -44,6 +44,14 @@ export class AdminCollectionsController {
     return this.collectionService.update(id, body);
   }
 
+  @Get(':id/cart-impact')
+  async cartImpact(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<{ cartCount: number }> {
+    const cartCount = await this.collectionService.countCartsHoldingProducts(id);
+    return { cartCount };
+  }
+
   @Post(':id/archive')
   @HttpCode(200)
   archive(

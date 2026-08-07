@@ -6,19 +6,18 @@ import { CheckoutSection } from "@/components/checkout/checkout-section";
 import { checkoutLayout } from "@/components/checkout/checkout-layout";
 import { PaymentSection } from "@/components/checkout/payment-section";
 import { cartItemCountLabel } from "@/lib/cart/cart-copy";
-import type { CartView } from "@/lib/cart/cart-view";
+import {
+  cartSellableLines,
+  type CartView,
+} from "@/lib/cart/cart-view";
 import { formatPaise } from "@/lib/format/money";
 
 /** Enough lines to recognise the order; the rest are one tap away. */
 const PREVIEW_COUNT = 3;
 
 /**
- * The last step, and the only bordered surface on the page — what you are
- * buying beside what you owe, ending in the one action left to take.
- *
- * Long orders collapse behind "+N more items" rather than scrolling inside a
- * box: a scroll container hides its own contents and puts a second, competing
- * scrollbar on the page.
+ * Order summary lists only sellable lines — unavailable cart rows never appear
+ * at checkout (totals already exclude them).
  */
 export function OrderSection({
   step,
@@ -35,16 +34,18 @@ export function OrderSection({
 }) {
   const [showAll, setShowAll] = useState(false);
 
-  const overflow = view.lines.length > PREVIEW_COUNT;
+  const sellable = cartSellableLines(view);
+  const sellableQty = sellable.reduce((sum, line) => sum + line.quantity, 0);
+  const overflow = sellable.length > PREVIEW_COUNT;
   const visibleLines =
-    showAll || !overflow ? view.lines : view.lines.slice(0, PREVIEW_COUNT);
-  const hiddenCount = view.lines.length - PREVIEW_COUNT;
+    showAll || !overflow ? sellable : sellable.slice(0, PREVIEW_COUNT);
+  const hiddenCount = sellable.length - PREVIEW_COUNT;
 
   return (
     <CheckoutSection
       step={step}
       title="Order summary"
-      description={cartItemCountLabel(view.itemCount)}
+      description={cartItemCountLabel(sellableQty)}
       action={
         <Link
           href="/cart"

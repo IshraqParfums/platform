@@ -1,6 +1,7 @@
 export type { HealthResponse } from "./health/index.js";
 export type {
   CollectionSummary,
+  ProductAvailability,
   ProductDetail,
   ProductDetailCollection,
   ProductDetailImage,
@@ -76,6 +77,7 @@ export type {
 export type {
   AdjustStockBody,
   AdminCollectionResponse,
+  AdminLowStockVariant,
   AdminProductDetail,
   AdminProductImage,
   AdminProductListItem,
@@ -93,15 +95,35 @@ export type {
   UpdateProductBody,
   UpdateVariantBody,
 } from "./admin-catalog/index.js";
+export {
+  ADMIN_PRODUCT_STATUS_TRANSITIONS,
+  isValidAdminProductStatusTransition,
+  legalNextAdminProductStatuses,
+} from "./admin-catalog/index.js";
 export type {
   AdminOrderDetail,
   AdminOrderSummary,
+  AdminOrderStatusGroup,
   UpdateOrderStatusBody,
 } from "./admin-order/index.js";
-export { ORDER_FULFILLMENT_SEQUENCE } from "./admin-order/index.js";
+export {
+  ADMIN_ORDER_STATUS_GROUPS,
+  ADMIN_ORDER_STATUS_GROUP_IDS,
+  ADMIN_ORDER_STATUS_GROUP_LABELS,
+  ADMIN_ORDER_QUEUE_GROUP_IDS,
+  ORDER_FULFILLMENT_SEQUENCE,
+  isAdminOrderStatusGroup,
+  statusesForAdminOrderGroup,
+} from "./admin-order/index.js";
 export type {
+  AdminCustomerListSort,
   AdminCustomerSummary,
   AdminUpdateCustomerBody,
+} from "./admin-customer/index.js";
+export {
+  ADMIN_CUSTOMER_LIST_SORTS,
+  ADMIN_CUSTOMER_LIST_SORT_DEFAULT,
+  isAdminCustomerListSort,
 } from "./admin-customer/index.js";
 export type {
   AdminAnalyticsOverview,
@@ -124,6 +146,7 @@ export type {
   CartMutationSummary,
   CartMutationView,
   CartResponse,
+  CartUnavailableReason,
   CatalogCartItemResponse,
   MergeCartBody,
   MergeCartItemBody,

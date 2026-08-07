@@ -1,6 +1,7 @@
 import type {
   CartItemResponse,
   CartResponse,
+  CartUnavailableReason,
   CatalogCartItemResponse,
 } from "@ishraqparfums/shared";
 import type { GuestCartLine } from "@/lib/cart/guest-cart";
@@ -18,6 +19,7 @@ export type CartViewLine = {
   compareAtPricePaise: number | null;
   stockQty: number | null;
   isAvailable: boolean;
+  unavailableReason: CartUnavailableReason | null;
   productName: string;
   productSlug: string;
   collectionName: string | null;
@@ -59,7 +61,8 @@ function lineFromCatalog(item: CatalogCartItemResponse): CartViewLine {
     pricePaise: item.pricePaise,
     compareAtPricePaise: item.compareAtPricePaise,
     stockQty: item.stockQty,
-    isAvailable: item.isAvailable && item.stockQty > 0,
+    isAvailable: item.isAvailable,
+    unavailableReason: item.unavailableReason,
     productName: item.productName,
     productSlug: item.productSlug,
     collectionName: item.collectionName,
@@ -82,6 +85,7 @@ function lineFromServerItem(item: CartItemResponse): CartViewLine {
       compareAtPricePaise: null,
       stockQty: null,
       isAvailable: true,
+      unavailableReason: null,
       productName: item.productName,
       productSlug: item.productSlug,
       collectionName: "Bespoke",
@@ -93,18 +97,37 @@ function lineFromServerItem(item: CartItemResponse): CartViewLine {
   return lineFromCatalog(item);
 }
 
+/** Shared totals — available lines only. Used by guest, server, and optimistic paths. */
+export function cartTotalsFromLines(lines: CartViewLine[]): {
+  itemCount: number;
+  subtotalPaise: number;
+  shippingPaise: number;
+  totalPaise: number;
+} {
+  const subtotalPaise = lines
+    .filter((line) => line.isAvailable)
+    .reduce((sum, line) => sum + line.lineTotalPaise, 0);
+  const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
+  const hasSellable = lines.some(
+    (line) => line.isAvailable && line.quantity > 0,
+  );
+  const shippingPaise = hasSellable ? SHIPPING_PAISE : 0;
+  return {
+    itemCount,
+    subtotalPaise,
+    shippingPaise,
+    totalPaise: subtotalPaise + shippingPaise,
+  };
+}
+
 export function cartViewFromServer(cart: CartResponse): CartView {
   const lines = cart.items.map(lineFromServerItem);
-  const subtotalPaise = cart.subtotalPaise;
-  const shippingPaise = lines.length > 0 ? SHIPPING_PAISE : 0;
+  const totals = cartTotalsFromLines(lines);
   return {
     mode: "server",
     cartId: cart.id,
     lines,
-    itemCount: cart.itemCount,
-    subtotalPaise,
-    shippingPaise,
-    totalPaise: subtotalPaise + shippingPaise,
+    ...totals,
   };
 }
 
@@ -116,7 +139,7 @@ export function cartViewFromGuest(items: GuestCartLine[]): CartView {
       : item.quantity;
     return {
       key: item.variantId,
-      kind: "catalog",
+      kind: "catalog" as const,
       itemId: null,
       variantId: item.variantId,
       quantity,
@@ -125,6 +148,7 @@ export function cartViewFromGuest(items: GuestCartLine[]): CartView {
       compareAtPricePaise: item.compareAtPricePaise,
       stockQty: item.stockQty,
       isAvailable: available,
+      unavailableReason: available ? null : ("OUT_OF_STOCK" as const),
       productName: item.productName,
       productSlug: item.productSlug,
       collectionName: item.collectionName,
@@ -134,26 +158,24 @@ export function cartViewFromGuest(items: GuestCartLine[]): CartView {
     };
   });
 
-  const subtotalPaise = lines
-    .filter((line) => line.isAvailable)
-    .reduce((sum, line) => sum + line.lineTotalPaise, 0);
-  const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
-  const hasSellable = lines.some((line) => line.isAvailable);
-  const shippingPaise = hasSellable ? SHIPPING_PAISE : 0;
-
   return {
     mode: "guest",
     cartId: null,
     lines,
-    itemCount,
-    subtotalPaise,
-    shippingPaise,
-    totalPaise: subtotalPaise + shippingPaise,
+    ...cartTotalsFromLines(lines),
   };
 }
 
 export function cartHasSellableLines(view: CartView): boolean {
   return view.lines.some((line) => line.isAvailable && line.quantity > 0);
+}
+
+export function cartSellableLines(view: CartView): CartViewLine[] {
+  return view.lines.filter((line) => line.isAvailable && line.quantity > 0);
+}
+
+export function cartUnavailableLines(view: CartView): CartViewLine[] {
+  return view.lines.filter((line) => !line.isAvailable);
 }
 
 export function findCartLineByVariantId(
@@ -167,22 +189,10 @@ export function findCartLineByVariantId(
  * Recompute cart sums from a line list (optimistic local updates).
  */
 function withLines(view: CartView, lines: CartViewLine[]): CartView {
-  const subtotalPaise = lines
-    .filter((line) => line.isAvailable)
-    .reduce((sum, line) => sum + line.lineTotalPaise, 0);
-  const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
-  const hasSellable = lines.some(
-    (line) => line.isAvailable && line.quantity > 0,
-  );
-  const shippingPaise = hasSellable ? SHIPPING_PAISE : 0;
-
   return {
     ...view,
     lines,
-    itemCount,
-    subtotalPaise,
-    shippingPaise,
-    totalPaise: subtotalPaise + shippingPaise,
+    ...cartTotalsFromLines(lines),
   };
 }
 
@@ -227,4 +237,19 @@ export function withLineRestored(
   }
 
   return withLines(view, [...view.lines, restored]);
+}
+
+export function cartUnavailableReasonCopy(
+  reason: CartUnavailableReason | null,
+): string {
+  switch (reason) {
+    case "DISCONTINUED":
+      return "No longer available";
+    case "UNAVAILABLE":
+      return "Temporarily unavailable";
+    case "OUT_OF_STOCK":
+      return "Out of stock";
+    default:
+      return "Currently unavailable";
+  }
 }

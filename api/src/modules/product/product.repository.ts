@@ -32,33 +32,6 @@ export interface ActiveProductListOptions {
 export class ProductRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private activeWhere(options?: {
-    collectionId?: string;
-    search?: string;
-  }): Prisma.ProductWhereInput {
-    return {
-      status: ProductStatus.ACTIVE,
-      ...(options?.collectionId ? { collectionId: options.collectionId } : {}),
-      ...(options?.search
-        ? {
-            name: { contains: options.search, mode: 'insensitive' as const },
-          }
-        : {}),
-    };
-  }
-
-  private prismaOrderBy(
-    sort: ProductListSort | undefined,
-  ): Prisma.ProductOrderByWithRelationInput {
-    switch (sort) {
-      case 'name-asc':
-        return { name: 'asc' };
-      case 'newest':
-      default:
-        return { createdAt: 'desc' };
-    }
-  }
-
   private isPriceSort(
     sort: ProductListSort | undefined,
   ): sort is 'price-asc' | 'price-desc' {
@@ -74,13 +47,108 @@ export class ProductRepository {
       return this.findActiveManyByPrice(options, sort);
     }
 
-    return this.prisma.product.findMany({
-      where: this.activeWhere(options),
+    // Active + on-shelf sizes (sold-out included; shelf-off excluded). In-stock first.
+    const ids = await this.findActiveListableIds(options, sort);
+    if (ids.length === 0) return [];
+
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: ids } },
       include: catalogInclude,
-      orderBy: this.prismaOrderBy(sort),
-      ...(options?.skip !== undefined ? { skip: options.skip } : {}),
-      ...(options?.take !== undefined ? { take: options.take } : {}),
     });
+    const byId = new Map(products.map((product) => [product.id, product]));
+    return ids
+      .map((id) => byId.get(id))
+      .filter((product): product is ProductWithCatalogRelations =>
+        Boolean(product),
+      );
+  }
+
+  private async findActiveListableIds(
+    options: ActiveProductListOptions | undefined,
+    sort: ProductListSort,
+  ): Promise<string[]> {
+    const collectionId = options?.collectionId ?? null;
+    const search = options?.search ?? null;
+    const skip = options?.skip ?? 0;
+    const take = options?.take;
+    const byName = sort === 'name-asc';
+
+    const rows =
+      take === undefined
+        ? byName
+          ? await this.prisma.$queryRaw<{ id: string }[]>`
+              SELECT p.id FROM products p
+              WHERE p.status = CAST('ACTIVE' AS "ProductStatus")
+                AND (${collectionId}::text IS NULL OR p."collectionId" = ${collectionId})
+                AND (${search}::text IS NULL OR p.name ILIKE '%' || ${search} || '%')
+                AND EXISTS (
+                  SELECT 1 FROM product_variants v
+                  WHERE v."productId" = p.id AND v."isAvailable" = true
+                )
+              ORDER BY
+                CASE WHEN EXISTS (
+                  SELECT 1 FROM product_variants v
+                  WHERE v."productId" = p.id AND v."isAvailable" = true
+                    AND v."stockQty" - v."reservedQty" > 0
+                ) THEN 0 ELSE 1 END,
+                p.name ASC
+            `
+          : await this.prisma.$queryRaw<{ id: string }[]>`
+              SELECT p.id FROM products p
+              WHERE p.status = CAST('ACTIVE' AS "ProductStatus")
+                AND (${collectionId}::text IS NULL OR p."collectionId" = ${collectionId})
+                AND (${search}::text IS NULL OR p.name ILIKE '%' || ${search} || '%')
+                AND EXISTS (
+                  SELECT 1 FROM product_variants v
+                  WHERE v."productId" = p.id AND v."isAvailable" = true
+                )
+              ORDER BY
+                CASE WHEN EXISTS (
+                  SELECT 1 FROM product_variants v
+                  WHERE v."productId" = p.id AND v."isAvailable" = true
+                    AND v."stockQty" - v."reservedQty" > 0
+                ) THEN 0 ELSE 1 END,
+                p."createdAt" DESC
+            `
+        : byName
+          ? await this.prisma.$queryRaw<{ id: string }[]>`
+              SELECT p.id FROM products p
+              WHERE p.status = CAST('ACTIVE' AS "ProductStatus")
+                AND (${collectionId}::text IS NULL OR p."collectionId" = ${collectionId})
+                AND (${search}::text IS NULL OR p.name ILIKE '%' || ${search} || '%')
+                AND EXISTS (
+                  SELECT 1 FROM product_variants v
+                  WHERE v."productId" = p.id AND v."isAvailable" = true
+                )
+              ORDER BY
+                CASE WHEN EXISTS (
+                  SELECT 1 FROM product_variants v
+                  WHERE v."productId" = p.id AND v."isAvailable" = true
+                    AND v."stockQty" - v."reservedQty" > 0
+                ) THEN 0 ELSE 1 END,
+                p.name ASC
+              LIMIT ${take} OFFSET ${skip}
+            `
+          : await this.prisma.$queryRaw<{ id: string }[]>`
+              SELECT p.id FROM products p
+              WHERE p.status = CAST('ACTIVE' AS "ProductStatus")
+                AND (${collectionId}::text IS NULL OR p."collectionId" = ${collectionId})
+                AND (${search}::text IS NULL OR p.name ILIKE '%' || ${search} || '%')
+                AND EXISTS (
+                  SELECT 1 FROM product_variants v
+                  WHERE v."productId" = p.id AND v."isAvailable" = true
+                )
+              ORDER BY
+                CASE WHEN EXISTS (
+                  SELECT 1 FROM product_variants v
+                  WHERE v."productId" = p.id AND v."isAvailable" = true
+                    AND v."stockQty" - v."reservedQty" > 0
+                ) THEN 0 ELSE 1 END,
+                p."createdAt" DESC
+              LIMIT ${take} OFFSET ${skip}
+            `;
+
+    return rows.map((row) => row.id);
   }
 
   private async findActiveManyByPrice(
@@ -93,13 +161,15 @@ export class ProductRepository {
     const skip = options?.skip ?? 0;
     const take = options?.take;
 
-    // Price lives on variants — paginate by MIN(price) then hydrate.
+    // Price from on-shelf sizes (sold-out included). In-stock products first.
     const rows =
       take === undefined
         ? await this.prisma.$queryRaw<{ id: string }[]>`
             SELECT p.id
             FROM products p
-            LEFT JOIN product_variants pv ON pv."productId" = p.id
+            INNER JOIN product_variants pv
+              ON pv."productId" = p.id
+             AND pv."isAvailable" = true
             WHERE p.status = CAST('ACTIVE' AS "ProductStatus")
               AND (${collectionId}::text IS NULL OR p."collectionId" = ${collectionId})
               AND (
@@ -107,13 +177,18 @@ export class ProductRepository {
                 OR p.name ILIKE '%' || ${search} || '%'
               )
             GROUP BY p.id
-            ORDER BY MIN(pv."pricePaise") ${PrismaNamespace.raw(direction)} NULLS LAST,
+            ORDER BY
+              CASE WHEN BOOL_OR(pv."stockQty" - pv."reservedQty" > 0)
+                THEN 0 ELSE 1 END,
+              MIN(pv."pricePaise") ${PrismaNamespace.raw(direction)},
               p.name ASC
           `
         : await this.prisma.$queryRaw<{ id: string }[]>`
             SELECT p.id
             FROM products p
-            LEFT JOIN product_variants pv ON pv."productId" = p.id
+            INNER JOIN product_variants pv
+              ON pv."productId" = p.id
+             AND pv."isAvailable" = true
             WHERE p.status = CAST('ACTIVE' AS "ProductStatus")
               AND (${collectionId}::text IS NULL OR p."collectionId" = ${collectionId})
               AND (
@@ -121,7 +196,10 @@ export class ProductRepository {
                 OR p.name ILIKE '%' || ${search} || '%'
               )
             GROUP BY p.id
-            ORDER BY MIN(pv."pricePaise") ${PrismaNamespace.raw(direction)} NULLS LAST,
+            ORDER BY
+              CASE WHEN BOOL_OR(pv."stockQty" - pv."reservedQty" > 0)
+                THEN 0 ELSE 1 END,
+              MIN(pv."pricePaise") ${PrismaNamespace.raw(direction)},
               p.name ASC
             LIMIT ${take} OFFSET ${skip}
           `;
@@ -148,9 +226,24 @@ export class ProductRepository {
     collectionId?: string;
     search?: string;
   }): Promise<number> {
-    return this.prisma.product.count({
-      where: this.activeWhere(options),
-    });
+    const collectionId = options?.collectionId ?? null;
+    const search = options?.search ?? null;
+
+    return this.prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*)::bigint AS count
+      FROM products p
+      WHERE p.status = CAST('ACTIVE' AS "ProductStatus")
+        AND (${collectionId}::text IS NULL OR p."collectionId" = ${collectionId})
+        AND (
+          ${search}::text IS NULL
+          OR p.name ILIKE '%' || ${search} || '%'
+        )
+        AND EXISTS (
+          SELECT 1 FROM product_variants v
+          WHERE v."productId" = p.id
+            AND v."isAvailable" = true
+        )
+    `.then((rows) => Number(rows[0]?.count ?? 0));
   }
 
   findActiveBySlug(slug: string): Promise<ProductWithCatalogRelations | null> {
@@ -158,6 +251,16 @@ export class ProductRepository {
       where: {
         slug,
         status: ProductStatus.ACTIVE,
+      },
+      include: catalogInclude,
+    });
+  }
+
+  findVisibleBySlug(slug: string): Promise<ProductWithCatalogRelations | null> {
+    return this.prisma.product.findFirst({
+      where: {
+        slug,
+        status: { in: [ProductStatus.ACTIVE, ProductStatus.ARCHIVED] },
       },
       include: catalogInclude,
     });
@@ -279,5 +382,45 @@ export class ProductRepository {
     return this.prisma.productImage
       .delete({ where: { id } })
       .then(() => undefined);
+  }
+
+  /**
+   * Available variants on live products whose free stock
+   * (stock − reserved) is at or below the threshold.
+   */
+  async findLowStockVariants(threshold: number): Promise<
+    Array<{
+      id: string;
+      sizeMl: number;
+      stockQty: number;
+      reservedQty: number;
+      product: { id: string; name: string };
+    }>
+  > {
+    const rows = await this.prisma.productVariant.findMany({
+      where: {
+        isAvailable: true,
+        product: { status: ProductStatus.ACTIVE },
+      },
+      select: {
+        id: true,
+        sizeMl: true,
+        stockQty: true,
+        reservedQty: true,
+        product: { select: { id: true, name: true } },
+      },
+      orderBy: [{ stockQty: 'asc' }, { sizeMl: 'asc' }],
+    });
+
+    return rows
+      .filter((row) => Math.max(0, row.stockQty - row.reservedQty) <= threshold)
+      .sort((a, b) => {
+        const freeA = Math.max(0, a.stockQty - a.reservedQty);
+        const freeB = Math.max(0, b.stockQty - b.reservedQty);
+        if (freeA !== freeB) return freeA - freeB;
+        const nameCmp = a.product.name.localeCompare(b.product.name);
+        if (nameCmp !== 0) return nameCmp;
+        return a.sizeMl - b.sizeMl;
+      });
   }
 }

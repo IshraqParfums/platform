@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { toast } from "@/components/ui/toaster";
+import { loadCart } from "@/lib/cart/cart-client";
+import { emitCartChanged } from "@/lib/cart/cart-events";
 import {
   cartHasSellableLines,
+  cartUnavailableLines,
   type CartView,
 } from "@/lib/cart/cart-view";
 import { flushPendingCartCommits } from "@/lib/cart/pending-cart-commits";
@@ -34,16 +37,34 @@ export function CartSummary({
   const router = useRouter();
   const [flushing, setFlushing] = useState(false);
   const canCheckout = cartHasSellableLines(view);
+  const unavailableCount = cartUnavailableLines(view).length;
   const checkoutHref = authenticated
     ? "/checkout"
     : "/login?next=/checkout";
 
+  /**
+   * Re-fetch after flushing so a product made unavailable in another tab
+   * cannot slip through on a stale cart view.
+   */
   async function proceedToCheckout() {
     if (!canCheckout || flushing) return;
 
     setFlushing(true);
     try {
       await flushPendingCartCommits();
+      const fresh = await loadCart();
+      emitCartChanged({ itemCount: fresh.itemCount, view: fresh });
+
+      if (!cartHasSellableLines(fresh)) {
+        toast.error(
+          "Nothing available to checkout",
+          unavailableCount > 0 || cartUnavailableLines(fresh).length > 0
+            ? "Remove unavailable items or wait until stock returns."
+            : "Your cart has no purchasable items.",
+        );
+        return;
+      }
+
       router.push(checkoutHref);
     } catch (err) {
       toast.error(
@@ -97,7 +118,13 @@ export function CartSummary({
 
       {!canCheckout && view.lines.length > 0 ? (
         <p className="mt-4 text-sm text-rose-deep">
-          No available items to checkout.
+          {unavailableCount === view.lines.length
+            ? "All items in your cart are unavailable. Remove them or wait until they return."
+            : "No available items to checkout."}
+        </p>
+      ) : unavailableCount > 0 ? (
+        <p className="mt-4 text-sm text-ink-soft">
+          Unavailable items stay in your cart but are not charged at checkout.
         </p>
       ) : null}
 
@@ -111,7 +138,7 @@ export function CartSummary({
           onClick={() => void proceedToCheckout()}
         >
           {flushing
-            ? "Updating cart…"
+            ? "Checking cart…"
             : authenticated
               ? "Proceed to checkout"
               : "Sign in to checkout"}

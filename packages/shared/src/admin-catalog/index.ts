@@ -1,5 +1,6 @@
 export type {
   AdjustStockBody,
+  AdminLowStockVariant,
   AdminProductDetail,
   AdminProductImage,
   AdminProductListItem,
@@ -12,6 +13,11 @@ export type {
   UpdateProductBody,
   UpdateVariantBody,
 } from "./admin-product-contracts.js";
+export {
+  ADMIN_PRODUCT_STATUS_TRANSITIONS,
+  isValidAdminProductStatusTransition,
+  legalNextAdminProductStatuses,
+} from "./product-status-transitions.js";
 export type {
   AdminCollectionResponse,
   ArchiveCollectionResponse,

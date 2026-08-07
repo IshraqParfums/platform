@@ -15,19 +15,20 @@ export default async function AdminNewProductPage() {
     <div className="flex flex-col gap-6">
       <div>
         <AdminBackLink href="/admin/products">Back to products</AdminBackLink>
+        <h1 className="mt-2 font-display text-2xl font-semibold text-ink">
+          New product
+        </h1>
       </div>
 
-      <h1 className="font-display text-2xl font-semibold text-ink">New product</h1>
-
-      <div className="max-w-2xl rounded-lg border border-ink/10 bg-card p-5">
-        {collections.length === 0 ? (
+      {collections.length === 0 ? (
+        <div className="rounded-lg border border-ink/10 bg-card p-5">
           <p className="text-sm text-ink-faint">
             Create a collection first — products must belong to one.
           </p>
-        ) : (
-          <ProductCreateForm collections={collections} />
-        )}
-      </div>
+        </div>
+      ) : (
+        <ProductCreateForm collections={collections} />
+      )}
     </div>
   );
 }

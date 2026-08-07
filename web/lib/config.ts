@@ -1,12 +1,9 @@
 /**
- * Nest API origin (no trailing slash).
- * Prefer NEST_API_BASE_URL on the server; NEXT_PUBLIC_NEST_API_BASE_URL when
- * browser code must reach Nest directly (e.g. public health ping).
+ * Nest API origin for the Next BFF / server (no trailing slash).
+ * Set `NEST_API_BASE_URL` in the environment; defaults to local Nest.
  */
 export function getNestApiBaseUrl(): string {
-  const raw =
-    process.env.NEST_API_BASE_URL?.trim() ||
-    process.env.NEXT_PUBLIC_NEST_API_BASE_URL?.trim();
+  const raw = process.env.NEST_API_BASE_URL?.trim();
   if (raw) {
     return raw.replace(/\/$/, '');
   }

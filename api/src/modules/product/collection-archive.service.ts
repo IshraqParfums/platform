@@ -48,13 +48,13 @@ export class CollectionArchiveService {
       await this.collectionRepository.findCollectionCascadeArchivedProducts(id);
 
     const restoreIds: string[] = [];
-    const leaveManualIds: string[] = [];
+    const draftIds: string[] = [];
 
     for (const product of candidates) {
       if (product.variants.length > 0) {
         restoreIds.push(product.id);
       } else {
-        leaveManualIds.push(product.id);
+        draftIds.push(product.id);
       }
     }
 
@@ -62,7 +62,7 @@ export class CollectionArchiveService {
       await this.collectionRepository.restoreCollectionAfterProductUpdates(
         id,
         restoreIds,
-        leaveManualIds,
+        draftIds,
       );
 
     const hydrated =
@@ -77,7 +77,7 @@ export class CollectionArchiveService {
     return {
       collection: toAdminCollectionResponse(hydrated),
       restoredProductCount: restoreIds.length,
-      leftArchivedCount: leaveManualIds.length,
+      leftArchivedCount: draftIds.length,
     };
   }
 

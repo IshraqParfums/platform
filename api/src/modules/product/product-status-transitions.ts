@@ -1,28 +1,22 @@
 import { BadRequestException } from '@nestjs/common';
-import { ProductStatus } from '@prisma/client';
+import {
+  isValidAdminProductStatusTransition,
+  type ProductStatus,
+} from '@ishraqparfums/shared';
 
-const ALLOWED_TRANSITIONS: Record<ProductStatus, ProductStatus[]> = {
-  [ProductStatus.DRAFT]: [ProductStatus.ACTIVE, ProductStatus.DELETED],
-  [ProductStatus.ACTIVE]: [
-    ProductStatus.DRAFT,
-    ProductStatus.ARCHIVED,
-    ProductStatus.DELETED,
-  ],
-  [ProductStatus.ARCHIVED]: [ProductStatus.ACTIVE, ProductStatus.DELETED],
-  [ProductStatus.DELETED]: [],
-};
-
+/**
+ * Nest wrapper around shared admin transition rules.
+ * System park/cascade paths skip this and write ARCHIVED directly.
+ */
 export function assertValidProductStatusTransition(
   from: ProductStatus,
   to: ProductStatus,
 ): void {
-  if (from === to) {
+  if (isValidAdminProductStatusTransition(from, to)) {
     return;
   }
 
-  if (!ALLOWED_TRANSITIONS[from].includes(to)) {
-    throw new BadRequestException(
-      `Cannot change product status from ${from} to ${to}`,
-    );
-  }
+  throw new BadRequestException(
+    `Cannot change product status from ${from} to ${to}`,
+  );
 }

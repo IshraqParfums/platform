@@ -87,7 +87,12 @@ export class CustomerService {
     const filters = { search: query.search };
 
     const [customers, total] = await Promise.all([
-      this.customerRepository.findAdminMany({ filters, skip, take }),
+      this.customerRepository.findAdminMany({
+        filters,
+        sort: query.sort,
+        skip,
+        take,
+      }),
       this.customerRepository.countAdmin(filters),
     ]);
 

@@ -8,6 +8,7 @@ import {
   PanelLeft,
   PanelLeftClose,
   ShoppingBag,
+  Store,
   Tags,
   Users,
   X,
@@ -231,7 +232,22 @@ export function SidebarNav() {
           onNavigate={() => setOpen(false)}
         />
 
-        <div className="shrink-0 border-t border-cream/8 px-3 py-4">
+        <div className="shrink-0 space-y-1 border-t border-cream/8 px-3 py-4">
+          <Link
+            href="/shop"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            title={railCollapsed ? "Visit shop" : undefined}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-cream/65 transition-colors hover:bg-cream/5 hover:text-cream-soft",
+              railCollapsed && "justify-center px-2",
+            )}
+          >
+            <Store className="size-4 shrink-0" aria-hidden />
+            {!railCollapsed ? <span>Visit shop</span> : null}
+            {railCollapsed ? <span className="sr-only">Visit shop</span> : null}
+          </Link>
           <button
             type="button"
             disabled={signingOut}

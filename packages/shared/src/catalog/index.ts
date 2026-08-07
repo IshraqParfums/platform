@@ -1,5 +1,6 @@
 export type { CollectionSummary } from "./collection-summary.js";
 export type {
+  ProductAvailability,
   ProductDetail,
   ProductDetailCollection,
   ProductDetailImage,

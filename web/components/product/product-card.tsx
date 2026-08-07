@@ -7,6 +7,7 @@ import { Price } from "@/components/ui/price";
 import { Rating } from "@/components/ui/rating";
 import { cn } from "@/lib/cn";
 import { discountPercent } from "@/lib/format/money";
+import { shouldUnoptimizeImageSrc } from "@/lib/media/unoptimize-image-src";
 
 function prettifySlug(slug: string): string {
   return slug
@@ -85,6 +86,7 @@ export function ProductCard({
             fill
             priority={priority}
             sizes="(min-width:1280px) 320px, (min-width:768px) 30vw, 46vw"
+            unoptimized={shouldUnoptimizeImageSrc(product.primaryImage.url)}
             className={cn(
               "object-cover",
               HOVER_EASE,
@@ -163,6 +165,16 @@ export function ProductCard({
             size={compact ? "sm" : "md"}
             className={cn(compact ? "mt-1" : "mt-1.5 sm:mt-1")}
           />
+          {product.availability === "OUT_OF_STOCK" ? (
+            <p
+              className={cn(
+                "font-mono uppercase tracking-[0.12em] text-ink-faint",
+                compact ? "mt-1 text-[10px]" : "mt-1.5 text-label-sm",
+              )}
+            >
+              Sold out
+            </p>
+          ) : null}
         </div>
       </div>
     </Link>

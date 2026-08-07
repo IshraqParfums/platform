@@ -7,6 +7,7 @@ import { ProductPurchasePanel } from "@/components/product/product-purchase-pane
 import { ProductRelated } from "@/components/product/product-related";
 import { ProductReviewsSection } from "@/components/product/product-reviews-section";
 import { ProductStory } from "@/components/product/product-story";
+import { ProductUnavailableNotice } from "@/components/product/product-unavailable-notice";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { getProductBySlug } from "@/lib/api/catalog";
@@ -25,9 +26,14 @@ export async function generateMetadata({
   if (!product) {
     return { title: "Product" };
   }
+
+  // Sold-out stays indexed; archived / shelf-off do not.
+  const indexable = product.availability !== "UNAVAILABLE";
+
   return {
     title: product.name,
     description: product.shortDescription,
+    robots: indexable ? undefined : { index: false, follow: true },
   };
 }
 
@@ -41,9 +47,11 @@ export default async function ProductDetailPage({
   if (!product) notFound();
 
   const [reviews, related] = await Promise.all([
-    getProductReviews(slug, { page: 1, pageSize: 10 }),
+    getProductReviews(slug, { page: 1, pageSize: 10 }).catch(() => null),
     getRelatedProducts(product),
   ]);
+
+  const unavailable = product.availability !== "AVAILABLE";
 
   return (
     <>
@@ -76,7 +84,17 @@ export default async function ProductDetailPage({
 
             <div className="flex flex-col gap-5 md:gap-6">
               <ProductDetailInfo product={product} />
+              {unavailable ? (
+                <ProductUnavailableNotice
+                  availability={
+                    product.availability === "UNAVAILABLE"
+                      ? "UNAVAILABLE"
+                      : "OUT_OF_STOCK"
+                  }
+                />
+              ) : null}
               <ProductPurchasePanel
+                availability={product.availability}
                 variants={product.variants}
                 product={{
                   name: product.name,
@@ -95,16 +113,18 @@ export default async function ProductDetailPage({
         </Container>
       </Section>
 
-      <Section
-        tone="cream-soft"
-        space="compact"
-        bordered
-        className="!py-8 md:!py-10"
-      >
-        <Container size="wide">
-          <ProductReviewsSection slug={slug} initial={reviews} />
-        </Container>
-      </Section>
+      {reviews ? (
+        <Section
+          tone="cream-soft"
+          space="compact"
+          bordered
+          className="!py-8 md:!py-10"
+        >
+          <Container size="wide">
+            <ProductReviewsSection slug={slug} initial={reviews} />
+          </Container>
+        </Section>
+      ) : null}
 
       {related.length > 0 ? (
         <Section space="compact" className="!pt-8 md:!pt-10 !pb-12 md:!pb-16">

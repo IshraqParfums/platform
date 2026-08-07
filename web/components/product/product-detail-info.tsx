@@ -24,7 +24,11 @@ export function ProductDetailInfo({ product }: { product: ProductDetail }) {
         <h1 className="font-display text-[clamp(1.75rem,3vw,2.35rem)] font-semibold tracking-[-0.02em] leading-[1.15] text-ink">
           {product.name}
         </h1>
-        <ProductShare title={product.name} className="mt-0.5 shrink-0" />
+        <ProductShare
+          name={product.name}
+          blurb={product.shortDescription}
+          className="mt-0.5 shrink-0"
+        />
       </div>
 
       {hasReviews ? (

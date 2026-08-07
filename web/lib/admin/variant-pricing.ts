@@ -52,6 +52,15 @@ export function parseWholeRupees(value: string): number | null {
   return Number(value.trim());
 }
 
+/**
+ * Whole non-negative integer from a string field (stock, counts).
+ * Empty / non-digit input → null (unlike Number("") === 0).
+ */
+export function parseWholeNonNegativeInt(value: string): number | null {
+  if (!/^\d+$/.test(value.trim())) return null;
+  return Number(value.trim());
+}
+
 /** Parses a whole-number percent in 0…MAX_DISCOUNT_PERCENT. */
 export function parseWholePercent(value: string): number | null {
   if (!/^\d+$/.test(value.trim())) return null;

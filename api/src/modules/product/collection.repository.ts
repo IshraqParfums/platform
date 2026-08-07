@@ -17,13 +17,26 @@ export class CollectionRepository {
 
   private readonly activeProductCount = {
     products: {
+      where: {
+        status: ProductStatus.ACTIVE,
+        variants: {
+          some: {
+            isAvailable: true,
+          },
+        },
+      },
+    },
+  } satisfies Prisma.CollectionCountOutputTypeSelect;
+
+  private readonly adminActiveProductCount = {
+    products: {
       where: { status: ProductStatus.ACTIVE },
     },
   } satisfies Prisma.CollectionCountOutputTypeSelect;
 
   findAllOrdered(): Promise<CollectionWithActiveProductCount[]> {
     return this.prisma.collection.findMany({
-      include: { _count: { select: this.activeProductCount } },
+      include: { _count: { select: this.adminActiveProductCount } },
       orderBy: { name: 'asc' },
     });
   }
@@ -31,7 +44,17 @@ export class CollectionRepository {
   findAllActiveOrdered(): Promise<CollectionWithActiveProductCount[]> {
     return this.prisma.collection.findMany({
       include: { _count: { select: this.activeProductCount } },
-      where: { status: CollectionStatus.ACTIVE },
+      where: {
+        status: CollectionStatus.ACTIVE,
+        products: {
+          some: {
+            status: ProductStatus.ACTIVE,
+            variants: {
+              some: { isAvailable: true },
+            },
+          },
+        },
+      },
       orderBy: { name: 'asc' },
     });
   }
@@ -44,7 +67,18 @@ export class CollectionRepository {
   findHomeRankedOrdered(): Promise<CollectionWithActiveProductCount[]> {
     return this.prisma.collection.findMany({
       include: { _count: { select: this.activeProductCount } },
-      where: { status: CollectionStatus.ACTIVE, homeRank: { not: null } },
+      where: {
+        status: CollectionStatus.ACTIVE,
+        homeRank: { not: null },
+        products: {
+          some: {
+            status: ProductStatus.ACTIVE,
+            variants: {
+              some: { isAvailable: true },
+            },
+          },
+        },
+      },
       orderBy: { homeRank: 'asc' },
       take: 3,
     });
@@ -73,7 +107,7 @@ export class CollectionRepository {
   ): Promise<CollectionWithActiveProductCount | null> {
     return this.prisma.collection.findUnique({
       where: { id },
-      include: { _count: { select: this.activeProductCount } },
+      include: { _count: { select: this.adminActiveProductCount } },
     });
   }
 
@@ -136,13 +170,13 @@ export class CollectionRepository {
   }
 
   /**
-   * Restores COLLECTION-archived products (caller decides ACTIVE vs left MANUAL),
-   * then marks the collection ACTIVE.
+   * Restores COLLECTION-archived products that can go live; others become DRAFT.
+   * MANUAL archive is no longer used — ARCHIVED is collection-cascade only.
    */
   restoreCollectionAfterProductUpdates(
     id: string,
     restoreIds: string[],
-    leaveManualIds: string[],
+    draftIds: string[],
   ): Promise<Collection> {
     return this.prisma.$transaction(async (tx) => {
       if (restoreIds.length > 0) {
@@ -155,11 +189,12 @@ export class CollectionRepository {
         });
       }
 
-      if (leaveManualIds.length > 0) {
+      if (draftIds.length > 0) {
         await tx.product.updateMany({
-          where: { id: { in: leaveManualIds } },
+          where: { id: { in: draftIds } },
           data: {
-            archiveReason: ProductArchiveReason.MANUAL,
+            status: ProductStatus.DRAFT,
+            archiveReason: null,
           },
         });
       }
@@ -169,5 +204,24 @@ export class CollectionRepository {
         data: { status: CollectionStatus.ACTIVE },
       });
     });
+  }
+
+  /** Distinct carts holding variants of ACTIVE products in this collection. */
+  async countCartsHoldingCollectionProducts(
+    collectionId: string,
+  ): Promise<number> {
+    const rows = await this.prisma.cartItem.findMany({
+      where: {
+        productVariant: {
+          product: {
+            collectionId,
+            status: ProductStatus.ACTIVE,
+          },
+        },
+      },
+      select: { cartId: true },
+      distinct: ['cartId'],
+    });
+    return rows.length;
   }
 }

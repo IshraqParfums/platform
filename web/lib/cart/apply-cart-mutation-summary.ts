@@ -84,6 +84,8 @@ export function applyCartMutationSummary(
     compareAtPricePaise: seed.compareAtPricePaise,
     stockQty: summary.stockQty ?? seed.stockQty,
     isAvailable: (summary.stockQty ?? seed.stockQty) > 0,
+    unavailableReason:
+      (summary.stockQty ?? seed.stockQty) > 0 ? null : "OUT_OF_STOCK",
     productName: seed.productName,
     productSlug: seed.productSlug,
     collectionName: seed.collectionName,

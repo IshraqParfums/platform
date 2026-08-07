@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 import { adminAuthFetch } from "@/lib/api/auth-fetch";
 import { jsonFromNestError, unauthorizedResponse } from "@/lib/api/route-response";
 import { getAdminAccessToken } from "@/lib/auth/session";
+import { revalidateCatalogProducts } from "@/lib/catalog/catalog-cache";
 
 export async function GET(request: Request): Promise<NextResponse> {
   const accessToken = await getAdminAccessToken();
@@ -47,6 +48,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       method: "POST",
       body: body as CreateProductBody,
     });
+    revalidateCatalogProducts(data.slug);
     return NextResponse.json(data);
   } catch (error) {
     return jsonFromNestError(error);

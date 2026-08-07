@@ -57,6 +57,25 @@ export class AdminProductsController {
     return this.productService.listLowStock(query.threshold);
   }
 
+  @Get(':id/cart-impact')
+  async cartImpact(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<{ cartCount: number }> {
+    const cartCount = await this.productService.countCartsHoldingProduct(id);
+    return { cartCount };
+  }
+
+  /**
+   * Create-and-release into an archived collection: park as ARCHIVED + COLLECTION.
+   * Not a general archive transition — see ProductService.parkReadyProductInArchivedCollection.
+   */
+  @Post(':id/park-in-archived-collection')
+  parkInArchivedCollection(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<AdminProductDetail> {
+    return this.productService.parkReadyProductInArchivedCollection(id);
+  }
+
   @Get(':id')
   getById(@Param('id', ParseUUIDPipe) id: string): Promise<AdminProductDetail> {
     return this.productService.getAdminById(id);
@@ -73,6 +92,13 @@ export class AdminProductsController {
     @Body() body: UpdateProductDto,
   ): Promise<AdminProductDetail> {
     return this.productService.updateProduct(id, body);
+  }
+
+  @Patch(':productId/variants/unavailable')
+  makeAllVariantsUnavailable(
+    @Param('productId', ParseUUIDPipe) productId: string,
+  ): Promise<AdminProductDetail> {
+    return this.productService.makeAllVariantsUnavailable(productId);
   }
 
   @Post(':productId/variants')

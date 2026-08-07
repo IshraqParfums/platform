@@ -1,5 +1,14 @@
 export type CartLineKind = 'catalog' | 'bespoke';
 
+/**
+ * Why a catalog line cannot be purchased.
+ * `null` when `isAvailable` is true.
+ */
+export type CartUnavailableReason =
+  | 'OUT_OF_STOCK'
+  | 'UNAVAILABLE'
+  | 'DISCONTINUED';
+
 export interface CatalogCartItemResponse {
   kind: 'catalog';
   id: string;
@@ -10,6 +19,7 @@ export interface CatalogCartItemResponse {
   compareAtPricePaise: number | null;
   stockQty: number;
   isAvailable: boolean;
+  unavailableReason: CartUnavailableReason | null;
   productName: string;
   productSlug: string;
   collectionName: string | null;

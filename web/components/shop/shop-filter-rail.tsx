@@ -9,12 +9,14 @@ import { ShopSortSelect } from "@/components/shop/shop-sort-select";
  */
 export function ShopFilterRail({
   homepageCollections,
+  activeCollection,
   totalCollectionCount,
   collection,
   q,
   sort,
 }: {
   homepageCollections: CollectionSummary[];
+  activeCollection?: CollectionSummary;
   totalCollectionCount: number;
   collection?: string;
   q?: string;
@@ -34,6 +36,7 @@ export function ShopFilterRail({
 
         <ShopCollectionFilters
           homepageCollections={homepageCollections}
+          activeCollection={activeCollection}
           totalCollectionCount={totalCollectionCount}
           collection={collection}
           q={q}

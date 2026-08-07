@@ -6,7 +6,7 @@ import type {
   RestoreCollectionResponse,
 } from "@ishraqparfums/shared";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CollectionFormModal } from "@/components/admin/collection-form-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,10 +25,42 @@ export function CollectionsManager({
   const [archiveTarget, setArchiveTarget] =
     useState<AdminCollectionResponse | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [cartCount, setCartCount] = useState<number | null>(null);
+  const [cartLoading, setCartLoading] = useState(false);
 
   function refresh() {
     router.refresh();
   }
+
+  useEffect(() => {
+    if (!archiveTarget) {
+      setCartCount(null);
+      return;
+    }
+
+    let cancelled = false;
+    setCartLoading(true);
+    setCartCount(null);
+
+    void (async () => {
+      try {
+        const response = await adminFetch(
+          `/api/admin/collections/${archiveTarget.id}/cart-impact`,
+        );
+        if (!response.ok) throw new Error("Could not load cart impact");
+        const data = (await response.json()) as { cartCount: number };
+        if (!cancelled) setCartCount(data.cartCount);
+      } catch {
+        if (!cancelled) setCartCount(null);
+      } finally {
+        if (!cancelled) setCartLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [archiveTarget]);
 
   async function confirmArchive() {
     if (!archiveTarget) return;
@@ -219,11 +251,22 @@ export function CollectionsManager({
         }
       >
         {archiveTarget ? (
-          <p className="text-sm text-ink-soft">
-            Archive{" "}
-            <span className="font-medium text-ink">{archiveTarget.name}</span>?
-            Its products will be archived too.
-          </p>
+          <div className="space-y-3">
+            <p className="text-sm text-ink-soft">
+              Archive{" "}
+              <span className="font-medium text-ink">{archiveTarget.name}</span>?
+              Its products will be archived too.
+            </p>
+            {cartLoading ? (
+              <p className="text-sm text-ink-faint">Checking customer carts…</p>
+            ) : cartCount != null ? (
+              <p className="text-sm text-ink-soft">
+                In{" "}
+                <span className="font-medium text-ink">{cartCount}</span> customer{" "}
+                {cartCount === 1 ? "cart" : "carts"} right now.
+              </p>
+            ) : null}
+          </div>
         ) : null}
       </Modal>
     </div>

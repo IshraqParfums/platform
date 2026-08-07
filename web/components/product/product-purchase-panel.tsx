@@ -2,7 +2,10 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { Check, ShoppingBag } from "lucide-react";
-import type { ProductDetailVariant } from "@ishraqparfums/shared";
+import type {
+  ProductAvailability,
+  ProductDetailVariant,
+} from "@ishraqparfums/shared";
 import { CartGuestSavedModal } from "@/components/cart/cart-guest-saved-modal";
 import { CartQuantityStepper } from "@/components/cart/cart-quantity-stepper";
 import { ViewCartLink } from "@/components/cart/view-cart-link";
@@ -36,16 +39,32 @@ export type PurchaseProductMeta = {
   primaryImageUrl: string | null;
 };
 
+function purchaseErrorMessage(error: unknown): string {
+  const raw = error instanceof Error ? error.message : "";
+  if (/isn['']t available to buy/i.test(raw) || /not available for purchase/i.test(raw)) {
+    return "This fragrance isn't available to buy right now.";
+  }
+  if (/out of stock/i.test(raw)) {
+    return "That size just sold out. Try another size or check back soon.";
+  }
+  if (/isn['']t available right now|currently unavailable/i.test(raw)) {
+    return "That size isn't available right now.";
+  }
+  return raw || "Could not add to cart";
+}
+
 /**
  * Size selection, live price, stock line, add-to-cart / in-cart qty, trust strip.
- * When the selected variant is already in the cart, shows − count + instead of Add.
+ * Sizes stay visible for OUT_OF_STOCK and UNAVAILABLE; CTA only when buyable.
  */
 export function ProductPurchasePanel({
   variants,
   product,
+  availability,
 }: {
   variants: ProductDetailVariant[];
   product: PurchaseProductMeta;
+  availability: ProductAvailability;
 }) {
   const ordered = useMemo(() => sortVariantsBySize(variants), [variants]);
   const [selectedId, setSelectedId] = useState(
@@ -68,7 +87,8 @@ export function ProductPurchasePanel({
     applySummary,
   } = useCartVariantLine(selected?.id ?? null);
 
-  const sellable = selected ? isVariantSellable(selected) : false;
+  const sizeSellable = selected ? isVariantSellable(selected) : false;
+  const purchasable = availability === "AVAILABLE" && sizeSellable;
   const stock = stockLabel(selected);
   const inCart = cartReady && cartQty > 0;
   const maxQty =
@@ -79,7 +99,7 @@ export function ProductPurchasePanel({
   }, []);
 
   function onAdd() {
-    if (!selected || !sellable) return;
+    if (!selected || !purchasable) return;
     setErrorMessage(null);
     setCtaState("idle");
 
@@ -125,8 +145,7 @@ export function ProductPurchasePanel({
         window.setTimeout(() => setCtaState("idle"), 2200);
       } catch (error) {
         setCtaState("error");
-        const message =
-          error instanceof Error ? error.message : "Could not add to cart";
+        const message = purchaseErrorMessage(error);
         setErrorMessage(message);
         toast.error("Could not add to cart", message);
       }
@@ -151,21 +170,20 @@ export function ProductPurchasePanel({
           aria-label="Bottle size"
         >
           {ordered.map((variant) => {
-            const available = isVariantSellable(variant);
+            const sellable = isVariantSellable(variant);
             const active = variant.id === selected.id;
             return (
               <FilterChip
                 key={variant.id}
                 active={active}
-                disabled={!available}
                 role="radio"
                 aria-checked={active}
+                aria-disabled={!sellable}
                 className={cn(
-                  !available &&
-                    "cursor-not-allowed opacity-45 line-through hover:border-ink/20 hover:text-ink-soft",
+                  !sellable &&
+                    "opacity-45 line-through hover:border-ink/20 hover:text-ink-soft",
                 )}
                 onClick={() => {
-                  if (!available) return;
                   setSelectedId(variant.id);
                   setCtaState("idle");
                   setErrorMessage(null);
@@ -189,7 +207,7 @@ export function ProductPurchasePanel({
           <p
             className={cn(
               "mt-2 text-sm",
-              sellable ? "text-rose-deep" : "text-ink-faint",
+              purchasable ? "text-rose-deep" : "text-ink-faint",
             )}
           >
             {stock}
@@ -198,7 +216,7 @@ export function ProductPurchasePanel({
       </div>
 
       <div className="space-y-3">
-        {sellable && inCart ? (
+        {purchasable && inCart ? (
           <div className="flex flex-wrap items-center gap-3">
             <CartQuantityStepper
               quantity={cartQty}
@@ -211,7 +229,7 @@ export function ProductPurchasePanel({
             />
             <ViewCartLink />
           </div>
-        ) : sellable ? (
+        ) : purchasable ? (
           <Button
             type="button"
             variant="emphasis"
@@ -231,12 +249,16 @@ export function ProductPurchasePanel({
                 ? "Added"
                 : "Add to cart"}
           </Button>
+        ) : availability === "UNAVAILABLE" ? (
+          <p className="text-sm text-ink-faint">
+            This fragrance isn&apos;t for sale right now.
+          </p>
         ) : (
           <p className="text-sm text-ink-faint">
             This size is currently unavailable.
           </p>
         )}
-        {sellable ? <ProductTrustStrip /> : null}
+        {purchasable ? <ProductTrustStrip /> : null}
         {ctaState === "error" && errorMessage ? (
           <p className="text-sm text-rose-deep">{errorMessage}</p>
         ) : null}

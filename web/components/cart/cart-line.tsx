@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CartQuantityStepper } from "@/components/cart/cart-quantity-stepper";
 import type { CartViewLine } from "@/lib/cart/cart-view";
+import { cartUnavailableReasonCopy } from "@/lib/cart/cart-view";
 import { formatPaise } from "@/lib/format/money";
 import { cn } from "@/lib/cn";
 
@@ -92,7 +93,9 @@ export function CartLine({
         </div>
 
         {!line.isAvailable ? (
-          <p className="mt-3 text-sm text-rose-deep">Currently unavailable</p>
+          <p className="mt-3 text-sm text-rose-deep">
+            {cartUnavailableReasonCopy(line.unavailableReason)}
+          </p>
         ) : null}
 
         <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-3 pt-5">

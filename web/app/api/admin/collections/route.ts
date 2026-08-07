@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { adminAuthFetch } from "@/lib/api/auth-fetch";
 import { jsonFromNestError, unauthorizedResponse } from "@/lib/api/route-response";
 import { getAdminAccessToken } from "@/lib/auth/session";
+import { revalidateCatalogCollections } from "@/lib/catalog/catalog-cache";
 
 export async function GET(): Promise<NextResponse> {
   const accessToken = await getAdminAccessToken();
@@ -34,6 +35,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       "/admin/collections",
       { method: "POST", body: body as CreateCollectionBody },
     );
+    revalidateCatalogCollections();
     return NextResponse.json(data);
   } catch (error) {
     return jsonFromNestError(error);

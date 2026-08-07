@@ -3,6 +3,7 @@ import type {
   AdminProductImage,
   AdminProductListItem,
   AdminProductVariant,
+  ProductAvailability,
   ProductDetail,
   ProductDetailImage,
   ProductDetailVariant,
@@ -15,6 +16,14 @@ import type {
   ProductImage,
   ProductVariant,
 } from '@prisma/client';
+import { ProductStatus } from '@prisma/client';
+import {
+  availableQty,
+  findCheapestDisplayVariant,
+  findCheapestSellableVariant,
+  isVariantOnShelf,
+  isVariantSellable,
+} from '../variant-availability';
 
 export type ProductWithCatalogRelations = Product & {
   collection: Collection;
@@ -54,18 +63,6 @@ function toPrimaryImage(
   };
 }
 
-function findCheapestVariant(
-  variants: ProductVariant[],
-): ProductVariant | null {
-  if (variants.length === 0) {
-    return null;
-  }
-
-  return variants.reduce((cheapest, variant) =>
-    variant.pricePaise < cheapest.pricePaise ? variant : cheapest,
-  );
-}
-
 function toDetailVariant(variant: ProductVariant): ProductDetailVariant {
   return {
     id: variant.id,
@@ -75,7 +72,7 @@ function toDetailVariant(variant: ProductVariant): ProductDetailVariant {
       variant.pricePaise,
       variant.compareAtPricePaise,
     ),
-    stockQty: Math.max(0, variant.stockQty - variant.reservedQty),
+    stockQty: availableQty(variant),
     isAvailable: variant.isAvailable,
   };
 }
@@ -88,12 +85,32 @@ function toDetailImage(image: ProductImage): ProductDetailImage {
   };
 }
 
+/**
+ * Single shelf contract for PDP + list + cart + future wishlist.
+ * Sold-out stays OUT_OF_STOCK (still listable). Shelf-off / archived → UNAVAILABLE.
+ */
+export function productAvailability(
+  product: Pick<Product, 'status'> & { variants: ProductVariant[] },
+): ProductAvailability {
+  if (product.status !== ProductStatus.ACTIVE) {
+    return 'UNAVAILABLE';
+  }
+
+  if (!product.variants.some(isVariantOnShelf)) {
+    return 'UNAVAILABLE';
+  }
+
+  return product.variants.some(isVariantSellable)
+    ? 'AVAILABLE'
+    : 'OUT_OF_STOCK';
+}
+
 export function toProductListItem(
   product: ProductWithCatalogRelations,
   ratingAverage: number | null = null,
   reviewCount = 0,
 ): ProductListItem {
-  const cheapest = findCheapestVariant(product.variants);
+  const cheapest = findCheapestDisplayVariant(product.variants);
 
   return {
     name: product.name,
@@ -109,6 +126,7 @@ export function toProductListItem(
           cheapest.compareAtPricePaise,
         )
       : null,
+    availability: productAvailability(product),
     ratingAverage,
     reviewCount,
   };
@@ -130,6 +148,7 @@ export function toProductDetail(
     },
     variants: product.variants.map(toDetailVariant),
     images: product.images.map(toDetailImage),
+    availability: productAvailability(product),
     ratingAverage,
     reviewCount,
   };
@@ -160,7 +179,7 @@ export function toAdminImage(image: ProductImage): AdminProductImage {
 export function toAdminProductListItem(
   product: ProductWithCatalogRelations,
 ): AdminProductListItem {
-  const cheapest = findCheapestVariant(product.variants);
+  const cheapest = findCheapestSellableVariant(product.variants);
 
   return {
     id: product.id,

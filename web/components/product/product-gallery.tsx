@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import type { ProductDetailImage } from "@ishraqparfums/shared";
 import { cn } from "@/lib/cn";
+import { shouldUnoptimizeImageSrc } from "@/lib/media/unoptimize-image-src";
 
 function ImageFallback({ name }: { name: string }) {
   return (
@@ -40,6 +41,7 @@ export function ProductGallery({
             fill
             priority
             sizes="(min-width:768px) 45vw, 100vw"
+            unoptimized={shouldUnoptimizeImageSrc(active.url)}
             className="object-cover"
           />
         ) : (
@@ -73,6 +75,7 @@ export function ProductGallery({
                     alt={image.altText ?? `${name} ${index + 1}`}
                     fill
                     sizes="64px"
+                    unoptimized={shouldUnoptimizeImageSrc(image.url)}
                     className="object-cover"
                   />
                 </button>

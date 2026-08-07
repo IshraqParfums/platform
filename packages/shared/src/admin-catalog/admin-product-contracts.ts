@@ -98,3 +98,13 @@ export interface UpdateImageBody {
   altText?: string | null;
   displayOrder?: number;
 }
+
+/** Low-stock admin row — free stock is `stockQty - reservedQty`. */
+export interface AdminLowStockVariant {
+  productId: string;
+  productName: string;
+  variantId: string;
+  sizeMl: number;
+  stockQty: number;
+  reservedQty: number;
+}

@@ -5,15 +5,14 @@ import type {
   AdminProductDetail,
 } from "@ishraqparfums/shared";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
-import { AdminSlugReadonly } from "@/components/admin/admin-slug-readonly";
+import { useMemo, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toaster";
+import { AdminArchivedCollectionNotice } from "@/components/admin/admin-archived-collection-notice";
 import { adminFetch } from "@/lib/auth/admin-fetch";
-
-const STATUSES = ["DRAFT", "ACTIVE", "ARCHIVED", "DELETED"] as const;
 
 export function ProductEditForm({
   product,
@@ -25,12 +24,16 @@ export function ProductEditForm({
   const router = useRouter();
   const [name, setName] = useState(product.name);
   const [collectionId, setCollectionId] = useState(product.collectionId);
-  const [status, setStatus] = useState(product.status);
   const [shortDescription, setShortDescription] = useState(product.shortDescription);
   const [detailedDescription, setDetailedDescription] = useState(
     product.detailedDescription,
   );
   const [submitting, setSubmitting] = useState(false);
+
+  const selectedCollection = useMemo(
+    () => collections.find((c) => c.id === collectionId) ?? null,
+    [collections, collectionId],
+  );
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -42,7 +45,6 @@ export function ProductEditForm({
         body: JSON.stringify({
           name,
           collectionId,
-          status,
           shortDescription,
           detailedDescription,
         }),
@@ -64,56 +66,38 @@ export function ProductEditForm({
     }
   }
 
-  const fieldClass =
-    "rounded-md border border-ink/15 bg-cream px-3 py-2.5 text-sm text-ink outline-none focus-visible:border-ink/40";
-
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1.5">
+      {/* items-start: collection warning must not push Name down the row */}
+      <div className="grid gap-4 sm:grid-cols-2 sm:items-start">
+        <label className="flex min-w-0 flex-col gap-1.5">
           <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
             Name
           </span>
           <Input value={name} onChange={(event) => setName(event.target.value)} required />
         </label>
 
-        <AdminSlugReadonly slug={product.slug} />
-
-        <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-            Collection
-          </span>
-          <select
+        <div className="min-w-0 w-full">
+          <Select
+            label="Collection"
+            labelPlacement="above"
+            ariaLabel="Collection"
             value={collectionId}
-            onChange={(event) => setCollectionId(event.target.value)}
-            className={fieldClass}
-          >
-            {collections.map((collection) => (
-              <option key={collection.id} value={collection.id}>
-                {collection.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-            Status
-          </span>
-          <select
-            value={status}
-            onChange={(event) =>
-              setStatus(event.target.value as AdminProductDetail["status"])
-            }
-            className={fieldClass}
-          >
-            {STATUSES.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
-        </label>
+            options={collections.map((collection) => ({
+              value: collection.id,
+              label: collection.name,
+            }))}
+            onChange={setCollectionId}
+            className="min-w-0 w-full"
+            triggerClassName="w-full"
+          />
+          {selectedCollection?.status === "ARCHIVED" ? (
+            <AdminArchivedCollectionNotice>
+              This collection is archived. The product will stay off the shop
+              shelf until the collection is restored.
+            </AdminArchivedCollectionNotice>
+          ) : null}
+        </div>
       </div>
 
       <label className="flex flex-col gap-1.5">

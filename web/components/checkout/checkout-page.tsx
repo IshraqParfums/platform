@@ -8,6 +8,7 @@ import {
   ADDRESS_SECTION_ID,
 } from "@/components/checkout/address-section";
 import { checkoutLayout } from "@/components/checkout/checkout-layout";
+import { CheckoutInvoiceNotice } from "@/components/checkout/checkout-invoice-notice";
 import { CheckoutProfileDialog } from "@/components/checkout/checkout-profile-dialog";
 import { CheckoutSkeleton } from "@/components/checkout/checkout-skeleton";
 import { OrderSection } from "@/components/checkout/order-section";
@@ -96,6 +97,15 @@ export function CheckoutPageClient() {
         ]);
 
         if (cart.lines.length === 0 || cart.mode === "guest") {
+          router.replace("/cart");
+          return;
+        }
+
+        if (!cartHasSellableLines(cart)) {
+          toast.message(
+            "Nothing available to checkout",
+            "Remove unavailable items from your cart, or wait until stock returns.",
+          );
           router.replace("/cart");
           return;
         }
@@ -319,6 +329,7 @@ export function CheckoutPageClient() {
           <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
             Confirm your details and pay securely.
           </p>
+          <CheckoutInvoiceNotice email={email} />
         </header>
 
         <div className={checkoutLayout.sectionStack}>

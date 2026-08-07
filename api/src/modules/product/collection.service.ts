@@ -129,4 +129,8 @@ export class CollectionService {
   restore(id: string): Promise<RestoreCollectionResponse> {
     return this.collectionArchiveService.restore(id);
   }
+
+  countCartsHoldingProducts(id: string): Promise<number> {
+    return this.collectionRepository.countCartsHoldingCollectionProducts(id);
+  }
 }
