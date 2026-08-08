@@ -709,20 +709,6 @@
   color: var(--ipx-accent);
 }
 
-/* inline-block so the box hugs the rendered name exactly — the canvas
-   inside it (slider.js's Sparkles) reads that box fresh on every burst,
-   and a name that changes length must not leave stale bounds behind. */
-.ipx-name-wrap {
-  position: relative;
-  display: inline-block;
-}
-
-.ipx-name-glints {
-  position: absolute;
-  inset: -26px;
-  pointer-events: none;
-}
-
 .ipx-name {
   margin: 8px 0 6px;
   font-family: var(--ipx-serif);
