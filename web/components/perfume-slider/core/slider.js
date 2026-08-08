@@ -313,6 +313,53 @@ export function createPerfumeSlider(root, options = {}) {
     if (bottle) bottle.innerHTML = slideInnerHTML(perfumes[i], i);
   }
 
+  /**
+   * Warm the bottles just outside what is on screen, during idle time
+   * instead of the frame that would otherwise need them.
+   *
+   * hydrate() above is lazy on purpose (see its own note), but lazy-on-first-
+   * sight means the first time a bottle a session has never shown before
+   * crosses into view, that frame also has to parse and rasterise a full SVG
+   * — two bottles' worth, with their gradients and a filter — which is
+   * exactly the frame a drag most needs to stay smooth. Ordinary swiping (one
+   * bottle at a time) never has to pay that cost if the neighbourhood a few
+   * bottles out is already built; only a flick well past it still hits a
+   * cold one; that's still an improvement.
+   */
+  const PREHYDRATE_MARGIN = 4;
+  const PREHYDRATE_BATCH = 3;
+  const idleSchedule =
+    typeof requestIdleCallback === "function" ? requestIdleCallback : (cb) => setTimeout(cb, 120);
+  const idleCancel = typeof cancelIdleCallback === "function" ? cancelIdleCallback : clearTimeout;
+  let prehydrateHandle = null;
+
+  function neighborhoodIndices() {
+    const n = perfumes.length;
+    const span = Math.min(n, RING_SPAN) + PREHYDRATE_MARGIN;
+    const out = [index];
+    for (let d = 1; d <= span; d++) {
+      out.push(((index - d) % n + n) % n, ((index + d) % n + n) % n);
+    }
+    return out;
+  }
+
+  function schedulePrehydrate() {
+    if (prehydrateHandle !== null || destroyed) return;
+    prehydrateHandle = idleSchedule(() => {
+      prehydrateHandle = null;
+      let done = 0;
+      for (const i of neighborhoodIndices()) {
+        if (hydrated.has(i)) continue;
+        const slide = rail.children[i];
+        if (slide) hydrate(i, slide);
+        if (++done >= PREHYDRATE_BATCH) {
+          schedulePrehydrate();
+          return;
+        }
+      }
+    });
+  }
+
   function buildSlides() {
     hydrated.clear();
     rail.innerHTML = perfumes
@@ -531,6 +578,19 @@ export function createPerfumeSlider(root, options = {}) {
    * more than any amount of tuning the things that are still visible.
    */
   const HIDE_BELOW = 0.05;
+  /**
+   * Hysteresis margins for the three state toggles below (visibility, blur,
+   * reflection). Each has one threshold to leave its state and a second,
+   * looser one to re-enter it — so a bottle sitting right on a boundary
+   * during a drag (pointer input is never perfectly smooth; `pos` jitters by
+   * fractions of a step frame to frame) settles into one state instead of
+   * flipping every frame. A flip means a layer promotion/demotion for filter,
+   * a display change for visibility — both a repaint — which is what read as
+   * blinking while swiping.
+   */
+  const HIDE_MARGIN = 0.02;
+  const BLUR_MARGIN = 0.04;
+  const REFL_MARGIN = 0.02;
 
   /** Position every slide from the fractional `pos`. */
   function layout() {
@@ -542,6 +602,22 @@ export function createPerfumeSlider(root, options = {}) {
       const t = (s.depth + 1) / 2;
       const scale = 0.3 + 0.7 * Math.pow(t, 1.35);
       const opacity = 0.06 + 0.94 * Math.pow(t, 2.1);
+
+      const el = slides[i];
+      const state = el._ipxState || (el._ipxState = { hidden: t < HIDE_BELOW, blurred: t <= 0.6, refl: t > 0.55 });
+
+      // Round the far side of the table and invisible: stop drawing it at all.
+      // Hysteresis: once hidden, stay hidden until well clear of the cutoff;
+      // once shown, stay shown until well past it the other way.
+      state.hidden = state.hidden ? t < HIDE_BELOW + HIDE_MARGIN : t < HIDE_BELOW;
+      if (state.hidden) {
+        put(el, "visibility", "hidden");
+        put(el, "pointer-events", "none");
+        continue;
+      }
+      if (!hydrated.has(i)) hydrate(i, el);
+      put(el, "visibility", null);
+
       /**
        * Blur is by far the most expensive thing on this frame, and it costs in
        * proportion to the area blurred — so the bottles it is cheapest to skip
@@ -554,18 +630,8 @@ export function createPerfumeSlider(root, options = {}) {
        * fresh rasterisation every frame, whereas in quarter-pixel steps most
        * frames reuse the last one and the eye cannot tell.
        */
-      const blur = t > 0.6 ? 0 : Math.round((1 - t) * 5.2 * 4) / 4;
-
-      const el = slides[i];
-
-      // Round the far side of the table and invisible: stop drawing it at all.
-      if (t < HIDE_BELOW) {
-        put(el, "visibility", "hidden");
-        put(el, "pointer-events", "none");
-        continue;
-      }
-      if (!hydrated.has(i)) hydrate(i, el);
-      put(el, "visibility", null);
+      state.blurred = state.blurred ? t <= 0.6 + BLUR_MARGIN : t <= 0.6;
+      const blur = state.blurred ? Math.round((1 - t) * 5.2 * 4) / 4 : 0;
 
       // Deliberately a 2D transform. A 3D one (translate3d/perspective/rotateY)
       // promotes each slide to its own compositing layer, where Chromium keeps
@@ -580,7 +646,9 @@ export function createPerfumeSlider(root, options = {}) {
       put(el, "opacity", opacity.toFixed(3));
       // Drop the property entirely on the front slide rather than setting
       // `none`: an always-present filter promotes the slide to its own layer,
-      // where SVG label text can fail to repaint after a transform.
+      // where SVG label text can fail to repaint after a transform. Which
+      // state owns a given frame is decided once above (with hysteresis) so
+      // this can't itself flip-flop within the same crossing.
       put(el, "filter", blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : null);
       put(el, "z-index", String(Math.round(t * 200)));
       put(el, "--ipx-slosh", `${(tilt * s.depth).toFixed(2)}deg`);
@@ -588,7 +656,8 @@ export function createPerfumeSlider(root, options = {}) {
       // back it lands on a part of the table that is already in shadow and
       // under everything in front of it — invisible, and the most expensive
       // invisible thing on the page.
-      put(el, "--ipx-refl", t > 0.55 ? "visible" : "hidden");
+      state.refl = state.refl ? t > 0.55 - REFL_MARGIN : t > 0.55;
+      put(el, "--ipx-refl", state.refl ? "visible" : "hidden");
 
       const front = Math.abs(ringDelta(i - pos)) < 0.5;
       put(el, "pointer-events", front ? "auto" : "none");
@@ -968,6 +1037,7 @@ export function createPerfumeSlider(root, options = {}) {
       // Let the bottle arrive before it fires.
       setTimeout(() => !destroyed && spray(index, 1), reduced ? 0 : 210);
     }
+    if (changed) schedulePrehydrate();
   }
 
   const next = () => setIndex(index + 1);
@@ -1276,6 +1346,9 @@ export function createPerfumeSlider(root, options = {}) {
   // and the bottle agree from the first frame.
   setFacing(facing, false);
   measure();
+  // setIndex() above only warms the neighbourhood when the index actually
+  // changes, which it doesn't on the very first call — so boot needs its own.
+  schedulePrehydrate();
   // Opening spray, once the layout has settled. Nothing fires on its own
   // unless it was asked to.
   const bootTimer = setTimeout(() => !destroyed && opts.sprayOnLoad && spray(index, 1), 520);
@@ -1314,9 +1387,11 @@ export function createPerfumeSlider(root, options = {}) {
       buildSlides();
       setIndex(index, { animate: false, spraying: false });
       measure();
+      schedulePrehydrate();
     },
     destroy() {
       destroyed = true;
+      if (prehydrateHandle !== null) idleCancel(prehydrateHandle);
       clearTimeout(bootTimer);
       clearTimeout(firingTimer);
       clearTimeout(settleTimer);

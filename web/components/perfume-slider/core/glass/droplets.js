@@ -29,7 +29,7 @@ const TAU = Math.PI * 2;
  * into one enormous bead sitting in the middle, which is what happens if you
  * let the physics run away with itself.
  */
-const MAX_RADIUS = 11;
+const MAX_RADIUS = 7;
 
 /** Radius under evaporation, with a wobble if it has just swallowed another. */
 function radiusOf(d) {
@@ -162,8 +162,11 @@ export class Droplets {
     for (let i = 0; i < count; i++) {
       const a = Math.random() * TAU;
       const dist = Math.abs(gauss()) * reach;
-      // Continuous, skewed small: a lot of fine mist, a few fat drops.
-      const r = (0.5 + Math.pow(Math.random(), 3) * 8) * power;
+      // Continuous, skewed small: a lot of fine mist, a few fat drops. The
+      // steeper power (4, not 3) pushes the distribution further toward the
+      // fine end, and the lower ceiling keeps even the rare fat one from
+      // reading as a splash rather than an atomised drop.
+      const r = (0.35 + Math.pow(Math.random(), 4) * 5.5) * power;
       const passes = Math.random() < 0.28;
       const travel = passes ? dist + rand(reach * 0.6, reach * 1.4) : dist;
 
