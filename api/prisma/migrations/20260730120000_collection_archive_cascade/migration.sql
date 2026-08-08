@@ -18,5 +18,8 @@ WHERE "status" = 'ARCHIVED' AND "archiveReason" IS NULL;
 -- CreateIndex
 CREATE INDEX "collections_status_idx" ON "collections"("status");
 
+-- Composite index for homepage ranked collections (status existed only after this migration).
+CREATE INDEX "collections_status_homeRank_idx" ON "collections"("status", "homeRank");
+
 -- CreateIndex
 CREATE INDEX "products_collectionId_status_archiveReason_idx" ON "products"("collectionId", "status", "archiveReason");
