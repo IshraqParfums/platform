@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-07T20:31:36.358Z",
-  "upstream": "/home/mohammed-dayyan/Bespoke",
+  "generatedAt": "2026-08-08T17:02:49.837Z",
+  "upstream": "/home/user/Bespoke",
   "expected": {
     "questionNodes": 166,
     "accords": 1081,
@@ -36,8 +36,8 @@
       "note": "source rewritten for package imports only"
     },
     "data/questions.json": {
-      "sha256": "f33a13e50bb5691909145e0410d11f6ba9d96f0331a3e58f38d6195b71058b28",
-      "bytes": 553381
+      "sha256": "f49a66000076288eaa28a810c76cb53ca4fcdab2cf167d9c12808294e8015a6d",
+      "bytes": 553393
     },
     "data/accords.json": {
       "sha256": "6912c9def4ed487ea7c1eb6d503a3a3d6100937541ad955b2ed37010fa8d7331",
