@@ -134,7 +134,10 @@
    snapping; a browser without it just cuts, which is what it did before. */
 .ipx-aura {
   position: absolute;
-  inset: -20%;
+  /* Was -20%: blurring an area that much bigger than the stage, every frame
+     of the crossfade below, is most of what that crossfade cost — the extra
+     reach past the edge bought softness the vignette already provides. */
+  inset: -5%;
   z-index: 0;
   pointer-events: none;
   background:
@@ -146,8 +149,31 @@
      down so the black ground still reads and the aura is the glow around the
      bottle rather than the wall behind it. */
   opacity: 0.3;
-  filter: blur(30px);
+  /*
+   * Was 30px. This layer's four colours are driven by .ipx-slider's own
+   * --ipx-accent/--ipx-aura/--ipx-scent-* transition (below) — every one of
+   * those four gradients is recomputed and re-blurred on every frame of
+   * that 700ms crossfade, not just once. A 30px blur over an area already
+   * larger than the stage was the single most expensive thing this
+   * component did, landing on exactly the frames a perfume change asks the
+   * table to keep turning smoothly. Blur cost scales with roughly the
+   * square of the radius, so this alone is close to a 4x cut.
+   */
+  filter: blur(16px);
   transition: opacity 600ms ease;
+}
+
+/*
+ * Touch input is where the cost above was actually reported as visible
+ * frame drops (a blank flash of the stage's own background showing
+ * through, mid-swipe) — trade the smooth colour crossfade for an instant
+ * cut on exactly those devices, rather than trying to make every device
+ * pay for an animation few of them can afford at this frame budget.
+ */
+@media (pointer: coarse) {
+  .ipx-slider {
+    transition: none;
+  }
 }
 
 .ipx-vignette {
