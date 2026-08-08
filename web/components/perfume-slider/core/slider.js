@@ -13,6 +13,7 @@ import { renderBottle, renderLabel } from "./bottle.js";
 import { SprayEngine } from "./spray.js";
 import { GlassSurface } from "./glass/surface.js";
 import { tierColor, totalHoursOf } from "./pyramid.js";
+import { Sparkles } from "./sparkle.js";
 import { ScentTrail } from "./trail.js";
 import { clamp, esc, rand } from "./util.js";
 
@@ -151,7 +152,10 @@ export function createPerfumeSlider(root, options = {}) {
     <div class="ipx-info" aria-live="polite">
       <div class="ipx-info-in">
         <span class="ipx-collection"></span>
-        <h3 class="ipx-name"></h3>
+        <span class="ipx-name-wrap">
+          <h3 class="ipx-name"></h3>
+          <canvas class="ipx-name-glints" aria-hidden="true"></canvas>
+        </span>
         <p class="ipx-tagline"></p>
         <dl class="ipx-notes">
           <div class="ipx-note-row"><dt>top</dt><dd data-note="top"></dd></div>
@@ -206,6 +210,7 @@ export function createPerfumeSlider(root, options = {}) {
 
   const engine = new SprayEngine(canvas);
   const screen = new GlassSurface(glass);
+  const nameGlints = new Sparkles(root.querySelector(".ipx-name-glints"));
   // Fixed to the viewport, so it is mounted on the body rather than inside the
   // slider — it outlives the part of the page you happen to be looking at.
   const trail = opts.trail ? new ScentTrail() : null;
@@ -472,6 +477,44 @@ export function createPerfumeSlider(root, options = {}) {
     for (const tier of ["top", "heart", "base"]) {
       root.style.setProperty(`--ipx-scent-${tier}`, tierColor(t, tier));
     }
+  }
+
+  /**
+   * A few glints across the name.
+   *
+   * The gold face and its travelling sweep (slider.css) are shine — a
+   * surface catching light. This is the other half of "sparkle": Sparkles
+   * (sparkle.js) was already ported for the wear-complete moment and never
+   * used anywhere else, and a hard four-point star that flares and snaps
+   * out is a different effect from a soft light sweep, not a stronger
+   * version of it — trying to get one from the other gives a poor version
+   * of both, per that file's own note.
+   *
+   * Measured fresh every call: the wrap is inline-block, so its box is
+   * exactly the current name's rendered size, which changes with the text.
+   */
+  function glintName(count = 7) {
+    if (reduced) return;
+    const box = nameGlints.canvas.getBoundingClientRect();
+    if (!box.width || !box.height) return;
+    nameGlints.resize();
+    const t = perfumes[index].theme;
+    nameGlints.burst({ x: 0, y: 0, w: box.width, h: box.height, color: t.accentSoft || t.accent, count });
+  }
+
+  let nameGlintTimer = null;
+  function scheduleNameGlint() {
+    clearTimeout(nameGlintTimer);
+    if (reduced) return;
+    // Irregular, not a metronome — a fixed interval reads as a UI tick.
+    nameGlintTimer = setTimeout(
+      () => {
+        if (destroyed) return;
+        glintName();
+        scheduleNameGlint();
+      },
+      rand(4200, 7400),
+    );
   }
 
   /**
@@ -1037,7 +1080,15 @@ export function createPerfumeSlider(root, options = {}) {
       // Let the bottle arrive before it fires.
       setTimeout(() => !destroyed && spray(index, 1), reduced ? 0 : 210);
     }
-    if (changed) schedulePrehydrate();
+    if (changed) {
+      schedulePrehydrate();
+      // A new name arriving is worth catching the light for. The wrap has
+      // already resized synchronously (renderInfo() above, inline-block),
+      // so there is nothing to wait on layout for — a beat for the eye to
+      // land on the text first is enough.
+      setTimeout(() => !destroyed && glintName(), reduced ? 0 : 260);
+      scheduleNameGlint();
+    }
   }
 
   const next = () => setIndex(index + 1);
@@ -1326,10 +1377,13 @@ export function createPerfumeSlider(root, options = {}) {
 
   const ro = new ResizeObserver(measure);
   ro.observe(stage);
-  // The glass layer spans the whole slider, not just the stage.
+  // The glass layer spans the whole slider, not just the stage — same for
+  // the name's glint canvas, which lives in .ipx-info alongside it, not in
+  // .ipx-stage.
   const rootRo = new ResizeObserver(() => {
     engine.resize();
     screen.resize();
+    nameGlints.resize();
   });
   rootRo.observe(root);
 
@@ -1352,6 +1406,10 @@ export function createPerfumeSlider(root, options = {}) {
   // Opening spray, once the layout has settled. Nothing fires on its own
   // unless it was asked to.
   const bootTimer = setTimeout(() => !destroyed && opts.sprayOnLoad && spray(index, 1), 520);
+  // The first name gets the same glint any later arrival does, once the
+  // entrance fade (.ipx-info-in, 560ms) has had a moment to land.
+  const nameGlintBootTimer = setTimeout(() => !destroyed && glintName(), reduced ? 0 : 680);
+  scheduleNameGlint();
   startAutoplay();
 
   /* -------------------------------------------------------------------- API */
@@ -1393,6 +1451,8 @@ export function createPerfumeSlider(root, options = {}) {
       destroyed = true;
       if (prehydrateHandle !== null) idleCancel(prehydrateHandle);
       clearTimeout(bootTimer);
+      clearTimeout(nameGlintBootTimer);
+      clearTimeout(nameGlintTimer);
       clearTimeout(firingTimer);
       clearTimeout(settleTimer);
       stopAutoplay();
@@ -1415,6 +1475,7 @@ export function createPerfumeSlider(root, options = {}) {
       engine.destroy();
       screen.onWetChange = null;
       screen.destroy();
+      nameGlints.destroy();
       // Mounted on the body, so it has to be taken down by hand — clearing
       // the slider's own markup would leave it stranded on the page.
       if (trail) trail.destroy();
