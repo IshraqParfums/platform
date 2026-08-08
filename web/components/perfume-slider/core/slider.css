@@ -32,6 +32,12 @@
   inherits: true;
   initial-value: transparent;
 }
+/* Registered so it animates instead of snapping — see .ipx-btn::before. */
+@property --ipx-gold-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 90deg;
+}
 
 .ipx-slider {
   /* Repointed at the house tokens in app/globals.css. These eight names are
@@ -50,9 +56,34 @@
   /* Bottle height drives the label's type scale as well as the SVG. */
   --ipx-bottle-h: clamp(250px, 42vh, 390px);
 
-  --ipx-serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
-  --ipx-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --ipx-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /*
+   * The bare family names below only ever matched a font actually named
+   * that — which nothing in this app is. next/font (app/layout.tsx) loads
+   * Fraunces/Manrope/JetBrains Mono under generated, scoped family names
+   * exposed as these three CSS variables on <html>; without them every rule
+   * in this file that asked for "Fraunces" or "Manrope" silently fell back
+   * to a generic system serif/sans, which is what read as bland. The bare
+   * names stay as a second fallback so this component still looks right if
+   * it's ever dropped into a page that isn't running next/font.
+   */
+  --ipx-serif: var(--font-fraunces), "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+  --ipx-sans: var(--font-manrope), "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ipx-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /*
+   * Rolled-metal grain for the gold text/button faces below (--gold-grain).
+   * Without it the flat gold areas are visibly a CSS gradient; with it
+   * they read as a surface. The title and the solid button already both
+   * reference var(--gold-grain, none) — this was the missing half of that
+   * declaration, not new styling. Off-axis from the face ramp on purpose,
+   * so the two never line up into banding.
+   */
+  --gold-grain: repeating-linear-gradient(
+    96deg,
+    rgba(255, 252, 240, 0.028) 0 0.5px,
+    rgba(60, 38, 8, 0.032) 0.5px 1.5px,
+    rgba(255, 252, 240, 0) 1.5px 4px
+  );
 
   position: relative;
   isolation: isolate;
@@ -688,8 +719,23 @@
   /* Same metal as .gold-emboss-display in app/globals.css: the flat gilded
      face tiled per line with rolled grain over it, and the relief carried
      entirely by the drop-shadow chain — chamfer, undercut, extruded side, cast
-     shadow. The face barely modulates on purpose; see the note on --gold-face. */
+     shadow. The face barely modulates on purpose; see the note on --gold-face.
+     A third layer on top — two blades, a soft wash and a hard core just
+     behind it — is a travelling specular pass, positioned off-screen at rest
+     and swept across on a loop by .ipx-name's animation below. A moving ramp
+     would do nothing visible here since the face's own bands already run
+     horizontally; this is a second, independent gradient sliding over it. */
   background-image:
+    linear-gradient(
+      105deg,
+      transparent 34%,
+      rgba(255, 246, 214, 0.34) 44%,
+      rgba(255, 253, 244, 0.92) 49.5%,
+      rgba(255, 255, 255, 1) 50.5%,
+      rgba(255, 240, 200, 0.4) 55%,
+      rgba(255, 236, 190, 0.16) 62%,
+      transparent 70%
+    ),
     var(--gold-grain, none),
     var(
       --gold-face,
@@ -698,9 +744,10 @@
   /* The em pair is the fallback: without `lh` support the whole declaration
      is invalid and a wrapped name gets one bright line and one dull one.
      app/globals.css pairs these the same way. */
-  background-size: auto auto, 100% 1.2em;
-  background-size: auto auto, 100% 1lh;
-  background-repeat: repeat, repeat;
+  background-size: 240% 100%, auto auto, 100% 1.2em;
+  background-size: 240% 100%, auto auto, 100% 1lh;
+  background-repeat: no-repeat, repeat, repeat;
+  background-position: 160% 0, 0 0, 0 0;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -708,6 +755,17 @@
     drop-shadow(-0.013em -0.013em 0 #edd193) drop-shadow(0.015em 0.017em 0 #4a320d)
     drop-shadow(0 0.034em 0 #2a1c07) drop-shadow(0 0.052em 0 #150e04)
     drop-shadow(0 0.095em 0.085em rgba(0, 0, 0, 0.8));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ipx-name { animation: ipx-title-sweep 5s ease-in-out infinite; }
+}
+
+/* Holds off-screen for most of the cycle, then sweeps once — a glint the
+   name catches every few seconds, not a strobe. */
+@keyframes ipx-title-sweep {
+  0%, 55% { background-position: 160% 0, 0 0, 0 0; }
+  100% { background-position: -70% 0, 0 0, 0 0; }
 }
 
 .ipx-tagline {
@@ -791,6 +849,15 @@
 }
 
 .ipx-btn {
+  /*
+   * position: relative alone (no isolation: isolate) is deliberate: a
+   * negative z-index child of an isolated element paints ABOVE that
+   * element's own background, not below it — confirmed empirically, it's
+   * the opposite of what "isolate its stacking context" suggests — which
+   * would bury .ipx-btn::before's gold ring under a fully-opaque button
+   * face instead of showing only at the rim.
+   */
+  position: relative;
   font-family: var(--ipx-sans);
   font-weight: 700;
   font-size: 13.5px;
@@ -803,14 +870,67 @@
 
 .ipx-btn:active { transform: scale(0.97); }
 
+/*
+ * Light travelling around the rim — the two calls to action, budgeted the
+ * same way app/globals.css's .gold-frame is ("two per screen... past that
+ * it stops reading as expensive"). A ring, not a border: sized a couple of
+ * pixels past the button and held behind it (z-index -1 inside the
+ * isolated stacking context .ipx-btn establishes above), so the button's
+ * own background covers the middle and only the rim shows, rather than
+ * fighting either button's own background-image for the same box.
+ */
+.ipx-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2.5px;
+  z-index: -1;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--ipx-gold-angle),
+    #4a320d 0%,
+    #6b4712 5%,
+    #c9963e 10%,
+    #fff3cf 13.5%,
+    #e0b463 17%,
+    #8a6318 24%,
+    #4a320d 33%,
+    #6b4712 41%,
+    #c9963e 47%,
+    #ffeec2 51%,
+    #d2a24a 56%,
+    #8a6318 65%,
+    #4a320d 73%,
+    #9c6d28 83%,
+    #e8c87a 88.5%,
+    #a97a2b 93%,
+    #4a320d 100%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ipx-btn::before { animation: ipx-gold-rotate 9s linear infinite; }
+}
+
+@keyframes ipx-gold-rotate {
+  to { --ipx-gold-angle: 450deg; }
+}
+
 .ipx-btn-ghost {
   border: 1.5px solid var(--ipx-line);
-  background: transparent;
+  /*
+   * Opaque, not literally transparent. .ipx-btn::before's gold ring sits
+   * behind this button at a 2.5px inset all round; a genuinely see-through
+   * fill leaves nothing to hide the ring's own dense centre, and the button
+   * reads as solid gold instead of gold-rimmed. Same requirement as
+   * app/globals.css's .gold-frame ("--frame-fill MUST be opaque... the fill
+   * is the only thing hiding the gold everywhere except the edge").
+   */
+  background: color-mix(in oklab, var(--ipx-ink-2) 92%, transparent);
   color: var(--ipx-cream);
 }
 .ipx-btn-ghost:hover {
   border-color: var(--ipx-accent);
-  background: rgba(237, 226, 200, 0.06);
+  background: color-mix(in oklab, var(--ipx-ink-2) 80%, var(--ipx-cream) 8%);
 }
 
 .ipx-btn-solid {
