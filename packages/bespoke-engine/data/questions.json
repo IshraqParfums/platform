@@ -3,7 +3,7 @@
     "version": "2.0.0",
     "name": "Bespoke Perfume Question Graph",
     "spec_ref": "BESPOKE_ENGINE_SPEC.md",
-    "opening_promise": "Fifteen questions. None of them about perfume.",
+    "opening_promise": "Fifteen questions. You won’t need to name a single note.",
     "act_transition_copy": "Good. I know how you want to be worn. Now tell me where you've been.",
     "target_questions_shown": 15,
     "total_questions_in_pool": 94,

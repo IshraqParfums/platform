@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/container";
 
 export const metadata: Metadata = {
   title: "Bespoke quiz",
-  description: "Fifteen questions. None of them about perfume.",
+  description: "Fifteen questions. You won’t need to name a single note.",
 };
 
 export default function BespokeQuizPage() {
