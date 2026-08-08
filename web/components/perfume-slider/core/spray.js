@@ -80,7 +80,13 @@ export class SprayEngine {
     const rect = this.canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Capped well below the device's own ratio (some phones report 3-3.5) —
+    // this canvas is soft, additive mist with nothing sharp on it, so the
+    // resolution buys little, and it costs a lot: memory and fill-rate both
+    // scale with the square of this number, and a phone with two of these
+    // canvases plus every bottle's own filtered SVG layer is exactly the
+    // kind of device that runs out of compositor budget first.
+    this.dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     this.canvas.width = Math.round(rect.width * this.dpr);
     this.canvas.height = Math.round(rect.height * this.dpr);
     this.w = rect.width;

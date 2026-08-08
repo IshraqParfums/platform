@@ -58,7 +58,11 @@ export class GlassSurface {
     const rect = this.canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // See spray.js's resize() for why this is capped at 1.5, not 2: this is
+    // the larger of the two canvases (spans the whole slider, not just the
+    // stage), so it is also the more likely of the two to be the one a
+    // constrained device runs out of compositor memory on.
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     this.canvas.width = Math.round(rect.width * dpr);
     this.canvas.height = Math.round(rect.height * dpr);
     this.w = rect.width;

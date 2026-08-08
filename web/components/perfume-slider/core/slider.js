@@ -103,6 +103,19 @@ export function createPerfumeSlider(root, options = {}) {
     typeof window !== "undefined" &&
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /**
+   * Touch devices skip the per-slide blur entirely — see the blur comment
+   * in layout() for why it's expensive, and drop it rather than tune it
+   * further: a phone dragging the ring is asking the GPU to promote and
+   * rasterise several filtered SVG layers on every pointer move, which is
+   * a much smaller machine doing much more work per frame than the desktop
+   * this was built and profiled on. depth-of-field on the background
+   * bottles is worth losing for a drag that doesn't stutter.
+   */
+  const coarsePointer =
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    window.matchMedia("(pointer: coarse)").matches;
 
   /* ------------------------------------------------------------------ DOM */
 
@@ -631,7 +644,7 @@ export function createPerfumeSlider(root, options = {}) {
        * frames reuse the last one and the eye cannot tell.
        */
       state.blurred = state.blurred ? t <= 0.6 + BLUR_MARGIN : t <= 0.6;
-      const blur = state.blurred ? Math.round((1 - t) * 5.2 * 4) / 4 : 0;
+      const blur = state.blurred && !coarsePointer ? Math.round((1 - t) * 5.2 * 4) / 4 : 0;
 
       // Deliberately a 2D transform. A 3D one (translate3d/perspective/rotateY)
       // promotes each slide to its own compositing layer, where Chromium keeps
