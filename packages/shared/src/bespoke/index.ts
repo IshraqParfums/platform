@@ -64,10 +64,14 @@ export type {
   BridgeSuggestion,
   BridgedFacet,
   CohesionReport,
+  Constituent,
   ConstituentTotal,
+  FacetLexicon,
   FiredNote,
+  MaterialComposition,
   SharedConstituent,
   SharedFacet,
+  TechniqueNote,
 } from "./atelier/affinity.js";
 
 export {
@@ -89,7 +93,9 @@ export {
 
 export type {
   BenchWarning,
+  FormulaRow,
   MaterialSeries,
+  NotePosition,
   PyramidSplit,
   VolatilityModel,
 } from "./atelier/volatility.js";
@@ -100,7 +106,12 @@ export {
   weightWord,
 } from "./atelier/impression.js";
 
-export type { Impression, ImpressionAct, NearestPerfume } from "./atelier/impression.js";
+export type {
+  CataloguePerfume,
+  Impression,
+  ImpressionAct,
+  NearestPerfume,
+} from "./atelier/impression.js";
 
 export {
   doseRemedies,
