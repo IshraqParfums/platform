@@ -208,6 +208,19 @@
   100% { opacity: 0.55; }
 }
 
+/*
+ * This pulse fires on every spray, including the automatic one ~210ms after
+ * any swipe lands — so on touch devices it was landing on exactly the
+ * frames the transition cut above (the coarse-pointer media query on
+ * .ipx-slider) was meant to protect. Same blurred, oversized layer, same
+ * tradeoff, same devices: cut instead of animate.
+ */
+@media (pointer: coarse) {
+  .ipx-slider.ipx-pulse .ipx-aura {
+    animation: none;
+  }
+}
+
 /* -------------------------------------------------------------- header */
 
 .ipx-head {
