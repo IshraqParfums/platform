@@ -43,8 +43,6 @@ export interface OrderItemResponse {
   unitPricePaise: number;
   quantity: number;
   lineTotalPaise: number;
-  /** Present for bespoke lines — formula snapshot at purchase. */
-  formulaJson?: unknown;
 }
 
 export interface OrderShippingAddress {

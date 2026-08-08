@@ -2,7 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { BespokeSessionRepository } from './bespoke-session.repository';
 
-const ABANDONED_SESSION_DAYS = 30;
+/** Keep abandoned sessions for the full analytics window (matches event retention). */
+const ABANDONED_SESSION_DAYS = 90;
 const EVENT_RETENTION_DAYS = 90;
 const DAY_MS = 24 * 60 * 60 * 1000;
 

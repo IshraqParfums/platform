@@ -1,5 +1,6 @@
 export type {
   AdminOrderDetail,
+  AdminOrderItemResponse,
   AdminOrderSummary,
   AdminOrderStatusGroup,
   UpdateOrderStatusBody,

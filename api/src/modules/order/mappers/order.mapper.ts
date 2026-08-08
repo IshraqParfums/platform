@@ -1,5 +1,6 @@
 import type {
   AdminOrderDetail,
+  AdminOrderItemResponse,
   AdminOrderSummary,
   OrderDetail,
   OrderItemResponse,
@@ -10,9 +11,9 @@ import type {
   OrderWithRelations,
 } from '../order.repository';
 
-function toOrderItemResponse(
-  item: OrderWithRelations['items'][number],
-): OrderItemResponse {
+type OrderItemRow = OrderWithRelations['items'][number];
+
+function toOrderItemBase(item: OrderItemRow): OrderItemResponse {
   const isBespoke =
     item.bespokePerfumeId != null || item.productVariantId == null;
 
@@ -27,10 +28,23 @@ function toOrderItemResponse(
     unitPricePaise: item.unitPricePaise,
     quantity: item.quantity,
     lineTotalPaise: item.lineTotalPaise,
-    ...(isBespoke && item.formulaJson != null
-      ? { formulaJson: item.formulaJson }
-      : {}),
   };
+}
+
+/** Customer-facing — never includes formula IP. */
+export function toOrderItemResponse(item: OrderItemRow): OrderItemResponse {
+  return toOrderItemBase(item);
+}
+
+/** Admin-facing — includes formula snapshot for bespoke lines. */
+export function toAdminOrderItemResponse(
+  item: OrderItemRow,
+): AdminOrderItemResponse {
+  const base = toOrderItemBase(item);
+  if (base.kind === 'bespoke' && item.formulaJson != null) {
+    return { ...base, formulaJson: item.formulaJson };
+  }
+  return base;
 }
 
 export function toOrderSummary(order: OrderWithRelations): OrderSummary {
@@ -48,9 +62,8 @@ export function toOrderSummary(order: OrderWithRelations): OrderSummary {
   };
 }
 
-export function toOrderDetail(order: OrderWithRelations): OrderDetail {
+function toShippingAndPayment(order: OrderWithRelations) {
   return {
-    ...toOrderSummary(order),
     shippingAddress: {
       name: order.shippingName,
       phone: order.shippingPhone,
@@ -60,16 +73,23 @@ export function toOrderDetail(order: OrderWithRelations): OrderDetail {
       state: order.shippingState,
       pincode: order.shippingPincode,
     },
-    items: order.items.map(toOrderItemResponse),
     payment: order.payment
       ? {
           status: order.payment.status,
-          provider: 'RAZORPAY',
+          provider: 'RAZORPAY' as const,
           razorpayOrderId: order.payment.razorpayOrderId,
           razorpayPaymentId: order.payment.razorpayPaymentId,
           amountPaise: order.payment.amountPaise,
         }
       : null,
+  };
+}
+
+export function toOrderDetail(order: OrderWithRelations): OrderDetail {
+  return {
+    ...toOrderSummary(order),
+    ...toShippingAndPayment(order),
+    items: order.items.map(toOrderItemResponse),
   };
 }
 
@@ -85,7 +105,9 @@ export function toAdminOrderSummary(
 
 export function toAdminOrderDetail(order: OrderWithCustomer): AdminOrderDetail {
   return {
-    ...toOrderDetail(order),
+    ...toOrderSummary(order),
+    ...toShippingAndPayment(order),
+    items: order.items.map(toAdminOrderItemResponse),
     customerId: order.customer.id,
     customerPhone: order.customer.phone,
   };

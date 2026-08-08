@@ -1,7 +1,7 @@
 import { createHash, randomInt } from 'crypto';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import type { RequestOtpResponse } from '@ishraqparfums/shared';
+import { resolveOtpEnv } from '../../../config';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   OTP_MAX_PER_15_MIN,
@@ -19,14 +19,13 @@ const WINDOW_15_MIN_MS = 15 * 60 * 1000;
 @Injectable()
 export class OtpService {
   constructor(
-    private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
     private readonly otpRepository: OtpRepository,
     @Inject(OTP_SENDER) private readonly otpSender: OtpSender,
   ) {}
 
   private get pepper(): string {
-    return this.configService.getOrThrow<string>('OTP_PEPPER');
+    return resolveOtpEnv().pepper;
   }
 
   private hashCode(code: string): string {

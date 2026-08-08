@@ -315,7 +315,9 @@ model BespokeSession {
   events           BespokeQuizEvent[]
 
   @@index([customerId])
+  @@index([customerId, status])
   @@index([status, expiresAt])
+  @@index([status, updatedAt])
   @@index([bespokePerfumeId])
   @@map("bespoke_sessions")
 }

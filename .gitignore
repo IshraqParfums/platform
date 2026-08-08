@@ -48,3 +48,5 @@ postman/
 
 # Templates
 templates/
+
+.pnpm-store/

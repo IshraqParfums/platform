@@ -102,6 +102,7 @@ export {
 } from "./admin-catalog/index.js";
 export type {
   AdminOrderDetail,
+  AdminOrderItemResponse,
   AdminOrderSummary,
   AdminOrderStatusGroup,
   UpdateOrderStatusBody,

@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { createHmac, timingSafeEqual } from 'crypto';
 import Razorpay from 'razorpay';
+import {
+  resolvePaymentsEnv,
+  type PaymentsEnv,
+} from '../../config';
 
 export type RazorpayOrderResult = {
   id: string;
@@ -12,22 +15,32 @@ export type RazorpayOrderResult = {
 
 @Injectable()
 export class RazorpayClient {
-  private readonly client: Razorpay;
-  readonly keyId: string;
-  private readonly keySecret: string;
-  private readonly webhookSecret: string;
+  private memo: { env: PaymentsEnv; client: Razorpay } | null = null;
 
-  constructor(configService: ConfigService) {
-    this.keyId = configService.getOrThrow<string>('RAZORPAY_KEY_ID');
-    this.keySecret = configService.getOrThrow<string>('RAZORPAY_KEY_SECRET');
-    this.webhookSecret = configService.getOrThrow<string>(
-      'RAZORPAY_WEBHOOK_SECRET',
-    );
+  /** Public key id for the checkout payload — resolves payments env on demand. */
+  get keyId(): string {
+    return this.credentials().keyId;
+  }
 
-    this.client = new Razorpay({
-      key_id: this.keyId,
-      key_secret: this.keySecret,
-    });
+  private credentials(): PaymentsEnv {
+    return this.ensure().env;
+  }
+
+  private sdk(): Razorpay {
+    return this.ensure().client;
+  }
+
+  private ensure(): { env: PaymentsEnv; client: Razorpay } {
+    if (this.memo) return this.memo;
+    const env = resolvePaymentsEnv();
+    this.memo = {
+      env,
+      client: new Razorpay({
+        key_id: env.keyId,
+        key_secret: env.keySecret,
+      }),
+    };
+    return this.memo;
   }
 
   async createOrder(input: {
@@ -36,7 +49,7 @@ export class RazorpayClient {
     notes?: Record<string, string>;
   }): Promise<RazorpayOrderResult> {
     // Orders API rejects expire_by (Payment Links only). Expiry is ours locally.
-    const order = (await this.client.orders.create({
+    const order = (await this.sdk().orders.create({
       amount: input.amountPaise,
       currency: 'INR',
       receipt: input.receipt,
@@ -52,7 +65,7 @@ export class RazorpayClient {
   }
 
   async fetchOrder(razorpayOrderId: string): Promise<RazorpayOrderResult> {
-    const order = (await this.client.orders.fetch(
+    const order = (await this.sdk().orders.fetch(
       razorpayOrderId,
     )) as RazorpayOrderResult;
 
@@ -67,7 +80,7 @@ export class RazorpayClient {
   async fetchPaymentsForOrder(
     razorpayOrderId: string,
   ): Promise<Array<{ id: string; status: string; amount: number }>> {
-    const result = (await this.client.orders.fetchPayments(
+    const result = (await this.sdk().orders.fetchPayments(
       razorpayOrderId,
     )) as {
       items?: Array<{ id: string; status: string; amount: number | string }>;
@@ -86,7 +99,7 @@ export class RazorpayClient {
     razorpaySignature: string;
   }): boolean {
     const payload = `${input.razorpayOrderId}|${input.razorpayPaymentId}`;
-    const expected = createHmac('sha256', this.keySecret)
+    const expected = createHmac('sha256', this.credentials().keySecret)
       .update(payload)
       .digest('hex');
 
@@ -94,7 +107,7 @@ export class RazorpayClient {
   }
 
   verifyWebhookSignature(rawBody: string, signature: string): boolean {
-    const expected = createHmac('sha256', this.webhookSecret)
+    const expected = createHmac('sha256', this.credentials().webhookSecret)
       .update(rawBody)
       .digest('hex');
 

@@ -62,7 +62,9 @@ import {
 
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
-const RATE_LIMIT_MAX_SESSIONS = 20;
+const RATE_LIMIT_MAX_SESSIONS = 30;
+/** Concurrent ACTIVE consultations per logged-in customer; oldest is expired. */
+const MAX_ACTIVE_SESSIONS_PER_CUSTOMER = 3;
 const MAX_FOLLOWUP_TEXT = 500;
 const MAX_FREE_TEXT = 1000;
 
@@ -171,6 +173,13 @@ export class BespokeSessionService {
           'Too many consultations started from here. Try again in an hour.',
           HttpStatus.TOO_MANY_REQUESTS,
         );
+      }
+    }
+
+    if (customerId) {
+      const active = await this.sessions.countActiveByCustomer(customerId);
+      if (active >= MAX_ACTIVE_SESSIONS_PER_CUSTOMER) {
+        await this.sessions.expireOldestActiveForCustomer(customerId);
       }
     }
 

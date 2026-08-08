@@ -24,7 +24,7 @@ Copy environment variables:
 cp .env.example .env
 ```
 
-Fill in Supabase `DATABASE_URL` / `DIRECT_URL`, auth secrets (`JWT_SECRET`, `OTP_PEPPER`, `SUPABASE_JWT_SECRET`, `SUPABASE_ANON_KEY`), `SUPABASE_SERVICE_ROLE_KEY` (product image uploads), and Razorpay keys before running checkout. Business-rule values (shipping, pricing, OTP limits, etc.) are code constants, not env vars — see [Environment variables](#environment-variables).
+Fill in **boot-required** secrets (`DATABASE_URL`, `JWT_SECRET`) before starting Nest. Feature credentials (OTP pepper, Razorpay, Supabase admin/storage) are optional at boot — missing ones return HTTP **503** on that feature only. Business-rule values (shipping, pricing, OTP limits, etc.) are code constants, not env vars — see [Environment variables](#environment-variables).
 
 ## Scripts
 
@@ -105,20 +105,33 @@ Not paginated: cart, addresses, collections.
 
 ## Environment variables
 
+### Required to start
+
+Missing any of these → Nest refuses to boot (`assertBootEnv` in `main.ts`).
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | Pooled Postgres URL used by the running app |
+| `JWT_SECRET` | HS256 secret for customer access tokens |
+
+### Optional / tooling
+
 | Variable | Description |
 |----------|-------------|
 | `PORT` | HTTP server port (default `3001`) |
-| `DATABASE_URL` | Pooled Postgres URL used by the running app |
-| `DIRECT_URL` | Direct Postgres URL used by Prisma Migrate |
-| `JWT_SECRET` | HS256 secret for customer access tokens |
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_JWT_SECRET` | Legacy HS256 JWT secret (API Settings). Still required for verifying legacy/`anon`-style HS256 tokens; **user access tokens on newer projects are ES256 and verified via JWKS** (`{SUPABASE_URL}/auth/v1/.well-known/jwks.json`) |
-| `SUPABASE_ANON_KEY` | Supabase anon/public key (server-side proxy for admin login's password grant) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-only; product image uploads to Storage) |
-| `OTP_PEPPER` | Pepper for hashing OTP codes at rest |
-| `RAZORPAY_KEY_ID` | Razorpay key id (test or live) |
-| `RAZORPAY_KEY_SECRET` | Razorpay key secret |
-| `RAZORPAY_WEBHOOK_SECRET` | Razorpay webhook signing secret |
+| `TRUST_PROXY` | Set to `1` behind a reverse proxy so `req.ip` is the client |
+| `DIRECT_URL` | Direct Postgres URL used by Prisma Migrate (not required at runtime) |
+
+### Required for feature X (HTTP 503 when missing)
+
+The API still boots. Only the named feature fails, with a stable `FEATURE_UNAVAILABLE` body.
+
+| Feature | Variables | Description |
+|---------|-----------|-------------|
+| Customer OTP | `OTP_PEPPER` | Pepper for hashing OTP codes at rest |
+| Payments | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` | Checkout, verify, webhooks |
+| Admin auth | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET` | Admin login proxy + JWT verification. Legacy HS256 uses the JWT secret; newer ES256 user tokens verify via JWKS at `{SUPABASE_URL}/auth/v1/.well-known/jwks.json` |
+| Media uploads | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Product image uploads to Storage (storefront reads do not need this) |
 
 Only secrets and per-deployment infra values are env vars. Business-rule numbers (OTP throttling, checkout timing, shipping cost, bespoke pricing, JWT lifetime, storage bucket name) are constants in their owning module — change them in code and redeploy, not via `.env`:
 

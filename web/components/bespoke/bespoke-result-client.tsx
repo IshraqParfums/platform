@@ -13,6 +13,7 @@ import { BespokeBrewSkeleton } from "@/components/bespoke/bespoke-skeletons";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { loadBespokeSessionResult } from "@/lib/bespoke/complete-session";
 
 export function BespokeResultClient() {
   const params = useParams<{ sessionId: string }>();
@@ -28,30 +29,7 @@ export function BespokeResultClient() {
     let cancelled = false;
     void (async () => {
       try {
-        const res = await fetch(`/api/bespoke/sessions/${sessionId}/result`);
-        if (res.status === 401 || res.status === 404) {
-          const complete = await fetch(
-            `/api/bespoke/sessions/${sessionId}/complete`,
-            { method: "POST" },
-          );
-          if (!complete.ok) {
-            const body = (await complete.json().catch(() => ({}))) as {
-              message?: string;
-            };
-            throw new Error(body.message ?? "Result unavailable");
-          }
-          const data =
-            (await complete.json()) as BespokeSessionResultResponse;
-          if (!cancelled) setResult(data);
-          return;
-        }
-        if (!res.ok) {
-          const body = (await res.json().catch(() => ({}))) as {
-            message?: string;
-          };
-          throw new Error(body.message ?? "Result unavailable");
-        }
-        const data = (await res.json()) as BespokeSessionResultResponse;
+        const data = await loadBespokeSessionResult(sessionId);
         if (!cancelled) setResult(data);
       } catch (e) {
         if (!cancelled) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type {
   BespokeAnswerBody,
   BespokePublicNode,
@@ -15,11 +15,24 @@ import {
   BESPOKE_FAMILY_COLOR,
   type BespokeDimension,
 } from "@ishraqparfums/shared";
+import {
+  BespokeQuizLanding,
+  BespokeQuizLostSession,
+} from "@/components/bespoke/bespoke-quiz-landing";
+import { FollowupTextStep } from "@/components/bespoke/followup-text-step";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { Eyebrow } from "@/components/ui/eyebrow";
+import { completeBespokeSession } from "@/lib/bespoke/complete-session";
+import { useBespokeSessions } from "@/lib/bespoke/use-bespoke-sessions";
 
 type CreateSafe = Omit<BespokeSessionCreateResponse, "sessionToken">;
+
+type QuizPhase =
+  | { kind: "landing" }
+  | { kind: "loading" }
+  | { kind: "lost" }
+  | { kind: "quiz" }
+  | { kind: "finishing" };
 
 async function readJson<T>(res: Response): Promise<T> {
   const data = (await res.json().catch(() => ({}))) as T & {
@@ -37,9 +50,34 @@ async function readJson<T>(res: Response): Promise<T> {
   return data;
 }
 
+function isLostStatus(status: number): boolean {
+  return status === 404 || status === 410;
+}
+
+function needsComplete(view: BespokeSessionViewResponse): boolean {
+  return (
+    view.finished ||
+    view.resultAvailable ||
+    !view.node ||
+    view.node.type === "act3_render"
+  );
+}
+
+async function abandonDeviceSession(sessionId: string): Promise<void> {
+  await fetch(`/api/bespoke/sessions/${sessionId}/device`, {
+    method: "DELETE",
+  }).catch(() => undefined);
+}
+
 export function BespokeQuizClient() {
   const router = useRouter();
-  const [started, setStarted] = useState(false);
+  const searchParams = useSearchParams();
+  const urlSessionId = searchParams.get("s");
+  const { state: listState, refresh: refreshList } = useBespokeSessions();
+
+  const [phase, setPhase] = useState<QuizPhase>(() =>
+    urlSessionId ? { kind: "loading" } : { kind: "landing" },
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -55,6 +93,7 @@ export function BespokeQuizClient() {
   const [echo, setEcho] = useState<string | null>(null);
   const [references, setReferences] = useState<BespokeReferenceProduct[]>([]);
   const [canBack, setCanBack] = useState(false);
+  const [finishedPending, setFinishedPending] = useState(false);
 
   const applyView = useCallback((view: BespokeSessionViewResponse) => {
     setSessionId(view.sessionId);
@@ -63,29 +102,117 @@ export function BespokeQuizClient() {
     setProgress(view.progress);
     setShortlist(view.shortlist);
     setCanBack(view.progress.questionsAnswered > 0 && !view.finished);
-    if (view.finished || view.resultAvailable) {
-      router.push(`/bespoke/result/${view.sessionId}`);
-    }
-  }, [router]);
+    setFinishedPending(needsComplete(view));
+    setPhase({ kind: "quiz" });
+  }, []);
 
-  async function begin() {
+  const markLost = useCallback(async (id: string) => {
+    setPhase({ kind: "lost" });
+    setSessionId(null);
+    setNode(null);
+    await abandonDeviceSession(id);
+  }, []);
+
+  const finishAndNavigate = useCallback(
+    async (id: string) => {
+      setPhase({ kind: "finishing" });
+      await completeBespokeSession(id);
+      router.push(`/bespoke/result/${id}`);
+    },
+    [router],
+  );
+
+  const createAndEnter = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch("/api/bespoke/sessions", { method: "POST" });
       const data = await readJson<CreateSafe>(res);
-      setStarted(true);
       setSessionId(data.sessionId);
       setVersion(data.version);
       setNode(data.node);
       setProgress(data.progress);
+      setShortlist(null);
       setCanBack(false);
+      setFinishedPending(false);
+      setEcho(null);
+      setPhase({ kind: "quiz" });
+      router.replace(`/bespoke/quiz?s=${encodeURIComponent(data.sessionId)}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not start the quiz");
+      setPhase({ kind: "landing" });
     } finally {
       setLoading(false);
     }
-  }
+  }, [router]);
+
+  // Load the URL-bound session (or return to landing when `s` is cleared).
+  useEffect(() => {
+    if (!urlSessionId) {
+      setPhase({ kind: "landing" });
+      setSessionId(null);
+      setNode(null);
+      setFinishedPending(false);
+      setError(null);
+      refreshList();
+      return;
+    }
+
+    // Already showing this session — skip re-fetch after create replace.
+    if (sessionId === urlSessionId && phase.kind === "quiz") {
+      return;
+    }
+
+    let cancelled = false;
+    setPhase({ kind: "loading" });
+    setError(null);
+
+    void (async () => {
+      try {
+        const res = await fetch(
+          `/api/bespoke/sessions/${encodeURIComponent(urlSessionId)}`,
+        );
+        if (cancelled) return;
+        if (isLostStatus(res.status)) {
+          await markLost(urlSessionId);
+          return;
+        }
+        const view = await readJson<BespokeSessionViewResponse>(res);
+        if (cancelled) return;
+        applyView(view);
+        if (needsComplete(view)) {
+          setPhase({ kind: "finishing" });
+          try {
+            await finishAndNavigate(view.sessionId);
+          } catch (e) {
+            if (!cancelled) {
+              setError(e instanceof Error ? e.message : "Could not finish");
+              setPhase({ kind: "quiz" });
+            }
+          }
+        }
+      } catch (e) {
+        if (cancelled) return;
+        const status =
+          e instanceof Error && "status" in e
+            ? (e as Error & { status: number }).status
+            : 0;
+        if (isLostStatus(status)) {
+          await markLost(urlSessionId);
+          return;
+        }
+        setError(e instanceof Error ? e.message : "Could not load consultation");
+        setPhase({ kind: "landing" });
+        router.replace("/bespoke/quiz");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // sessionId/phase omitted intentionally — only react to URL changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- URL is the source of truth
+  }, [urlSessionId]);
 
   useEffect(() => {
     if (node?.type !== "catalogue_select") return;
@@ -103,7 +230,39 @@ export function BespokeQuizClient() {
     };
   }, [node?.id, node?.type]);
 
-  async function submitAnswer(answer: BespokeAnswerBody, option?: BespokePublicOption) {
+  async function restartSession() {
+    if (!sessionId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/bespoke/sessions/${sessionId}/restart`, {
+        method: "POST",
+      });
+      if (isLostStatus(res.status)) {
+        await markLost(sessionId);
+        return;
+      }
+      applyView(await readJson<BespokeSessionViewResponse>(res));
+      setFinishedPending(false);
+    } catch (e) {
+      const status =
+        e instanceof Error && "status" in e
+          ? (e as Error & { status: number }).status
+          : 0;
+      if (isLostStatus(status) && sessionId) {
+        await markLost(sessionId);
+        return;
+      }
+      setError(e instanceof Error ? e.message : "Could not restart");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function submitAnswer(
+    answer: BespokeAnswerBody,
+    option?: BespokePublicOption,
+  ) {
     if (!sessionId || !node) return;
     setLoading(true);
     setError(null);
@@ -115,6 +274,10 @@ export function BespokeQuizClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nodeId: node.id, version, answer }),
       });
+      if (isLostStatus(res.status)) {
+        await markLost(sessionId);
+        return;
+      }
       if (res.status === 409) {
         const body = (await res.json()) as {
           session?: BespokeSessionViewResponse;
@@ -122,21 +285,26 @@ export function BespokeQuizClient() {
         };
         if (body.session) {
           applyView(body.session);
+          if (needsComplete(body.session)) {
+            await finishAndNavigate(body.session.sessionId);
+          }
           return;
         }
       }
       const view = await readJson<BespokeSessionViewResponse>(res);
       applyView(view);
-      if (view.finished || !view.node || view.node.type === "act3_render") {
-        setLoading(true);
-        const complete = await fetch(
-          `/api/bespoke/sessions/${sessionId}/complete`,
-          { method: "POST" },
-        );
-        await readJson(complete);
-        router.push(`/bespoke/result/${sessionId}`);
+      if (needsComplete(view)) {
+        await finishAndNavigate(view.sessionId);
       }
     } catch (e) {
+      const status =
+        e instanceof Error && "status" in e
+          ? (e as Error & { status: number }).status
+          : 0;
+      if (isLostStatus(status) && sessionId) {
+        await markLost(sessionId);
+        return;
+      }
       setError(e instanceof Error ? e.message : "Could not save answer");
     } finally {
       setLoading(false);
@@ -151,26 +319,94 @@ export function BespokeQuizClient() {
       const res = await fetch(`/api/bespoke/sessions/${sessionId}/back`, {
         method: "POST",
       });
+      if (isLostStatus(res.status)) {
+        await markLost(sessionId);
+        return;
+      }
       applyView(await readJson<BespokeSessionViewResponse>(res));
+      setFinishedPending(false);
     } catch (e) {
+      const status =
+        e instanceof Error && "status" in e
+          ? (e as Error & { status: number }).status
+          : 0;
+      if (isLostStatus(status) && sessionId) {
+        await markLost(sessionId);
+        return;
+      }
       setError(e instanceof Error ? e.message : "Could not go back");
     } finally {
       setLoading(false);
     }
   }
 
-  if (!started) {
+  async function handleAbandon(id: string) {
+    setLoading(true);
+    setError(null);
+    try {
+      await abandonDeviceSession(id);
+      refreshList();
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (phase.kind === "lost") {
     return (
-      <Container size="narrow" className="py-8 sm:py-12">
-        <Eyebrow>Bespoke consultation</Eyebrow>
-        <h1 className="font-display mt-4 text-hero font-semibold text-ink">
-          Fifteen questions.
-          <br />
-          <em className="italic text-ink-soft">None of them about perfume.</em>
-        </h1>
-        <p className="mt-5 max-w-md text-[15px] leading-relaxed text-ink-soft">
-          Answer honestly. We build a scent fingerprint, match a bottle, and
-          include a divergent 2&nbsp;ml sample with every order.
+      <BespokeQuizLostSession
+        busy={loading}
+        onBack={() => {
+          setPhase({ kind: "landing" });
+          router.replace("/bespoke/quiz");
+        }}
+        onStartNew={() => void createAndEnter()}
+      />
+    );
+  }
+
+  if (phase.kind === "landing" || !urlSessionId) {
+    const unfinished =
+      listState.status === "ready" ? listState.unfinished : [];
+    const finished = listState.status === "ready" ? listState.finished : [];
+    return (
+      <BespokeQuizLanding
+        unfinished={unfinished}
+        finished={finished}
+        loadingList={listState.status === "loading"}
+        listError={listState.status === "error" ? listState.message : null}
+        busy={loading}
+        error={error}
+        onBegin={() => void createAndEnter()}
+        onContinue={(id) => {
+          router.push(`/bespoke/quiz?s=${encodeURIComponent(id)}`);
+        }}
+        onAbandon={(id) => void handleAbandon(id)}
+        onStartNew={() => void createAndEnter()}
+      />
+    );
+  }
+
+  if (phase.kind === "loading" || phase.kind === "finishing") {
+    return (
+      <Container size="narrow" className="py-12">
+        <p className="text-ink-soft">
+          {phase.kind === "finishing"
+            ? "Preparing your result…"
+            : "Loading consultation…"}
+        </p>
+      </Container>
+    );
+  }
+
+  if (!node && !finishedPending) {
+    return (
+      <Container size="narrow" className="py-12">
+        <h2 className="font-display text-2xl font-semibold text-ink">
+          This consultation is outdated
+        </h2>
+        <p className="mt-3 text-[15px] text-ink-soft">
+          The question graph moved on. Restart to continue from the beginning of
+          this session.
         </p>
         {error ? (
           <p className="mt-4 text-sm text-rose" role="alert">
@@ -180,24 +416,25 @@ export function BespokeQuizClient() {
         <Button
           type="button"
           variant="emphasis"
-          size="lg"
-          className="mt-8 cursor-pointer"
+          className="mt-6 cursor-pointer"
           disabled={loading}
-          onClick={() => void begin()}
+          onClick={() => void restartSession()}
         >
-          {loading ? "Starting…" : "Begin"}
+          {loading ? "Restarting…" : "Restart consultation"}
         </Button>
       </Container>
     );
   }
 
-  if (!node) {
+  if (!node && finishedPending) {
     return (
       <Container size="narrow" className="py-12">
         <p className="text-ink-soft">Preparing your result…</p>
       </Container>
     );
   }
+
+  if (!node) return null;
 
   const pct = Math.min(
     100,
@@ -230,10 +467,7 @@ export function BespokeQuizClient() {
         />
       </div>
 
-      <EssenceOrb
-        primary={node.options?.[0] ? undefined : undefined}
-        answerCount={progress.questionsAnswered}
-      />
+      <EssenceOrb answerCount={progress.questionsAnswered} />
 
       <h2 className="font-display mt-8 text-[clamp(22px,3vw,32px)] font-semibold leading-snug text-ink">
         {node.text}
@@ -265,12 +499,7 @@ export function BespokeQuizClient() {
   );
 }
 
-function EssenceOrb({
-  answerCount,
-}: {
-  primary?: BespokeDimension;
-  answerCount: number;
-}) {
+function EssenceOrb({ answerCount }: { answerCount: number }) {
   const dims = Object.keys(BESPOKE_FAMILY_COLOR) as BespokeDimension[];
   const dim = dims[Math.min(answerCount, dims.length - 1)] ?? "woody";
   const color = BESPOKE_FAMILY_COLOR[dim];
@@ -303,28 +532,24 @@ function NodeBody({
   switch (node.type) {
     case "single_select":
       return (
-        <ul className="flex flex-col gap-2.5">
-          {(node.options ?? []).map((option, i) => (
-            <li key={option.id}>
-              <OptionButton
-                disabled={disabled}
-                label={option.label}
-                highlight={option.highlight}
-                index={i}
-                onClick={() =>
-                  onAnswer({ kind: "select", optionIds: [option.id] }, option)
-                }
-              />
-            </li>
-          ))}
-        </ul>
+        <SingleSelectWithFollowup
+          options={node.options ?? []}
+          disabled={disabled}
+          onAnswer={onAnswer}
+        />
       );
     case "multi_select":
       return (
         <MultiSelect
           options={node.options ?? []}
           disabled={disabled}
-          onSubmit={(ids) => onAnswer({ kind: "select", optionIds: ids })}
+          onSubmit={(ids, followupText) =>
+            onAnswer({
+              kind: "select",
+              optionIds: ids,
+              ...(followupText ? { followupText } : {}),
+            })
+          }
         />
       );
     case "free_text":
@@ -354,7 +579,9 @@ function NodeBody({
                 type="button"
                 disabled={disabled}
                 className="w-full cursor-pointer rounded-xl border border-ink/12 bg-card px-4 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-cream-soft disabled:opacity-50"
-                onClick={() => onAnswer({ kind: "candidate", accordId: card.id })}
+                onClick={() =>
+                  onAnswer({ kind: "candidate", accordId: card.id })
+                }
               >
                 <span className="font-display text-lg font-semibold text-ink">
                   {card.label}
@@ -396,6 +623,57 @@ function NodeBody({
     default:
       return null;
   }
+}
+
+function SingleSelectWithFollowup({
+  options,
+  disabled,
+  onAnswer,
+}: {
+  options: BespokePublicOption[];
+  disabled: boolean;
+  onAnswer: (answer: BespokeAnswerBody, option?: BespokePublicOption) => void;
+}) {
+  const [pending, setPending] = useState<BespokePublicOption | null>(null);
+
+  if (pending?.followup_free_text) {
+    return (
+      <FollowupTextStep
+        prompt={pending.followup_free_text}
+        disabled={disabled}
+        onCancel={() => setPending(null)}
+        onSubmit={(followupText) => {
+          onAnswer(
+            { kind: "select", optionIds: [pending.id], followupText },
+            pending,
+          );
+          setPending(null);
+        }}
+      />
+    );
+  }
+
+  return (
+    <ul className="flex flex-col gap-2.5">
+      {options.map((option, i) => (
+        <li key={option.id}>
+          <OptionButton
+            disabled={disabled}
+            label={option.label}
+            highlight={option.highlight}
+            index={i}
+            onClick={() => {
+              if (option.followup_free_text) {
+                setPending(option);
+                return;
+              }
+              onAnswer({ kind: "select", optionIds: [option.id] }, option);
+            }}
+          />
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function OptionButton({
@@ -442,9 +720,11 @@ function MultiSelect({
 }: {
   options: BespokePublicOption[];
   disabled: boolean;
-  onSubmit: (ids: string[]) => void;
+  onSubmit: (ids: string[], followupText?: string) => void;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
+  const [awaitingFollowup, setAwaitingFollowup] = useState(false);
+
   function toggle(option: BespokePublicOption) {
     if (option.exclusive) {
       setSelected([option.id]);
@@ -459,6 +739,25 @@ function MultiSelect({
         : [...withoutExclusive, option.id];
     });
   }
+
+  const followupPrompt = options.find(
+    (o) => selected.includes(o.id) && o.followup_free_text,
+  )?.followup_free_text;
+
+  if (awaitingFollowup && followupPrompt) {
+    return (
+      <FollowupTextStep
+        prompt={followupPrompt}
+        disabled={disabled}
+        onCancel={() => setAwaitingFollowup(false)}
+        onSubmit={(followupText) => {
+          onSubmit(selected, followupText);
+          setAwaitingFollowup(false);
+        }}
+      />
+    );
+  }
+
   return (
     <div>
       <ul className="flex flex-col gap-2.5">
@@ -487,7 +786,13 @@ function MultiSelect({
         variant="emphasis"
         className="mt-5 cursor-pointer"
         disabled={disabled || selected.length === 0}
-        onClick={() => onSubmit(selected)}
+        onClick={() => {
+          if (followupPrompt) {
+            setAwaitingFollowup(true);
+            return;
+          }
+          onSubmit(selected);
+        }}
       >
         Continue
       </Button>
@@ -569,7 +874,9 @@ function NameEntry({
               type="button"
               disabled={disabled}
               className="cursor-pointer rounded-full border border-ink/15 px-3 py-1.5 text-sm text-ink hover:border-ink/40 disabled:opacity-50"
-              onClick={() => onSubmit(offer, dedication || undefined, "chose_offered")}
+              onClick={() =>
+                onSubmit(offer, dedication || undefined, "chose_offered")
+              }
             >
               {offer}
             </button>
@@ -605,7 +912,9 @@ function NameEntry({
         type="button"
         variant="emphasis"
         className="cursor-pointer self-start"
-        disabled={disabled || name.trim().length < (fields?.perfume_name.min ?? 1)}
+        disabled={
+          disabled || name.trim().length < (fields?.perfume_name.min ?? 1)
+        }
         onClick={() =>
           onSubmit(name.trim(), dedication.trim() || undefined, "customer_typed")
         }

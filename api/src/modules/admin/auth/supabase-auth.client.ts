@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { createClient } from '@supabase/supabase-js';
+import { resolveAdminAuthEnv } from '../../../config';
 
 type SupabaseClient = ReturnType<typeof createClient>;
 
@@ -11,19 +11,14 @@ type SupabaseClient = ReturnType<typeof createClient>;
  * sharing one instance across concurrent requests risks cross-request session
  * confusion. Storage's client (media/supabase-storage.client.ts) is safe to cache
  * because Storage calls are stateless.
+ *
+ * Credentials resolve on use so missing admin-auth env does not block Nest boot.
  */
 @Injectable()
 export class SupabaseAuthClient {
-  private readonly url: string;
-  private readonly anonKey: string;
-
-  constructor(configService: ConfigService) {
-    this.url = configService.getOrThrow<string>('SUPABASE_URL');
-    this.anonKey = configService.getOrThrow<string>('SUPABASE_ANON_KEY');
-  }
-
   create(): SupabaseClient {
-    return createClient(this.url, this.anonKey, {
+    const { url, anonKey } = resolveAdminAuthEnv();
+    return createClient(url, anonKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
   }

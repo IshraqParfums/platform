@@ -90,6 +90,23 @@ export class BespokeSessionRepository {
     });
   }
 
+  countActiveByCustomer(customerId: string): Promise<number> {
+    return this.prisma.bespokeSession.count({
+      where: { customerId, status: BespokeSessionStatus.ACTIVE },
+    });
+  }
+
+  /** Expire the oldest ACTIVE session for a customer (FIFO for the concurrent cap). */
+  async expireOldestActiveForCustomer(customerId: string): Promise<void> {
+    const oldest = await this.prisma.bespokeSession.findFirst({
+      where: { customerId, status: BespokeSessionStatus.ACTIVE },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true },
+    });
+    if (!oldest) return;
+    await this.markExpired(oldest.id);
+  }
+
   /**
    * Compare-and-set on `version`: returns the refreshed row, or null when
    * another request advanced the session first.
@@ -216,7 +233,7 @@ export class BespokeSessionRepository {
       FROM "bespoke_quiz_events" e
       WHERE e."type" = 'answer' AND e."at" >= ${since}
       GROUP BY e."nodeId"
-      ORDER BY "sessions" DESC, e."nodeId" ASC
+      ORDER BY MIN(e."at") ASC, e."nodeId" ASC
     `;
   }
 
@@ -225,7 +242,11 @@ export class BespokeSessionRepository {
       where: {
         bespokePerfumeId: null,
         status: {
-          in: [BespokeSessionStatus.ACTIVE, BespokeSessionStatus.EXPIRED],
+          in: [
+            BespokeSessionStatus.ACTIVE,
+            BespokeSessionStatus.EXPIRED,
+            BespokeSessionStatus.COMPLETED,
+          ],
         },
         updatedAt: { lt: before },
       },

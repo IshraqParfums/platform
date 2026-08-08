@@ -1,13 +1,24 @@
-import type { OrderDetail, OrderStatus, OrderSummary } from "../order/order-contracts.js";
+import type {
+  OrderDetail,
+  OrderItemResponse,
+  OrderStatus,
+  OrderSummary,
+} from "../order/order-contracts.js";
 
 export interface AdminOrderSummary extends OrderSummary {
   customerId: string;
   customerPhone: string;
 }
 
-export interface AdminOrderDetail extends OrderDetail {
+/** Admin-only — includes formula snapshot for bespoke fulfillment. */
+export interface AdminOrderItemResponse extends OrderItemResponse {
+  formulaJson?: unknown;
+}
+
+export interface AdminOrderDetail extends Omit<OrderDetail, "items"> {
   customerId: string;
   customerPhone: string;
+  items: AdminOrderItemResponse[];
 }
 
 export interface UpdateOrderStatusBody {

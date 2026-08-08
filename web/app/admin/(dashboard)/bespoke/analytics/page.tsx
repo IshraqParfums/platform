@@ -55,7 +55,7 @@ export default async function AdminBespokeAnalyticsPage({
         <Stat label="Started" value={String(data.sessionsStarted)} />
         <Stat label="Completed" value={String(data.sessionsCompleted)} />
         <Stat label="Claimed" value={String(data.sessionsClaimed)} />
-        <Stat label="Active now" value={String(data.sessionsActive)} />
+        <Stat label="Active in range" value={String(data.sessionsActive)} />
         <Stat label="Completion rate" value={pct(data.completionRate)} />
         <Stat label="Claim rate" value={pct(data.claimRate)} />
         <Stat

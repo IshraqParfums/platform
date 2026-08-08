@@ -18,6 +18,7 @@ import {
   formatOrderDateTime,
   orderReference,
 } from "@/lib/orders/order-status";
+import { orderItemHref } from "@/lib/orders/order-item-href";
 import { cn } from "@/lib/cn";
 
 /**
@@ -156,19 +157,25 @@ function OrderReceipt({ order }: { order: OrderDetailResponse }) {
     <div className={cn(checkoutLayout.panel, "mt-8")}>
       <div className={checkoutLayout.panelSplit}>
         <ul className="divide-y divide-ink/[0.07]">
-          {order.items.map((item) => (
+          {order.items.map((item) => {
+            const href = orderItemHref(item);
+            return (
             <li
               key={item.id}
               className="flex justify-between gap-4 py-3 text-sm first:pt-0"
             >
               <div className="min-w-0">
                 <p className="font-medium text-ink">
-                  <Link
-                    href={`/products/${item.productSlug}`}
-                    className="underline decoration-transparent decoration-1 underline-offset-[3px] transition-colors duration-200 hover:decoration-ink/40"
-                  >
-                    {item.productName}
-                  </Link>
+                  {href ? (
+                    <Link
+                      href={href}
+                      className="underline decoration-transparent decoration-1 underline-offset-[3px] transition-colors duration-200 hover:decoration-ink/40"
+                    >
+                      {item.productName}
+                    </Link>
+                  ) : (
+                    item.productName
+                  )}
                 </p>
                 <p className="mt-0.5 font-mono text-label-sm uppercase text-ink-faint">
                   {item.sizeMl} ml · Qty {item.quantity}
@@ -179,7 +186,8 @@ function OrderReceipt({ order }: { order: OrderDetailResponse }) {
                 {formatPaise(item.lineTotalPaise)}
               </p>
             </li>
-          ))}
+            );
+          })}
         </ul>
 
         <div className={checkoutLayout.panelAside}>

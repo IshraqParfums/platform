@@ -52,13 +52,21 @@ export class MediaService {
       return;
     }
 
-    const { error } = await this.storageClient.storage
-      .from(MEDIA_BUCKET)
-      .remove([storagePath]);
+    try {
+      const { error } = await this.storageClient.storage
+        .from(MEDIA_BUCKET)
+        .remove([storagePath]);
 
-    if (error) {
+      if (error) {
+        this.logger.warn(
+          `Failed to remove storage object "${storagePath}": ${error.message}`,
+        );
+      }
+    } catch (error) {
       this.logger.warn(
-        `Failed to remove storage object "${storagePath}": ${error.message}`,
+        `Failed to remove storage object "${storagePath}": ${
+          error instanceof Error ? error.message : 'unknown error'
+        }`,
       );
     }
   }

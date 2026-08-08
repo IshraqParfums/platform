@@ -4,7 +4,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
   createRemoteJWKSet,
   decodeProtectedHeader,
@@ -12,6 +11,10 @@ import {
   type JWTPayload,
   type JWTVerifyGetKey,
 } from 'jose';
+import {
+  FeatureUnavailableException,
+  resolveAdminAuthEnv,
+} from '../../../config';
 import { AdminService } from '../admin.service';
 import type { RequestWithAdmin } from '../types/request-with-admin';
 
@@ -19,10 +22,7 @@ import type { RequestWithAdmin } from '../types/request-with-admin';
 export class AdminJwtGuard implements CanActivate {
   private jwks: JWTVerifyGetKey | null = null;
 
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly adminService: AdminService,
-  ) {}
+  constructor(private readonly adminService: AdminService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithAdmin>();
@@ -42,7 +42,10 @@ export class AdminJwtGuard implements CanActivate {
 
     try {
       payload = await this.verifySupabaseAccessToken(token);
-    } catch {
+    } catch (error) {
+      if (error instanceof FeatureUnavailableException) {
+        throw error;
+      }
       throw new UnauthorizedException('Unauthorized.');
     }
 
@@ -72,24 +75,23 @@ export class AdminJwtGuard implements CanActivate {
    */
   private async verifySupabaseAccessToken(token: string): Promise<JWTPayload> {
     const { alg } = decodeProtectedHeader(token);
-    const supabaseUrl = this.configService.getOrThrow<string>('SUPABASE_URL');
+    const { url: supabaseUrl, jwtSecret } = resolveAdminAuthEnv();
     const issuer = `${supabaseUrl.replace(/\/$/, '')}/auth/v1`;
 
     if (alg === 'HS256') {
-      const secret = new TextEncoder().encode(
-        this.configService.getOrThrow<string>('SUPABASE_JWT_SECRET'),
-      );
+      const secret = new TextEncoder().encode(jwtSecret);
       const { payload } = await jwtVerify(token, secret, { issuer });
       return payload;
     }
 
-    const { payload } = await jwtVerify(token, this.getJwks(), { issuer });
+    const { payload } = await jwtVerify(token, this.getJwks(supabaseUrl), {
+      issuer,
+    });
     return payload;
   }
 
-  private getJwks(): JWTVerifyGetKey {
+  private getJwks(supabaseUrl: string): JWTVerifyGetKey {
     if (!this.jwks) {
-      const supabaseUrl = this.configService.getOrThrow<string>('SUPABASE_URL');
       this.jwks = createRemoteJWKSet(
         new URL(
           `${supabaseUrl.replace(/\/$/, '')}/auth/v1/.well-known/jwks.json`,

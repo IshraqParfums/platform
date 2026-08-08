@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   Logger,
@@ -23,10 +25,12 @@ import {
 } from '@ishraqparfums/shared';
 import { OrderStatus, type Prisma } from '@prisma/client';
 import { toPaginatedResponse, toSkipTake } from '../../common/pagination';
+import { FeatureUnavailableException } from '../../config';
 import { AddressService } from '../address/address.service';
 import { BespokePricingService } from '../bespoke/bespoke-pricing.service';
 import { BespokeService } from '../bespoke/bespoke.service';
 import { CartService } from '../cart/cart.service';
+import { isCheckoutLinePurchasable } from '../cart/cart-line-purchasable';
 import { CustomerService } from '../customer/customer.service';
 import { PaymentService } from '../payment/payment.service';
 import { ProductService } from '../product/product.service';
@@ -157,6 +161,19 @@ export class OrderService {
       throw new BadRequestException('Cart is empty');
     }
 
+    const sellable = cart.items.filter(isCheckoutLinePurchasable);
+    const skipped = cart.items.filter((item) => !isCheckoutLinePurchasable(item));
+
+    if (sellable.length === 0) {
+      throw new BadRequestException(
+        'No available items to checkout. Remove unavailable items from your cart.',
+      );
+    }
+
+    for (const item of skipped) {
+      await this.cartService.removeItem(customerId, item.id, 'summary');
+    }
+
     const lineSnapshots: Array<{
       productVariantId?: string | null;
       bespokePerfumeId?: string | null;
@@ -171,7 +188,7 @@ export class OrderService {
 
     let subtotalPaise = 0;
 
-    for (const item of cart.items) {
+    for (const item of sellable) {
       if (item.kind === 'bespoke') {
         const perfume = await this.bespokeService.requireOwned(
           customerId,
@@ -289,6 +306,18 @@ export class OrderService {
         error instanceof Error ? error.stack : undefined,
       );
       await this.releaseAndExpire(order);
+
+      // Keep feature-misconfig / 503 distinct from upstream Razorpay API failures.
+      if (error instanceof FeatureUnavailableException) {
+        throw error;
+      }
+      if (
+        error instanceof HttpException &&
+        error.getStatus() === HttpStatus.SERVICE_UNAVAILABLE
+      ) {
+        throw error;
+      }
+
       throw new BadRequestException(
         'Unable to start payment. Please try checkout again.',
       );

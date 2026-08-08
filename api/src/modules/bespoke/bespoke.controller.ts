@@ -32,6 +32,10 @@ import type {
 import { BespokeSessionService } from './bespoke-session.service';
 import { BespokeService } from './bespoke.service';
 import { AnswerBespokeSessionDto, RenameBespokeDto } from './dto/bespoke.dto';
+import {
+  isTrustProxyEnabled,
+  resolveClientIp,
+} from '../../common/client-ip';
 
 /** Raw session token, minted once at create and never returned again. */
 const SESSION_HEADER = 'x-bespoke-session';
@@ -40,17 +44,6 @@ function optionalCustomerId(
   request: RequestWithOptionalCustomer,
 ): string | null {
   return request.user?.customerId ?? null;
-}
-
-/**
- * `req.ip` is the load balancer's address unless Express is told to trust the
- * proxy, which would collapse the create-rate-limit into one global bucket.
- * The forwarded chain's first entry is the closest thing to a client address
- * available here; it only feeds an abuse counter, never an authorization
- * decision.
- */
-function clientIp(forwardedFor: string | undefined, fallback: string): string {
-  return forwardedFor?.split(',')[0]?.trim() || fallback;
 }
 
 @Controller('bespoke')
@@ -69,7 +62,11 @@ export class BespokeController {
   ): Promise<BespokeSessionCreateResponse> {
     return this.sessionService.create(
       optionalCustomerId(request),
-      clientIp(forwardedFor, ip),
+      resolveClientIp({
+        expressIp: ip,
+        forwardedFor,
+        trustProxy: isTrustProxyEnabled(),
+      }),
     );
   }
 
