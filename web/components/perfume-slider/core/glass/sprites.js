@@ -113,7 +113,14 @@ export function pendantDrop(color) {
   return c;
 }
 
-/** Out-of-focus blob, for mist still in the air on its way to the lens. */
+/**
+ * Out-of-focus speck, for mist still in the air on its way to the lens.
+ *
+ * A flat, wide falloff reads as a blurry disc — a water droplet seen soft,
+ * not a mote of atomised scent. Perfume mist is mostly air: a bright,
+ * tight core (what a speck of it actually is) inside a fast-fading haze
+ * (what it's doing to the light around it), rather than one even wash.
+ */
 export function blob(color) {
   const key = `blob|${color}`;
   const hit = cache.get(key);
@@ -125,8 +132,9 @@ export function blob(color) {
   const g = c.getContext("2d");
   const h = size / 2;
   const grad = g.createRadialGradient(h, h, 0, h, h, h);
-  grad.addColorStop(0, toRGBA(color, 0.5));
-  grad.addColorStop(0.4, toRGBA(color, 0.22));
+  grad.addColorStop(0, toRGBA(color, 0.6));
+  grad.addColorStop(0.3, toRGBA(color, 0.32));
+  grad.addColorStop(0.65, toRGBA(color, 0.1));
   grad.addColorStop(1, toRGBA(color, 0));
   g.fillStyle = grad;
   g.fillRect(0, 0, size, size);
