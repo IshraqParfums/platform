@@ -60,3 +60,10 @@ export class AdminBespokeAnalyticsQueryDto {
   @Max(365)
   days?: number;
 }
+
+export class AdminAtelierAccordSearchQueryDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  q?: string;
+}
