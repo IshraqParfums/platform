@@ -22,6 +22,20 @@ export type {
 export { BESPOKE_ENGINE_VERSION } from "./contracts.js";
 
 export type {
+  AtelierAccordSummary,
+  AtelierBootstrap,
+  AtelierCataloguePerfume,
+  AtelierConstituent,
+  AtelierFacetLexicon,
+  AtelierFormulaRow,
+  AtelierLoadedAccord,
+  AtelierMaterial,
+  AtelierMaterialComposition,
+  AtelierNotePosition,
+  AtelierTechniqueNote,
+} from "./atelier-contracts.js";
+
+export type {
   BespokeAccordFormulaLine,
   BespokeAccordSnapshot,
   BespokeAdminAnalytics,

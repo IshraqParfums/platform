@@ -218,3 +218,16 @@ export type {
   BespokeSessionViewResponse,
   RenameBespokeBody,
 } from "./bespoke/index.js";
+export type {
+  AtelierAccordSummary,
+  AtelierBootstrap,
+  AtelierCataloguePerfume,
+  AtelierConstituent,
+  AtelierFacetLexicon,
+  AtelierFormulaRow,
+  AtelierLoadedAccord,
+  AtelierMaterial,
+  AtelierMaterialComposition,
+  AtelierNotePosition,
+  AtelierTechniqueNote,
+} from "./bespoke/index.js";

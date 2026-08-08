@@ -193,6 +193,35 @@ export class BespokeSessionRepository {
     });
   }
 
+  /**
+   * The retail catalogue's scent profiles, for the Atelier bench's "what
+   * have I already made that is near this" panel — same profile source as
+   * referenceProducts(), with the collection name a perfumer would recognise
+   * a bottle by.
+   */
+  atelierCatalogueProfiles(): Promise<
+    {
+      id: string;
+      name: string;
+      scentProfileJson: Prisma.JsonValue;
+      collection: { name: string } | null;
+    }[]
+  > {
+    return this.prisma.product.findMany({
+      where: {
+        status: ProductStatus.ACTIVE,
+        scentProfileJson: { not: Prisma.DbNull },
+      },
+      select: {
+        id: true,
+        name: true,
+        scentProfileJson: true,
+        collection: { select: { name: true } },
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   findProductProfile(
     id: string,
   ): Promise<Pick<Product, 'id' | 'name' | 'scentProfileJson'> | null> {
