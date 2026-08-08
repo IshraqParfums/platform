@@ -8,7 +8,14 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { Constituent, FacetLexicon } from "./affinity.js";
 import type { AccordLibrary, QuestionGraph } from "./types.js";
+
+export interface TechniqueNoteDocument {
+  notes: import("./affinity.js").TechniqueNote[];
+  categories: Record<string, string>;
+  off_palette_materials: string[];
+}
 
 const DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "data");
 
@@ -35,6 +42,9 @@ let questionsCache: QuestionGraph | null = null;
 let accordsCache: AccordLibrary | null = null;
 let materialsCache: { meta: unknown; materials: unknown[] } | null = null;
 let checksumsCache: BespokeDataChecksums | null = null;
+let constituentsCache: { constituents: Constituent[] } | null = null;
+let facetLexiconCache: FacetLexicon | null = null;
+let techniqueNotesCache: TechniqueNoteDocument | null = null;
 
 export function getDataDir(): string {
   return DATA_DIR;
@@ -68,6 +78,31 @@ export function loadMaterials(): { meta: unknown; materials: unknown[] } {
     );
   }
   return materialsCache;
+}
+
+export function loadConstituents(): { constituents: Constituent[] } {
+  if (!constituentsCache) {
+    constituentsCache = readJson<{ constituents: Constituent[] }>(
+      "constituents.json",
+    );
+  }
+  return constituentsCache;
+}
+
+export function loadFacetLexicon(): FacetLexicon {
+  if (!facetLexiconCache) {
+    facetLexiconCache = readJson<FacetLexicon>("facet-lexicon.json");
+  }
+  return facetLexiconCache;
+}
+
+export function loadTechniqueNotes(): TechniqueNoteDocument {
+  if (!techniqueNotesCache) {
+    techniqueNotesCache = readJson<TechniqueNoteDocument>(
+      "technique-notes.json",
+    );
+  }
+  return techniqueNotesCache;
 }
 
 /**
