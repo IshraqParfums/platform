@@ -1296,6 +1296,24 @@
 
 .ipx-bottle-svg { transition: transform 420ms cubic-bezier(0.32, 0, 0.2, 1), filter 500ms ease; }
 
+/*
+ * Same failure as .ipx-aura, different element: the filter half of this
+ * transitions on every swipe (whichever bottle gains or loses .ipx-active),
+ * and with several bottles visible at once in the ring, that is several
+ * drop-shadows being re-rasterised every frame for 500ms at exactly the
+ * moment a slide transition is already the busiest thing on the page. A
+ * screen recording confirmed the blank flash lines up with a swipe, not
+ * just a scroll — cut this the same way rather than tune the radius, since
+ * tuning is what didn't hold up on .ipx-aura either. transform stays: it's
+ * cheap (a composited property, no rasterisation) and is what settles the
+ * bottle when the rod comes out.
+ */
+@media (pointer: coarse) {
+  .ipx-bottle-svg {
+    transition: transform 420ms cubic-bezier(0.32, 0, 0.2, 1);
+  }
+}
+
 /* Most of its bead is on the pointer now, but oil clings — a wand wiped
    perfectly clean is a glass stick, and stops reading as wet. */
 .ipx-slide.ipx-rod-out .ipx-rod-bead { opacity: 0.4; }
