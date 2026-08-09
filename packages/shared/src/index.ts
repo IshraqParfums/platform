@@ -231,6 +231,12 @@ export type {
   AtelierNotePosition,
   AtelierTechniqueNote,
 } from "./bespoke/index.js";
+export type {
+  LibraryAccordDetail,
+  LibraryAccordSummary,
+  LibraryFormulaLine,
+  LibraryIfraNote,
+} from "./bespoke/index.js";
 export {
   affinity,
   analyseCohesion,

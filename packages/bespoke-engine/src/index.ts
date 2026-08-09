@@ -189,3 +189,14 @@ export type {
   AtelierChemistry,
   AtelierLoadedAccord,
 } from "./atelier.js";
+
+/* -------------------------------------------------------------- Library -- */
+
+export { getLibraryAccordDetail, listLibraryAccordSummaries } from "./library.js";
+
+export type {
+  LibraryAccordDetail,
+  LibraryAccordSummary,
+  LibraryFormulaLine,
+  LibraryIfraNote,
+} from "./library.js";
