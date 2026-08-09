@@ -35,6 +35,13 @@ export type {
   AtelierTechniqueNote,
 } from "./atelier-contracts.js";
 
+export type {
+  LibraryAccordDetail,
+  LibraryAccordSummary,
+  LibraryFormulaLine,
+  LibraryIfraNote,
+} from "./library-contracts.js";
+
 /**
  * Client-safe Atelier bench engine — pure functions, no fs/Node access.
  * Mirror of packages/bespoke-engine's affinity/volatility/impression/suggest

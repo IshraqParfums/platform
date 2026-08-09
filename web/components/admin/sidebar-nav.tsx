@@ -4,6 +4,7 @@ import {
   Beaker,
   FlaskConical,
   LayoutDashboard,
+  Library,
   LogOut,
   Menu,
   Package,
@@ -29,6 +30,7 @@ const NAV = [
   { href: "/admin/collections", label: "Collections", icon: Tags },
   { href: "/admin/bespoke", label: "Bespoke", icon: FlaskConical },
   { href: "/admin/bespoke/atelier", label: "Atelier", icon: Beaker, exact: true },
+  { href: "/admin/bespoke/library", label: "Library", icon: Library, exact: true },
   { href: "/admin/customers", label: "Customers", icon: Users },
 ];
 

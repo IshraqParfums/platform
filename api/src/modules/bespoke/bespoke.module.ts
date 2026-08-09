@@ -3,8 +3,10 @@ import { AdminModule } from '../admin/admin.module';
 import { AuthModule } from '../auth/auth.module';
 import { AdminBespokeAtelierController } from './admin-bespoke-atelier.controller';
 import { AdminBespokeController } from './admin-bespoke.controller';
+import { AdminBespokeLibraryController } from './admin-bespoke-library.controller';
 import { BespokeAtelierService } from './bespoke-atelier.service';
 import { BespokeDataService } from './bespoke-data.service';
+import { BespokeLibraryService } from './bespoke-library.service';
 import { BespokePricingService } from './bespoke-pricing.service';
 import { BespokePruneScheduler } from './bespoke-prune.scheduler';
 import { BespokeSessionRepository } from './bespoke-session.repository';
@@ -19,10 +21,12 @@ import { BespokeService } from './bespoke.service';
     BespokeController,
     AdminBespokeController,
     AdminBespokeAtelierController,
+    AdminBespokeLibraryController,
   ],
   providers: [
     BespokeAtelierService,
     BespokeDataService,
+    BespokeLibraryService,
     BespokeRepository,
     BespokeSessionRepository,
     BespokeService,
