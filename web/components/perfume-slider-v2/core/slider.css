@@ -1,0 +1,1953 @@
+/* ==========================================================================
+   Perfume spray slider
+   Everything is scoped under .ipx-slider so it can drop into any page.
+   Palette follows the Ishraq Parfums house theme: deep espresso ground,
+   parchment type, rose + gold accents.
+   ========================================================================== */
+
+/* Registering these lets the stage wash crossfade between perfumes.
+   Browsers without @property just snap to the new colour. */
+@property --ipx-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #c9963e;
+}
+@property --ipx-aura {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #5a2e12;
+}
+@property --ipx-scent-top {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+@property --ipx-scent-heart {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+@property --ipx-scent-base {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+/* Registered so it animates instead of snapping — see .ipx-btn::before. */
+@property --ipx-gold-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 90deg;
+}
+
+.ipx-slider {
+  /* Repointed at the house tokens in app/globals.css. These eight names are
+     what the other 1650 lines of this file actually paint with, so the whole
+     of /collection follows the theme from here. The fallbacks keep the
+     component droppable into a page that has not defined them. */
+  --ipx-ink: var(--ground, #0a0806);
+  --ipx-ink-2: var(--surface, #12100c);
+  --ipx-cream: var(--ink, #ede2c8);
+  --ipx-cream-dim: rgba(237, 226, 200, 0.62);
+  --ipx-line: rgba(201, 150, 62, 0.2);
+  --ipx-accent: var(--gold-mid, #c9963e);
+  --ipx-accent-soft: var(--gold-light, #e8c87a);
+  --ipx-aura: var(--gold-shadow, #4a320d);
+
+  /* Bottle height drives the label's type scale as well as the SVG. */
+  --ipx-bottle-h: clamp(250px, 42vh, 390px);
+
+  /*
+   * The bare family names below only ever matched a font actually named
+   * that — which nothing in this app is. next/font (app/layout.tsx) loads
+   * Fraunces/Manrope/JetBrains Mono under generated, scoped family names
+   * exposed as these three CSS variables on <html>; without them every rule
+   * in this file that asked for "Fraunces" or "Manrope" silently fell back
+   * to a generic system serif/sans, which is what read as bland. The bare
+   * names stay as a second fallback so this component still looks right if
+   * it's ever dropped into a page that isn't running next/font.
+   */
+  --ipx-serif: var(--font-fraunces), "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+  --ipx-sans: var(--font-manrope), "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ipx-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /*
+   * Rolled-metal grain for the gold text/button faces below (--gold-grain).
+   * Without it the flat gold areas are visibly a CSS gradient; with it
+   * they read as a surface. The title and the solid button already both
+   * reference var(--gold-grain, none) — this was the missing half of that
+   * declaration, not new styling. Off-axis from the face ramp on purpose,
+   * so the two never line up into banding.
+   */
+  --gold-grain: repeating-linear-gradient(
+    96deg,
+    rgba(255, 252, 240, 0.028) 0 0.5px,
+    rgba(60, 38, 8, 0.032) 0.5px 1.5px,
+    rgba(255, 252, 240, 0) 1.5px 4px
+  );
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 2vh, 20px);
+  padding: clamp(20px, 4vh, 44px) clamp(16px, 4vw, 48px) clamp(18px, 3vh, 34px);
+  min-height: 640px;
+  /*
+   * The trailing colour on the last layer is not decorative — it is the one
+   * thing this rule was missing. Every layer above it is a gradient, which
+   * leaves this element's actual background-color transparent, and a
+   * transparent element has no safe colour of its own to show while its
+   * gradients are still rasterising. What a phone's compositor paints in
+   * that gap instead is whatever solid colour it can find further up — here,
+   * the page's own cream background-color — which is the flash reported
+   * through four rounds of chasing individual filters and transitions on
+   * this element and its children. Cutting the cost of any one of them was
+   * never going to fix the colour of the fallback the other, uncaught ones
+   * still fall back to. Giving the element a real solid colour of its own
+   * fixes the fallback directly, regardless of which child is slow to paint.
+   */
+  background:
+    radial-gradient(120% 74% at 50% -14%, color-mix(in oklab, var(--gold-shadow, #4a320d) 60%, transparent) 0%, transparent 56%),
+    linear-gradient(180deg, var(--ipx-ink-2) 0%, var(--ipx-ink) 55%, var(--well, #050403) 100%),
+    var(--well, #050403);
+  color: var(--ipx-cream);
+  font-family: var(--ipx-sans);
+  -webkit-font-smoothing: antialiased;
+  /*
+   * v1 crossfaded these five custom properties over 700ms on every perfume
+   * change, via @property registration. That meant every gradient reading
+   * any of them — most centrally .ipx-aura, below — was recomputed and
+   * re-rasterised on every frame of that 700ms window, not once. Four
+   * rounds of chasing the cost that put on individual elements (blur
+   * radius, pulse animation, drop-shadow transition, background-color
+   * fallback) never fully closed it out on real mid-range Android
+   * hardware. This rebuild removes the mechanism instead of tuning it:
+   * colours snap on a perfume change rather than crossfading. A cut is a
+   * few milliseconds of a discontinuity that reads as a beat, not a flaw;
+   * a still-possible blank flash mid-transition reads as broken.
+   */
+}
+
+.ipx-slider:focus-visible {
+  outline: 2px solid var(--ipx-accent);
+  outline-offset: -4px;
+}
+
+/* ------------------------------------------------------------- atmosphere */
+
+/* The air around the bottle, painted in what the perfume smells like.
+
+   Three washes stacked in the pyramid's own order: the top note highest and
+   brightest, the heart across the middle, the base pooled low and wide under
+   everything — which is where each of them sits on the skin as well. The
+   colours are the ones the layers are drawn in, so the atmosphere the bottle
+   stands in is a picture of the thing inside it rather than a tint chosen to
+   flatter the glass. Turning the table crossfades one perfume's air into the
+   next one's.
+
+   Registered as colours in @property so they actually crossfade rather than
+   snapping; a browser without it just cuts, which is what it did before. */
+.ipx-aura {
+  position: absolute;
+  inset: -5%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 26% at 50% 30%, var(--ipx-scent-top, transparent) 0%, transparent 70%),
+    radial-gradient(46% 32% at 50% 50%, var(--ipx-scent-heart, transparent) 0%, transparent 72%),
+    radial-gradient(64% 40% at 50% 74%, var(--ipx-scent-base, transparent) 0%, transparent 76%),
+    radial-gradient(46% 40% at 50% 46%, var(--ipx-aura) 0%, transparent 68%);
+  /* Was 0.5, which let a warm perfume repaint the entire stage brown. Held
+     down so the black ground still reads and the aura is the glow around the
+     bottle rather than the wall behind it. */
+  opacity: 0.3;
+  /*
+   * v1 had a filter: blur() here, on every device, at radii tuned down
+   * across three rounds (30px, then 16px) and eventually removed only on
+   * touch. It never fully closed the blank-flash issue, because the real
+   * problem was never the radius — it's that a filtered layer this size
+   * has to be rasterised as one unit, and that cost is paid regardless of
+   * how small the radius gets. This rebuild drops the blur outright, on
+   * every device: the four radial-gradients here already fade smoothly to
+   * transparent on their own, and the vignette layered on top (below)
+   * softens the aura's outer edge further. No filter, nothing to
+   * rasterise slowly, nothing to checkerboard.
+   */
+  transition: opacity 600ms ease;
+}
+
+.ipx-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(78% 58% at 50% 45%, transparent 34%, rgba(5, 4, 3, 0.82) 100%);
+}
+
+/* Fine film grain keeps the large flat areas from banding. */
+.ipx-vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.5'/></svg>");
+}
+
+.ipx-slider.ipx-pulse .ipx-aura {
+  animation: ipx-aura-pulse 1000ms cubic-bezier(0.16, 0.84, 0.32, 1);
+}
+
+/* Opacity only. This element is the size of the slider with a 28px blur on it,
+   so scaling it re-blurs the whole thing every frame for the length of the
+   animation — which is a lot of work to make a glow 4% bigger. Brightness
+   alone carries the same beat and composites for nothing. */
+@keyframes ipx-aura-pulse {
+  0% { opacity: 0.55; }
+  22% { opacity: 0.95; }
+  100% { opacity: 0.55; }
+}
+
+/* -------------------------------------------------------------- header */
+
+.ipx-head {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+}
+
+.ipx-eyebrow {
+  display: block;
+  font-family: var(--ipx-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ipx-accent-soft);
+}
+
+.ipx-hint {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--ipx-cream-dim);
+}
+
+/* This is a simulation, said before anyone reads a number about how long a
+   perfume lasts. Green rather than the house gold when it means it, on
+   purpose: gold is the brand talking, and a green live-dot is the convention
+   for "this is a readout" — it should not look like part of the marketing.
+   At rest it is neutral, matching the surrounding hint text, precisely so
+   the green only means one thing: a spray layer is actually being tested
+   right now (.ipx-wearing, set for as long as the wear trail is decaying —
+   see wear() and trail.onDone in slider.js). Green all the time would be
+   the label lying about what's happening on screen. */
+.ipx-sim {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 9px 0 0;
+  padding: 3px 9px 3px 7px;
+  border: 1px solid rgba(237, 226, 200, 0.14);
+  border-radius: 999px;
+  background: rgba(237, 226, 200, 0.04);
+  font-family: var(--ipx-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(237, 226, 200, 0.62);
+  transition: color 260ms ease, border-color 260ms ease, background-color 260ms ease;
+}
+
+.ipx-sim-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(237, 226, 200, 0.3);
+  box-shadow: 0 0 0 0 rgba(94, 224, 143, 0);
+  transition: background-color 260ms ease;
+}
+
+.ipx-slider.ipx-wearing .ipx-sim {
+  border-color: rgba(126, 231, 160, 0.24);
+  background: rgba(126, 231, 160, 0.07);
+  color: rgba(178, 240, 200, 0.78);
+}
+
+.ipx-slider.ipx-wearing .ipx-sim-dot {
+  background: #5ee08f;
+  box-shadow: 0 0 0 0 rgba(94, 224, 143, 0.55);
+  /* It breathes only while something is actually being simulated on the
+     skin — a dot that pulses at rest is decoration, and this one is meant
+     to mean something. */
+  animation: ipx-sim-live 2200ms ease-out infinite;
+}
+
+@keyframes ipx-sim-live {
+  0% { box-shadow: 0 0 0 0 rgba(94, 224, 143, 0.5); }
+  70% { box-shadow: 0 0 0 7px rgba(94, 224, 143, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(94, 224, 143, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ipx-slider.ipx-wearing .ipx-sim-dot { animation: none; }
+}
+
+/* --------------------------------------------------------------- stage */
+
+.ipx-stage {
+  position: relative;
+  z-index: 4;
+  flex: 1 1 auto;
+  min-height: clamp(280px, 42vh, 420px);
+  cursor: grab;
+  touch-action: pan-y; /* vertical page scrolling still works */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ipx-slider.ipx-dragging .ipx-stage { cursor: grabbing; }
+
+/* ------------------------------------------------------------- the table
+
+   The collection stands on a round table and the whole ring turns under a
+   fixed viewpoint. What is drawn here is only the surface; where the bottles
+   sit on it is worked out in layout(). The ellipse is wide and shallow because
+   we are looking across the table, almost along it — the same foreshortening
+   the seat geometry uses, so the two agree.                                  */
+
+/* Size and place come from measure(), not from here. The bottles' feet trace
+   the seat ellipse exactly, and a table drawn to any other proportion reads as
+   a shape they happen to be standing in front of. */
+.ipx-table {
+  position: absolute;
+  left: 50%;
+  z-index: 1;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.ipx-table-top,
+.ipx-table-rim,
+.ipx-table-edge,
+.ipx-table-cast {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+/* The slab's side.
+
+   The same ellipse as the top, dropped by the thickness. Where the two overlap
+   the top covers it; below, the crescent that is left over is exactly the side
+   of a round slab seen from above and in front — deepest at the middle, closing
+   to nothing at the far left and right. That is why the top has to be opaque:
+   it is not a wash over the backdrop any more, it is the lid of a solid thing.
+
+   Darker than the top and lit from above, because the side faces away from the
+   light the surface is catching. */
+.ipx-table-edge {
+  top: var(--ipx-thick, 30px);
+  background: linear-gradient(
+    180deg,
+    rgba(70, 51, 22, 1) 0%,
+    rgba(50, 36, 16, 1) 26%,
+    rgba(30, 22, 11, 1) 58%,
+    rgba(17, 12, 7, 1) 86%,
+    rgba(9, 7, 4, 1) 100%
+  );
+  /* The bottom of the side dissolves. On a short viewport the slab reaches the
+     caption, and a solid arc ending across the type is worse than a table that
+     loses its lowest edge to the dark — which is what an unlit underside does
+     anyway. The lit part, which is what carries the thickness, is untouched. */
+  mask-image: linear-gradient(180deg, #000 0 76%, rgba(0, 0, 0, 0.4) 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0 76%, rgba(0, 0, 0, 0.4) 92%, transparent 100%);
+}
+
+/* What the slab drops onto the floor beneath it. */
+.ipx-table-cast {
+  top: calc(var(--ipx-thick, 30px) * 1.45);
+  background: rgba(0, 0, 0, 0.7);
+  filter: blur(22px);
+  opacity: 0.45;
+}
+
+/* Polished stone, lit from where everything else in the scene is lit from.
+   Bright enough to read as a surface — the first pass was so restrained that
+   it disappeared into the backdrop and the bottles looked like they were
+   floating. The far half catches the light, the near half falls into shadow,
+   and a warm pool sits under whichever bottle is at the front. */
+.ipx-table-top {
+  background:
+    radial-gradient(38% 120% at 50% 96%, color-mix(in srgb, var(--ipx-accent) 46%, transparent) 0%, transparent 66%),
+    radial-gradient(70% 180% at 50% -34%, rgba(255, 243, 207, 0.2) 0%, transparent 60%),
+    linear-gradient(
+      180deg,
+      rgba(64, 47, 21, 1) 0%,
+      rgba(46, 33, 15, 1) 22%,
+      rgba(28, 20, 11, 1) 58%,
+      rgba(19, 14, 8, 1) 100%
+    );
+  /* Opaque, and it ends where it ends. It used to dissolve at the near edge to
+     avoid drawing a hard line across the caption — but the line is the point
+     now: it is where the top of the slab meets its side, and fading it out
+     takes the thickness away with it. */
+}
+
+/* The lit rim. A round table reads as round from its edge, not its face, so
+   this is the one part drawn crisply — a bright line all the way round,
+   strongest at the back where it faces the light. */
+.ipx-table-rim {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 243, 207, 0.95) 0%,
+      color-mix(in srgb, var(--gold-mid, #c9963e) 80%, transparent) 30%,
+      rgba(232, 200, 122, 0.34) 62%,
+      /* Brightest again right at the front: this is the lip where the polished
+         top turns over into the side, and a lit lip is what tells you the two
+         are one solid piece rather than a disc sitting on a band. */
+        rgba(255, 243, 207, 0.88) 100%
+    );
+  mask-image: radial-gradient(closest-side, transparent 0 97.5%, #000 98.6%);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 0 97.5%, #000 98.6%);
+}
+
+/* ------------------------------------------------------- reflections
+
+   A polished surface is recognised from what it gives back, not from its own
+   colour. This is a <use> of the bottle above it, flipped, softened and faded
+   into the table — so it follows the cap lifting and the liquid sloshing
+   without any of that being described twice.                                */
+
+.ipx-reflection {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: var(--ipx-bottle-h);
+
+  /* Mirrored about the line the bottle stands on — which is 90% of the way
+     down the SVG box, not its bottom edge (the viewBox leaves room under the
+     glass for the shadow). Flipping about the box instead sends the whole
+     reflection upward, over the bottle it is supposed to be under.
+
+     Squashed as well as flipped: the surface recedes away from the eye, so its
+     image is foreshortened rather than a straight mirror. */
+  transform-origin: center calc(var(--ipx-bottle-h) * 0.9);
+  transform: scaleY(-0.52);
+
+  /* Strongest where it meets the glass, gone by the time it reaches what would
+     be the cap. Applied in the element's own space, so "the base" is the
+     bottom of this gradient, before the flip. */
+  mask-image: linear-gradient(180deg, transparent 26%, rgba(0, 0, 0, 0.4) 64%, #000 90%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 26%, rgba(0, 0, 0, 0.4) 64%, #000 90%);
+
+  opacity: 0.3;
+  filter: blur(2.2px);
+  pointer-events: none;
+  /* Dropped for the bottles round the back — see layout(). */
+  visibility: var(--ipx-refl, visible);
+}
+
+.ipx-rail {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.ipx-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Sits the bottle low in the stage so the plume has somewhere to go. */
+  padding-top: clamp(40px, 9vh, 92px);
+  /* Measured in drawTable(): the line the bottles stand on. Scaling about it
+     rather than about the middle is what keeps every foot on the table. */
+  transform-origin: 50% var(--ipx-foot, 68%);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.ipx-bottle { position: relative; }
+
+/* ------------------------------------------------------------ the liquid
+
+   Turn the table and the juice lags behind the glass carrying it. The tilt is
+   set from how fast the ring is moving, about the middle of the meniscus; the
+   transition overshoots on the way back to level, which is what gives it the
+   slop of a liquid rather than the swing of a pendulum. */
+
+.ipx-juice {
+  transform: rotate(var(--ipx-slosh, 0deg));
+  transition: transform 640ms cubic-bezier(0.22, 1.42, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ipx-juice { transform: none; transition: none; }
+}
+
+.ipx-bottle-svg {
+  display: block;
+  height: var(--ipx-bottle-h);
+  width: auto;
+  overflow: visible;
+  filter: drop-shadow(0 24px 34px rgba(0, 0, 0, 0.55));
+  /*
+   * v1 transitioned filter here over 500ms on every .ipx-active change,
+   * i.e. on every swipe — and with several bottles visible in the ring at
+   * once, that's several drop-shadows being re-rasterised per frame at
+   * exactly the moment the slide transition is already the busiest thing
+   * on screen. Cut the same way as .ipx-aura's blur: not tuned down, gone.
+   * The active glow below now snaps instantly instead of fading in.
+   */
+}
+
+.ipx-slide.ipx-active .ipx-bottle-svg {
+  filter:
+    drop-shadow(0 24px 34px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 26px color-mix(in srgb, var(--ipx-accent) 40%, transparent));
+}
+
+/* ---------------------------------------------------------- bottle label
+
+   Deliberately HTML rather than SVG <text>: see renderLabel() in bottle.js.
+   Position and type size are percentages of the bottle box, so the label
+   tracks the glass exactly however the slider is scaled.                    */
+
+.ipx-label {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5%;
+  padding: 0 4%;
+  border-radius: 4px;
+  color: var(--ipx-l-ink);
+  background: var(--ipx-l-plate);
+  border: 0.5px solid rgba(255, 255, 255, 0.24);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ipx-label-foil {
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(255, 255, 255, 0) 42%,
+    rgba(0, 0, 0, 0.12) 100%
+  );
+  border-radius: 3px;
+}
+
+.ipx-label-etched { border-radius: 5px; }
+.ipx-label-plate { border-radius: 2px; }
+
+.ipx-l-mark {
+  font-family: var(--ipx-serif);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-indent: 0.14em; /* balances the trailing letter-spacing */
+}
+
+.ipx-l-name {
+  font-family: var(--ipx-serif);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.ipx-l-rule {
+  width: 62%;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.45;
+}
+
+.ipx-l-size {
+  font-family: var(--ipx-mono);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-indent: 0.12em;
+}
+
+/* ---------------------------------------------------------- the atomiser */
+
+.ipx-actuator { transform-origin: 110px 98px; }
+
+.ipx-slide.ipx-firing .ipx-actuator {
+  animation: ipx-press 440ms cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+@keyframes ipx-press {
+  0% { transform: translateY(0); }
+  14% { transform: translateY(4px); }
+  46% { transform: translateY(3.4px); }
+  100% { transform: translateY(0); }
+}
+
+/* Liquid pulled up the dip tube as the bottle fires. */
+.ipx-slide.ipx-firing .ipx-tube-draw {
+  animation: ipx-draw 520ms ease-out;
+}
+
+@keyframes ipx-draw {
+  0% { opacity: 0; }
+  18% { opacity: 0.85; }
+  62% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+
+.ipx-slide.ipx-firing .ipx-juice {
+  animation: ipx-slosh 620ms ease-out;
+}
+
+@keyframes ipx-slosh {
+  0% { transform: translateY(0); }
+  22% { transform: translateY(1.6px); }
+  60% { transform: translateY(-0.8px); }
+  100% { transform: translateY(0); }
+}
+
+/* --------------------------------------------------------- spray layers */
+
+/* Spans the whole slider, not just the stage: a lingering cloud clipped at
+   the stage rectangle shows a hard straight edge. */
+.ipx-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.ipx-notes-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 210;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ipx-note-float {
+  position: absolute;
+  font-family: var(--ipx-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ipx-accent-soft);
+  opacity: 0;
+  animation: ipx-note-rise 2600ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes ipx-note-rise {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.9); filter: blur(3px); }
+  18% { opacity: 0.95; filter: blur(0); }
+  100% {
+    opacity: 0;
+    transform: translate(var(--ipx-note-dx, 58px), var(--ipx-note-dy, -84px)) scale(1.08);
+    filter: blur(2px);
+  }
+}
+
+/* ------------------------------------------------------------ nav arrows */
+
+/* --------------------------------------------------------------- turning
+
+   These are not a decoration you can afford to hide. A press on wet glass
+   wipes rather than browses — deliberately, so one swipe cannot do both — and
+   that means whenever the screen is wet, dragging is not a way through the
+   collection. The arrows always are, so they are always plainly there.       */
+
+.ipx-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 430;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-top: -26px;
+  border: 1px solid color-mix(in srgb, var(--ipx-accent) 46%, transparent);
+  border-radius: 50%;
+  /*
+   * v1 also had a backdrop-filter: blur() here — not caught by any of the
+   * four rounds that chased the swipe blink, but the same risk: this
+   * button sits directly over the bottle ring, so a live backdrop-filter
+   * has to resample whatever's moving behind it on every frame of every
+   * swipe. Already had a solid-enough backing colour underneath the
+   * blur; bumped its opacity a little to stand on its own without it.
+   */
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(237, 226, 200, 0.16) 0%, transparent 70%),
+    rgba(28, 16, 11, 0.8);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+  color: var(--ipx-cream);
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.ipx-nav svg { width: 24px; height: 24px; }
+.ipx-nav:hover {
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(237, 226, 200, 0.24) 0%, transparent 70%),
+    color-mix(in srgb, var(--ipx-accent) 26%, rgba(28, 16, 11, 0.72));
+  border-color: var(--ipx-accent);
+  transform: scale(1.07);
+}
+.ipx-nav:active { transform: scale(0.95); }
+.ipx-nav:focus-visible {
+  outline: 2px solid var(--ipx-accent);
+  outline-offset: 3px;
+}
+.ipx-prev { left: clamp(2px, 2vw, 28px); }
+.ipx-next { right: clamp(2px, 2vw, 28px); }
+
+/* Wet glass is exactly when they matter, so say so. */
+.ipx-slider.ipx-wet .ipx-nav {
+  border-color: var(--ipx-accent);
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(237, 226, 200, 0.22) 0%, transparent 70%),
+    color-mix(in srgb, var(--ipx-accent) 20%, rgba(28, 16, 11, 0.7));
+}
+
+/* The wand is the cursor while it is out; the arrows keep their own. */
+.ipx-slider.ipx-armed .ipx-nav { cursor: pointer; }
+
+/* ------------------------------------------------------------------ info */
+
+.ipx-info {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+}
+
+.ipx-info-in { animation: ipx-fade-up 560ms cubic-bezier(0.16, 0.84, 0.32, 1); }
+
+@keyframes ipx-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ipx-collection {
+  display: block;
+  font-family: var(--ipx-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ipx-accent);
+}
+
+.ipx-name {
+  margin: 8px 0 6px;
+  font-family: var(--ipx-serif);
+  font-weight: 600;
+  font-size: clamp(30px, 5.4vw, 46px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  /* Same metal as .gold-emboss-display in app/globals.css: the flat gilded
+     face tiled per line with rolled grain over it, and the relief carried
+     entirely by the drop-shadow chain — chamfer, undercut, extruded side, cast
+     shadow. The face barely modulates on purpose; see the note on --gold-face.
+     A third layer on top — two blades, a soft wash and a hard core just
+     behind it — is a travelling specular pass, positioned off-screen at rest
+     and swept across on a loop by .ipx-name's animation below. A moving ramp
+     would do nothing visible here since the face's own bands already run
+     horizontally; this is a second, independent gradient sliding over it. */
+  background-image:
+    linear-gradient(
+      105deg,
+      transparent 34%,
+      rgba(255, 246, 214, 0.34) 44%,
+      rgba(255, 253, 244, 0.92) 49.5%,
+      rgba(255, 255, 255, 1) 50.5%,
+      rgba(255, 240, 200, 0.4) 55%,
+      rgba(255, 236, 190, 0.16) 62%,
+      transparent 70%
+    ),
+    var(--gold-grain, none),
+    var(
+      --gold-face,
+      linear-gradient(178deg, #cf9f48 0%, #e2b969 9%, #f2dca4 18%, #dcae5c 29%, #c9963e 50%, #c48f39 72%, #bb8433 100%)
+    );
+  /* The em pair is the fallback: without `lh` support the whole declaration
+     is invalid and a wrapped name gets one bright line and one dull one.
+     app/globals.css pairs these the same way. */
+  background-size: 240% 100%, auto auto, 100% 1.2em;
+  background-size: 240% 100%, auto auto, 100% 1lh;
+  background-repeat: no-repeat, repeat, repeat;
+  background-position: 160% 0, 0 0, 0 0;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 0.02em rgba(0, 0, 0, 0.95)) drop-shadow(0 -0.018em 0 #fff6d8)
+    drop-shadow(-0.013em -0.013em 0 #edd193) drop-shadow(0.015em 0.017em 0 #4a320d)
+    drop-shadow(0 0.034em 0 #2a1c07) drop-shadow(0 0.052em 0 #150e04)
+    drop-shadow(0 0.095em 0.085em rgba(0, 0, 0, 0.8));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ipx-name { animation: ipx-title-sweep 5s ease-in-out infinite; }
+}
+
+/* Holds off-screen for most of the cycle, then sweeps once — a glint the
+   name catches every few seconds, not a strobe. */
+@keyframes ipx-title-sweep {
+  0%, 55% { background-position: 160% 0, 0 0, 0 0; }
+  100% { background-position: -70% 0, 0 0, 0 0; }
+}
+
+.ipx-tagline {
+  margin: 0 auto 18px;
+  max-width: 46ch;
+  font-family: var(--ipx-serif);
+  font-style: italic;
+  font-size: clamp(14px, 1.6vw, 16.5px);
+  line-height: 1.55;
+  color: var(--ipx-cream-dim);
+}
+
+.ipx-notes {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 26px;
+  margin: 0 0 16px;
+}
+
+.ipx-note-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.ipx-note-row dt {
+  font-family: var(--ipx-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ipx-accent);
+}
+
+.ipx-note-row dd {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ipx-cream-dim);
+}
+
+.ipx-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-family: var(--ipx-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ipx-cream-dim);
+}
+
+.ipx-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ipx-accent);
+}
+
+.ipx-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* What to do, and then what you are looking at.
+   Fixed height so the caption does not change size as the sentence changes —
+   the block sits above the fixed tray, and anything that resizes here moves
+   everything above it. Two lines is enough for the longest of them. */
+.ipx-wear-hint {
+  margin: 10px auto 0;
+  max-width: 30em;
+  min-height: 2.9em;
+  font-size: 12px;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  text-align: center;
+  color: var(--ipx-cream-dim);
+  transition: color 400ms ease;
+}
+
+.ipx-btn {
+  /*
+   * position: relative alone (no isolation: isolate) is deliberate: a
+   * negative z-index child of an isolated element paints ABOVE that
+   * element's own background, not below it — confirmed empirically, it's
+   * the opposite of what "isolate its stacking context" suggests — which
+   * would bury .ipx-btn::before's gold ring under a fully-opaque button
+   * face instead of showing only at the rim.
+   */
+  position: relative;
+  font-family: var(--ipx-sans);
+  font-weight: 700;
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  padding: 12px 26px;
+  border-radius: 26px;
+  cursor: pointer;
+  transition: transform 160ms ease, background 200ms ease, border-color 200ms ease;
+}
+
+.ipx-btn:active { transform: scale(0.97); }
+
+/*
+ * Light travelling around the rim — the two calls to action, budgeted the
+ * same way app/globals.css's .gold-frame is ("two per screen... past that
+ * it stops reading as expensive"). A ring, not a border: sized a couple of
+ * pixels past the button and held behind it (z-index -1 inside the
+ * isolated stacking context .ipx-btn establishes above), so the button's
+ * own background covers the middle and only the rim shows, rather than
+ * fighting either button's own background-image for the same box.
+ */
+.ipx-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2.5px;
+  z-index: -1;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--ipx-gold-angle),
+    #4a320d 0%,
+    #6b4712 5%,
+    #c9963e 10%,
+    #fff3cf 13.5%,
+    #e0b463 17%,
+    #8a6318 24%,
+    #4a320d 33%,
+    #6b4712 41%,
+    #c9963e 47%,
+    #ffeec2 51%,
+    #d2a24a 56%,
+    #8a6318 65%,
+    #4a320d 73%,
+    #9c6d28 83%,
+    #e8c87a 88.5%,
+    #a97a2b 93%,
+    #4a320d 100%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ipx-btn::before { animation: ipx-gold-rotate 9s linear infinite; }
+}
+
+@keyframes ipx-gold-rotate {
+  to { --ipx-gold-angle: 450deg; }
+}
+
+.ipx-btn-ghost {
+  border: 1.5px solid var(--ipx-line);
+  /*
+   * Opaque, not literally transparent. .ipx-btn::before's gold ring sits
+   * behind this button at a 2.5px inset all round; a genuinely see-through
+   * fill leaves nothing to hide the ring's own dense centre, and the button
+   * reads as solid gold instead of gold-rimmed. Same requirement as
+   * app/globals.css's .gold-frame ("--frame-fill MUST be opaque... the fill
+   * is the only thing hiding the gold everywhere except the edge").
+   */
+  background: color-mix(in oklab, var(--ipx-ink-2) 92%, transparent);
+  color: var(--ipx-cream);
+}
+.ipx-btn-ghost:hover {
+  border-color: var(--ipx-accent);
+  background: color-mix(in oklab, var(--ipx-ink-2) 80%, var(--ipx-cream) 8%);
+}
+
+.ipx-btn-solid {
+  border: 1.5px solid transparent;
+  background-image:
+    /* The 70deg raking blade — same as .gold-fill in app/globals.css. A flat
+       vertical ramp has no direction; light on curved metal crosses it
+       diagonally. */
+    linear-gradient(
+      70deg,
+      transparent 8%,
+      rgba(255, 250, 228, 0.16) 22%,
+      rgba(255, 253, 242, 0.62) 33%,
+      rgba(255, 255, 255, 0.95) 38%,
+      rgba(255, 251, 236, 0.55) 43%,
+      rgba(255, 240, 205, 0.1) 52%,
+      transparent 60%,
+      rgba(255, 248, 224, 0.3) 72%,
+      rgba(255, 255, 255, 0.6) 76%,
+      rgba(255, 246, 216, 0.16) 80%,
+      transparent 90%
+    ),
+    var(--gold-grain, none),
+    linear-gradient(
+      178deg,
+      #fffbee 0%,
+      #ffeec2 5%,
+      #f0d79b 13%,
+      #e0b463 26%,
+      #d9ab55 42%,
+      #e6bd6d 50%,
+      var(--gold-mid, #c9963e) 62%,
+      var(--gold-edge, #b07a36) 74%,
+      #bd8b36 84%,
+      #d3a04a 94%,
+      #b98935 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 252, 236, 0.8),
+    inset 0 -1px 0 rgba(56, 36, 8, 0.85),
+    0 1px 0 rgba(0, 0, 0, 0.85),
+    0 10px 22px -12px rgba(201, 150, 62, 0.6);
+  color: #241006;
+  text-shadow: 0 1px 0 rgba(255, 244, 214, 0.4);
+}
+.ipx-btn-solid:hover { filter: brightness(1.08); }
+
+/* ------------------------------------------------------------- scrub rail */
+
+.ipx-scrub {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.ipx-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  border: 1px solid var(--ipx-line);
+  border-radius: 999px;
+  /* No backdrop-filter — see the note on .ipx-nav above. */
+  background: rgba(20, 12, 8, 0.66);
+}
+
+.ipx-tick {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.ipx-tick-line {
+  width: 2px;
+  height: 12px;
+  border-radius: 2px;
+  background: rgba(237, 226, 200, 0.3);
+  transition: height 260ms cubic-bezier(0.16, 0.84, 0.32, 1), background 260ms ease,
+    box-shadow 260ms ease;
+}
+
+.ipx-tick:hover .ipx-tick-line { background: rgba(237, 226, 200, 0.6); height: 16px; }
+
+.ipx-tick[aria-selected="true"] .ipx-tick-line {
+  height: 20px;
+  background: var(--ipx-accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ipx-accent) 70%, transparent);
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 720px) {
+  .ipx-slider { padding-left: 12px; padding-right: 12px; min-height: 580px; }
+  .ipx-nav { width: 38px; height: 38px; margin-top: -19px; }
+  .ipx-nav svg { width: 18px; height: 18px; }
+  .ipx-notes { flex-direction: column; align-items: center; gap: 4px; }
+  .ipx-hint { font-size: 12px; }
+}
+
+@media (max-width: 420px) {
+  .ipx-nav { display: none; }
+}
+
+/* --------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .ipx-slider *,
+  .ipx-slider *::before,
+  .ipx-slider *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------ turning
+
+   The bottle is 2D, so "turned" is staged rather than simulated: left is a
+   mirror, and facing the viewer swaps the side-on snout for a foreshortened
+   ring and pushes the bottle very slightly toward the camera.            */
+
+.ipx-nozzle-front { display: none; }
+
+.ipx-slider.ipx-face-front .ipx-nozzle-side { display: none; }
+.ipx-slider.ipx-face-front .ipx-nozzle-front { display: block; }
+
+.ipx-bottle {
+  transition: transform 420ms cubic-bezier(0.16, 0.84, 0.32, 1);
+}
+
+.ipx-slider.ipx-face-left .ipx-bottle { transform: scaleX(-1); }
+.ipx-slider.ipx-face-front .ipx-bottle { transform: scale(1.06); }
+
+/* The label must not come along for the mirror. */
+.ipx-slider.ipx-face-left .ipx-label { transform: translate(-50%, -50%) scaleX(-1); }
+
+/* ------------------------------------------------------ droplets on glass */
+
+.ipx-glass {
+  position: absolute;
+  inset: 0;
+  z-index: 400;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------ aim control */
+
+.ipx-aim {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px 6px 12px;
+  border: 1px solid var(--ipx-line);
+  border-radius: 999px;
+  /* No backdrop-filter — see the note on .ipx-nav above. */
+  background: rgba(20, 12, 8, 0.66);
+}
+
+.ipx-aim-label {
+  margin-right: 4px;
+  font-family: var(--ipx-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ipx-cream-dim);
+}
+
+.ipx-aim-btn {
+  min-width: 30px;
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: none;
+  color: var(--ipx-cream-dim);
+  font-family: var(--ipx-sans);
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+.ipx-aim-btn:hover {
+  color: var(--ipx-cream);
+  background: rgba(237, 226, 200, 0.08);
+}
+
+.ipx-aim-btn[aria-pressed="true"] {
+  color: var(--well, #050403);
+  background: var(--ipx-accent);
+  border-color: var(--ipx-accent);
+}
+
+.ipx-aim-you { font-size: 11.5px; letter-spacing: 0.02em; }
+
+@media (max-width: 720px) {
+  .ipx-scrub { flex-wrap: wrap; gap: 10px; }
+  .ipx-aim-label { display: none; }
+}
+
+/* A note named where its droplet landed. Unlike the airborne note words these
+   do not travel — the drop is stuck to the glass, so the text stays put and
+   dries off with it. */
+.ipx-drop-note {
+  position: absolute;
+  font-family: var(--ipx-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ipx-accent-soft);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  /* Duration is set per label, from its droplet's evaporation time. */
+  animation: ipx-drop-note 3400ms ease-out forwards;
+}
+
+/* A long plateau at full strength, then a late fade: the name has to be
+   readable, not merely present. */
+@keyframes ipx-drop-note {
+  0% { opacity: 0; transform: translateX(-3px); filter: blur(2px); }
+  7% { opacity: 0.95; transform: translateX(0); filter: blur(0); }
+  80% { opacity: 0.88; }
+  100% { opacity: 0; transform: translateX(4px); filter: blur(1px); }
+}
+
+/* ------------------------------------------------------------- wet glass
+
+   When there is liquid on the screen a drag wipes rather than browses, so it
+   gets its own cursor to say so. Drawn twice — dark underneath, light on top —
+   so it stays legible whatever it is over. */
+
+.ipx-slider.ipx-wet .ipx-stage {
+  cursor:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><g fill='none' stroke='rgba(0,0,0,.55)' stroke-width='4' stroke-linecap='round'><path d='M19 6c-4 6-6 9-6 12a6 6 0 0 0 12 0c0-3-2-6-6-12z'/><path d='M4 11h5M2 17h5'/></g><g fill='none' stroke='%23fff' stroke-width='1.7' stroke-linecap='round'><path d='M19 6c-4 6-6 9-6 12a6 6 0 0 0 12 0c0-3-2-6-6-12z'/><path d='M4 11h5M2 17h5'/></g></svg>")
+      15 15,
+    grab;
+}
+
+.ipx-slider.ipx-wet.ipx-dragging .ipx-stage { cursor: inherit; }
+
+/* ------------------------------------------------------- the attar rod
+
+   Mukhallats are oils, applied with the glass wand fixed to the cap: it is
+   drawn out, carries a bead on its tip, and touches once. Nothing is
+   atomised, so these bottles have no aim control — there is nothing to aim. */
+
+.ipx-slider.ipx-rod .ipx-aim { display: none; }
+
+.ipx-rod-assembly { transform-origin: 110px 200px; }
+
+.ipx-slide.ipx-applying .ipx-rod-assembly {
+  animation: ipx-draw-rod 1500ms cubic-bezier(0.32, 0, 0.2, 1);
+}
+
+/* Out of the bottle, held at the top of the stroke while it touches, back in.
+
+   These distances are not free. The rod tip rests at y=244 in the bottle's own
+   co-ordinates (ROD_TIP in bottle.js) and the neck mouth it has to reach is at
+   y=126. Lift much less than 108 and the bead never leaves the glass — the cap
+   rises, no rod appears, and it reads as broken. Lift much more and the wand
+   parts company with the bottle entirely and hangs in space, which reads as a
+   cap that fell off. 108 brings the whole wand out with its tip still in the
+   mouth, which is what withdrawing one actually looks like. */
+@keyframes ipx-draw-rod {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-100px); }
+  46% { transform: translateY(-108px); }
+  62% { transform: translateY(-100px); }
+  100% { transform: translateY(0); }
+}
+
+/* The bead swells on the tip as it clears the oil, then gives itself up. */
+.ipx-slide.ipx-applying .ipx-rod-bead {
+  animation: ipx-rod-bead 1500ms ease-in-out;
+  transform-origin: 110px 244px;
+}
+
+@keyframes ipx-rod-bead {
+  0% { transform: scale(0.7); opacity: 0.6; }
+  28% { transform: scale(1.25); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 1; }
+  64% { transform: scale(0.45); opacity: 0.5; }
+  100% { transform: scale(0.7); opacity: 0.6; }
+}
+
+/* --------------------------------------------------- the rod, once it is out
+
+   Applying an attar is a gesture, not a button press. The wand leaves the
+   bottle, rides with the pointer, and lays a line of oil wherever it is
+   dragged. */
+
+.ipx-slide.ipx-rod-out .ipx-rod-assembly {
+  transform: translateY(-108px);
+  transition: transform 420ms cubic-bezier(0.32, 0, 0.2, 1);
+}
+
+.ipx-rod-assembly { transition: transform 420ms cubic-bezier(0.32, 0, 0.2, 1); }
+
+/* The bottle settles as the wand is taken from it.
+
+   Without this the cap is carried off the top of the frame and what is left on
+   screen is a wand with nothing above it. Giving up a little height keeps the
+   whole assembly — finial, collar, wand, bottle — in one picture. */
+.ipx-slide.ipx-rod-out .ipx-bottle-svg {
+  transform: translateY(7%);
+  transition: transform 420ms cubic-bezier(0.32, 0, 0.2, 1);
+}
+
+/*
+ * This is the rule that actually wins for .ipx-bottle-svg's transition —
+ * it comes after the declaration up near the rule's first definition, and
+ * CSS cascade order (not specificity) means this one wins on every device.
+ * filter is deliberately absent: see the note by the first .ipx-bottle-svg
+ * rule. transform stays; it's cheap (composited, no rasterisation) and is
+ * what settles the bottle when the rod comes out.
+ */
+.ipx-bottle-svg { transition: transform 420ms cubic-bezier(0.32, 0, 0.2, 1); }
+
+/* Most of its bead is on the pointer now, but oil clings — a wand wiped
+   perfectly clean is a glass stick, and stops reading as wet. */
+.ipx-slide.ipx-rod-out .ipx-rod-bead { opacity: 0.4; }
+
+.ipx-rod-tip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 420;
+  width: 15px;
+  height: 62px;
+  margin: -52px 0 0 -7px;
+  border-radius: 7px 7px 50% 50%;
+  background:
+    radial-gradient(60% 22% at 50% 88%, var(--ipx-accent) 0%, transparent 70%),
+    linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.55) 34%,
+      rgba(255, 255, 255, 0.16) 62%,
+      rgba(255, 255, 255, 0.42) 100%
+    );
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms ease;
+}
+
+/* The bead of oil hanging off the tip. */
+.ipx-rod-tip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 11px;
+  height: 13px;
+  margin-left: -5.5px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: var(--ipx-accent);
+  box-shadow: inset 0 -2px 3px rgba(255, 255, 255, 0.4);
+}
+
+/* While the rod is out the pointer itself is hidden — the wand is the cursor.
+   And nothing is selectable: a stroke drawn across the caption would otherwise
+   drag a blue selection along with it. */
+.ipx-slider.ipx-armed .ipx-stage,
+.ipx-slider.ipx-armed.ipx-wet .ipx-stage { cursor: none; }
+
+.ipx-slider.ipx-armed {
+  cursor: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ------------------------------------------------- outside the carousel
+
+   The bottle renderer is used on its own — on a product page, say — where
+   there is no .ipx-slide around it. These give the same behaviours a hook that
+   does not assume the carousel: the keyframes are the ones above, only what
+   they hang off differs. An atomiser presses; an attar draws its rod out. */
+
+.ipx-bottle.ipx-firing .ipx-actuator {
+  animation: ipx-press 440ms cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+.ipx-bottle.ipx-firing .ipx-rod-assembly {
+  animation: ipx-draw-rod 1500ms cubic-bezier(0.32, 0, 0.2, 1);
+}
+.ipx-bottle.ipx-firing .ipx-rod-bead {
+  animation: ipx-rod-bead 1500ms ease-in-out;
+  transform-origin: 110px 244px;
+}
+
+/* Fine grain, for surfaces that should read as a material rather than a fill. */
+.ipx-grain {
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/></filter><rect width='120' height='120' filter='url(%23g)' opacity='0.42'/></svg>");
+}
+
+/* ---------------------------------------------------------------- the trail
+
+   What you are wearing, pinned to the bottom of the screen.
+
+   Three strips, one per tier, that arrive when you spray and evaporate in
+   their own time. Fixed rather than in the flow because a perfume does not
+   stop existing when you scroll — you put it on, and it is on you while you
+   carry on looking at other bottles.
+
+   Thin is the whole constraint. This is a status line and not a panel: it has
+   to say what is on your skin without taking the screen away from the thing
+   you came to look at. One line per tier at 30px, which fits a tier name, its
+   materials, its share of the smell and the hours it is good for, and still
+   leaves the bottle the room it needs. */
+
+/* No scroll-padding-bottom here, deliberately.
+   It looks like the right thing — keep scrolled-to content clear of the fixed
+   tray — and it was, back when this file was doing its own scrolling. With
+   that gone it only has one effect left: Chromium scrolls the *focused*
+   element clear of the padding, so pressing the spray button jumped the page
+   25px on the third press, once the tray was tall enough to reach it. A page
+   that moves because you pressed a button is the thing we have been taking
+   out all along. The tray takes no pointer events and the spacer leaves room
+   to scroll, so nothing is out of reach without it. */
+
+.ipx-trail {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  margin: 0 auto;
+  padding: 7px 10px calc(7px + env(safe-area-inset-bottom, 0px));
+  width: min(560px, 100%);
+  font-family: var(--ipx-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  color: var(--ink, #ede2c8);
+  /* Opaque, and deliberately not a backdrop-filter. This is a fixed bar over
+     scrolling content, so a blur behind it is re-computed for every frame of
+     every scroll — the one effect guaranteed to make the thing it decorates
+     feel cheap. A solid ground with a scrim above it reads the same on a dark
+     page and costs a composite. */
+  background:
+    linear-gradient(180deg, rgba(5, 4, 3, 0) 0%, rgba(5, 4, 3, 0.94) 14px),
+    var(--well, #050403);
+  border-top: 1px solid rgba(201, 150, 62, 0.22);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+
+  /* Its own layer, so raising it and scrolling under it are composites rather
+     than repaints. contain stops the strips' own changes from reaching back
+     out into the page's layout while the drydown runs. */
+  will-change: transform, opacity;
+  contain: layout paint;
+
+  /* Off the bottom until something is put on. Translated rather than hidden so
+     it can slide up, and inert either way — it is a readout, not a control. */
+  transform: translateY(calc(100% + 12px));
+  opacity: 0;
+  transition:
+    transform 460ms cubic-bezier(0.22, 0.9, 0.28, 1),
+    opacity 260ms ease;
+}
+
+.ipx-trail-on {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Make room rather than cover. The tray is fixed, so without this it sits over
+   the caption naming the perfume — which is the one thing on the page you are
+   most likely to be reading when you decide to spray something.
+
+   The room is a spacer after everything rather than padding on the slider.
+   Padding on the slider looked equivalent and was not: the slider is a flex
+   column whose stage takes up the slack, so growing its padding shrank the
+   stage by a few pixels, which tripped the slider's own ResizeObserver, which
+   re-measured the table and re-laid every bottle. Every press made the whole
+   carousel jump. Nothing here resizes anything. */
+.ipx-trail-spacer {
+  height: 0;
+  flex: 0 0 auto;
+  pointer-events: none;
+  transition: height 260ms ease;
+}
+
+/* The mist coming down. Covers the tray and sits behind the strips, so motes
+   settle into the layer that is forming rather than over its type. */
+.ipx-trail-fall {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ipx-trail-head {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px 5px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: rgba(237, 226, 200, 0.45);
+}
+
+.ipx-trail-name {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(237, 226, 200, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ipx-trail-total { white-space: nowrap; }
+
+/* How many layers are still to go. Takes the middle of the head row while the
+   pyramid is being built, and gives it back to the clock once it is standing —
+   the clock means nothing until all three are down anyway. */
+.ipx-trail-hint {
+  flex: 1 1 auto;
+  text-align: center;
+  white-space: nowrap;
+  color: rgba(237, 226, 200, 0.55);
+}
+/* The clock reads 0m and means nothing until all three are down, so it stays
+   out of the way while the pyramid is being built. */
+.ipx-trail-building .ipx-trail-total { opacity: 0.35; }
+.ipx-trail-building .ipx-trail-of { display: none; }
+
+/* "of 12 h on skin" — the number the running clock is a fraction of. Quiet, but
+   never absent: it is the whole defence against reading a fast clock as a
+   perfume in a hurry. */
+.ipx-trail-of { opacity: 0.66; }
+
+/* Once it is standing, the hint says what the clock is rather than what is
+   left to do — and at the end, what the perfume did. */
+.ipx-trail-hint {
+  font-variant: small-caps;
+  letter-spacing: 0.1em;
+}
+
+.ipx-trail-done .ipx-trail-hint {
+  color: var(--ipx-accent-soft, #e0bd84);
+  opacity: 1;
+  font-weight: 700;
+}
+.ipx-trail-clock {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: rgba(237, 226, 200, 0.85);
+}
+
+/* Base at the bottom, as everywhere else — so the stack clears from the top
+   down as the top note goes, which is the direction it actually goes in. */
+.ipx-trail-strips {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+}
+
+.ipx-strip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 7px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+
+  /* The strips settle one after another rather than arriving as a slab, in
+     the order they were laid down — base, then heart, then top. Transform
+     only: opacity on these is the drydown, written from the frame loop, and
+     an entry animation on the same property would be overwritten mid-flight. */
+  transform: translateY(12px);
+  transition:
+    opacity 700ms ease,
+    transform 440ms cubic-bezier(0.16, 0.84, 0.32, 1);
+}
+
+/* An author `display` beats the UA's [hidden] rule, so a strip that has not
+   been laid down yet would keep its place in the tray while claiming to be
+   hidden — the tray would open at full height with two blank rows in it. */
+.ipx-strip[hidden] { display: none; }
+
+/* While the mist is still landing on it. The type comes up with the layer
+   rather than ahead of it, so the strip reads as being deposited rather than
+   as a finished row that happens to have something falling on it. */
+.ipx-strip-forming .ipx-strip-tier,
+.ipx-strip-forming .ipx-strip-notes,
+.ipx-strip-forming .ipx-strip-share,
+.ipx-strip-forming .ipx-strip-hours {
+  animation: ipx-strip-ink 1150ms ease-out both;
+}
+
+/* The powder lies in the strip and its level rises and falls.
+
+   The discover page's front sweeps top to bottom across a 160px block, which
+   does not survive being scaled down: on a 30px strip that front and its 26%
+   falloff come to about eight pixels, so the layer filling up and wearing away
+   were both happening correctly and neither was visible.
+
+   A strip is a shallow tray with something settling in it, so it is drawn as
+   one: --ipx-fill is how deep the powder lies, 0% empty to 100% full, and it
+   fills from the bottom up as the mist comes down. Same quantity going the
+   other way when the tier wears off, so the level drops the way it rose. */
+.ipx-trail .ipx-powder {
+  -webkit-mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    #000 calc(var(--ipx-fill, 100%) - 14%),
+    rgba(0, 0, 0, 0.45) var(--ipx-fill, 100%),
+    transparent calc(var(--ipx-fill, 100%) + 9%)
+  );
+  mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    #000 calc(var(--ipx-fill, 100%) - 14%),
+    rgba(0, 0, 0, 0.45) var(--ipx-fill, 100%),
+    transparent calc(var(--ipx-fill, 100%) + 9%)
+  );
+}
+
+/* The surface of it, catching the light where the powder meets air. Rides on
+   top of the level, so it rises with the layer as it is laid down. */
+.ipx-trail .ipx-powder::after {
+  inset: auto 0 var(--ipx-fill, 100%) 0;
+  top: auto;
+  height: 8px;
+  margin-bottom: -4px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 78%);
+  opacity: 0.9;
+}
+
+/* On screen, empty, and waiting for the mist. */
+.ipx-strip-pending .ipx-strip-tier,
+.ipx-strip-pending .ipx-strip-notes,
+.ipx-strip-pending .ipx-strip-share,
+.ipx-strip-pending .ipx-strip-hours {
+  opacity: 0;
+}
+
+@keyframes ipx-strip-ink {
+  0% { opacity: 0; }
+  38% { opacity: 0.16; }
+  100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ipx-strip-forming .ipx-strip-tier,
+  .ipx-strip-forming .ipx-strip-notes,
+  .ipx-strip-forming .ipx-strip-share,
+  .ipx-strip-forming .ipx-strip-hours { animation: none; }
+}
+
+.ipx-trail-on .ipx-strip { transform: none; }
+.ipx-trail-on .ipx-strip:nth-child(2) { transition-delay: 0ms, 60ms; }
+.ipx-trail-on .ipx-strip:nth-child(3) { transition-delay: 0ms, 120ms; }
+
+.ipx-strip > *:not(.ipx-powder) { position: relative; z-index: 2; }
+
+.ipx-strip-tier {
+  flex: 0 0 auto;
+  width: 42px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* The materials. Given the room that is left and truncated rather than
+   wrapped: a strip that grows a second line is not a strip any more. */
+.ipx-strip-notes {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 11px;
+  letter-spacing: 0.01em;
+  color: rgba(237, 226, 200, 0.82);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ipx-strip-share {
+  flex: 0 0 auto;
+  min-width: 30px;
+  text-align: right;
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: rgba(237, 226, 200, 0.9);
+}
+
+/* Once a tier has run its course this says what it did rather than a
+   percentage, which is a longer word — the materials give up the room, since
+   by then the interesting thing about the strip is what it managed. */
+.ipx-strip-did {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  opacity: 0.62;
+}
+
+.ipx-strip-hours {
+  flex: 0 0 auto;
+  min-width: 44px;
+  text-align: right;
+  font-size: 10px;
+  color: rgba(237, 226, 200, 0.42);
+}
+
+@media (max-width: 380px) {
+  .ipx-strip-hours { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ipx-trail { transition: opacity 320ms ease; transform: none; }
+  .ipx-trail:not(.ipx-trail-on) { display: none; }
+  .ipx-strip { transform: none; transition: opacity 700ms ease; }
+}
+
+/* --------------------------------------------------------------- the powder
+
+   The pigment of one tier of the pyramid, and the thing that evaporates.
+
+   It is a layer of its own rather than the block's background, so what burns
+   off is the colour and not the label: the powder lifts away and leaves the
+   named, empty stratum behind. A block that faded out entirely would take the
+   name of the tier with it, and the name is what somebody is reading.
+
+   Powder rather than paint. Three background layers do that: a fine weave in
+   both directions, then turbulence over it, then the pigment itself. The weave
+   is what stops the grain reading as video noise — it gives the surface a
+   direction, the way pressed powder or a dyed cloth has one.
+
+   --ipx-pig  the tier's colour, from the perfume's own juice
+   --ipx-erode  how far the front has travelled down, -30% (whole) to 100% (gone) */
+
+.ipx-powder {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 3px),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/></filter><rect width='120' height='120' filter='url(%23p)' opacity='0.5'/></svg>"),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ipx-pig, #c9963e) 56%, transparent) 0%,
+      color-mix(in srgb, var(--ipx-pig, #c9963e) 42%, transparent) 58%,
+      color-mix(in srgb, var(--ipx-pig, #c9963e) 33%, transparent) 100%
+    );
+  background-blend-mode: overlay, overlay, soft-light, normal;
+
+  /* Vividness follows the share of the smell, not the amount left.
+     --ipx-lead is this tier's share against the loudest one, 0-1. The tier you
+     are mostly smelling is at full strength and the others sit back, so the
+     picture answers "what does it smell like right now" and not only "how much
+     is still there". Without it the opening was wrong in a way you could see:
+     the top is 42% of the smell and was the palest thing on screen. */
+  filter: saturate(calc(0.72 + 0.48 * var(--ipx-lead, 1)))
+          brightness(calc(0.86 + 0.24 * var(--ipx-lead, 1)));
+  /* No transition: consistent with .ipx-aura and .ipx-bottle-svg above, a
+     transitioning filter is re-rasterised every frame it runs. This one is
+     small and already inside .ipx-trail's own contained layer, so it was
+     lower risk than those two — but the fix that held up this time was
+     "no transitioning filter anywhere in the rebuild", not "except the
+     ones that seem small enough." --ipx-lead updates as the drydown ticks
+     forward, which is infrequent enough that a snap reads as a step in the
+     simulation, not a glitch. */
+
+  /* The evaporation front. Deliberately a long, soft ramp rather than an edge:
+     with the grain showing through it, a 26% falloff reads as powder thinning
+     and lifting off, where a hard line would read as a wipe. */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent var(--ipx-erode, -30%),
+    rgba(0, 0, 0, 0.35) calc(var(--ipx-erode, -30%) + 9%),
+    #000 calc(var(--ipx-erode, -30%) + 26%),
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent var(--ipx-erode, -30%),
+    rgba(0, 0, 0, 0.35) calc(var(--ipx-erode, -30%) + 9%),
+    #000 calc(var(--ipx-erode, -30%) + 26%),
+    #000 100%
+  );
+}
+
+/* A tier coming forward.
+
+   Not the tier doing anything — it is the one above it collapsing that lets
+   this one through, which is what people mean when they say a perfume opens up.
+   Catching that moment is the whole point of the animation, so the layer whose
+   share of the smell is still climbing catches the light and moves.
+
+   Slow and wide on purpose: a fast sweep is a loading skimmer, and this is
+   meant to read as something breathing rather than something buffering. */
+.ipx-powder::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10%;
+  background: linear-gradient(
+    102deg,
+    transparent 34%,
+    rgba(255, 255, 255, 0.13) 46%,
+    rgba(255, 255, 255, 0.19) 50%,
+    rgba(255, 255, 255, 0.05) 56%,
+    transparent 68%
+  );
+  background-size: 240% 100%;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+.ipx-powder.ipx-rising::before {
+  opacity: 1;
+  animation: ipx-shimmer 5200ms cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+@keyframes ipx-shimmer {
+  0% { background-position: 190% 0; }
+  100% { background-position: -90% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ipx-powder.ipx-rising::before { animation: none; opacity: 0.5; }
+}
+
+/* Where the powder is still thick, it catches a little light — the same lit
+   edge a film of anything has where it meets air. It travels with the front. */
+.ipx-powder::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: var(--ipx-erode, -30%);
+  height: 26%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 78%);
+}
+
+/* ------------------------------------------------------------ the actuator
+
+   For pages that put a perfume in front of somebody and ask them to try it.
+
+   A pill saying "Spray" is a form control. Pressing an atomiser is a physical
+   act with travel and resistance in it, and that is what this has to be: a
+   knurled cap sitting proud of the page on a hard rim, that drops the full
+   height of that rim when pushed and springs back when released.
+
+   The travel is the whole trick. Everything moves together — cap down, rim
+   collapsed, shadow tightened — because that is what a real one does, and
+   doing only part of it reads as a hover state.
+
+   The metal comes from the perfume, so it is that bottle's cap and not a gold
+   disc that happens to be nearby. Set --ipx-cap-hi / -mid / -lo from the
+   theme's cap colours.
+
+   Named "presser" and not "actuator" on purpose: .ipx-actuator is already the
+   atomiser cap group inside every spray bottle's SVG (see bottle.js), and it is
+   animated on firing. Sharing the name put a 90ms transform transition and an
+   :active translate on that group, so pressing the bottle jogged its own cap
+   against the firing animation. Two different objects, two different names. */
+
+.ipx-presser {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 78px;
+  height: 78px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  flex: 0 0 auto;
+  -webkit-tap-highlight-color: transparent;
+  background:
+    radial-gradient(64% 58% at 50% 26%, rgba(255, 255, 255, 0.5) 0%, transparent 60%),
+    linear-gradient(
+      168deg,
+      var(--ipx-cap-hi, #f6dfa6) 0%,
+      var(--ipx-cap-mid, #c9963e) 46%,
+      var(--ipx-cap-lo, #7a5416) 100%
+    );
+  box-shadow:
+    0 6px 0 var(--ipx-cap-lo, #5c3d10),
+    0 12px 22px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.32);
+  transition: transform 90ms cubic-bezier(0.2, 0.9, 0.25, 1), box-shadow 90ms ease;
+}
+
+/* Knurling, the same detail the bottle caps carry. */
+.ipx-presser::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.22) 0 1.5px,
+    rgba(255, 255, 255, 0.16) 1.5px 3px
+  );
+  mask-image: radial-gradient(closest-side, transparent 0 52%, #000 62%);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 0 52%, #000 62%);
+}
+
+.ipx-presser span {
+  position: relative;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--well, #050403);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.ipx-presser:active,
+.ipx-presser.ipx-down {
+  transform: translateY(6px);
+  box-shadow:
+    0 0 0 var(--ipx-cap-lo, #5c3d10),
+    0 3px 8px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.36);
+}
+
+.ipx-presser:focus-visible {
+  outline: 2px solid var(--ipx-cap-hi, #f6dfa6);
+  outline-offset: 5px;
+}
+
+/* While there is still something to lay down, it breathes — and it stops the
+   moment there is nothing left to do, rather than nagging. */
+.ipx-presser.ipx-ready::after {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+  border: 1px solid var(--ipx-cap-mid, #c9963e);
+  opacity: 0.5;
+  animation: ipx-presser-pulse 2600ms ease-out infinite;
+}
+
+@keyframes ipx-presser-pulse {
+  0% { transform: scale(0.94); opacity: 0.55; }
+  70% { transform: scale(1.16); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ipx-presser.ipx-ready::after { animation: none; }
+}
