@@ -93,9 +93,24 @@
   gap: clamp(8px, 2vh, 20px);
   padding: clamp(20px, 4vh, 44px) clamp(16px, 4vw, 48px) clamp(18px, 3vh, 34px);
   min-height: 640px;
+  /*
+   * The trailing colour on the last layer is not decorative — it is the one
+   * thing this rule was missing. Every layer above it is a gradient, which
+   * leaves this element's actual background-color transparent, and a
+   * transparent element has no safe colour of its own to show while its
+   * gradients are still rasterising. What a phone's compositor paints in
+   * that gap instead is whatever solid colour it can find further up — here,
+   * the page's own cream background-color — which is the flash reported
+   * through four rounds of chasing individual filters and transitions on
+   * this element and its children. Cutting the cost of any one of them was
+   * never going to fix the colour of the fallback the other, uncaught ones
+   * still fall back to. Giving the element a real solid colour of its own
+   * fixes the fallback directly, regardless of which child is slow to paint.
+   */
   background:
     radial-gradient(120% 74% at 50% -14%, color-mix(in oklab, var(--gold-shadow, #4a320d) 60%, transparent) 0%, transparent 56%),
-    linear-gradient(180deg, var(--ipx-ink-2) 0%, var(--ipx-ink) 55%, var(--well, #050403) 100%);
+    linear-gradient(180deg, var(--ipx-ink-2) 0%, var(--ipx-ink) 55%, var(--well, #050403) 100%),
+    var(--well, #050403);
   color: var(--ipx-cream);
   font-family: var(--ipx-sans);
   -webkit-font-smoothing: antialiased;
