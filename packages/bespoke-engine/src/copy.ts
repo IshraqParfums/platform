@@ -62,20 +62,33 @@ export function buildWhatIHeard(state: EngineState): string {
   const a3 = findAnswer(state, "A3");
   const a5 = findAnswer(state, "A5");
 
-  const memoryParts = [anchor?.label, accent?.label, texture?.label].filter(Boolean);
+  // B3-/B4- (texture) options are full sentences and over half of them
+  // already end in a period ("Benzoin and frankincense melted into honey
+  // and left in the sun.") — appending the template's own period
+  // unconditionally, on top of one already there, was reading as "...down..".
+  // Stripped defensively from all three parts, not just the last, since
+  // nothing here guarantees which one ends up last if this ever changes.
+  const memoryParts = [anchor?.label, accent?.label, texture?.label]
+    .filter((label): label is string => Boolean(label))
+    .map((label) => label.replace(/\.+$/, ""));
   const memory = memoryParts.length ? `It started with ${memoryParts.join(" — ").toLowerCase()}.` : "";
   // A2 and A5 options are self-contained phrases ("Warmth. Something people
   // move closer to", "Only me — but let it stay all day, like a real attar")
   // rather than fragments meant to complete a sentence, so they're quoted
   // back rather than spliced into one — splicing broke on almost every
-  // option's punctuation and capitalization.
-  // Each of these four segments is joined with a plain space below, so every
-  // one has to end in its own terminal punctuation — arrival and presence
-  // are quoted phrases with no natural full stop of their own, which is
-  // exactly what let a closing quote run straight into the next sentence
-  // with nothing between them.
+  // option's punctuation and capitalization. A3 used to be spliced too
+  // ("You'll wear this mostly through all four, properly." — that's an
+  // option meant to stand on its own, not complete this sentence; the same
+  // was true of "Mostly indoors, air-conditioned"), so it's quoted back the
+  // same way now.
+  //
+  // Each of these three segments is joined with a plain space below, so
+  // every one has to end in its own terminal punctuation — a quoted phrase
+  // has no natural full stop of its own, which is exactly what let a
+  // closing quote run straight into the next sentence with nothing between
+  // them before the trailing "." on each was added.
   const arrival = a2 ? `When you walk into a room, you want this to arrive with you: "${a2.label}".` : "";
-  const weather = a3 ? `You'll wear this mostly through ${a3.label.toLowerCase()}.` : "";
+  const weather = a3 ? `And on the weather you'll be wearing it through: "${a3.label}".` : "";
   const presence = a5 ? `And on who's allowed to notice, and how long it should stay: "${a5.label}".` : "";
 
   return [memory, arrival, weather, presence].filter(Boolean).join(" ");

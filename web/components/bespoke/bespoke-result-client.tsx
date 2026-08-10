@@ -147,9 +147,13 @@ export function BespokeResultClient() {
               {result.whatIHeard}
             </p>
           ) : null}
-          <p className="mt-4 border-l-2 border-gold/50 pl-3 text-sm italic text-ink-soft">
-            {result.sampleFraming}
-          </p>
+          {/*
+            sampleFraming ("There were two answers...") is deliberately not
+            shown here — the second, divergent sample is still computed and
+            still goes out with every order (see bespoke-session.service.ts's
+            buildFormulaSnapshot), the surprise is meant to be discovered
+            with the physical vial, not narrated in advance on this page.
+          */}
         </div>
       </div>
 
