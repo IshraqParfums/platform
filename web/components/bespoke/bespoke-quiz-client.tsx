@@ -23,6 +23,7 @@ import { BottleGlyph } from "@/components/bespoke/bottle-glyph";
 import { FollowupTextStep } from "@/components/bespoke/followup-text-step";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { B1_CATCHALL_OPTION_ID, B1_CATEGORIES } from "@/lib/bespoke/b1-categories";
 import { completeBespokeSession } from "@/lib/bespoke/complete-session";
 import { useBespokeSessions } from "@/lib/bespoke/use-bespoke-sessions";
 
@@ -532,6 +533,19 @@ function NodeBody({
 }) {
   switch (node.type) {
     case "single_select":
+      // B1 is the one question with 91 options in a flat list — everything
+      // else in the graph has few enough that a flat list is the right
+      // answer. See lib/bespoke/b1-categories.ts for why the split is by
+      // theme and how it stays safe if the question's own options change.
+      if (node.id === "B1") {
+        return (
+          <CategorizedSingleSelect
+            options={node.options ?? []}
+            disabled={disabled}
+            onAnswer={onAnswer}
+          />
+        );
+      }
       return (
         <SingleSelectWithFollowup
           options={node.options ?? []}
@@ -624,6 +638,106 @@ function NodeBody({
     default:
       return null;
   }
+}
+
+/**
+ * B1's 91 options, two taps deep instead of one flat scroll: pick a
+ * category, then pick the specific memory within it. Selecting a leaf
+ * option submits exactly what the flat list would have — `{ optionIds:
+ * [option.id] }` — so every option's own `next` (91 distinct B2-* targets
+ * in questions.json, one per option) fires exactly as before. Nothing
+ * about the graph changes; this only changes how many rows are on screen
+ * at once while getting there.
+ */
+function CategorizedSingleSelect({
+  options,
+  disabled,
+  onAnswer,
+}: {
+  options: BespokePublicOption[];
+  disabled: boolean;
+  onAnswer: (answer: BespokeAnswerBody, option?: BespokePublicOption) => void;
+}) {
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const byId = new Map(options.map((o) => [o.id, o]));
+  const catchall = byId.get(B1_CATCHALL_OPTION_ID);
+
+  // Anything in the live option list that isn't in any named category (or
+  // the catch-all) still needs a home — falls into a trailing "More"
+  // category rather than silently vanishing if questions.json changes
+  // without this file's grouping being updated to match.
+  const categorized = new Set(B1_CATEGORIES.flatMap((c) => c.optionIds));
+  const leftover = options
+    .map((o) => o.id)
+    .filter((id) => id !== B1_CATCHALL_OPTION_ID && !categorized.has(id));
+  const categories = leftover.length
+    ? [...B1_CATEGORIES, { id: "more", label: "More", optionIds: leftover }]
+    : B1_CATEGORIES;
+
+  function pick(option: BespokePublicOption) {
+    onAnswer({ kind: "select", optionIds: [option.id] }, option);
+  }
+
+  if (activeCategory) {
+    const category = categories.find((c) => c.id === activeCategory);
+    const items = (category?.optionIds ?? [])
+      .map((id) => byId.get(id))
+      .filter((o): o is BespokePublicOption => Boolean(o));
+    return (
+      <div>
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => setActiveCategory(null)}
+          className="mb-4 cursor-pointer font-mono text-label uppercase text-ink-soft transition-colors hover:text-ink disabled:opacity-50"
+        >
+          ‹ All categories
+        </button>
+        <ul className="flex flex-col gap-2.5">
+          {items.map((option, i) => (
+            <li key={option.id}>
+              <OptionButton
+                disabled={disabled}
+                label={option.label}
+                index={i}
+                onClick={() => pick(option)}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        {categories.map((category) => (
+          <li key={category.id}>
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => setActiveCategory(category.id)}
+              className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-ink/12 bg-card px-4 py-3.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-cream-soft disabled:opacity-50"
+            >
+              <span className="text-[15px] font-semibold text-ink">{category.label}</span>
+              <span className="font-mono text-label-sm text-ink-faint">{category.optionIds.length}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      {catchall ? (
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => pick(catchall)}
+          className="mt-4 w-full cursor-pointer rounded-xl border border-dashed border-ink/20 px-4 py-3.5 text-left text-[15px] text-ink-soft transition-all duration-200 hover:border-gold/50 hover:text-ink disabled:opacity-50"
+        >
+          {catchall.label}
+        </button>
+      ) : null}
+    </div>
+  );
 }
 
 function SingleSelectWithFollowup({
