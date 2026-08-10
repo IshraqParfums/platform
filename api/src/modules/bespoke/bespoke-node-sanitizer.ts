@@ -36,6 +36,9 @@ function toPublicOption(
   if (option.exclusive) publicOption.exclusive = true;
   if (option.followup_free_text) {
     publicOption.followup_free_text = option.followup_free_text;
+    if (option.followup_required === false) {
+      publicOption.followup_required = false;
+    }
   }
   if (option.fluency_tier) publicOption.fluency_tier = option.fluency_tier;
   if (tier === 'perfumer' && option.note_to_perfumer) {

@@ -150,6 +150,9 @@ export interface BespokePublicOption {
   note_to_perfumer?: string;
   exclusive?: boolean;
   followup_free_text?: string;
+  /** False when the follow-up is optional — present only when explicitly
+   *  false; absent means required (the historical default). */
+  followup_required?: boolean;
   fluency_tier?: string;
 }
 

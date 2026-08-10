@@ -755,6 +755,7 @@ function SingleSelectWithFollowup({
     return (
       <FollowupTextStep
         prompt={pending.followup_free_text}
+        required={pending.followup_required !== false}
         disabled={disabled}
         onCancel={() => setPending(null)}
         onSubmit={(followupText) => {
@@ -855,9 +856,10 @@ function MultiSelect({
     });
   }
 
-  const followupPrompt = options.find(
+  const followupOption = options.find(
     (o) => selected.includes(o.id) && o.followup_free_text,
-  )?.followup_free_text;
+  );
+  const followupPrompt = followupOption?.followup_free_text;
 
   // Every question in this quiz answers itself on a single tap except this
   // one, which needs an explicit "I'm done picking" gesture since more than
@@ -873,6 +875,7 @@ function MultiSelect({
     return (
       <FollowupTextStep
         prompt={followupPrompt}
+        required={followupOption?.followup_required !== false}
         disabled={disabled}
         onCancel={() => setAwaitingFollowup(false)}
         onSubmit={(followupText) => {
