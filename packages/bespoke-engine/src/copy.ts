@@ -69,9 +69,14 @@ export function buildWhatIHeard(state: EngineState): string {
   // rather than fragments meant to complete a sentence, so they're quoted
   // back rather than spliced into one — splicing broke on almost every
   // option's punctuation and capitalization.
-  const arrival = a2 ? `When you walk into a room, you want this to arrive with you: "${a2.label}"` : "";
+  // Each of these four segments is joined with a plain space below, so every
+  // one has to end in its own terminal punctuation — arrival and presence
+  // are quoted phrases with no natural full stop of their own, which is
+  // exactly what let a closing quote run straight into the next sentence
+  // with nothing between them.
+  const arrival = a2 ? `When you walk into a room, you want this to arrive with you: "${a2.label}".` : "";
   const weather = a3 ? `You'll wear this mostly through ${a3.label.toLowerCase()}.` : "";
-  const presence = a5 ? `And on who's allowed to notice, and how long it should stay: "${a5.label}"` : "";
+  const presence = a5 ? `And on who's allowed to notice, and how long it should stay: "${a5.label}".` : "";
 
   return [memory, arrival, weather, presence].filter(Boolean).join(" ");
 }

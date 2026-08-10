@@ -19,6 +19,7 @@ import {
   BespokeQuizLanding,
   BespokeQuizLostSession,
 } from "@/components/bespoke/bespoke-quiz-landing";
+import { BottleGlyph } from "@/components/bespoke/bottle-glyph";
 import { FollowupTextStep } from "@/components/bespoke/followup-text-step";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -467,7 +468,7 @@ export function BespokeQuizClient() {
         />
       </div>
 
-      <EssenceOrb answerCount={progress.questionsAnswered} />
+      <EssenceOrb answerCount={progress.questionsAnswered} fillPct={pct} />
 
       <h2 className="font-display mt-8 text-[clamp(22px,3vw,32px)] font-semibold leading-snug text-ink">
         {node.text}
@@ -499,19 +500,19 @@ export function BespokeQuizClient() {
   );
 }
 
-function EssenceOrb({ answerCount }: { answerCount: number }) {
+function EssenceOrb({
+  answerCount,
+  fillPct,
+}: {
+  answerCount: number;
+  fillPct: number;
+}) {
   const dims = Object.keys(BESPOKE_FAMILY_COLOR) as BespokeDimension[];
   const dim = dims[Math.min(answerCount, dims.length - 1)] ?? "woody";
   const color = BESPOKE_FAMILY_COLOR[dim];
   return (
-    <div className="mt-8 flex justify-center" aria-hidden>
-      <div
-        className="h-24 w-16 rounded-[40%] border border-ink/10 shadow-inner transition-colors duration-500"
-        style={{
-          background: `linear-gradient(180deg, ${color}55 0%, ${color} 70%)`,
-        }}
-        title={BESPOKE_DIMENSION_LABEL[dim]}
-      />
+    <div className="mt-8 flex justify-center" aria-hidden title={BESPOKE_DIMENSION_LABEL[dim]}>
+      <BottleGlyph color={color} fill={fillPct / 100} className="h-24 w-16" />
     </div>
   );
 }
@@ -744,6 +745,16 @@ function MultiSelect({
     (o) => selected.includes(o.id) && o.followup_free_text,
   )?.followup_free_text;
 
+  // Every question in this quiz answers itself on a single tap except this
+  // one, which needs an explicit "I'm done picking" gesture since more than
+  // one option can be true at once. The Continue button used to also stay
+  // disabled until something was picked — on a question that already has a
+  // dedicated "none of these" option, that just meant a dead-looking button
+  // sitting under an unanswered question. This option (there is exactly one,
+  // exclusive="true" is defined once per multi_select node) already carries
+  // an empty constraint, so it's a safe stand-in for "nothing selected."
+  const noneOption = options.find((o) => o.exclusive);
+
   if (awaitingFollowup && followupPrompt) {
     return (
       <FollowupTextStep
@@ -785,13 +796,19 @@ function MultiSelect({
         type="button"
         variant="emphasis"
         className="mt-5 cursor-pointer"
-        disabled={disabled || selected.length === 0}
+        disabled={disabled || (selected.length === 0 && !noneOption)}
         onClick={() => {
           if (followupPrompt) {
             setAwaitingFollowup(true);
             return;
           }
-          onSubmit(selected);
+          // Nothing picked and there's a "none of these" option on this
+          // question — submit that instead of blocking on a selection the
+          // user was never going to make. Same outcome as tapping it
+          // explicitly, one tap instead of two.
+          const toSubmit =
+            selected.length > 0 ? selected : noneOption ? [noneOption.id] : selected;
+          onSubmit(toSubmit);
         }}
       >
         Continue

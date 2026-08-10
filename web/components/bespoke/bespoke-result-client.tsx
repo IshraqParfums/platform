@@ -9,6 +9,7 @@ import {
   type BespokeSessionResultResponse,
 } from "@ishraqparfums/shared";
 import { BespokeBrewPurchase } from "@/components/bespoke/bespoke-brew-purchase";
+import { BottleGlyph } from "@/components/bespoke/bottle-glyph";
 import { BespokeBrewSkeleton } from "@/components/bespoke/bespoke-skeletons";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -120,13 +121,7 @@ export function BespokeResultClient() {
     <Container size="narrow" className="py-8 sm:py-12">
       <Eyebrow>Your blend</Eyebrow>
       <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row sm:items-start">
-        <div
-          className="h-40 w-24 shrink-0 rounded-[45%] border border-ink/12 shadow-inner"
-          style={{
-            background: `linear-gradient(180deg, ${accent}66 0%, ${accent} 75%)`,
-          }}
-          aria-hidden
-        />
+        <BottleGlyph color={accent} fill={1} glow className="h-40 w-24" />
         <div className="min-w-0 flex-1">
           <h1 className="font-display text-[clamp(28px,4vw,40px)] font-semibold text-ink">
             {result.name}
