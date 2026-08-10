@@ -72,6 +72,7 @@
             "gift"
           ],
           "followup_free_text": "Tell me one thing about them. Anything.",
+          "followup_required": false,
           "constraint": {
             "cap_families": {
               "animalic": 2

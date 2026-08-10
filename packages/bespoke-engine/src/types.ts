@@ -150,6 +150,10 @@ export interface Option {
   /** Absent on multi_select options — those branch via the node's own `next`. */
   next?: string;
   followup_free_text?: string;
+  /** Defaults true. Set false when the follow-up is asked but nothing
+   *  downstream (fingerprint, constraints, dedication, copy) reads it back —
+   *  forcing an answer there is pure friction with no payoff. */
+  followup_required?: boolean;
   fluency_tier?: FluencyTier;
   fluency_points?: number;
   output?: OutputChoice;

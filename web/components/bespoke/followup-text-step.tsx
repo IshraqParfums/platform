@@ -9,11 +9,15 @@ import { Button } from "@/components/ui/button";
 export function FollowupTextStep({
   prompt,
   disabled,
+  required = true,
   onSubmit,
   onCancel,
 }: {
   prompt: string;
   disabled: boolean;
+  /** False for follow-ups nothing downstream reads back — forcing an answer
+   *  there is friction with no payoff, so Continue works with it left blank. */
+  required?: boolean;
   onSubmit: (text: string) => void;
   onCancel: () => void;
 }) {
@@ -21,7 +25,12 @@ export function FollowupTextStep({
 
   return (
     <div>
-      <p className="text-[15px] leading-relaxed text-ink-soft">{prompt}</p>
+      <p className="text-[15px] leading-relaxed text-ink-soft">
+        {prompt}
+        {required ? null : (
+          <span className="text-ink-faint"> (optional)</span>
+        )}
+      </p>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -35,7 +44,7 @@ export function FollowupTextStep({
           type="button"
           variant="emphasis"
           className="cursor-pointer"
-          disabled={disabled || !text.trim()}
+          disabled={disabled || (required && !text.trim())}
           onClick={() => onSubmit(text.trim())}
         >
           Continue
