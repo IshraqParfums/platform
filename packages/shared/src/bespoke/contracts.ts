@@ -225,6 +225,11 @@ export interface BespokeSessionViewResponse {
   expiresAt: string;
   resultAvailable: boolean;
   brewId: string | null;
+  /** The chosen (or generated) perfume name, once a result exists — null
+   *  before then. Lets the landing page's list of finished consultations
+   *  read as "View Kulhad Rain" instead of an unlabelled "View result"
+   *  repeated once per session. */
+  name: string | null;
 }
 
 export type BespokeAnswerBody =

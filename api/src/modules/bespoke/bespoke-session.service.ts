@@ -599,6 +599,7 @@ export class BespokeSessionService {
       expiresAt: session.expiresAt.toISOString(),
       resultAvailable: session.resultJson != null,
       brewId: session.bespokePerfumeId,
+      name: readResult(session)?.name ?? null,
     };
   }
 

@@ -1,23 +1,42 @@
+"use client";
+
 /**
  * The bottle standing in for "what we're building," used both mid-quiz
  * (EssenceOrb, filling as questions are answered) and on the result page
  * (full, in the matched accord's colour). Previously two separate
  * `border-radius` divs approximating a bottle in the loosest possible sense
- * — this is a real silhouette instead: cap, neck, shoulder, body.
+ * — this is a real silhouette instead: cap, neck, shoulder, body, with the
+ * liquid reading as liquid rather than a progress bar wearing a bottle
+ * costume.
  *
- * Deliberately built from exactly two moving parts, both cheap:
- *   - the liquid level, a `<rect>` whose `y`/`height` transition (a
- *     compositor-only animation, no repaint) as `fill` changes
- *   - a colour, applied as a `background` on a plain div, not an SVG
- *     `fill` attribute — so it can transition the same cheap way the old
- *     orbs did
- * No `filter`, no `backdrop-filter`, nothing that needs re-rasterising on
- * every frame. The perfume gallery spent five rounds chasing exactly that
- * class of bug on a much busier page; this one is static enough it was
- * never going to have it, and it should stay that way.
+ * Everything that moves is `transform` or `opacity`, nothing else —
+ * compositor-only properties that never trigger a repaint, let alone the
+ * rasterisation cost a `filter` or `backdrop-filter` carries. The perfume
+ * gallery spent five rounds chasing exactly that class of bug on a much
+ * busier page; the sheen sweep and the sparkles below are new, continuous,
+ * looping animations that didn't exist when that reasoning was first
+ * written here, so it's worth restating: `y`/`height` on the fill-level
+ * rect (an SVG geometry animation, not a CSS one, but still compositor-
+ * cheap and only 500ms, not continuous) is the one thing that isn't a
+ * transform, and it only runs when `fill` actually changes, not on a loop.
  */
 
+import { useId } from "react";
+
 const CAP_GOLD = "#c9963e";
+
+/** Fixed positions within the bottle's own interior (viewBox space, not
+ *  screen space) — clipped to the glass silhouette below, so a sparkle
+ *  only ever shows up once the liquid has actually risen past it. Numbers
+ *  are hand-placed, not random: evenly spread rather than risking a
+ *  Math.random() clump on any given render. */
+const SPARKLES = [
+  { cx: 21, cy: 42, r: 1.1, delay: "0s" },
+  { cx: 32, cy: 55, r: 0.9, delay: "0.6s" },
+  { cx: 26, cy: 68, r: 1.3, delay: "1.3s" },
+  { cx: 37, cy: 78, r: 0.8, delay: "2.1s" },
+  { cx: 19, cy: 85, r: 1, delay: "2.8s" },
+];
 
 export function BottleGlyph({
   color,
@@ -33,11 +52,18 @@ export function BottleGlyph({
   glow?: boolean;
   className?: string;
 }) {
+  const uid = useId();
+  const clipId = `bottle-clip-${uid}`;
+  const liquidGradId = `bottle-liquid-${uid}`;
+  const sheenGradId = `bottle-sheen-${uid}`;
+
   const level = Math.max(0, Math.min(1, fill));
   // Body interior runs from y=24 (under the shoulder) to y=94 (the floor).
   const bodyTop = 24;
   const bodyBottom = 94;
   const liquidY = bodyBottom - (bodyBottom - bodyTop) * level;
+  const bodyPath =
+    "M15,26 C15,21 19,20 22,20 L38,20 C41,20 45,21 45,26 L45,88 C45,93 39,95 30,95 C21,95 15,93 15,88 Z";
 
   return (
     <div
@@ -52,17 +78,51 @@ export function BottleGlyph({
         glow ? { boxShadow: `0 0 28px ${color}4d` } : undefined
       }
     >
+      <style>{`
+        @media (prefers-reduced-motion: no-preference) {
+          .bottle-glyph-sheen {
+            animation: bottle-glyph-sheen-sweep 3.6s ease-in-out infinite;
+          }
+          .bottle-glyph-sparkle {
+            animation: bottle-glyph-twinkle 2.6s ease-in-out infinite;
+          }
+        }
+        @keyframes bottle-glyph-sheen-sweep {
+          0%, 100% { transform: translate(-14px, -4px) rotate(18deg); opacity: 0; }
+          15% { opacity: 0.55; }
+          50% { transform: translate(14px, 4px) rotate(18deg); opacity: 0.55; }
+          85% { opacity: 0; }
+        }
+        @keyframes bottle-glyph-twinkle {
+          0%, 100% { opacity: 0; transform: scale(0.4); }
+          50% { opacity: 0.9; transform: scale(1); }
+        }
+      `}</style>
       <svg viewBox="0 0 60 100" className="h-full w-full" role="presentation">
         <defs>
-          <clipPath id="bottle-body-clip">
-            <path d="M15,26 C15,21 19,20 22,20 L38,20 C41,20 45,21 45,26 L45,88 C45,93 39,95 30,95 C21,95 15,93 15,88 Z" />
+          <clipPath id={clipId}>
+            <path d={bodyPath} />
           </clipPath>
+          {/* Depth, not just colour: a touch lighter where the surface
+              catches light, a touch richer toward the glass — the
+              difference between a colour swatch and something poured. */}
+          <linearGradient id={liquidGradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity={0.75} />
+            <stop offset="12%" stopColor="#ffffff" stopOpacity={0.35} />
+            <stop offset="30%" stopColor={color} />
+            <stop offset="100%" stopColor={color} />
+          </linearGradient>
+          <linearGradient id={sheenGradId} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity={0} />
+            <stop offset="50%" stopColor="#ffffff" stopOpacity={0.85} />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity={0} />
+          </linearGradient>
         </defs>
 
         {/* Glass, near-empty — a faint fill plus a crisp outline reads as a
             clear bottle without needing a gradient or a blur to sell it. */}
         <path
-          d="M15,26 C15,21 19,20 22,20 L38,20 C41,20 45,21 45,26 L45,88 C45,93 39,95 30,95 C21,95 15,93 15,88 Z"
+          d={bodyPath}
           fill="rgba(0,0,0,0.03)"
           stroke="currentColor"
           strokeOpacity={0.14}
@@ -72,18 +132,44 @@ export function BottleGlyph({
 
         {/* The liquid, clipped to the glass's own silhouette so it never
             reads as a separate rectangle inside a bottle. */}
-        <g clipPath="url(#bottle-body-clip)">
+        <g clipPath={`url(#${clipId})`}>
           <rect
             x={14}
             y={liquidY}
             width={32}
             height={bodyBottom - liquidY + 2}
-            fill={color}
+            fill={`url(#${liquidGradId})`}
             style={{ transition: "y 500ms ease, height 500ms ease" }}
           />
-          {/* One thin highlight, static — not worth animating and cheap
-              enough it doesn't need to be. */}
+          {/* A diagonal band of light, sweeping slowly and forever — what
+              turns a flat fill into something that reads as liquid rather
+              than paint. transform + opacity only, so it's exactly as
+              cheap looping as it is sitting still. */}
+          <rect
+            className="bottle-glyph-sheen"
+            x={10}
+            y={bodyTop - 10}
+            width={10}
+            height={bodyBottom - bodyTop + 20}
+            fill={`url(#${sheenGradId})`}
+          />
+          {/* One thin static highlight along the glass edge, underneath the
+              sheen — the constant the sweep passes over. */}
           <rect x={18} y={bodyTop} width={3} height={bodyBottom - bodyTop} fill="#ffffff" opacity={0.12} />
+          {/* Motes of light in the liquid itself — only ever visible once
+              the fill has actually risen past a given one, same as real
+              liquid catching motes of dust or air. */}
+          {SPARKLES.map((s, i) => (
+            <circle
+              key={i}
+              className="bottle-glyph-sparkle"
+              cx={s.cx}
+              cy={s.cy}
+              r={s.r}
+              fill="#ffffff"
+              style={{ animationDelay: s.delay, transformOrigin: `${s.cx}px ${s.cy}px` }}
+            />
+          ))}
         </g>
 
         {/* Neck. */}
