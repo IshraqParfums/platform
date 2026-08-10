@@ -106,7 +106,7 @@ export function BespokeQuizLanding({
                 variant="outline"
                 className="cursor-pointer"
               >
-                View result
+                {view.name ? `View ${view.name}` : "View result"}
               </ButtonLink>
             </li>
           ))}
