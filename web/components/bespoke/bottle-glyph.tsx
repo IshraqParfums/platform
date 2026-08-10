@@ -23,8 +23,6 @@
 
 import { useId } from "react";
 
-const CAP_GOLD = "#c9963e";
-
 /** Fixed positions within the bottle's own interior (viewBox space, not
  *  screen space) — clipped to the glass silhouette below, so a sparkle
  *  only ever shows up once the liquid has actually risen past it. Numbers
@@ -56,6 +54,7 @@ export function BottleGlyph({
   const clipId = `bottle-clip-${uid}`;
   const liquidGradId = `bottle-liquid-${uid}`;
   const sheenGradId = `bottle-sheen-${uid}`;
+  const capGradId = `bottle-cap-${uid}`;
 
   const level = Math.max(0, Math.min(1, fill));
   // Body interior runs from y=24 (under the shoulder) to y=94 (the floor).
@@ -97,6 +96,15 @@ export function BottleGlyph({
           0%, 100% { opacity: 0; transform: scale(0.4); }
           50% { opacity: 0.9; transform: scale(1); }
         }
+        @media (prefers-reduced-motion: no-preference) {
+          .bottle-glyph-cap-glint {
+            animation: bottle-glyph-cap-shine 4.5s ease-in-out infinite;
+          }
+        }
+        @keyframes bottle-glyph-cap-shine {
+          0%, 100% { opacity: 0.45; }
+          50% { opacity: 0.9; }
+        }
       `}</style>
       <svg viewBox="0 0 60 100" className="h-full w-full" role="presentation">
         <defs>
@@ -116,6 +124,18 @@ export function BottleGlyph({
             <stop offset="0%" stopColor="#ffffff" stopOpacity={0} />
             <stop offset="50%" stopColor="#ffffff" stopOpacity={0.85} />
             <stop offset="100%" stopColor="#ffffff" stopOpacity={0} />
+          </linearGradient>
+          {/* The same light-dark-light banding a real polished cylinder
+              shows, not a flat swatch — the difference between
+              "gold-coloured" and "gold". Same palette the gold button ring
+              elsewhere in the app already uses. */}
+          <linearGradient id={capGradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#4a320d" />
+            <stop offset="20%" stopColor="#c9963e" />
+            <stop offset="42%" stopColor="#fff3cf" />
+            <stop offset="60%" stopColor="#e0b463" />
+            <stop offset="82%" stopColor="#8a6318" />
+            <stop offset="100%" stopColor="#4a320d" />
           </linearGradient>
         </defs>
 
@@ -177,9 +197,14 @@ export function BottleGlyph({
 
         {/* Cap — always the house gold, independent of the juice's own
             colour, the same way a real cap doesn't change with what's
-            inside it. */}
-        <rect x={20} y={2} width={20} height={11} rx={3} fill={CAP_GOLD} />
-        <rect x={20} y={2} width={20} height={3.5} rx={2} fill="#ffffff" opacity={0.22} />
+            inside it. Metal gradient body, a dark rim where it seats
+            against the neck, and one bright off-centre glint rather than
+            a flat translucent strip — a glint pulses slowly (opacity
+            only) so "shiny" doesn't compete with the liquid's own
+            animation for attention. */}
+        <rect x={20} y={2} width={20} height={11} rx={3} fill={`url(#${capGradId})`} stroke="#3a2408" strokeOpacity={0.35} strokeWidth={0.5} />
+        <rect x={20} y={9.6} width={20} height={1} rx={0.5} fill="#3a2408" opacity={0.28} />
+        <ellipse className="bottle-glyph-cap-glint" cx={26} cy={5} rx={4} ry={1.6} fill="#ffffff" opacity={0.6} />
       </svg>
     </div>
   );
