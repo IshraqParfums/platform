@@ -396,11 +396,21 @@
   -webkit-mask-image: linear-gradient(180deg, #000 0 76%, rgba(0, 0, 0, 0.4) 92%, transparent 100%);
 }
 
-/* What the slab drops onto the floor beneath it. */
+/* What the slab drops onto the floor beneath it.
+ *
+ * Was a solid ellipse with `filter: blur(22px)` — full width/height of the
+ * table, so as large an area as `.ipx-aura` ever was, and static in exactly
+ * the way that PR still rasterises expensively on scroll regardless of
+ * whether anything on it is animating (see the note on `.ipx-aura` above).
+ * It slipped through every earlier round because those rounds swept for
+ * *transitioning* or *backdrop* filters specifically — this one is neither,
+ * it just sat there being big. A radial-gradient with the same soft falloff
+ * gets an identical blurred-shadow look without a filter at all: gradients
+ * are cheap to rasterise, a blur convolution is not.
+ */
 .ipx-table-cast {
   top: calc(var(--ipx-thick, 30px) * 1.45);
-  background: rgba(0, 0, 0, 0.7);
-  filter: blur(22px);
+  background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.7) 32%, transparent 70%);
   opacity: 0.45;
 }
 
@@ -1782,7 +1792,12 @@
      the top is 42% of the smell and was the palest thing on screen. */
   filter: saturate(calc(0.72 + 0.48 * var(--ipx-lead, 1)))
           brightness(calc(0.86 + 0.24 * var(--ipx-lead, 1)));
-  transition: filter 700ms ease;
+  /* No transition, on any device: consistent with .ipx-aura and
+     .ipx-bottle-svg above, a transitioning filter is re-rasterised every
+     frame it runs. --ipx-lead updates as the drydown ticks forward, which
+     is infrequent enough that a snap reads as a step in the simulation,
+     not a glitch — the v2 rebuild reached the same conclusion for this
+     exact rule and never restored the transition. */
 
   /* The evaporation front. Deliberately a long, soft ramp rather than an edge:
      with the grain showing through it, a 26% falloff reads as powder thinning
