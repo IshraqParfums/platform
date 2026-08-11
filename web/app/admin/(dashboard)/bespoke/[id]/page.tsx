@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { AdminBackLink } from "@/components/admin/admin-back-link";
 import { BespokeComposition } from "@/components/admin/bespoke/bespoke-composition";
 import { adminPageFetch } from "@/lib/admin/admin-page-fetch";
-import { formatBespokeAnswerLog } from "@/lib/admin/bespoke-answer-log";
 import { NestApiError } from "@/lib/api/errors";
 import { formatOrderDateTime } from "@/lib/orders/order-status";
 
@@ -30,8 +29,6 @@ export default async function AdminBespokeDetailPage({ params }: RouteParams) {
     throw error;
   }
 
-  const answerLog = formatBespokeAnswerLog(brew.state);
-
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -53,7 +50,7 @@ export default async function AdminBespokeDetailPage({ params }: RouteParams) {
       </div>
 
       <div className="rounded-lg border border-ink/10 bg-card p-4">
-        <BespokeComposition formula={brew.formula} answerLog={answerLog} />
+        <BespokeComposition formula={brew.formula} answerLog={brew.answerLog} />
       </div>
     </div>
   );

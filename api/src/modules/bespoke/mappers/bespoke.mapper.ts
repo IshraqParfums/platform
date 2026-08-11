@@ -13,6 +13,7 @@ import type {
   BespokePerfumeCustomerResponse,
 } from '@ishraqparfums/shared';
 import type { BespokePerfumeWithCustomer } from '../bespoke.repository';
+import { buildAdminAnswerLog } from '../bespoke-answer-log.mapper';
 import { customerCopyTier, isFormulaSnapshotV2 } from '../bespoke.helpers';
 
 const NEUTRAL_THEME: BespokeColorTheme = {
@@ -88,6 +89,7 @@ export function toBespokePerfumeAdminResponse(
     graphVersion: row.graphVersion,
     formula: row.formulaJson as unknown as BespokeFormulaSnapshotV2,
     state: row.stateJson,
+    answerLog: buildAdminAnswerLog(row.stateJson),
     colorTheme: colorTheme(row),
     deletedAt: row.deletedAt?.toISOString() ?? null,
     clientKey: row.clientKey,

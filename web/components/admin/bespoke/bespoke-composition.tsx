@@ -5,6 +5,7 @@ import {
   BESPOKE_DIMENSIONS,
   BESPOKE_DIMENSION_LABEL,
   BESPOKE_FAMILY_COLOR,
+  type BespokeAnswerLogEntry,
   type BespokeFormulaSnapshotV1,
   type BespokeFormulaSnapshotV2,
 } from "@ishraqparfums/shared";
@@ -14,14 +15,6 @@ import { cn } from "@/lib/cn";
 const DIMENSIONS = BESPOKE_DIMENSIONS;
 const BATCH_MIN_G = 1;
 const BATCH_MAX_G = 500;
-
-export type BespokeAnswerLogRow = {
-  nodeId: string;
-  /** Human question / node label when known. */
-  label?: string;
-  /** Human-readable answer. */
-  summary: string;
-};
 
 function isV2(value: unknown): value is BespokeFormulaSnapshotV2 {
   return (
@@ -56,7 +49,7 @@ export function BespokeComposition({
 }: {
   formula: unknown;
   title?: string;
-  answerLog?: BespokeAnswerLogRow[];
+  answerLog?: BespokeAnswerLogEntry[];
   className?: string;
 }) {
   if (isV2(formula)) {
@@ -105,7 +98,7 @@ function CompositionV2({
 }: {
   formula: BespokeFormulaSnapshotV2;
   title?: string;
-  answerLog?: BespokeAnswerLogRow[];
+  answerLog?: BespokeAnswerLogEntry[];
   className?: string;
 }) {
   const reference = formula.bottle.batch_g_reference || 10;
@@ -243,11 +236,11 @@ function CompositionV2({
                 className="rounded-lg border border-ink/10 bg-card px-4 py-3"
               >
                 <p className="font-mono text-label-sm uppercase text-ink-faint">
-                  {String(index + 1).padStart(2, "0")}
-                  {row.label ? ` · ${row.label}` : ""}
+                  {String(index + 1).padStart(2, "0")} · {row.questionText}
+                  <span className="ml-2 text-ink-faint/60">({row.nodeId})</span>
                 </p>
                 <p className="mt-1 text-sm leading-relaxed text-ink">
-                  {row.summary}
+                  {row.answerText}
                 </p>
               </li>
             ))}
