@@ -366,11 +366,21 @@
   -webkit-mask-image: linear-gradient(180deg, #000 0 76%, rgba(0, 0, 0, 0.4) 92%, transparent 100%);
 }
 
-/* What the slab drops onto the floor beneath it. */
+/* What the slab drops onto the floor beneath it.
+ *
+ * Was a solid ellipse with `filter: blur(22px)` — full width/height of the
+ * table, missed by this file's own rebuild because that sweep targeted
+ * *transitioning* and *backdrop* filters specifically (see the notes on
+ * `.ipx-nav` and `.ipx-powder`) and this one is neither — it's just a large
+ * static blur, the same failure class `.ipx-aura` had in v1 before that was
+ * traced to "expensive to rasterise regardless of whether it's animating."
+ * A radial-gradient with the same falloff gives an identical soft-shadow
+ * look with no filter at all: gradients are cheap to rasterise, a blur
+ * convolution over an area this size is not.
+ */
 .ipx-table-cast {
   top: calc(var(--ipx-thick, 30px) * 1.45);
-  background: rgba(0, 0, 0, 0.7);
-  filter: blur(22px);
+  background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.7) 32%, transparent 70%);
   opacity: 0.45;
 }
 
