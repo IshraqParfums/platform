@@ -79,6 +79,15 @@ export interface BespokePerfumeCustomerResponse {
   updatedAt: string;
 }
 
+/** One answered question, resolved server-side against the graph the
+ *  session was actually answered on — the admin view has no graph of its
+ *  own to guess node text from. */
+export interface BespokeAnswerLogEntry {
+  nodeId: string;
+  questionText: string;
+  answerText: string;
+}
+
 /** Admin / production sheet — full bottle + sample. */
 export interface BespokePerfumeAdminResponse {
   id: string;
@@ -89,6 +98,8 @@ export interface BespokePerfumeAdminResponse {
   graphVersion: string;
   formula: BespokeFormulaSnapshotV2;
   state: unknown;
+  /** Question-by-question record of the consultation, in answer order. */
+  answerLog: BespokeAnswerLogEntry[];
   colorTheme: BespokeColorTheme;
   deletedAt: string | null;
   clientKey: string | null;

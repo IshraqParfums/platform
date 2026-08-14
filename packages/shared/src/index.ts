@@ -196,6 +196,7 @@ export type {
   BespokeAdminAnalytics,
   BespokeAdminListItem,
   BespokeAnswerBody,
+  BespokeAnswerLogEntry,
   BespokeAnswerRequest,
   BespokeCandidateCard,
   BespokeColorTheme,
