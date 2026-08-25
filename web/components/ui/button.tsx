@@ -8,8 +8,11 @@ type Variant =
   | "outline"
   | "outline-dark"
   | "ghost"
-  | "light";
-type Size = "sm" | "md" | "lg";
+  | "light"
+  | "indigo"
+  | "outline-ink"
+  | "graphite";
+type Size = "sm" | "md" | "lg" | "pill";
 
 const BASE =
   "inline-flex items-center justify-center gap-2 rounded-full font-semibold " +
@@ -47,12 +50,24 @@ const VARIANTS: Record<Variant, string> = {
     "border border-cream/35 text-cream-soft hover:border-gold/70 hover:bg-cream/10",
   ghost: "text-current hover:bg-current/5",
   light: "bg-ink text-cream-soft hover:bg-rose-deep",
+
+  // ---- v2 home. Ink blue is the only interactive colour on paper: gold is
+  // also decorative there, so a gold button and a gold rule would read the
+  // same. These deepen rather than lighten on hover for the reason spelled
+  // out under `emphasis` — on a light ground, lightening reads as retreating.
+  indigo: "bg-indigo text-shell hover:bg-indigo-deep",
+  "outline-ink":
+    "border border-graphite/20 text-graphite hover:border-indigo hover:text-indigo hover:bg-indigo/[0.04]",
+  // Solid ink, for the one closing CTA that should outweigh an indigo button.
+  graphite: "bg-graphite text-shell hover:bg-graphite-lift",
 };
 
 const SIZES: Record<Size, string> = {
   sm: "px-4 py-2 text-[13px]",
   md: "px-6 py-3 text-sm",
   lg: "px-8 py-4 text-[15px]",
+  // v2 home: the CTA is a tracked uppercase micro-label, not a sentence.
+  pill: "px-8 py-[18px] text-[12px] uppercase tracking-[0.16em]",
 };
 
 interface CommonProps {

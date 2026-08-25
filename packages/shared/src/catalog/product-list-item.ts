@@ -7,6 +7,8 @@ export interface ProductListPrimaryImage {
 
 export interface ProductListItem {
   name: string;
+  /** Urdu (Nastaliq) name. Display-only; null until an admin fills it in. */
+  nameUrdu: string | null;
   slug: string;
   shortDescription: string;
   collectionSlug: string;

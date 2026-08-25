@@ -4,6 +4,7 @@ import {
   IsString,
   IsUUID,
   Matches,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 import { ProductStatus } from '@prisma/client';
@@ -19,6 +20,14 @@ export class CreateProductDto {
   @IsString()
   @MinLength(1)
   name!: string;
+
+  // Optional on both DTOs, and deliberately without @MinLength: the admin form
+  // posts "" to clear the field, and the service maps "" -> null. ValidationPipe
+  // runs forbidNonWhitelisted, so omitting this would 400 every form submit.
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  nameUrdu?: string;
 
   @IsString()
   @Matches(SLUG_PATTERN, { message: SLUG_MESSAGE })
@@ -46,6 +55,11 @@ export class UpdateProductDto {
   @IsString()
   @MinLength(1)
   name?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  nameUrdu?: string;
 
   @IsOptional()
   @Matches(SLUG_PATTERN, { message: SLUG_MESSAGE })

@@ -5,11 +5,25 @@ import { useEffect, useState } from "react";
 import { shopFetch } from "@/lib/auth/shop-fetch";
 import { readLocalCartCount } from "@/lib/cart/cart-client";
 import { subscribeCartChanged } from "@/lib/cart/cart-events";
+import { cn } from "@/lib/cn";
 
 /**
  * Header bag link with live item count badge.
  */
-export function CartNavLink() {
+export type CartNavTone = "dark" | "light";
+
+/** See the note on BespokeSavedNavLink — colour rides on `tone`, not className. */
+const CONTROL: Record<CartNavTone, string> = {
+  dark: "text-cream/85 hover:bg-cream/10 hover:text-cream-soft",
+  light: "text-graphite/75 hover:bg-graphite/[0.06] hover:text-graphite",
+};
+
+const BADGE: Record<CartNavTone, string> = {
+  dark: "bg-gold text-deep",
+  light: "bg-indigo text-shell",
+};
+
+export function CartNavLink({ tone = "dark" }: { tone?: CartNavTone }) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -49,7 +63,10 @@ export function CartNavLink() {
     <Link
       href="/cart"
       aria-label={label}
-      className="relative flex h-10 w-10 items-center justify-center rounded-full text-cream/85 transition-colors hover:bg-cream/10 hover:text-cream-soft"
+      className={cn(
+        "relative flex h-10 w-10 items-center justify-center rounded-full transition-colors",
+        CONTROL[tone],
+      )}
     >
       <svg
         viewBox="0 0 24 24"
@@ -67,7 +84,12 @@ export function CartNavLink() {
         <path d="M9.5 9V6a2.5 2.5 0 0 1 5 0v3" strokeLinecap="round" />
       </svg>
       {count > 0 ? (
-        <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 font-mono text-[10px] font-semibold leading-none text-deep">
+        <span
+          className={cn(
+            "absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 font-mono text-[10px] font-semibold leading-none",
+            BADGE[tone],
+          )}
+        >
           {count > 9 ? "9+" : count}
         </span>
       ) : null}

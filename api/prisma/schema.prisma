@@ -72,6 +72,9 @@ model Product {
   id                  String                @id @default(uuid())
   collectionId        String
   name                String
+  /// Urdu (Nastaliq) product name. Display-only sidecar — the storefront renders
+  /// it beside the Latin name; nothing keys off it and search still uses `name`.
+  nameUrdu            String?
   slug                String                @unique
   shortDescription    String
   detailedDescription String

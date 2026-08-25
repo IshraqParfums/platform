@@ -23,6 +23,7 @@ export function ProductEditForm({
 }) {
   const router = useRouter();
   const [name, setName] = useState(product.name);
+  const [nameUrdu, setNameUrdu] = useState(product.nameUrdu ?? "");
   const [collectionId, setCollectionId] = useState(product.collectionId);
   const [shortDescription, setShortDescription] = useState(product.shortDescription);
   const [detailedDescription, setDetailedDescription] = useState(
@@ -44,6 +45,9 @@ export function ProductEditForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
+          // Always sent, including "": that is how the field gets cleared.
+          // The API trims and maps empty back to null.
+          nameUrdu,
           collectionId,
           shortDescription,
           detailedDescription,
@@ -75,6 +79,21 @@ export function ProductEditForm({
             Name
           </span>
           <Input value={name} onChange={(event) => setName(event.target.value)} required />
+        </label>
+
+        <label className="flex min-w-0 flex-col gap-1.5">
+          <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+            Urdu name (optional)
+          </span>
+          <Input
+            value={nameUrdu}
+            onChange={(event) => setNameUrdu(event.target.value)}
+            dir="rtl"
+            lang="ur"
+            placeholder="عودِ اشراق"
+            maxLength={120}
+            className="text-right"
+          />
         </label>
 
         <div className="min-w-0 w-full">

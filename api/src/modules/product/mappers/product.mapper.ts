@@ -114,6 +114,7 @@ export function toProductListItem(
 
   return {
     name: product.name,
+    nameUrdu: product.nameUrdu,
     slug: product.slug,
     shortDescription: product.shortDescription,
     collectionSlug: product.collection.slug,
@@ -139,6 +140,7 @@ export function toProductDetail(
 ): ProductDetail {
   return {
     name: product.name,
+    nameUrdu: product.nameUrdu,
     slug: product.slug,
     shortDescription: product.shortDescription,
     detailedDescription: product.detailedDescription,
@@ -184,6 +186,7 @@ export function toAdminProductListItem(
   return {
     id: product.id,
     name: product.name,
+    nameUrdu: product.nameUrdu,
     slug: product.slug,
     status: product.status,
     archiveReason: product.archiveReason,
@@ -203,6 +206,7 @@ export function toAdminProductDetail(
   return {
     id: product.id,
     name: product.name,
+    nameUrdu: product.nameUrdu,
     slug: product.slug,
     shortDescription: product.shortDescription,
     detailedDescription: product.detailedDescription,

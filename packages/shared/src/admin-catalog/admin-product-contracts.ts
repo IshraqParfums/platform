@@ -23,6 +23,8 @@ export interface AdminProductImage {
 export interface AdminProductListItem {
   id: string;
   name: string;
+  /** Urdu (Nastaliq) name. Display-only; null until an admin fills it in. */
+  nameUrdu: string | null;
   slug: string;
   status: ProductStatus;
   archiveReason: ProductArchiveReason | null;
@@ -38,6 +40,8 @@ export interface AdminProductListItem {
 export interface AdminProductDetail {
   id: string;
   name: string;
+  /** Urdu (Nastaliq) name. Display-only; null until an admin fills it in. */
+  nameUrdu: string | null;
   slug: string;
   shortDescription: string;
   detailedDescription: string;
@@ -54,6 +58,8 @@ export interface AdminProductDetail {
 export interface CreateProductBody {
   collectionId: string;
   name: string;
+  /** Optional Urdu name. Omit or send "" to leave it empty. */
+  nameUrdu?: string;
   slug: string;
   shortDescription: string;
   detailedDescription: string;
@@ -63,6 +69,8 @@ export interface CreateProductBody {
 export interface UpdateProductBody {
   collectionId?: string;
   name?: string;
+  /** Send "" to clear the Urdu name back to null. */
+  nameUrdu?: string;
   slug?: string;
   shortDescription?: string;
   detailedDescription?: string;

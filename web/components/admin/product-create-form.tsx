@@ -47,6 +47,7 @@ export function ProductCreateForm({
 }) {
   const router = useRouter();
   const { name, slug, setName, setSlug } = useAutoSlug();
+  const [nameUrdu, setNameUrdu] = useState("");
   const [collectionId, setCollectionId] = useState(collections[0]?.id ?? "");
   const [shortDescription, setShortDescription] = useState("");
   const [detailedDescription, setDetailedDescription] = useState("");
@@ -214,6 +215,9 @@ export function ProductCreateForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: trimmedName,
+          // Optional. Omitted rather than sent empty so a blank field never
+          // writes a row the storefront then has to null-check twice.
+          ...(nameUrdu.trim() ? { nameUrdu: nameUrdu.trim() } : {}),
           slug,
           collectionId,
           shortDescription: trimmedShort,
@@ -376,6 +380,25 @@ export function ProductCreateForm({
               />
               <span className="text-xs text-ink-faint">
                 Fills from the name; you can tweak it before creating.
+              </span>
+            </label>
+
+            <label className="flex flex-col gap-1.5 sm:col-span-2">
+              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+                Urdu name (optional)
+              </span>
+              <Input
+                value={nameUrdu}
+                onChange={(event) => setNameUrdu(event.target.value)}
+                dir="rtl"
+                lang="ur"
+                placeholder="عودِ اشراق"
+                maxLength={120}
+                className="text-right"
+              />
+              <span className="text-xs text-ink-faint">
+                Shown beside the English name on the storefront. Leave blank to
+                hide it.
               </span>
             </label>
 

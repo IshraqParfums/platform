@@ -26,29 +26,26 @@ function Monogram() {
 
 /**
  * Surface modes:
- * - transparent over the home hero (cream/gold on espresso)
- * - solid deep bar on all other routes, after scroll on home, and when the
- *   mobile menu is open
+ * - light glass bar on the home page (graphite/indigo on paper), from scroll
+ *   position zero
+ * - solid espresso bar on every other route, and when the mobile menu is open
  *
- * Never stay transparent on cream pages — that is what made the logo vanish.
+ * The home branch used to be the transparent one: the old hero was a full-bleed
+ * espresso plate and the nav floated over it, going solid past 40px of scroll.
+ * The v2 home page is paper top to bottom, and a transparent bar on paper is
+ * exactly the failure the previous version of this comment warned about — the
+ * logo vanishes. So home now gets its own surface rather than an absence of one,
+ * and the scroll listener is gone with it.
+ *
+ * Everything below the surface switch is shared: one nav, one mobile panel, one
+ * set of controls. Only the palette forks.
  */
 export function Header() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
-  const [scrolled, setScrolled] = useState(false);
+  // The home page is the only paper route today. As other pages migrate onto
+  // the v2 tokens, this becomes a list — or moves into the layout.
+  const light = pathname === "/";
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isHome) {
-      setScrolled(false);
-      return;
-    }
-
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [isHome]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -57,15 +54,13 @@ export function Header() {
     };
   }, [open]);
 
-  const solid = !isHome || scrolled || open;
-
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300",
-        solid
-          ? "border-b border-gold/15 bg-deep/92 backdrop-blur-md"
-          : "border-b border-transparent bg-transparent",
+        "fixed inset-x-0 top-0 z-50 border-b backdrop-blur-md",
+        light
+          ? "border-graphite/[0.07] bg-paper/[0.82]"
+          : "border-gold/15 bg-deep/92",
       )}
     >
       <Container size="wide">
@@ -78,13 +73,28 @@ export function Header() {
             className="flex items-center gap-3"
             onClick={() => setOpen(false)}
           >
-            <Monogram />
-            <span className="font-display text-[17px] font-semibold tracking-tight text-cream-soft">
-              Ishraq
-              <span className="ml-1.5 font-mono text-label-sm uppercase text-gold-soft/75">
-                Parfums
+            {/* On paper the mark is the wordmark itself, set in the editorial
+                serif; the gold monogram only reads against espresso. */}
+            {light ? (
+              <span className="flex items-baseline gap-2.5">
+                <span className="font-editorial text-[25px] tracking-[0.01em] text-graphite">
+                  Ishraq
+                </span>
+                <span className="font-ui text-[9px] font-semibold uppercase tracking-[0.28em] text-graphite-mute">
+                  Parfums
+                </span>
               </span>
-            </span>
+            ) : (
+              <>
+                <Monogram />
+                <span className="font-display text-[17px] font-semibold tracking-tight text-cream-soft">
+                  Ishraq
+                  <span className="ml-1.5 font-mono text-label-sm uppercase text-gold-soft/75">
+                    Parfums
+                  </span>
+                </span>
+              </>
+            )}
           </Link>
 
           <nav className="hidden items-center gap-9 md:flex">
@@ -92,7 +102,12 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="relative py-1 text-sm font-medium text-cream/80 transition-colors hover:text-cream-soft after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-gold after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className={cn(
+                  "relative py-1 transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100",
+                  light
+                    ? "font-ui text-nav font-medium uppercase text-graphite/75 hover:text-indigo after:bg-indigo"
+                    : "text-sm font-medium text-cream/80 hover:text-cream-soft after:bg-gold",
+                )}
               >
                 {item.label}
               </Link>
@@ -105,19 +120,29 @@ export function Header() {
                 without the header having to probe the session on every page. */}
             <Link
               href={ACCOUNT_HOME}
-              className="hidden rounded-full px-4 py-2 text-sm font-medium text-cream/80 transition-colors hover:bg-cream/10 hover:text-cream-soft sm:inline-flex"
+              className={cn(
+                "hidden rounded-full px-4 py-2 transition-colors sm:inline-flex",
+                light
+                  ? "font-ui text-nav font-medium uppercase text-graphite/75 hover:bg-graphite/[0.06] hover:text-indigo"
+                  : "text-sm font-medium text-cream/80 hover:bg-cream/10 hover:text-cream-soft",
+              )}
             >
               Account
             </Link>
-            <BespokeSavedNavLink />
-            <CartNavLink />
+            <BespokeSavedNavLink tone={light ? "light" : "dark"} />
+            <CartNavLink tone={light ? "light" : "dark"} />
 
             <button
               type="button"
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
-              className="flex h-10 w-10 items-center justify-center rounded-full text-cream/85 transition-colors hover:bg-cream/10 md:hidden"
+              className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-full transition-colors md:hidden",
+                light
+                  ? "text-graphite/75 hover:bg-graphite/[0.06]"
+                  : "text-cream/85 hover:bg-cream/10",
+              )}
             >
               <svg
                 viewBox="0 0 24 24"
@@ -139,7 +164,14 @@ export function Header() {
       </Container>
 
       {open ? (
-        <nav className="border-t border-gold/15 bg-deep/97 backdrop-blur-md md:hidden">
+        <nav
+          className={cn(
+            "border-t backdrop-blur-md md:hidden",
+            light
+              ? "border-graphite/[0.07] bg-paper/[0.97]"
+              : "border-gold/15 bg-deep/97",
+          )}
+        >
           <Container size="wide">
             <div className="flex flex-col py-3">
               {[
@@ -152,7 +184,12 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="border-b border-cream/8 py-4 font-display text-lg text-cream-soft last:border-0"
+                  className={cn(
+                    "border-b py-4 text-lg last:border-0",
+                    light
+                      ? "border-graphite/10 font-editorial text-graphite"
+                      : "border-cream/8 font-display text-cream-soft",
+                  )}
                 >
                   {item.label}
                 </Link>

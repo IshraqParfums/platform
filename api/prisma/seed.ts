@@ -38,6 +38,9 @@ async function upsertCollection(input: {
 async function upsertProductWithDetails(input: {
   slug: string;
   name: string;
+  /** Urdu (Nastaliq) display name. Seeded values are placeholders — they read
+   *  correctly but should be reviewed by a native speaker before launch. */
+  nameUrdu?: string;
   collectionId: string;
   shortDescription: string;
   detailedDescription: string;
@@ -55,6 +58,7 @@ async function upsertProductWithDetails(input: {
     create: {
       slug: input.slug,
       name: input.name,
+      nameUrdu: input.nameUrdu ?? null,
       collectionId: input.collectionId,
       shortDescription: input.shortDescription,
       detailedDescription: input.detailedDescription,
@@ -62,6 +66,7 @@ async function upsertProductWithDetails(input: {
     },
     update: {
       name: input.name,
+      nameUrdu: input.nameUrdu ?? null,
       collectionId: input.collectionId,
       shortDescription: input.shortDescription,
       detailedDescription: input.detailedDescription,
@@ -161,6 +166,7 @@ async function main() {
   await upsertProductWithDetails({
     slug: 'citrus-atelier',
     name: 'Citrus Atelier',
+    nameUrdu: 'نکہتِ ترنج',
     collectionId: designer.id,
     shortDescription: 'Bright citrus over a clean, modern musk base.',
     detailedDescription:
@@ -182,6 +188,7 @@ async function main() {
   await upsertProductWithDetails({
     slug: 'noir-velvet',
     name: 'Noir Velvet',
+    nameUrdu: 'سیاہ مخمل',
     collectionId: designer.id,
     shortDescription: 'A dark, velvety amber-wood signature.',
     detailedDescription:
@@ -203,6 +210,7 @@ async function main() {
   await upsertProductWithDetails({
     slug: 'cedar-sessions',
     name: 'Cedar Sessions',
+    nameUrdu: 'دیودار کی محفل',
     collectionId: designer.id,
     shortDescription: 'Dry cedar, vetiver roots, and clean woodsmoke.',
     detailedDescription:
@@ -225,6 +233,7 @@ async function main() {
   await upsertProductWithDetails({
     slug: 'monsoon-letters',
     name: 'Monsoon Letters',
+    nameUrdu: 'برسات کے خطوط',
     collectionId: nostalgia.id,
     shortDescription: 'Rain-soaked paper, tea, and soft woods.',
     detailedDescription:
@@ -241,6 +250,7 @@ async function main() {
   await upsertProductWithDetails({
     slug: 'attar-of-sundays',
     name: 'Attar of Sundays',
+    nameUrdu: 'اتوار کا عطر',
     collectionId: nostalgia.id,
     shortDescription: 'Powdered rose, soft violet, and warm skin musk.',
     detailedDescription:
@@ -262,6 +272,7 @@ async function main() {
   await upsertProductWithDetails({
     slug: 'amber-meridian',
     name: 'Amber Meridian',
+    nameUrdu: 'عنبرِ نیم روز',
     collectionId: nostalgia.id,
     shortDescription: 'Golden amber, warm resin, and a slow-burning sweetness.',
     detailedDescription:
@@ -284,6 +295,7 @@ async function main() {
   await upsertProductWithDetails({
     slug: 'oud-ishraq',
     name: 'Oud Ishraq',
+    nameUrdu: 'عودِ اشراق',
     collectionId: limitedEdition.id,
     shortDescription: 'Smoky oud, saffron leather, and dark resin.',
     detailedDescription:
@@ -305,6 +317,7 @@ async function main() {
   await upsertProductWithDetails({
     slug: 'smoke-and-saffron',
     name: 'Smoke & Saffron',
+    nameUrdu: 'دھواں و زعفران',
     collectionId: limitedEdition.id,
     shortDescription: 'Saffron, ember-warm spice, and dry amber.',
     detailedDescription:
@@ -329,6 +342,7 @@ async function main() {
   await upsertProductWithDetails({
     slug: 'velvet-reserve',
     name: 'Velvet Reserve',
+    nameUrdu: 'مخملی ذخیرہ',
     collectionId: limitedEdition.id,
     shortDescription: 'A rare, velvet-dark signature reserved for collectors.',
     detailedDescription:

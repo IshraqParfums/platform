@@ -62,6 +62,17 @@ import { isVariantSellable } from './variant-availability';
 
 type DbClient = Prisma.TransactionClient | PrismaService;
 
+/**
+ * The admin form posts an empty string when the field is cleared, and the DTO
+ * lets it through (a @MinLength there would make clearing impossible). Collapse
+ * empty/whitespace to null so the column only ever holds a real name — the
+ * storefront renders the Urdu block on a plain null check.
+ */
+function normalizeNameUrdu(value: string | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
 @Injectable()
 export class ProductService {
   constructor(
@@ -245,14 +256,12 @@ export class ProductService {
   }): void {
     if (variant.product.status !== ProductStatus.ACTIVE) {
       throw new BadRequestException(
-        'This fragrance isn\'t available to buy right now.',
+        "This fragrance isn't available to buy right now.",
       );
     }
 
     if (!variant.isAvailable) {
-      throw new BadRequestException(
-        'That size isn\'t available right now.',
-      );
+      throw new BadRequestException("That size isn't available right now.");
     }
 
     if (this.availableQty(variant) < 1) {
@@ -304,14 +313,12 @@ export class ProductService {
 
     if (variant.product.status !== ProductStatus.ACTIVE) {
       throw new BadRequestException(
-        'This fragrance isn\'t available to buy right now.',
+        "This fragrance isn't available to buy right now.",
       );
     }
 
     if (!variant.isAvailable) {
-      throw new BadRequestException(
-        'That size isn\'t available right now.',
-      );
+      throw new BadRequestException("That size isn't available right now.");
     }
 
     this.assertQuantityAvailable(variant, quantity);
@@ -472,6 +479,7 @@ export class ProductService {
       const product = await this.productRepository.create({
         collection: { connect: { id: input.collectionId } },
         name: input.name.trim(),
+        nameUrdu: normalizeNameUrdu(input.nameUrdu),
         slug: input.slug,
         shortDescription: input.shortDescription.trim(),
         detailedDescription: input.detailedDescription.trim(),
@@ -549,6 +557,9 @@ export class ProductService {
           ? { collection: { connect: { id: input.collectionId } } }
           : {}),
         ...(input.name !== undefined ? { name: input.name.trim() } : {}),
+        ...(input.nameUrdu !== undefined
+          ? { nameUrdu: normalizeNameUrdu(input.nameUrdu) }
+          : {}),
         ...(input.slug !== undefined ? { slug: input.slug } : {}),
         ...(input.shortDescription !== undefined
           ? { shortDescription: input.shortDescription.trim() }
