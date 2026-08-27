@@ -83,39 +83,34 @@
      rename these down.
   ---------------------------------------------------------------- */
 
-  /* Paper, one shade cooler and lighter than --color-cream. */
-  --color-paper: #f4efe6;
-  --color-paper-deep: #ede6d9;
-  --color-shell: #fbf8f2;
+  /* Home parchment. Ivory field, almost-black type, tobacco as a
+     single atmospheric moment, brass and terracotta as accents. */
+  --color-paper: #f4eee3;
+  --color-paper-deep: #ebe4d6;
+  --color-shell: #faf6ee;
+  --color-tobacco: #332116;
+  --color-terra: #8b4d36;
+  --color-terra-deep: #6e3c2a;
 
-  /* Near-black with the brown taken out — the v2 ink reads as printed
-     type on paper rather than as espresso. */
-  --color-graphite: #171512;
-  --color-graphite-soft: #6f695f;
-  --color-graphite-faint: #a09889;
-  --color-graphite-mute: #8a8378;
-  /* Hover state for the solid ink button — lifted, not tinted. */
-  --color-graphite-lift: #2c2822;
+  --color-graphite: #161310;
+  --color-graphite-soft: #6a5e52;
+  --color-graphite-faint: #9a8d7e;
+  --color-graphite-mute: #85786b;
+  --color-graphite-lift: #2a221c;
 
-  /* The one true interactive colour. Gold cannot be one because gold is
-     also decorative here — a gold rule and a gold link are indistinguishable.
-     Cool blue on warm paper is unambiguous, and it is what gives the page
-     its edge. */
   --color-indigo: #1b4fd8;
   --color-indigo-deep: #123a9f;
 
-  /* Urdu voice. Never used for interaction — brass says "this is the
-     other language", indigo says "you can click this". */
-  --color-brass: #b8862e;
-  --color-brass-deep: #96691f;
+  --color-brass: #b57a19;
+  --color-brass-deep: #8f5f12;
 
   --font-editorial: var(--font-instrument), Georgia, serif;
   --font-ui: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
   --font-urdu: var(--font-nastaliq), serif;
 
-  --text-h1-editorial: clamp(42px, 6.6vw, 92px);
-  --text-h1-editorial--line-height: 0.98;
-  --text-h1-editorial--letter-spacing: -0.02em;
+  --text-h1-editorial: clamp(40px, 6.2vw, 88px);
+  --text-h1-editorial--line-height: 1.02;
+  --text-h1-editorial--letter-spacing: -0.03em;
 
   --text-h2-editorial: clamp(32px, 4vw, 52px);
   --text-h2-editorial--line-height: 1.05;
@@ -688,6 +683,83 @@ html::-webkit-scrollbar-thumb:hover {
   padding-top: 10px;
 }
 
+/* A standalone Urdu line (a section's own heading, nothing sharing its
+   row) doesn't need the full row-sharing cushion above — that clearance
+   comes from the call site's own margin instead. Full-strength `.urdu`
+   stays the default: `sm`, used inline beside a Latin product name, still
+   needs it. */
+.urdu-tight {
+  line-height: 1.5;
+  padding-top: 4px;
+}
+
+.material-plate {
+  transform: scale(1.06);
+  animation: material-settle linear both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 40%;
+}
+
+/* Floating material cutouts on the parchment field. */
+@keyframes material-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+.material-float {
+  animation: material-float 6.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.material-float--a {
+  animation-duration: 5.6s;
+  animation-delay: -0.6s;
+}
+
+.material-float--b {
+  animation-duration: 7s;
+  animation-delay: -2.2s;
+}
+
+.material-float--c {
+  animation-duration: 6.4s;
+  animation-delay: -3.5s;
+}
+
+.material-float--d {
+  animation-duration: 5.9s;
+  animation-delay: -1.4s;
+}
+
+.bottle-arrive {
+  animation: bottle-arrive 1.15s cubic-bezier(0.22, 0.8, 0.28, 1) both;
+}
+
+@keyframes bottle-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes material-settle {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
 /* ---- juice bleed -------------------------------------------------
    A slow highlight rolling across a colour wash — the shelf-card washes
    and the bespoke panel's juice swatch. */
@@ -791,11 +863,11 @@ html::-webkit-scrollbar-thumb:hover {
   /* v2 home. The blanket 0.001ms override above would otherwise leave these
      stopped one frame in rather than held at rest. The scroll pin is disabled
      in JS instead — see components/home-v2/movements.tsx. */
-  .paper-field span,
-  .juice-bleed,
-  .scroll-hint,
-  .marquee-v2 {
+  .material-plate,
+  .material-float,
+  .bottle-arrive {
     animation: none !important;
+    transform: none;
   }
   /* Collapse the note-pyramid pin. movements.tsx already declines to attach the
      scroll listener here, but the 220vh spacer is a layout rule, not an

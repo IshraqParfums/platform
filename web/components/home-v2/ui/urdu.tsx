@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn";
 export type UrduTone = "brass" | "brass-deep" | "on-dark";
 export type UrduSize = "sm" | "md" | "lg" | "display";
 export type UrduAlign = "start" | "center" | "end";
+export type UrduLeading = "loose" | "tight";
 
 /**
  * Every Urdu string on the page goes through here, for two reasons.
@@ -58,6 +59,7 @@ export function Urdu({
   tone = "brass",
   size = "md",
   align = "start",
+  leading = "loose",
   className,
   as: Tag = "p",
 }: {
@@ -66,6 +68,15 @@ export function Urdu({
   size?: UrduSize;
   /** Where the line sits in its box — not which way the script runs. */
   align?: UrduAlign;
+  /**
+   * `loose` (default) is the full row-sharing cushion `.urdu` documents —
+   * needed wherever this sits beside Latin type on the same row (a product
+   * card's name + Urdu name). `tight` is for a line that owns its row
+   * outright, a section heading with nothing crowding its top edge: it
+   * trims the built-in cushion so the call site's own margin isn't
+   * stacking on top of it and reading as a much bigger gap than intended.
+   */
+  leading?: UrduLeading;
   className?: string;
   as?: "p" | "span" | "div";
 }) {
@@ -75,6 +86,7 @@ export function Urdu({
       lang="ur"
       className={cn(
         "urdu",
+        leading === "tight" && "urdu-tight",
         TONES[tone],
         SIZES[size],
         ALIGNMENTS[align],

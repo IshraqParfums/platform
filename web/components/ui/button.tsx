@@ -9,14 +9,15 @@ type Variant =
   | "outline-dark"
   | "ghost"
   | "light"
-  | "indigo"
-  | "outline-ink"
-  | "graphite";
+  | "graphite"
+  | "ink"
+  | "outline-paper"
+  | "on-tobacco";
 type Size = "sm" | "md" | "lg" | "pill";
 
 const BASE =
   "inline-flex items-center justify-center gap-2 rounded-full font-semibold " +
-  "transition-[transform,background-color,border-color,color] duration-200 " +
+  "transition-[transform,background-color,border-color,color,box-shadow] duration-200 " +
   "ease-[cubic-bezier(0.22,0.8,0.28,1)] hover:-translate-y-0.5 active:translate-y-0 " +
   "disabled:pointer-events-none disabled:opacity-55 whitespace-nowrap";
 
@@ -51,15 +52,31 @@ const VARIANTS: Record<Variant, string> = {
   ghost: "text-current hover:bg-current/5",
   light: "bg-ink text-cream-soft hover:bg-rose-deep",
 
-  // ---- v2 home. Ink blue is the only interactive colour on paper: gold is
-  // also decorative there, so a gold button and a gold rule would read the
-  // same. These deepen rather than lighten on hover for the reason spelled
-  // out under `emphasis` — on a light ground, lightening reads as retreating.
-  indigo: "bg-indigo text-shell hover:bg-indigo-deep",
-  "outline-ink":
-    "border border-graphite/20 text-graphite hover:border-indigo hover:text-indigo hover:bg-indigo/[0.04]",
-  // Solid ink, for the one closing CTA that should outweigh an indigo button.
+  // ---- v2 home. Terra is the only accent colour with real presence on
+  // paper — gold is decorative there, so a gold button and a gold rule
+  // would read the same. Deepens rather than lightens on hover for the
+  // reason spelled out under `emphasis` — on a light ground, lightening
+  // reads as retreating.
   graphite: "bg-graphite text-shell hover:bg-graphite-lift",
+  // Shadow grows on hover alongside BASE's lift, so it reads as rising off
+  // the page rather than just nudging up.
+  ink:
+    "bg-graphite text-paper shadow-[0_1px_3px_rgba(22,19,16,0.18)] " +
+    "hover:bg-tobacco hover:shadow-[0_18px_32px_-14px_rgba(22,19,16,0.5)]",
+  // Fill-sweep: a solid wash of colour wipes in from the left on hover (the
+  // `before` pseudo, scaled from 0), rather than just tinting the border
+  // and text — the outline reads as a real second state, not a weaker copy
+  // of the solid `ink` button. `isolate` keeps the pseudo's negative
+  // z-index scoped to this element instead of bleeding into whatever
+  // stacking context sits behind it. Terra, not indigo — terra is the only
+  // accent colour with any real presence elsewhere on the v2 home page.
+  "outline-paper":
+    "relative isolate overflow-hidden border border-graphite/35 text-graphite " +
+    "before:absolute before:inset-0 before:-z-10 before:origin-left before:scale-x-0 before:bg-terra " +
+    "before:transition-transform before:duration-300 before:ease-[cubic-bezier(0.22,0.8,0.28,1)] " +
+    "hover:border-terra hover:text-paper hover:before:scale-x-100",
+  "on-tobacco":
+    "border border-paper/35 text-paper hover:border-brass hover:text-brass",
 };
 
 const SIZES: Record<Size, string> = {

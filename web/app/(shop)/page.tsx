@@ -1,45 +1,38 @@
-import { BespokePanel } from "@/components/home-v2/bespoke-panel";
+import { Belief } from "@/components/home-v2/belief";
+import { BespokeEntry } from "@/components/home-v2/bespoke-entry";
+import { Collection } from "@/components/home-v2/collection";
 import { HeroV2 } from "@/components/home-v2/hero-v2";
-import { HouseNote } from "@/components/home-v2/house-note";
-import { MarksStrip } from "@/components/home-v2/marks-strip";
-import { MaterialsMarquee } from "@/components/home-v2/materials-marquee";
-import { Moods } from "@/components/home-v2/moods";
-import { PaperField } from "@/components/home-v2/ui/paper-field";
-import { Shelf } from "@/components/home-v2/shelf";
-import {
-  getFeaturedProducts,
-  getHomepageCollections,
-} from "@/lib/api/catalog";
+import { Materials } from "@/components/home-v2/materials";
+import { getProducts } from "@/lib/api/catalog";
+import { pickCollection } from "@/lib/content/home-v2";
+import { HEADER_HEIGHT_PX } from "@/lib/layout";
 
 /**
- * The v2 home page: a buying flow, not a mood board.
+ * Homepage as a scent journal: material, collection, bespoke entry, belief.
  *
- * Order is the argument. Type opens the house, bottles come next, then a
- * mood to browse by, then the quiz for anyone who did not find themselves
- * on the shelf. Trust and the palette sit after the decision, not before it.
+ * The catalog only feeds the collection (four directed worlds first) — the
+ * bespoke entry talks straight to the quiz engine's own session API.
  *
- * The old sections still live under components/home/. The unused v2 experiments
- * (movements, masked-photo) stay on disk as rollback, not as imports.
- *
- * `getCollections()` is no longer fetched here: the footer makes that call
- * itself, and nothing on this page needs the full list.
+ * Deliberately no trust-strip / shipping-and-checkout messaging anywhere on
+ * this page. Small-batch and real-materials claims are already made, better,
+ * by Materials' photography and Belief's own copy; shipping and checkout
+ * specifics belong on the product detail page, next to the actual purchase
+ * decision, not here.
  */
 export default async function HomePage() {
-  const [featured, homepageCollections] = await Promise.all([
-    getFeaturedProducts(4),
-    getHomepageCollections(),
-  ]);
+  const { items } = await getProducts({ pageSize: 24 });
+  const collection = pickCollection(items, 4);
 
   return (
-    <div className="relative overflow-x-clip bg-paper font-ui text-graphite">
-      <PaperField />
+    <div
+      className="overflow-x-clip bg-paper font-ui text-graphite"
+      style={{ marginTop: -HEADER_HEIGHT_PX }}
+    >
       <HeroV2 />
-      <Shelf products={featured} />
-      <Moods collections={homepageCollections} />
-      <BespokePanel />
-      <MaterialsMarquee />
-      <MarksStrip />
-      <HouseNote />
+      <Materials />
+      <Collection products={collection} />
+      <BespokeEntry />
+      <Belief />
     </div>
   );
 }

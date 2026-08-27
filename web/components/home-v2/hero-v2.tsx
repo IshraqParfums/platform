@@ -1,64 +1,46 @@
+import { HeroCopy } from "@/components/home-v2/hero/copy";
+import { HeroVisual } from "@/components/home-v2/hero/visual";
 import { BandInner } from "@/components/home-v2/ui/band";
-import { Urdu } from "@/components/home-v2/ui/urdu";
-import { ButtonLink } from "@/components/ui/button";
-import { HOME_HERO } from "@/lib/content/home-v2";
-import { HEADER_HEIGHT_PX } from "@/lib/layout";
 
 /**
- * Type-first opening. No photograph.
+ * Arrival composition — one photograph, two readings.
  *
- * A rose, a trunk, a tray of spices: those belong as atmosphere on a mood
- * board, not as the first thing a shopper has to scroll past to reach a bottle.
- * The first images on this page are products, in the shelf directly below.
- * Mobile especially cannot afford a 300px still-life before the value prop.
+ * Below lg: stacked, not overlaid. The photo runs full-bleed on top, sized
+ * by viewport height rather than a fixed aspect ratio, then copy follows on
+ * solid paper. A fixed `aspect-[4/5]` used to size purely off width — fine
+ * on a narrow phone, but a tablet-width viewport (e.g. 820px) isn't
+ * proportionally taller, so the same ratio produced a 1000px+ image that
+ * swallowed the screen before any type appeared. Height caps that shrink as
+ * width grows (`56vh` phone, `44vh` sm+) keep the photo from ever eating
+ * more of the viewport than it should, on any width in this range. A prior
+ * version also tried holding the photo full-bleed *behind* the copy with a
+ * left-to-right parchment fade — on a narrow, tall viewport that fade had to
+ * cover more than half the width to keep type legible, which buried most of
+ * the photo under opaque parchment no matter how the crop was tuned.
  *
- * Padding-top clears the fixed header; the block itself is not viewport-tall.
- * A full-viewport hero would push the bottles below the fold, which is the
- * opposite of a buying page.
+ * lg+: asymmetric split (~55% type / ~45% visual), unchanged. Type on ivory;
+ * the material enters from the right edge.
  */
 export function HeroV2() {
   return (
-    <section className="relative z-[1]">
-      <BandInner>
-        <div
-          className="max-w-[720px] pb-12 sm:pb-16 lg:pb-20"
-          style={{ paddingTop: HEADER_HEIGHT_PX + 32 }}
-        >
-          <Urdu
-            size="lg"
-            className="text-[22px] sm:text-[26px] lg:text-[28px]"
-          >
-            {HOME_HERO.urdu}
-          </Urdu>
+    <section className="relative bg-paper">
+      <div className="lg:relative lg:grid lg:min-h-[100dvh] lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
+        <HeroVisual
+          priority
+          className="relative h-[56vh] w-full overflow-hidden sm:h-[44vh] lg:h-auto lg:min-h-[100dvh] lg:col-start-2 lg:row-start-1"
+        />
 
-          <h1 className="mt-2 pb-1 font-editorial text-h1-editorial leading-[1.1] text-graphite text-pretty">
-            {HOME_HERO.headlineLead}{" "}
-            <em className="italic">{HOME_HERO.headlineEmphasis}</em>{" "}
-            {HOME_HERO.headlineTail}
-          </h1>
-
-          <p className="mt-6 max-w-[52ch] text-[16px] leading-[1.6] text-graphite-soft text-pretty sm:text-[18px]">
-            {HOME_HERO.lead}
-          </p>
-
-          <div className="mt-9 flex flex-col gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
-            <ButtonLink
-              href={HOME_HERO.primaryCta.href}
-              variant="indigo"
-              size="pill"
-            >
-              {HOME_HERO.primaryCta.label}
-            </ButtonLink>
-            <ButtonLink
-              href={HOME_HERO.secondaryCta.href}
-              variant="outline-ink"
-              size="pill"
-            >
-              {HOME_HERO.secondaryCta.label}
-            </ButtonLink>
-          </div>
-        </div>
-      </BandInner>
+        {/*
+          Below lg: plain top-to-bottom flow, no forced height or centering —
+          the block is exactly as tall as its content.
+          lg only: `pt-20`/`pb-16` (not equal) net-centers the column a touch
+          below true middle, clearing the fixed header (68px + 12px —
+          HEADER_HEIGHT_PX in lib/layout.ts — is exactly `pt-20`'s 80px).
+        */}
+        <BandInner className="relative z-[1] pt-10 pb-14 sm:pt-12 sm:pb-16 lg:col-start-1 lg:row-start-1 lg:flex lg:min-h-[100dvh] lg:flex-col lg:justify-center lg:pt-20 lg:pb-16 lg:pr-12">
+          <HeroCopy className="w-full lg:w-auto lg:max-w-none" />
+        </BandInner>
+      </div>
     </section>
   );
 }

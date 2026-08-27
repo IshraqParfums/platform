@@ -59,7 +59,7 @@ export function Header() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 border-b backdrop-blur-md",
         light
-          ? "border-graphite/[0.07] bg-paper/[0.82]"
+          ? "border-graphite/[0.07] bg-paper/70"
           : "border-gold/15 bg-deep/92",
       )}
     >
@@ -105,7 +105,7 @@ export function Header() {
                 className={cn(
                   "relative py-1 transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100",
                   light
-                    ? "font-ui text-nav font-medium uppercase text-graphite/75 hover:text-indigo after:bg-indigo"
+                    ? "font-ui text-nav font-medium uppercase text-graphite/75 hover:text-terra after:bg-terra"
                     : "text-sm font-medium text-cream/80 hover:text-cream-soft after:bg-gold",
                 )}
               >
@@ -123,7 +123,7 @@ export function Header() {
               className={cn(
                 "hidden rounded-full px-4 py-2 transition-colors sm:inline-flex",
                 light
-                  ? "font-ui text-nav font-medium uppercase text-graphite/75 hover:bg-graphite/[0.06] hover:text-indigo"
+                  ? "font-ui text-nav font-medium uppercase text-graphite/75 hover:bg-graphite/[0.06] hover:text-terra"
                   : "text-sm font-medium text-cream/80 hover:bg-cream/10 hover:text-cream-soft",
               )}
             >
