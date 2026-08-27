@@ -1,40 +1,30 @@
-import { Lock, RotateCcw, Truck } from "lucide-react";
-
-const TRUST_ITEMS = [
-  {
-    id: "secure",
-    label: "Secure checkout",
-    Icon: Lock,
-  },
-  {
-    id: "shipping",
-    label: "₹50 delivery",
-    Icon: Truck,
-  },
-  {
-    id: "returns",
-    label: "7-day support",
-    Icon: RotateCcw,
-  },
+const DEFAULT_ITEMS = [
+  "Secure checkout",
+  "₹50 delivery",
+  "7-day support",
 ] as const;
 
 /**
- * Compact PDP assurances under the primary CTA — one job, three signals.
+ * Compact PDP assurances under the primary CTA — text-only rows, no icons.
+ * Ported from product/product-trust-strip.tsx: drops the lucide icons and
+ * takes real product `claims` when present, falling back to the same three
+ * defaults the v1 strip hardcoded.
  */
-export function ProductTrustStrip() {
+export function ProductTrustStrip({
+  claims,
+}: {
+  claims?: string[] | null;
+}) {
+  const items = claims && claims.length > 0 ? claims : DEFAULT_ITEMS;
+
   return (
     <ul className="flex flex-wrap gap-x-5 gap-y-2.5 pt-1">
-      {TRUST_ITEMS.map(({ id, label, Icon }) => (
+      {items.map((label, index) => (
         <li
-          key={id}
-          className="inline-flex items-center gap-1.5 font-mono text-label-sm tracking-wide text-ink-faint"
+          key={`${label}-${index}`}
+          className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint"
         >
-          <Icon
-            className="h-3.5 w-3.5 shrink-0 text-ink-soft"
-            strokeWidth={1.75}
-            aria-hidden
-          />
-          <span>{label}</span>
+          {label}
         </li>
       ))}
     </ul>

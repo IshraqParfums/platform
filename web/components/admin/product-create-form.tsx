@@ -5,6 +5,10 @@ import type {
   AdminProductDetail,
   AdminProductImage,
   AdminProductVariant,
+  ProductGender,
+  ProductScentIntensity,
+  ProductScentLongevity,
+  ProductScentSillage,
   ProductStatus,
 } from "@ishraqparfums/shared";
 import { useRouter } from "next/navigation";
@@ -19,6 +23,10 @@ import {
 } from "@/components/admin/product-create/image-picker";
 import { ProductCreateSizePills } from "@/components/admin/product-create/size-pills";
 import { AdminArchivedCollectionNotice } from "@/components/admin/admin-archived-collection-notice";
+import {
+  ProductFaqEditor,
+  type ProductFaqDraft,
+} from "@/components/admin/product-faq-editor";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,6 +48,65 @@ import { isValidSlug } from "@/lib/admin/slugify";
 import { useAutoSlug } from "@/lib/admin/use-auto-slug";
 import { adminFetch } from "@/lib/auth/admin-fetch";
 
+// Parsing conventions for the PDP content fields below: comma-separated
+// Inputs for short lists (notes, tags), one-item-per-line Textareas for
+// longer lists (steps, paragraphs, claims). Blank lines/entries are dropped.
+function parseCommaList(value: string): string[] {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+}
+
+function parseLines(value: string): string[] {
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+}
+
+function buildNoteList(
+  notes: string,
+  translation: string,
+): { notes: string[]; notesTranslation: string[] | null } | null {
+  const parsedNotes = parseCommaList(notes);
+  if (parsedNotes.length === 0) return null;
+  const parsedTranslation = parseCommaList(translation);
+  return {
+    notes: parsedNotes,
+    notesTranslation: parsedTranslation.length > 0 ? parsedTranslation : null,
+  };
+}
+
+const INTENSITY_OPTIONS = [
+  { value: "", label: "Not set" },
+  { value: "LIGHT", label: "Light" },
+  { value: "MODERATE", label: "Moderate" },
+  { value: "STRONG", label: "Strong" },
+];
+
+const SILLAGE_OPTIONS = [
+  { value: "", label: "Not set" },
+  { value: "INTIMATE", label: "Intimate" },
+  { value: "MODERATE", label: "Moderate" },
+  { value: "STRONG", label: "Strong" },
+];
+
+const LONGEVITY_OPTIONS = [
+  { value: "", label: "Not set" },
+  { value: "SHORT", label: "Short" },
+  { value: "MODERATE", label: "Moderate" },
+  { value: "LONG", label: "Long" },
+  { value: "VERY_LONG", label: "Very long" },
+];
+
+const GENDER_OPTIONS = [
+  { value: "", label: "Not set" },
+  { value: "UNISEX", label: "Unisex" },
+  { value: "FEMININE", label: "Feminine" },
+  { value: "MASCULINE", label: "Masculine" },
+];
+
 export function ProductCreateForm({
   collections,
 }: {
@@ -51,6 +118,43 @@ export function ProductCreateForm({
   const [collectionId, setCollectionId] = useState(collections[0]?.id ?? "");
   const [shortDescription, setShortDescription] = useState("");
   const [detailedDescription, setDetailedDescription] = useState("");
+
+  // --- PDP content (all optional, progressively authored) ---
+  const [pronunciation, setPronunciation] = useState("");
+  const [meaning, setMeaning] = useState("");
+  const [taglinePrimary, setTaglinePrimary] = useState("");
+  const [taglineTranslation, setTaglineTranslation] = useState("");
+
+  const [storyHeading, setStoryHeading] = useState("");
+  const [storyBody, setStoryBody] = useState("");
+  const [storyBodyTranslation, setStoryBodyTranslation] = useState("");
+
+  const [openingNotes, setOpeningNotes] = useState("");
+  const [openingNotesTranslation, setOpeningNotesTranslation] = useState("");
+  const [heartNotes, setHeartNotes] = useState("");
+  const [heartNotesTranslation, setHeartNotesTranslation] = useState("");
+  const [baseNotes, setBaseNotes] = useState("");
+  const [baseNotesTranslation, setBaseNotesTranslation] = useState("");
+
+  const [scentFamily, setScentFamily] = useState("");
+  const [characterTags, setCharacterTags] = useState("");
+  const [season, setSeason] = useState("");
+  const [occasion, setOccasion] = useState("");
+  const [intensity, setIntensity] = useState("");
+  const [sillage, setSillage] = useState("");
+  const [longevity, setLongevity] = useState("");
+  const [gender, setGender] = useState("");
+
+  const [formatLabel, setFormatLabel] = useState("");
+  const [concentration, setConcentration] = useState("");
+  const [application, setApplication] = useState("");
+  const [bottleDescription, setBottleDescription] = useState("");
+
+  const [howToUse, setHowToUse] = useState("");
+  const [care, setCare] = useState("");
+  const [claims, setClaims] = useState("");
+  const [faq, setFaq] = useState<ProductFaqDraft[]>([]);
+
   const [sizes, setSizes] = useState<CreateSizeDraftMap>(() =>
     emptyCreateSizeDraftMap(),
   );
@@ -205,6 +309,42 @@ export function ProductCreateForm({
       return;
     }
 
+    // PDP content fields, all optional: omitted from the payload rather
+    // than sent blank, matching the nameUrdu precedent above — a blank
+    // field on create should never write a row the storefront then has to
+    // null-check twice.
+    const parsedHeading = storyHeading.trim();
+    const parsedBody = parseLines(storyBody);
+    const meaningStory =
+      parsedHeading || parsedBody.length > 0
+        ? {
+            heading: parsedHeading,
+            body: parsedBody,
+            bodyTranslation:
+              parseLines(storyBodyTranslation).length > 0
+                ? parseLines(storyBodyTranslation)
+                : null,
+          }
+        : undefined;
+
+    const openingTier = buildNoteList(openingNotes, openingNotesTranslation);
+    const heartTier = buildNoteList(heartNotes, heartNotesTranslation);
+    const baseTier = buildNoteList(baseNotes, baseNotesTranslation);
+    const notesPyramid =
+      openingTier || heartTier || baseTier
+        ? { opening: openingTier, heart: heartTier, base: baseTier }
+        : undefined;
+
+    const characterTagsList = parseCommaList(characterTags);
+    const seasonList = parseCommaList(season);
+    const occasionList = parseCommaList(occasion);
+    const howToUseList = parseLines(howToUse);
+    const careList = parseLines(care);
+    const claimsList = parseLines(claims);
+    const faqList = faq
+      .map((row) => ({ question: row.question.trim(), answer: row.answer.trim() }))
+      .filter((row) => row.question && row.answer);
+
     setSubmitting(true);
     setActiveIntent(intent);
     let createdProductId: string | null = null;
@@ -223,6 +363,44 @@ export function ProductCreateForm({
           shortDescription: trimmedShort,
           detailedDescription: trimmedDetailed,
           status: "DRAFT" satisfies ProductStatus,
+          ...(pronunciation.trim()
+            ? { pronunciation: pronunciation.trim() }
+            : {}),
+          ...(meaning.trim() ? { meaning: meaning.trim() } : {}),
+          ...(taglinePrimary.trim()
+            ? { taglinePrimary: taglinePrimary.trim() }
+            : {}),
+          ...(taglineTranslation.trim()
+            ? { taglineTranslation: taglineTranslation.trim() }
+            : {}),
+          ...(meaningStory ? { meaningStory } : {}),
+          ...(notesPyramid ? { notesPyramid } : {}),
+          ...(scentFamily.trim() ? { scentFamily: scentFamily.trim() } : {}),
+          ...(characterTagsList.length > 0
+            ? { characterTags: characterTagsList }
+            : {}),
+          ...(intensity
+            ? { intensity: intensity as ProductScentIntensity }
+            : {}),
+          ...(sillage ? { sillage: sillage as ProductScentSillage } : {}),
+          ...(longevity
+            ? { longevity: longevity as ProductScentLongevity }
+            : {}),
+          ...(seasonList.length > 0 ? { season: seasonList } : {}),
+          ...(occasionList.length > 0 ? { occasion: occasionList } : {}),
+          ...(gender ? { gender: gender as ProductGender } : {}),
+          ...(formatLabel.trim() ? { formatLabel: formatLabel.trim() } : {}),
+          ...(concentration.trim()
+            ? { concentration: concentration.trim() }
+            : {}),
+          ...(application.trim() ? { application: application.trim() } : {}),
+          ...(bottleDescription.trim()
+            ? { bottleDescription: bottleDescription.trim() }
+            : {}),
+          ...(howToUseList.length > 0 ? { howToUse: howToUseList } : {}),
+          ...(careList.length > 0 ? { care: careList } : {}),
+          ...(claimsList.length > 0 ? { claims: claimsList } : {}),
+          ...(faqList.length > 0 ? { faq: faqList } : {}),
         }),
       });
 
@@ -478,6 +656,397 @@ export function ProductCreateForm({
             onAltChange={patchImageAlt}
             onReorder={setImageDrafts}
           />
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
+        <h2 className="font-display text-lg font-semibold text-ink">
+          Identity &amp; tagline
+        </h2>
+        <p className="mt-1 text-sm text-ink-faint">
+          How the name is said and what it means, plus the short line shown
+          under it on the product page. All optional.
+        </p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Pronunciation
+            </span>
+            <Input
+              value={pronunciation}
+              onChange={(event) => setPronunciation(event.target.value)}
+              placeholder="oo-d ish-raak"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Meaning
+            </span>
+            <Input
+              value={meaning}
+              onChange={(event) => setMeaning(event.target.value)}
+              placeholder="The radiance of oud"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Tagline
+            </span>
+            <Input
+              value={taglinePrimary}
+              onChange={(event) => setTaglinePrimary(event.target.value)}
+            />
+          </label>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Tagline translation
+            </span>
+            <Input
+              value={taglineTranslation}
+              onChange={(event) => setTaglineTranslation(event.target.value)}
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
+        <h2 className="font-display text-lg font-semibold text-ink">
+          The story
+        </h2>
+        <p className="mt-1 text-sm text-ink-faint">
+          What the name means, told in a few short paragraphs.
+        </p>
+        <div className="mt-4 flex flex-col gap-4">
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Heading
+            </span>
+            <Input
+              value={storyHeading}
+              onChange={(event) => setStoryHeading(event.target.value)}
+            />
+          </label>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Body
+            </span>
+            <Textarea
+              value={storyBody}
+              onChange={(event) => setStoryBody(event.target.value)}
+            />
+            <span className="text-xs text-ink-faint">
+              One paragraph per line.
+            </span>
+          </label>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Body translation
+            </span>
+            <Textarea
+              value={storyBodyTranslation}
+              onChange={(event) => setStoryBodyTranslation(event.target.value)}
+            />
+            <span className="text-xs text-ink-faint">
+              One paragraph per line, matching the body above. Optional.
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
+        <h2 className="font-display text-lg font-semibold text-ink">
+          Notes pyramid
+        </h2>
+        <p className="mt-1 text-sm text-ink-faint">
+          The fragrance&apos;s opening, heart, and base notes. Comma-separated.
+        </p>
+        <div className="mt-4 flex flex-col gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-1.5">
+              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+                Opening notes
+              </span>
+              <Input
+                value={openingNotes}
+                onChange={(event) => setOpeningNotes(event.target.value)}
+                placeholder="Bergamot, Pink pepper"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+                Opening notes translation
+              </span>
+              <Input
+                value={openingNotesTranslation}
+                onChange={(event) =>
+                  setOpeningNotesTranslation(event.target.value)
+                }
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-1.5">
+              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+                Heart notes
+              </span>
+              <Input
+                value={heartNotes}
+                onChange={(event) => setHeartNotes(event.target.value)}
+                placeholder="Rose, Saffron"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+                Heart notes translation
+              </span>
+              <Input
+                value={heartNotesTranslation}
+                onChange={(event) =>
+                  setHeartNotesTranslation(event.target.value)
+                }
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-1.5">
+              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+                Base notes
+              </span>
+              <Input
+                value={baseNotes}
+                onChange={(event) => setBaseNotes(event.target.value)}
+                placeholder="Oud, Amber"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+                Base notes translation
+              </span>
+              <Input
+                value={baseNotesTranslation}
+                onChange={(event) =>
+                  setBaseNotesTranslation(event.target.value)
+                }
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
+        <h2 className="font-display text-lg font-semibold text-ink">
+          Scent profile
+        </h2>
+        <p className="mt-1 text-sm text-ink-faint">
+          Family, character, and the metadata used for storefront chips and
+          filtering.
+        </p>
+        <div className="mt-4 flex flex-col gap-4">
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Family
+            </span>
+            <Input
+              value={scentFamily}
+              onChange={(event) => setScentFamily(event.target.value)}
+              placeholder="Woody amber"
+            />
+          </label>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <label className="flex flex-col gap-1.5">
+              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+                Character tags
+              </span>
+              <Input
+                value={characterTags}
+                onChange={(event) => setCharacterTags(event.target.value)}
+                placeholder="Inky, Powdery, Dry"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+                Season
+              </span>
+              <Input
+                value={season}
+                onChange={(event) => setSeason(event.target.value)}
+                placeholder="Winter, Autumn"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+                Occasion
+              </span>
+              <Input
+                value={occasion}
+                onChange={(event) => setOccasion(event.target.value)}
+                placeholder="Evening, Formal"
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Select
+              label="Intensity"
+              labelPlacement="above"
+              ariaLabel="Intensity"
+              value={intensity}
+              options={INTENSITY_OPTIONS}
+              onChange={setIntensity}
+              className="w-full"
+              triggerClassName="w-full"
+            />
+            <Select
+              label="Sillage"
+              labelPlacement="above"
+              ariaLabel="Sillage"
+              value={sillage}
+              options={SILLAGE_OPTIONS}
+              onChange={setSillage}
+              className="w-full"
+              triggerClassName="w-full"
+            />
+            <Select
+              label="Longevity"
+              labelPlacement="above"
+              ariaLabel="Longevity"
+              value={longevity}
+              options={LONGEVITY_OPTIONS}
+              onChange={setLongevity}
+              className="w-full"
+              triggerClassName="w-full"
+            />
+            <Select
+              label="Gender"
+              labelPlacement="above"
+              ariaLabel="Gender"
+              value={gender}
+              options={GENDER_OPTIONS}
+              onChange={setGender}
+              className="w-full"
+              triggerClassName="w-full"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
+        <h2 className="font-display text-lg font-semibold text-ink">
+          Format
+        </h2>
+        <p className="mt-1 text-sm text-ink-faint">
+          Bottle and concentration details shown in the format section of the
+          product page.
+        </p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Format label
+            </span>
+            <Input
+              value={formatLabel}
+              onChange={(event) => setFormatLabel(event.target.value)}
+              placeholder="Eau de Parfum"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Concentration
+            </span>
+            <Input
+              value={concentration}
+              onChange={(event) => setConcentration(event.target.value)}
+              placeholder="20% oil"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Application
+            </span>
+            <Input
+              value={application}
+              onChange={(event) => setApplication(event.target.value)}
+              placeholder="Spray"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Bottle description
+            </span>
+            <Input
+              value={bottleDescription}
+              onChange={(event) => setBottleDescription(event.target.value)}
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
+        <h2 className="font-display text-lg font-semibold text-ink">
+          Ritual &amp; care
+        </h2>
+        <p className="mt-1 text-sm text-ink-faint">
+          How to wear it and how to look after the bottle, one step per line.
+        </p>
+        <div className="mt-4 flex flex-col gap-4">
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              How to use
+            </span>
+            <Textarea
+              value={howToUse}
+              onChange={(event) => setHowToUse(event.target.value)}
+            />
+            <span className="text-xs text-ink-faint">One step per line.</span>
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Care
+            </span>
+            <Textarea value={care} onChange={(event) => setCare(event.target.value)} />
+            <span className="text-xs text-ink-faint">
+              One instruction per line.
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
+        <h2 className="font-display text-lg font-semibold text-ink">
+          Claims
+        </h2>
+        <p className="mt-1 text-sm text-ink-faint">
+          Short trust claims shown near the buy box, one per line.
+        </p>
+        <div className="mt-4">
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Claims
+            </span>
+            <Textarea
+              value={claims}
+              onChange={(event) => setClaims(event.target.value)}
+            />
+            <span className="text-xs text-ink-faint">One claim per line.</span>
+          </label>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
+        <h2 className="font-display text-lg font-semibold text-ink">FAQ</h2>
+        <p className="mt-1 text-sm text-ink-faint">
+          Question and answer pairs shown at the bottom of the product page.
+        </p>
+        <div className="mt-4">
+          <ProductFaqEditor value={faq} onChange={setFaq} />
         </div>
       </div>
 

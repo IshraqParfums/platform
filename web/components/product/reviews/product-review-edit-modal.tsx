@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ReviewResponse } from "@ishraqparfums/shared";
-import { ProductReviewFields } from "@/components/product/product-review-fields";
+import { ProductReviewFields } from "@/components/product/reviews/product-review-fields";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { toast } from "@/components/ui/toaster";
@@ -10,6 +10,11 @@ import { updateReview } from "@/lib/reviews/reviews-client";
 
 /**
  * Edit an existing product review in a dismissible modal → PATCH /api/reviews/:id.
+ *
+ * Not explicitly named in the redesign plan's reviews file list, but wired in
+ * by `ProductReviewsSection` (edit flow for "your review") — ported alongside
+ * the rest of the reviews subsystem so that section isn't left importing a v1
+ * file. Save/cancel logic unchanged, retinted.
  */
 export function ProductReviewEditModal({
   open,
@@ -68,7 +73,7 @@ export function ProductReviewEditModal({
         <div className="flex flex-col gap-2.5 sm:flex-row-reverse">
           <Button
             type="button"
-            variant="emphasis"
+            variant="ink"
             size="md"
             disabled={saving || !review}
             className="w-full cursor-pointer sm:w-auto"
@@ -83,7 +88,7 @@ export function ProductReviewEditModal({
             variant="ghost"
             size="md"
             disabled={saving}
-            className="w-full cursor-pointer text-ink-soft sm:w-auto"
+            className="w-full cursor-pointer text-graphite-soft sm:w-auto"
             onClick={onClose}
           >
             Cancel

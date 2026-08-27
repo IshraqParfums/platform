@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn";
 
 /**
  * Shared rating / title / body controls for create form and edit modal.
+ * Ported from product/product-review-fields.tsx, retinted.
  */
 export function ProductReviewFields({
   rating,
@@ -25,7 +26,7 @@ export function ProductReviewFields({
   return (
     <div className="space-y-3.5">
       <fieldset disabled={disabled}>
-        <legend className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+        <legend className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
           Rating
         </legend>
         <div className="mt-2 flex gap-1.5">
@@ -35,7 +36,9 @@ export function ProductReviewFields({
               type="button"
               className={cn(
                 "cursor-pointer p-1 transition-colors",
-                value <= rating ? "text-gold" : "text-ink/25 hover:text-ink/45",
+                value <= rating
+                  ? "text-terra"
+                  : "text-graphite/25 hover:text-graphite/45",
                 disabled && "cursor-not-allowed opacity-55",
               )}
               aria-label={`${value} star${value === 1 ? "" : "s"}`}
@@ -52,7 +55,7 @@ export function ProductReviewFields({
       </fieldset>
 
       <label className="block">
-        <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+        <span className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
           Title <span className="normal-case tracking-normal">(optional)</span>
         </span>
         <input
@@ -68,7 +71,7 @@ export function ProductReviewFields({
       </label>
 
       <label className="block">
-        <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+        <span className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
           Review <span className="normal-case tracking-normal">(optional)</span>
         </span>
         <textarea
@@ -88,9 +91,9 @@ export function ProductReviewFields({
 
 function fieldClassName(): string {
   return cn(
-    "mt-2 w-full rounded-none border border-ink/20 bg-cream-soft px-3.5 py-3",
-    "text-[15px] text-ink outline-none transition-colors",
-    "placeholder:text-ink-faint focus:border-ink/45",
+    "mt-2 w-full rounded-none border border-graphite/15 bg-shell px-3.5 py-3",
+    "text-[15px] text-graphite outline-none transition-colors",
+    "placeholder:text-graphite-faint focus:border-graphite/45",
     "disabled:cursor-not-allowed disabled:opacity-55",
   );
 }

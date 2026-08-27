@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useMemo, useState, useTransition } from "react";
-import { Check, ShoppingBag } from "lucide-react";
 import type {
   ProductAvailability,
   ProductDetailVariant,
@@ -56,15 +55,24 @@ function purchaseErrorMessage(error: unknown): string {
 /**
  * Size selection, live price, stock line, add-to-cart / in-cart qty, trust strip.
  * Sizes stay visible for OUT_OF_STOCK and UNAVAILABLE; CTA only when buyable.
+ *
+ * Ported from product/product-purchase-panel.tsx: every hook and handler
+ * below (cart line state, add-to-cart transition, guest-cart modal wiring,
+ * variant selection, stock logic) is unchanged — only the JSX classes and the
+ * new `claims` passthrough to `ProductTrustStrip` are v2. The v1 CTA icons
+ * (lucide `Check`/`ShoppingBag`) are dropped per this site's no-icon rule;
+ * the button's state text alone still carries idle/adding/added/error.
  */
 export function ProductPurchasePanel({
   variants,
   product,
   availability,
+  claims,
 }: {
   variants: ProductDetailVariant[];
   product: PurchaseProductMeta;
   availability: ProductAvailability;
+  claims?: string[] | null;
 }) {
   const ordered = useMemo(() => sortVariantsBySize(variants), [variants]);
   const [selectedId, setSelectedId] = useState(
@@ -154,14 +162,16 @@ export function ProductPurchasePanel({
 
   if (!selected) {
     return (
-      <p className="text-sm text-ink-faint">This product has no sizes yet.</p>
+      <p className="text-sm text-graphite-faint">
+        This product has no sizes yet.
+      </p>
     );
   }
 
   return (
     <div className="space-y-4">
       <div>
-        <p className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+        <p className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
           Size
         </p>
         <div
@@ -207,7 +217,7 @@ export function ProductPurchasePanel({
           <p
             className={cn(
               "mt-2 text-sm",
-              purchasable ? "text-rose-deep" : "text-ink-faint",
+              purchasable ? "text-rose-deep" : "text-graphite-faint",
             )}
           >
             {stock}
@@ -232,17 +242,12 @@ export function ProductPurchasePanel({
         ) : purchasable ? (
           <Button
             type="button"
-            variant="emphasis"
+            variant="ink"
             size="lg"
             className="w-full cursor-pointer sm:w-auto sm:min-w-[14rem]"
             disabled={isPending || !cartReady}
             onClick={onAdd}
           >
-            {ctaState === "added" ? (
-              <Check className="h-4 w-4" strokeWidth={1.75} aria-hidden />
-            ) : (
-              <ShoppingBag className="h-4 w-4" strokeWidth={1.75} aria-hidden />
-            )}
             {isPending
               ? "Adding…"
               : ctaState === "added"
@@ -250,15 +255,15 @@ export function ProductPurchasePanel({
                 : "Add to cart"}
           </Button>
         ) : availability === "UNAVAILABLE" ? (
-          <p className="text-sm text-ink-faint">
+          <p className="text-sm text-graphite-faint">
             This fragrance isn&apos;t for sale right now.
           </p>
         ) : (
-          <p className="text-sm text-ink-faint">
+          <p className="text-sm text-graphite-faint">
             This size is currently unavailable.
           </p>
         )}
-        {purchasable ? <ProductTrustStrip /> : null}
+        {purchasable ? <ProductTrustStrip claims={claims} /> : null}
         {ctaState === "error" && errorMessage ? (
           <p className="text-sm text-rose-deep">{errorMessage}</p>
         ) : null}

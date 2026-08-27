@@ -13,8 +13,12 @@ import {
   type AdminProductVariant,
   type PaginatedResponse,
   type ProductDetail,
+  type ProductFaqItem,
   type ProductListItem,
   type ProductListSort,
+  type ProductMeaningStory,
+  type ProductNoteList,
+  type ProductNotesPyramid,
 } from '@ishraqparfums/shared';
 import type { ProductVariant } from '@prisma/client';
 import {
@@ -71,6 +75,112 @@ type DbClient = Prisma.TransactionClient | PrismaService;
 function normalizeNameUrdu(value: string | undefined): string | null {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
+}
+
+/**
+ * Shared trim/empty-to-null implementation backing every PDP scalar-string
+ * `normalizeXxx` helper below — same rule as `normalizeNameUrdu`: the admin
+ * form posts "" to clear a field, this collapses that (and whitespace-only
+ * input) down to null so the column only ever holds real content or null.
+ */
+function normalizeOptionalString(value: string | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+const normalizePronunciation = normalizeOptionalString;
+const normalizeMeaning = normalizeOptionalString;
+const normalizeTaglinePrimary = normalizeOptionalString;
+const normalizeTaglineTranslation = normalizeOptionalString;
+const normalizeScentFamily = normalizeOptionalString;
+const normalizeFormatLabel = normalizeOptionalString;
+const normalizeConcentration = normalizeOptionalString;
+const normalizeApplication = normalizeOptionalString;
+const normalizeBottleDescription = normalizeOptionalString;
+
+/** Trims each entry and drops blank/whitespace-only ones. Always returns an
+ *  array (never undefined/null) — matches the `String[] @default([])` columns. */
+function normalizeStringList(value: string[] | undefined): string[] {
+  if (!value) return [];
+  return value.map((item) => item.trim()).filter((item) => item.length > 0);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function asStringArray(value: unknown): string[] | null {
+  if (!Array.isArray(value)) return null;
+  if (!value.every((item): item is string => typeof item === 'string')) {
+    return null;
+  }
+  return value;
+}
+
+/**
+ * Whitelist parsers for the three `Json?` PDP columns. Raw JSON isn't
+ * type-checked by class-validator decorators, so these are the actual safety
+ * net before anything reaches Prisma — same "trust nothing from the raw
+ * value, check known keys, drop everything else" pattern as
+ * `asFingerprint`/`asPartialProfile` in the bespoke module. Any input that
+ * doesn't match the expected shape collapses to `null` rather than throwing
+ * — PDP content is progressively authored, so a malformed/partial submission
+ * just doesn't get saved instead of hard-failing the whole request.
+ */
+function asNoteList(value: unknown): ProductNoteList | null {
+  if (!isRecord(value)) return null;
+  const notes = asStringArray(value.notes);
+  if (!notes) return null;
+  return { notes, notesTranslation: asStringArray(value.notesTranslation) };
+}
+
+function asMeaningStory(value: unknown): ProductMeaningStory | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.heading !== 'string') return null;
+  const body = asStringArray(value.body);
+  if (!body) return null;
+  return {
+    heading: value.heading,
+    body,
+    bodyTranslation: asStringArray(value.bodyTranslation),
+  };
+}
+
+function asNotesPyramid(value: unknown): ProductNotesPyramid | null {
+  if (!isRecord(value)) return null;
+  const opening = asNoteList(value.opening);
+  const heart = asNoteList(value.heart);
+  const base = asNoteList(value.base);
+  if (!opening && !heart && !base) return null;
+  return { opening, heart, base };
+}
+
+function asFaqList(value: unknown): ProductFaqItem[] | null {
+  if (!Array.isArray(value)) return null;
+  const items: ProductFaqItem[] = [];
+  for (const raw of value) {
+    if (!isRecord(raw)) continue;
+    if (typeof raw.question !== 'string' || typeof raw.answer !== 'string') {
+      continue;
+    }
+    const question = raw.question.trim();
+    const answer = raw.answer.trim();
+    if (!question || !answer) continue;
+    items.push({ question, answer });
+  }
+  return items.length > 0 ? items : null;
+}
+
+/**
+ * `ProductMeaningStory`/`ProductNotesPyramid`/`ProductFaqItem[]` are plain
+ * JSON-serializable values and satisfy Prisma's `InputJsonValue` structurally,
+ * but that type requires an index signature TS can't infer from a named
+ * interface — hence the cast here rather than at every call site. `null`
+ * becomes `Prisma.DbNull`, the sentinel Prisma requires to write a real SQL
+ * NULL into a `Json?` column (same convention as `resultJson` elsewhere).
+ */
+function toJsonColumn(value: object | null) {
+  return value === null ? Prisma.DbNull : (value as Prisma.InputJsonValue);
 }
 
 @Injectable()
@@ -485,6 +595,30 @@ export class ProductService {
         detailedDescription: input.detailedDescription.trim(),
         status: nextStatus,
         archiveReason: archiveReasonForStatusChange(nextStatus),
+        pronunciation: normalizePronunciation(input.pronunciation),
+        meaning: normalizeMeaning(input.meaning),
+        taglinePrimary: normalizeTaglinePrimary(input.taglinePrimary),
+        taglineTranslation: normalizeTaglineTranslation(
+          input.taglineTranslation,
+        ),
+        meaningStoryJson: toJsonColumn(asMeaningStory(input.meaningStory)),
+        notesPyramidJson: toJsonColumn(asNotesPyramid(input.notesPyramid)),
+        scentFamily: normalizeScentFamily(input.scentFamily),
+        characterTags: normalizeStringList(input.characterTags),
+        intensity: input.intensity ?? null,
+        sillage: input.sillage ?? null,
+        longevity: input.longevity ?? null,
+        season: normalizeStringList(input.season),
+        occasion: normalizeStringList(input.occasion),
+        gender: input.gender ?? null,
+        formatLabel: normalizeFormatLabel(input.formatLabel),
+        concentration: normalizeConcentration(input.concentration),
+        application: normalizeApplication(input.application),
+        bottleDescription: normalizeBottleDescription(input.bottleDescription),
+        howToUse: normalizeStringList(input.howToUse),
+        care: normalizeStringList(input.care),
+        claims: normalizeStringList(input.claims),
+        faqJson: toJsonColumn(asFaqList(input.faq)),
       });
 
       return toAdminProductDetail(product);
@@ -569,6 +703,84 @@ export class ProductService {
           : {}),
         status: nextStatus,
         archiveReason: nextArchiveReason,
+        ...(input.pronunciation !== undefined
+          ? { pronunciation: normalizePronunciation(input.pronunciation) }
+          : {}),
+        ...(input.meaning !== undefined
+          ? { meaning: normalizeMeaning(input.meaning) }
+          : {}),
+        ...(input.taglinePrimary !== undefined
+          ? { taglinePrimary: normalizeTaglinePrimary(input.taglinePrimary) }
+          : {}),
+        ...(input.taglineTranslation !== undefined
+          ? {
+              taglineTranslation: normalizeTaglineTranslation(
+                input.taglineTranslation,
+              ),
+            }
+          : {}),
+        ...(input.meaningStory !== undefined
+          ? {
+              meaningStoryJson: toJsonColumn(
+                asMeaningStory(input.meaningStory),
+              ),
+            }
+          : {}),
+        ...(input.notesPyramid !== undefined
+          ? {
+              notesPyramidJson: toJsonColumn(
+                asNotesPyramid(input.notesPyramid),
+              ),
+            }
+          : {}),
+        ...(input.scentFamily !== undefined
+          ? { scentFamily: normalizeScentFamily(input.scentFamily) }
+          : {}),
+        ...(input.characterTags !== undefined
+          ? { characterTags: normalizeStringList(input.characterTags) }
+          : {}),
+        ...(input.intensity !== undefined
+          ? { intensity: input.intensity }
+          : {}),
+        ...(input.sillage !== undefined ? { sillage: input.sillage } : {}),
+        ...(input.longevity !== undefined
+          ? { longevity: input.longevity }
+          : {}),
+        ...(input.season !== undefined
+          ? { season: normalizeStringList(input.season) }
+          : {}),
+        ...(input.occasion !== undefined
+          ? { occasion: normalizeStringList(input.occasion) }
+          : {}),
+        ...(input.gender !== undefined ? { gender: input.gender } : {}),
+        ...(input.formatLabel !== undefined
+          ? { formatLabel: normalizeFormatLabel(input.formatLabel) }
+          : {}),
+        ...(input.concentration !== undefined
+          ? { concentration: normalizeConcentration(input.concentration) }
+          : {}),
+        ...(input.application !== undefined
+          ? { application: normalizeApplication(input.application) }
+          : {}),
+        ...(input.bottleDescription !== undefined
+          ? {
+              bottleDescription: normalizeBottleDescription(
+                input.bottleDescription,
+              ),
+            }
+          : {}),
+        ...(input.howToUse !== undefined
+          ? { howToUse: normalizeStringList(input.howToUse) }
+          : {}),
+        ...(input.care !== undefined
+          ? { care: normalizeStringList(input.care) }
+          : {}),
+        ...(input.claims !== undefined
+          ? { claims: normalizeStringList(input.claims) }
+          : {}),
+        ...(input.faq !== undefined
+          ? { faqJson: toJsonColumn(asFaqList(input.faq)) }
+          : {}),
       });
 
       return toAdminProductDetail(product);

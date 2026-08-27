@@ -6,9 +6,14 @@ import { cn } from "@/lib/cn";
 /**
  * Composition blurb in the buy column. Long copy clamps to a few lines with
  * inline More / Less so the sticky gallery layout stays stable when collapsed.
+ *
+ * Ported from product/product-story.tsx: the clamp/expand `ResizeObserver`
+ * logic is unchanged. Retinted, and now splits `text` into paragraphs on
+ * blank-line boundaries instead of rendering one `whitespace-pre-line` block.
  */
 export function ProductStory({ text }: { text: string }) {
   const trimmed = text.trim();
+  const paragraphs = trimmed.split(/\n{2,}/).filter(Boolean);
   const bodyRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [needsToggle, setNeedsToggle] = useState(false);
@@ -30,26 +35,28 @@ export function ProductStory({ text }: { text: string }) {
     return () => observer.disconnect();
   }, [trimmed, expanded]);
 
-  if (!trimmed) return null;
+  if (paragraphs.length === 0) return null;
 
   return (
-    <div className="border-t border-line/60 pt-5">
-      <h2 className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+    <div className="border-t border-graphite/10 pt-5">
+      <h2 className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-mute">
         The composition
       </h2>
       <div
         ref={bodyRef}
         className={cn(
-          "mt-2.5 max-w-prose text-[15px] leading-[1.65] text-ink-soft whitespace-pre-line",
+          "mt-2.5 max-w-prose space-y-3 text-[15px] leading-[1.65] text-graphite-soft",
           !expanded && "line-clamp-4",
         )}
       >
-        {trimmed}
+        {paragraphs.map((paragraph, index) => (
+          <p key={index}>{paragraph}</p>
+        ))}
       </div>
       {needsToggle || expanded ? (
         <button
           type="button"
-          className="mt-2 cursor-pointer font-mono text-label-sm uppercase tracking-wide text-ink underline-offset-2 transition-colors hover:text-ink-soft hover:underline"
+          className="mt-2 cursor-pointer font-ui text-[11px] uppercase tracking-[0.14em] text-graphite underline-offset-2 transition-colors hover:text-graphite-soft hover:underline"
           aria-expanded={expanded}
           onClick={() => setExpanded((prev) => !prev)}
         >

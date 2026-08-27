@@ -25,6 +25,31 @@ enum ProductArchiveReason {
   COLLECTION
 }
 
+enum ScentIntensity {
+  LIGHT
+  MODERATE
+  STRONG
+}
+
+enum ScentSillage {
+  INTIMATE
+  MODERATE
+  STRONG
+}
+
+enum ScentLongevity {
+  SHORT
+  MODERATE
+  LONG
+  VERY_LONG
+}
+
+enum ProductGender {
+  UNISEX
+  FEMININE
+  MASCULINE
+}
+
 enum OrderStatus {
   PENDING_PAYMENT
   EXPIRED
@@ -82,6 +107,36 @@ model Product {
   archiveReason       ProductArchiveReason?
   /// 10-dimension scent profile (0–4) for bespoke catalogue_select nodes.
   scentProfileJson    Json?
+
+  /// PDP content (v2 redesign) — all progressively authored, none required at
+  /// creation. String[] fields default to empty rather than null: "nothing
+  /// yet" is a list with no items, not the absence of a list.
+  pronunciation       String?
+  meaning             String?
+  taglinePrimary      String?
+  taglineTranslation  String?
+  /// { heading: string; body: string[]; bodyTranslation: string[] | null }
+  meaningStoryJson    Json?
+  /// { opening, heart, base }, each: { notes: string[]; notesTranslation: string[] | null } | null
+  notesPyramidJson    Json?
+  scentFamily         String?
+  characterTags       String[]              @default([])
+  intensity           ScentIntensity?
+  sillage             ScentSillage?
+  longevity           ScentLongevity?
+  season              String[]              @default([])
+  occasion            String[]              @default([])
+  gender              ProductGender?
+  formatLabel         String?
+  concentration       String?
+  application         String?
+  bottleDescription   String?
+  howToUse            String[]              @default([])
+  care                String[]              @default([])
+  claims              String[]              @default([])
+  /// ProductFaqItem[] = { question: string; answer: string }[]
+  faqJson             Json?
+
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   collection          Collection            @relation(fields: [collectionId], references: [id], onDelete: Restrict)

@@ -5,14 +5,17 @@ import type {
   ProductReviewsResponse,
   ReviewResponse,
 } from "@ishraqparfums/shared";
-import { ProductReviewCard } from "@/components/product/product-review-card";
-import { ProductReviewsEmpty } from "@/components/product/product-reviews-empty";
+import { ProductReviewCard } from "@/components/product/reviews/product-review-card";
+import { ProductReviewsEmpty } from "@/components/product/reviews/product-reviews-empty";
 import { PaginationControls } from "@/components/ui/pagination-controls";
 
 /**
  * Community column only: newest-first list + numbered pages.
  * Rating summary lives in the sticky left column.
  * Page changes replace the list (10 per page) — they do not append.
+ *
+ * Ported from product/product-review-list.tsx: fetch/pagination logic
+ * unchanged, retinted.
  */
 export function ProductReviewList({
   slug,
@@ -69,12 +72,12 @@ export function ProductReviewList({
 
   return (
     <div>
-      <p className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+      <p className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
         Most recent
       </p>
 
       {items.length === 0 ? (
-        <p className="mt-4 text-[15px] text-ink-soft">
+        <p className="mt-4 text-[15px] text-graphite-soft">
           {isPending ? "Loading reviews…" : "No reviews on this page."}
         </p>
       ) : (

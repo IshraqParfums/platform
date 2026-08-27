@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 /**
  * Product rating average + star histogram.
  * Stacked by default for the sticky left reviews column.
+ * Ported from product/product-review-summary.tsx, retinted.
  */
 export function ProductReviewSummary({
   average,
@@ -26,7 +27,7 @@ export function ProductReviewSummary({
   return (
     <div className={cn("flex flex-col gap-4", className)}>
       <div>
-        <p className="font-display text-3xl font-semibold text-ink">
+        <p className="font-editorial text-3xl text-graphite">
           {average.toFixed(1)}
         </p>
         <div className="mt-1.5">
@@ -41,12 +42,12 @@ export function ProductReviewSummary({
           return (
             <div
               key={star}
-              className="flex items-center gap-2.5 font-mono text-label-sm text-ink-faint"
+              className="flex items-center gap-2.5 font-ui text-[11px] text-graphite-faint"
             >
               <span className="w-3 tabular-nums">{star}</span>
-              <div className="h-1.5 flex-1 bg-ink/8">
+              <div className="h-1.5 flex-1 bg-graphite/10">
                 <div
-                  className="h-full bg-gold/80 transition-[width] duration-300"
+                  className="h-full bg-terra/80 transition-[width] duration-300"
                   style={{ width }}
                 />
               </div>

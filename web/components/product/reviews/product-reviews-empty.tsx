@@ -1,6 +1,11 @@
 /**
  * Empty community column — copy + desktop stroke illustration
  * (open review card + empty stars) to balance the write / yours column.
+ *
+ * Ported from product/product-reviews-empty.tsx: state/markup unchanged,
+ * colours retinted. Unlike `ProductTrustStrip` (explicitly told to drop its
+ * lucide icons), this file's brief was "retint only" — the bespoke stroke
+ * illustration stays, just recoloured to `graphite`.
  */
 export function ProductReviewsEmpty({
   variant = "none",
@@ -10,10 +15,10 @@ export function ProductReviewsEmpty({
 }) {
   return (
     <div className="flex max-w-md flex-col lg:min-h-[22rem]">
-      <p className="font-display text-2xl font-semibold tracking-[-0.02em] text-ink">
+      <p className="font-editorial text-2xl text-graphite">
         {variant === "only-yours" ? "No other reviews yet" : "No reviews yet"}
       </p>
-      <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
+      <p className="mt-3 text-[15px] leading-relaxed text-graphite-soft">
         {variant === "only-yours"
           ? "Yours is the first. When others share how it wears, they’ll show up here."
           : "Be the first to share how it wears — notes, projection, and how it settles on skin. Your words help the next person choose with confidence."}
@@ -34,7 +39,7 @@ function EmptyReviewsMark() {
   return (
     <svg
       viewBox="0 0 200 160"
-      className="h-44 w-auto text-ink/20 xl:h-48"
+      className="h-44 w-auto text-graphite/20 xl:h-48"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden

@@ -5,6 +5,18 @@ export type {
   ProductDetailCollection,
   ProductDetailImage,
   ProductDetailVariant,
+  ProductFaqItem,
+  ProductFormatInfo,
+  ProductGender,
+  ProductIdentity,
+  ProductMeaningStory,
+  ProductNoteList,
+  ProductNotesPyramid,
+  ProductOlfactoryProfile,
+  ProductScentIntensity,
+  ProductScentLongevity,
+  ProductScentSillage,
+  ProductTagline,
 } from "./product-detail.js";
 export type {
   ProductListItem,

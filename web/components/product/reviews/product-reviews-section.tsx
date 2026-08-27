@@ -6,13 +6,12 @@ import type {
   RatingBreakdown,
   ReviewResponse,
 } from "@ishraqparfums/shared";
-import { ProductReviewCard } from "@/components/product/product-review-card";
-import { ProductReviewDeleteModal } from "@/components/product/product-review-delete-modal";
-import { ProductReviewEditModal } from "@/components/product/product-review-edit-modal";
-import { ProductReviewForm } from "@/components/product/product-review-form";
-import { ProductReviewList } from "@/components/product/product-review-list";
-import { ProductReviewSummary } from "@/components/product/product-review-summary";
-import { SectionHeading } from "@/components/ui/section-heading";
+import { ProductReviewCard } from "@/components/product/reviews/product-review-card";
+import { ProductReviewDeleteModal } from "@/components/product/reviews/product-review-delete-modal";
+import { ProductReviewEditModal } from "@/components/product/reviews/product-review-edit-modal";
+import { ProductReviewForm } from "@/components/product/reviews/product-review-form";
+import { ProductReviewList } from "@/components/product/reviews/product-review-list";
+import { ProductReviewSummary } from "@/components/product/reviews/product-review-summary";
 import { getMyProductReview } from "@/lib/reviews/reviews-client";
 
 /**
@@ -21,6 +20,11 @@ import { getMyProductReview } from "@/lib/reviews/reviews-client";
  *
  * Community `items`/`total` come from Nest with the viewer already excluded
  * when signed in — no client-side list filtering.
+ *
+ * Ported from product/product-reviews-section.tsx: all state and interaction
+ * logic (aggregate bumps on create/update/delete, page replace, "mine" modal
+ * wiring) is unchanged. Retinted, and the shared `SectionHeading` usage is
+ * replaced with the inline kicker + heading pattern used across `home-v2`.
  */
 export function ProductReviewsSection({
   slug,
@@ -143,7 +147,10 @@ export function ProductReviewsSection({
     <section id="reviews" className="scroll-mt-28">
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.15fr)] lg:gap-10">
         <aside className="lg:sticky lg:top-28 lg:self-start">
-          <SectionHeading title="Reviews" />
+          <p className="text-[13px] text-terra">What people are wearing</p>
+          <h2 className="mt-3 font-editorial text-h3-editorial text-graphite">
+            Reviews
+          </h2>
 
           <ProductReviewSummary
             average={ratingAverage}
@@ -154,12 +161,12 @@ export function ProductReviewsSection({
 
           <div className={ratingCount > 0 ? "mt-8" : "mt-6"}>
             {!mineReady ? (
-              <p className="font-mono text-label-sm uppercase text-ink-faint">
+              <p className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
                 Checking your review…
               </p>
             ) : mine ? (
               <div className="space-y-3">
-                <p className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+                <p className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
                   Your review
                 </p>
                 <ProductReviewCard

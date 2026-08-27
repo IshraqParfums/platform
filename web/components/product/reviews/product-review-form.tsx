@@ -8,7 +8,7 @@ import {
   type FormEvent,
 } from "react";
 import type { ReviewResponse } from "@ishraqparfums/shared";
-import { ProductReviewFields } from "@/components/product/product-review-fields";
+import { ProductReviewFields } from "@/components/product/reviews/product-review-fields";
 import { Button } from "@/components/ui/button";
 import {
   clearReviewDraft,
@@ -25,6 +25,9 @@ const resumedDraftSlugs = new Set<string>();
 /**
  * Write a review. On 401, saves a draft and sends the shopper to login with
  * `?next=` back to this product’s reviews anchor; after login, auto-submits once.
+ *
+ * Ported from product/product-review-form.tsx: draft/submit/auto-resume
+ * logic unchanged, retinted.
  */
 export function ProductReviewForm({
   slug,
@@ -156,10 +159,10 @@ export function ProductReviewForm({
   return (
     <form onSubmit={onSubmit} className="space-y-3.5">
       <div>
-        <h3 className="font-display text-xl font-semibold text-ink">
+        <h3 className="font-editorial text-xl text-graphite">
           Write a review
         </h3>
-        <p className="mt-1.5 text-sm text-ink-soft">
+        <p className="mt-1.5 text-sm text-graphite-soft">
           Sign in is required to post. We’ll save your draft if you need to log
           in first.
         </p>
@@ -177,7 +180,7 @@ export function ProductReviewForm({
 
       <Button
         type="submit"
-        variant="emphasis"
+        variant="ink"
         size="md"
         className="cursor-pointer"
         disabled={isPending}

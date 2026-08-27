@@ -8,8 +8,8 @@ import { shouldUnoptimizeImageSrc } from "@/lib/media/unoptimize-image-src";
 
 function ImageFallback({ name }: { name: string }) {
   return (
-    <div className="grain relative flex h-full w-full items-center justify-center bg-gradient-to-br from-deep-soft via-deep to-deep-deeper">
-      <span className="font-display text-5xl font-semibold text-gold-soft/40">
+    <div className="grain relative flex h-full w-full items-center justify-center bg-paper-deep">
+      <span className="font-editorial text-5xl text-terra/40">
         {name.charAt(0)}
       </span>
     </div>
@@ -19,6 +19,7 @@ function ImageFallback({ name }: { name: string }) {
 /**
  * Product gallery with optional thumbnails. Aspect is shorter than square on
  * tablet/desktop so the buy column stays above the fold.
+ * Ported from product/product-gallery.tsx: same thumbnail-state logic, v2 tokens.
  */
 export function ProductGallery({
   name,
@@ -33,7 +34,7 @@ export function ProductGallery({
 
   return (
     <div className="space-y-3">
-      <div className="relative aspect-[4/5] w-full max-h-[min(68vh,560px)] overflow-hidden rounded-2xl bg-deep ring-1 ring-line/40 md:aspect-[3/4]">
+      <div className="relative aspect-[4/5] w-full max-h-[min(68vh,560px)] overflow-hidden rounded-2xl bg-paper-deep ring-1 ring-graphite/15 md:aspect-[3/4]">
         {active ? (
           <Image
             src={active.url}
@@ -65,8 +66,8 @@ export function ProductGallery({
                   className={cn(
                     "relative h-16 w-16 cursor-pointer overflow-hidden rounded-lg ring-1 transition-[box-shadow,ring-color] duration-200",
                     selected
-                      ? "ring-2 ring-ink"
-                      : "ring-line/50 hover:ring-ink/35",
+                      ? "ring-2 ring-graphite"
+                      : "ring-graphite/15 hover:ring-graphite/40",
                   )}
                   onClick={() => setActiveIndex(index)}
                 >

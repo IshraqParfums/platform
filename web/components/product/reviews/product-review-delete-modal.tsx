@@ -9,6 +9,11 @@ import { deleteReview } from "@/lib/reviews/reviews-client";
 
 /**
  * Confirm before permanently removing the shopper’s review.
+ *
+ * Not explicitly named in the redesign plan's reviews file list, but wired in
+ * by `ProductReviewsSection` (delete flow for "your review") — ported
+ * alongside the rest of the reviews subsystem so that section isn't left
+ * importing a v1 file. Confirm/cancel logic unchanged, retinted.
  */
 export function ProductReviewDeleteModal({
   open,
@@ -51,7 +56,7 @@ export function ProductReviewDeleteModal({
         <div className="flex flex-col gap-2.5 sm:flex-row-reverse">
           <Button
             type="button"
-            variant="emphasis"
+            variant="ink"
             size="md"
             disabled={deleting}
             className="w-full cursor-pointer sm:w-auto"
@@ -66,7 +71,7 @@ export function ProductReviewDeleteModal({
             variant="ghost"
             size="md"
             disabled={deleting}
-            className="w-full cursor-pointer text-ink-soft sm:w-auto"
+            className="w-full cursor-pointer text-graphite-soft sm:w-auto"
             onClick={onClose}
           >
             Cancel
@@ -74,7 +79,7 @@ export function ProductReviewDeleteModal({
         </div>
       }
     >
-      <p className="text-[15px] leading-relaxed text-ink-soft">
+      <p className="text-[15px] leading-relaxed text-graphite-soft">
         This permanently removes your review from this perfume. You can write a
         new one later if you like.
       </p>

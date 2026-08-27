@@ -163,12 +163,7 @@ export default async function AdminProductDetailPage({ params }: RouteParams) {
         archiveReason={product.archiveReason}
       />
 
-      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
-        <h2 className="font-display text-lg font-semibold text-ink">Details</h2>
-        <div className="mt-3">
-          <ProductEditForm product={product} collections={collections} />
-        </div>
-      </div>
+      <ProductEditForm product={product} collections={collections} />
 
       <ProductVariantsPanel
         productId={product.id}

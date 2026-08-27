@@ -27,7 +27,7 @@ function ReviewAvatar({ name }: { name: string }) {
   const initials = initialsFromName(name);
   return (
     <span
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/35 bg-deep text-[10px] font-semibold tracking-wide text-gold-soft"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-terra/35 bg-paper-deep text-[10px] font-semibold tracking-wide text-terra"
       aria-hidden
     >
       {initials}
@@ -37,7 +37,7 @@ function ReviewAvatar({ name }: { name: string }) {
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <span className="flex shrink-0 text-gold" aria-hidden="true">
+    <span className="flex shrink-0 text-terra" aria-hidden="true">
       {[1, 2, 3, 4, 5].map((value) => (
         <svg
           key={value}
@@ -64,8 +64,9 @@ function Stars({ rating }: { rating: number }) {
  * Body
  * Verified buyer
  *
- * `mine` uses a distinct surface so the shopper’s review doesn’t blend into
- * the public list; optional Edit opens the edit modal from the parent.
+ * Ported from product/product-review-card.tsx, retinted. `mine` uses a
+ * distinct surface so the shopper’s review doesn’t blend into the public
+ * list; optional Edit opens the edit modal from the parent.
  */
 export function ProductReviewCard({
   review,
@@ -83,25 +84,25 @@ export function ProductReviewCard({
       className={cn(
         "px-4 py-4 sm:px-5 sm:py-5",
         mine
-          ? "border border-gold/30 bg-cream-soft"
-          : "border border-ink/10 bg-cream",
+          ? "border border-terra/30 bg-shell"
+          : "border border-graphite/10 bg-paper",
       )}
     >
       <div className="flex items-center gap-2.5">
         <ReviewAvatar name={review.reviewerName} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-ink">
+          <p className="truncate text-sm font-semibold text-graphite">
             {review.reviewerName}
           </p>
           {mine ? (
-            <p className="font-mono text-label-sm uppercase tracking-wide text-gold">
+            <p className="font-ui text-[11px] uppercase tracking-[0.14em] text-terra">
               Your review
             </p>
           ) : null}
         </div>
         <time
           dateTime={review.createdAt}
-          className="shrink-0 font-mono text-label-sm text-ink-faint"
+          className="shrink-0 font-ui text-[11px] text-graphite-faint"
         >
           {formatReviewDate(review.createdAt)}
         </time>
@@ -111,19 +112,21 @@ export function ProductReviewCard({
         <Stars rating={review.rating} />
         <span className="sr-only">{review.rating} out of 5 stars</span>
         {review.title ? (
-          <h3 className="text-[15px] font-semibold text-ink">{review.title}</h3>
+          <h3 className="text-[15px] font-semibold text-graphite">
+            {review.title}
+          </h3>
         ) : null}
       </div>
 
       {review.body ? (
-        <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">
+        <p className="mt-1.5 text-[15px] leading-relaxed text-graphite-soft">
           {review.body}
         </p>
       ) : null}
 
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
         {review.isVerifiedBuyer ? (
-          <p className="font-mono text-label-sm uppercase tracking-wide text-gold">
+          <p className="font-ui text-[11px] uppercase tracking-[0.14em] text-terra">
             Verified buyer
           </p>
         ) : null}
@@ -131,7 +134,7 @@ export function ProductReviewCard({
           <button
             type="button"
             onClick={onEdit}
-            className="cursor-pointer font-mono text-label-sm uppercase text-ink-faint transition-colors hover:text-ink"
+            className="cursor-pointer font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint transition-colors hover:text-graphite"
           >
             Edit
           </button>
@@ -140,7 +143,7 @@ export function ProductReviewCard({
           <button
             type="button"
             onClick={onDelete}
-            className="cursor-pointer font-mono text-label-sm uppercase text-ink-faint transition-colors hover:text-ink"
+            className="cursor-pointer font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint transition-colors hover:text-graphite"
           >
             Remove
           </button>

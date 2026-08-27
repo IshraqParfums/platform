@@ -1,3 +1,17 @@
+import type {
+  ProductFaqItem,
+  ProductFormatInfo,
+  ProductGender,
+  ProductIdentity,
+  ProductMeaningStory,
+  ProductNotesPyramid,
+  ProductOlfactoryProfile,
+  ProductScentIntensity,
+  ProductScentLongevity,
+  ProductScentSillage,
+  ProductTagline,
+} from "../catalog/product-detail.js";
+
 export type ProductStatus = "DRAFT" | "ACTIVE" | "ARCHIVED" | "DELETED";
 
 export type ProductArchiveReason = "MANUAL" | "COLLECTION";
@@ -37,7 +51,40 @@ export interface AdminProductListItem {
   updatedAt: string;
 }
 
-export interface AdminProductDetail {
+/**
+ * PDP content fields, admin side. Deliberately flat here (one field per DB
+ * column) rather than grouped like the storefront's `ProductDetail`
+ * (`identity`, `tagline`, ...) — the edit form wires one `useState` per
+ * scalar field the same way `nameUrdu` already does, and flat access keeps
+ * that mechanical. The storefront mapper is what groups these into the
+ * nested shape presentational components actually consume.
+ */
+export interface AdminProductPdpFields {
+  pronunciation: string | null;
+  meaning: string | null;
+  taglinePrimary: string | null;
+  taglineTranslation: string | null;
+  meaningStory: ProductMeaningStory | null;
+  notesPyramid: ProductNotesPyramid | null;
+  scentFamily: string | null;
+  characterTags: string[];
+  intensity: ProductScentIntensity | null;
+  sillage: ProductScentSillage | null;
+  longevity: ProductScentLongevity | null;
+  season: string[];
+  occasion: string[];
+  gender: ProductGender | null;
+  formatLabel: string | null;
+  concentration: string | null;
+  application: string | null;
+  bottleDescription: string | null;
+  howToUse: string[];
+  care: string[];
+  claims: string[];
+  faq: ProductFaqItem[] | null;
+}
+
+export interface AdminProductDetail extends AdminProductPdpFields {
   id: string;
   name: string;
   /** Urdu (Nastaliq) name. Display-only; null until an admin fills it in. */
@@ -55,7 +102,33 @@ export interface AdminProductDetail {
   updatedAt: string;
 }
 
-export interface CreateProductBody {
+/** Every PDP content field, optional on write — same "omit or clear" rule as `nameUrdu`. */
+export interface WriteProductPdpFields {
+  pronunciation?: string;
+  meaning?: string;
+  taglinePrimary?: string;
+  taglineTranslation?: string;
+  meaningStory?: ProductMeaningStory;
+  notesPyramid?: ProductNotesPyramid;
+  scentFamily?: string;
+  characterTags?: string[];
+  intensity?: ProductScentIntensity;
+  sillage?: ProductScentSillage;
+  longevity?: ProductScentLongevity;
+  season?: string[];
+  occasion?: string[];
+  gender?: ProductGender;
+  formatLabel?: string;
+  concentration?: string;
+  application?: string;
+  bottleDescription?: string;
+  howToUse?: string[];
+  care?: string[];
+  claims?: string[];
+  faq?: ProductFaqItem[];
+}
+
+export interface CreateProductBody extends WriteProductPdpFields {
   collectionId: string;
   name: string;
   /** Optional Urdu name. Omit or send "" to leave it empty. */
@@ -66,7 +139,7 @@ export interface CreateProductBody {
   status?: ProductStatus;
 }
 
-export interface UpdateProductBody {
+export interface UpdateProductBody extends WriteProductPdpFields {
   collectionId?: string;
   name?: string;
   /** Send "" to clear the Urdu name back to null. */
