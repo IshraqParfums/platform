@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 
 type Size = "md" | "xl";
@@ -15,6 +16,8 @@ const FOCUSABLE =
 
 /**
  * Shop dialog shell — cream panel over a dimmed page.
+ * Portaled to `document.body` so `Band`'s `relative z-[1]` stacking context
+ * cannot clip or bury the overlay under the next section.
  * Set `dismissible={false}` for required flows (no Escape / backdrop close).
  */
 export function Modal({
@@ -40,6 +43,11 @@ export function Modal({
 }) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -98,9 +106,9 @@ export function Modal({
     };
   }, [open, dismissible, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
       className={cn(
         "fixed inset-0 z-[60] flex items-end justify-center p-4 sm:items-center",
@@ -150,6 +158,7 @@ export function Modal({
           <div className="shrink-0 pb-6" aria-hidden />
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

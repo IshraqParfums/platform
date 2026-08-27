@@ -2,25 +2,17 @@
 
 import { cn } from "@/lib/cn";
 
-/**
- * Shared rating / title / body controls for create form and edit modal.
- * Ported from product/product-review-fields.tsx, retinted.
- */
 export function ProductReviewFields({
   rating,
-  title,
   body,
   disabled,
   onRatingChange,
-  onTitleChange,
   onBodyChange,
 }: {
   rating: number;
-  title: string;
   body: string;
   disabled?: boolean;
   onRatingChange: (rating: number) => void;
-  onTitleChange: (title: string) => void;
   onBodyChange: (body: string) => void;
 }) {
   return (
@@ -53,22 +45,6 @@ export function ProductReviewFields({
           ))}
         </div>
       </fieldset>
-
-      <label className="block">
-        <span className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
-          Title <span className="normal-case tracking-normal">(optional)</span>
-        </span>
-        <input
-          type="text"
-          name="title"
-          maxLength={120}
-          value={title}
-          disabled={disabled}
-          onChange={(event) => onTitleChange(event.target.value)}
-          className={fieldClassName()}
-          placeholder="A few words"
-        />
-      </label>
 
       <label className="block">
         <span className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">

@@ -38,7 +38,6 @@ export function ProductReviewForm({
 }) {
   const router = useRouter();
   const [rating, setRating] = useState(5);
-  const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -55,7 +54,6 @@ export function ProductReviewForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           rating: payload.rating,
-          ...(payload.title.trim() ? { title: payload.title.trim() } : {}),
           ...(payload.body.trim() ? { body: payload.body.trim() } : {}),
         }),
       },
@@ -90,7 +88,7 @@ export function ProductReviewForm({
     event.preventDefault();
     setError(null);
 
-    const draft: ReviewDraft = { slug, rating, title, body };
+    const draft: ReviewDraft = { slug, rating, body };
 
     startTransition(async () => {
       const { result, review, message } = await postReview(draft);
@@ -128,7 +126,6 @@ export function ProductReviewForm({
       if (result === "unauthorized") {
         resumedDraftSlugs.delete(slug);
         setRating(draft.rating);
-        setTitle(draft.title);
         setBody(draft.body);
         return;
       }
@@ -140,7 +137,6 @@ export function ProductReviewForm({
       if (result === "error") {
         resumedDraftSlugs.delete(slug);
         setRating(draft.rating);
-        setTitle(draft.title);
         setBody(draft.body);
         setError(message ?? "Could not submit review");
         return;
@@ -170,11 +166,9 @@ export function ProductReviewForm({
 
       <ProductReviewFields
         rating={rating}
-        title={title}
         body={body}
         disabled={isPending}
         onRatingChange={setRating}
-        onTitleChange={setTitle}
         onBodyChange={setBody}
       />
 

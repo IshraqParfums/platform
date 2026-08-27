@@ -11,6 +11,11 @@ export interface ProductListItem {
   nameUrdu: string | null;
   slug: string;
   shortDescription: string;
+  /**
+   * First few opening notes from the pyramid — teaser for list/home cards.
+   * Empty when the product has no opening notes yet.
+   */
+  openingNotes: string[];
   collectionSlug: string;
   primaryImage: ProductListPrimaryImage | null;
   fromSizeMl: number | null;

@@ -26,7 +26,6 @@ export function toReviewResponse(
   return {
     id: review.id,
     rating: review.rating,
-    title: review.title,
     body: review.body,
     reviewerName: toReviewerName(review.customer.name),
     isVerifiedBuyer,

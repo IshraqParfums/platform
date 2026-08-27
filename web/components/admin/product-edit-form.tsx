@@ -21,10 +21,11 @@ import {
   type ProductFaqDraft,
 } from "@/components/admin/product-faq-editor";
 import { adminFetch } from "@/lib/auth/admin-fetch";
+import { urduIfPresent, URDU_FIELD_PROPS } from "@/lib/admin/urdu-field";
 
 // Same parsing conventions as the create form: comma-separated Inputs for
 // short lists (notes, tags), one-item-per-line Textareas for longer lists
-// (steps, paragraphs, claims). Blank lines/entries are dropped.
+// (steps, paragraphs). Blank lines/entries are dropped.
 function parseCommaList(value: string): string[] {
   return value
     .split(",")
@@ -101,9 +102,6 @@ export function ProductEditForm({
   const [nameUrdu, setNameUrdu] = useState(product.nameUrdu ?? "");
   const [collectionId, setCollectionId] = useState(product.collectionId);
   const [shortDescription, setShortDescription] = useState(product.shortDescription);
-  const [detailedDescription, setDetailedDescription] = useState(
-    product.detailedDescription,
-  );
 
   // --- PDP content, seeded from the current product ---
   const [pronunciation, setPronunciation] = useState(
@@ -166,9 +164,6 @@ export function ProductEditForm({
     product.bottleDescription ?? "",
   );
 
-  const [howToUse, setHowToUse] = useState(joinLines(product.howToUse));
-  const [care, setCare] = useState(joinLines(product.care));
-  const [claims, setClaims] = useState(joinLines(product.claims));
   const [faq, setFaq] = useState<ProductFaqDraft[]>(
     () => product.faq ?? [],
   );
@@ -182,6 +177,17 @@ export function ProductEditForm({
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    const urduError =
+      urduIfPresent(nameUrdu, "Urdu name") ??
+      urduIfPresent(taglineTranslation, "Tagline Urdu") ??
+      urduIfPresent(storyBodyTranslation, "Story translation") ??
+      urduIfPresent(openingNotesTranslation, "Opening notes Urdu") ??
+      urduIfPresent(heartNotesTranslation, "Heart notes Urdu") ??
+      urduIfPresent(baseNotesTranslation, "Base notes Urdu");
+    if (urduError) {
+      toast.error(urduError);
+      return;
+    }
     setSubmitting(true);
     try {
       // The two/three JSON-shaped fields (meaningStory, notesPyramid) have
@@ -227,7 +233,6 @@ export function ProductEditForm({
           nameUrdu,
           collectionId,
           shortDescription,
-          detailedDescription,
           pronunciation,
           meaning,
           taglinePrimary,
@@ -252,9 +257,6 @@ export function ProductEditForm({
           concentration,
           application,
           bottleDescription,
-          howToUse: parseLines(howToUse),
-          care: parseLines(care),
-          claims: parseLines(claims),
           faq: faqList,
         }),
       });
@@ -338,17 +340,6 @@ export function ProductEditForm({
               className="min-h-16"
             />
           </label>
-
-          <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Detailed description
-            </span>
-            <Textarea
-              value={detailedDescription}
-              onChange={(event) => setDetailedDescription(event.target.value)}
-              required
-            />
-          </label>
         </div>
       </div>
 
@@ -395,11 +386,13 @@ export function ProductEditForm({
 
           <label className="flex flex-col gap-1.5">
             <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Tagline translation
+              Tagline Urdu (optional)
             </span>
             <Input
               value={taglineTranslation}
               onChange={(event) => setTaglineTranslation(event.target.value)}
+              {...URDU_FIELD_PROPS}
+              className="text-right"
             />
           </label>
         </div>
@@ -438,11 +431,13 @@ export function ProductEditForm({
 
           <label className="flex flex-col gap-1.5">
             <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Body translation
+              Body Urdu (optional)
             </span>
             <Textarea
               value={storyBodyTranslation}
               onChange={(event) => setStoryBodyTranslation(event.target.value)}
+              {...URDU_FIELD_PROPS}
+              className="text-right"
             />
             <span className="text-xs text-ink-faint">
               One paragraph per line, matching the body above. Optional.
@@ -472,13 +467,15 @@ export function ProductEditForm({
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Opening notes translation
+                Opening notes Urdu (optional)
               </span>
               <Input
                 value={openingNotesTranslation}
                 onChange={(event) =>
                   setOpeningNotesTranslation(event.target.value)
                 }
+                {...URDU_FIELD_PROPS}
+                className="text-right"
               />
             </label>
           </div>
@@ -496,13 +493,15 @@ export function ProductEditForm({
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Heart notes translation
+                Heart notes Urdu (optional)
               </span>
               <Input
                 value={heartNotesTranslation}
                 onChange={(event) =>
                   setHeartNotesTranslation(event.target.value)
                 }
+                {...URDU_FIELD_PROPS}
+                className="text-right"
               />
             </label>
           </div>
@@ -520,13 +519,15 @@ export function ProductEditForm({
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Base notes translation
+                Base notes Urdu (optional)
               </span>
               <Input
                 value={baseNotesTranslation}
                 onChange={(event) =>
                   setBaseNotesTranslation(event.target.value)
                 }
+                {...URDU_FIELD_PROPS}
+                className="text-right"
               />
             </label>
           </div>
@@ -678,57 +679,6 @@ export function ProductEditForm({
               value={bottleDescription}
               onChange={(event) => setBottleDescription(event.target.value)}
             />
-          </label>
-        </div>
-      </div>
-
-      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
-        <h2 className="font-display text-lg font-semibold text-ink">
-          Ritual &amp; care
-        </h2>
-        <p className="mt-1 text-sm text-ink-faint">
-          How to wear it and how to look after the bottle, one step per line.
-        </p>
-        <div className="mt-4 flex flex-col gap-4">
-          <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              How to use
-            </span>
-            <Textarea
-              value={howToUse}
-              onChange={(event) => setHowToUse(event.target.value)}
-            />
-            <span className="text-xs text-ink-faint">One step per line.</span>
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Care
-            </span>
-            <Textarea value={care} onChange={(event) => setCare(event.target.value)} />
-            <span className="text-xs text-ink-faint">
-              One instruction per line.
-            </span>
-          </label>
-        </div>
-      </div>
-
-      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
-        <h2 className="font-display text-lg font-semibold text-ink">
-          Claims
-        </h2>
-        <p className="mt-1 text-sm text-ink-faint">
-          Short trust claims shown near the buy box, one per line.
-        </p>
-        <div className="mt-4">
-          <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Claims
-            </span>
-            <Textarea
-              value={claims}
-              onChange={(event) => setClaims(event.target.value)}
-            />
-            <span className="text-xs text-ink-faint">One claim per line.</span>
           </label>
         </div>
       </div>

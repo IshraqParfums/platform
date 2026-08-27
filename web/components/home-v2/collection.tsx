@@ -4,21 +4,54 @@ import Link from "next/link";
 import { BandInner } from "@/components/home-v2/ui/band";
 import { Urdu } from "@/components/home-v2/ui/urdu";
 import { ButtonLink } from "@/components/ui/button";
-import { HOME_COLLECTION, notesForProduct, worldForProduct } from "@/lib/content/home-v2";
+import { HOME_COLLECTION } from "@/lib/content/home-v2";
 import { formatPaise } from "@/lib/format/money";
 import { shouldUnoptimizeImageSrc } from "@/lib/media/unoptimize-image-src";
 
-/**
- * One repeated unit, four times: still on the left, copy on the right, all four
- * cards identical. The previous pass ran a 7–5 / 5–7 mosaic across three
- * different aspect ratios, so no two plates were the same size and the eye had
- * nowhere to settle.
- *
- * Copy sits on paper, never on the photograph. Six lines of type over a busy
- * still — under a scrim dark enough to carry them — is what made the section
- * read as vague: everything was at a different contrast against a moving
- * background. Below the image they are simply black on parchment.
- */
+function CollectionRating({
+  slug,
+  average,
+  count,
+}: {
+  slug: string;
+  average: number | null;
+  count: number;
+}) {
+  if (average === null || count <= 0) return null;
+
+  return (
+    <span className="mt-4 inline-flex items-center gap-2">
+      <span className="flex items-center gap-0.5 text-terra" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((i) => {
+          const fill = Math.min(1, Math.max(0, average - i));
+          const id = `home-col-star-${slug}-${i}`;
+          return (
+            <svg key={i} viewBox="0 0 20 20" className="h-3.5 w-3.5">
+              <defs>
+                <linearGradient id={id}>
+                  <stop offset={`${fill * 100}%`} stopColor="currentColor" />
+                  <stop offset={`${fill * 100}%`} stopColor="transparent" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.94 2.6.94-5.5-4-3.9 5.53-.8z"
+                fill={`url(#${id})`}
+                stroke="currentColor"
+                strokeWidth="1.1"
+                strokeLinejoin="round"
+              />
+            </svg>
+          );
+        })}
+      </span>
+      <span className="text-[13px] text-graphite-soft">
+        {average.toFixed(1)}
+        <span className="sr-only"> out of 5 stars</span> ({count})
+      </span>
+    </span>
+  );
+}
+
 function CollectionCard({
   product,
   index,
@@ -26,90 +59,85 @@ function CollectionCard({
   product: ProductListItem;
   index: number;
 }) {
-  const world = worldForProduct(product, index);
-  const imageSrc = product.primaryImage?.url ?? world.src;
-  const imageAlt = product.primaryImage?.altText?.trim() || world.alt;
-  const notes = notesForProduct(product);
+  const imageSrc = product.primaryImage?.url ?? null;
+  const imageAlt =
+    product.primaryImage?.altText?.trim() || product.name;
+  const openingNotes = product.openingNotes ?? [];
 
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group flex flex-col gap-5 sm:grid sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] sm:items-start sm:gap-7"
+      className="group flex flex-col gap-5 sm:grid sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] sm:items-stretch sm:gap-7"
     >
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper-deep">
-        <Image
-          src={imageSrc}
-          alt={imageAlt}
-          fill
-          sizes="(min-width: 1024px) 260px, (min-width: 640px) 300px, 100vw"
-          unoptimized={shouldUnoptimizeImageSrc(imageSrc)}
-          className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,0.8,0.28,1)] group-hover:scale-[1.02]"
-          priority={index === 0}
-        />
+        {imageSrc ? (
+          <Image
+            src={imageSrc}
+            alt={imageAlt}
+            fill
+            sizes="(min-width: 1024px) 260px, (min-width: 640px) 300px, 100vw"
+            unoptimized={shouldUnoptimizeImageSrc(imageSrc)}
+            className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,0.8,0.28,1)] group-hover:scale-[1.02]"
+            priority={index === 0}
+          />
+        ) : null}
       </div>
 
-      <div className="min-w-0">
-        {/* Below sm the card is a compact strip — name/Urdu share a row and
-            notes drop entirely, matching the image-over-copy stack the card
-            already switches to at this breakpoint. sm+ keeps the original
-            stacked name/Urdu, unchanged. */}
-        <div className="flex items-baseline justify-between gap-3 sm:block">
-          <h3 className="font-editorial text-[26px] leading-[1.1] text-graphite transition-colors duration-200 group-hover:text-terra sm:text-[30px]">
-            {product.name}
-          </h3>
-          {product.nameUrdu ? (
-            <Urdu size="sm" align="start" className="shrink-0 pt-0">
-              {product.nameUrdu}
-            </Urdu>
-          ) : null}
-        </div>
+      <div className="flex min-h-0 min-w-0 flex-col sm:h-full sm:justify-between">
+        <div>
+          <div className="flex items-baseline justify-between gap-3 sm:block">
+            <h3 className="font-editorial text-[26px] leading-[1.1] text-graphite transition-colors duration-200 group-hover:text-terra sm:text-[30px]">
+              {product.name}
+            </h3>
+            {product.nameUrdu ? (
+              <Urdu size="sm" align="start" className="shrink-0 pt-0">
+                {product.nameUrdu}
+              </Urdu>
+            ) : null}
+          </div>
 
-        <span
-          aria-hidden="true"
-          className="mt-5 hidden h-px w-10 bg-graphite/20 sm:block"
-        />
+          <span
+            aria-hidden="true"
+            className="mt-5 hidden h-px w-10 bg-graphite/20 sm:block"
+          />
 
-        <div className="hidden sm:block">
-          {notes ? (
-            <>
-              <p className="mt-4 text-[11px] uppercase tracking-[0.16em] text-graphite-faint">
-                {HOME_COLLECTION.notesLabel}
-              </p>
-              <ul className="mt-2 space-y-1 text-[14px] leading-[1.5] text-graphite-soft">
-                {notes.map((note) => (
-                  <li key={note}>{note}</li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            // No authored descriptor for this slug. Its own copy, never another
-            // perfume's notes — see `notesForProduct`.
-            <p className="mt-4 max-w-[34ch] text-[14px] leading-[1.55] text-graphite-soft">
-              {product.shortDescription}
-            </p>
-          )}
-        </div>
-
-        <p className="mt-3 flex items-baseline gap-2 text-[14px] text-graphite sm:mt-6">
-          {product.fromPricePaise !== null
-            ? formatPaise(product.fromPricePaise)
-            : null}
-          {product.fromSizeMl !== null ? (
-            <span className="text-graphite-faint">· {product.fromSizeMl} ml</span>
-          ) : null}
-          {/* sm+ only. Below sm the whole card is already the only affordance
-              — a redundant label there added nothing but had also never been
-              visible on touch anyway (it used to be hover-only). */}
-          <span className="ml-auto hidden text-[12px] uppercase tracking-[0.14em] text-terra sm:inline">
-            {HOME_COLLECTION.action} →
-          </span>
-        </p>
-
-        {product.availability === "OUT_OF_STOCK" ? (
-          <p className="mt-2 text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
-            {HOME_COLLECTION.soldOut}
+          <p className="mt-4 hidden max-w-[34ch] text-[14px] leading-[1.55] text-graphite-soft sm:block">
+            {product.shortDescription}
           </p>
-        ) : null}
+
+          {openingNotes.length > 0 ? (
+            <ul className="mt-3 hidden text-[13px] leading-[1.55] text-terra sm:block">
+              {openingNotes.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          ) : null}
+
+          <CollectionRating
+            slug={product.slug}
+            average={product.ratingAverage}
+            count={product.reviewCount}
+          />
+        </div>
+
+        <div className="mt-3 sm:mt-6">
+          <p className="flex items-baseline gap-2.5 text-[20px] leading-none text-graphite sm:text-[22px]">
+            {product.fromPricePaise !== null
+              ? formatPaise(product.fromPricePaise)
+              : null}
+            {product.fromSizeMl !== null ? (
+              <span className="text-[16px] text-graphite-faint sm:text-[17px]">
+                {product.fromSizeMl} ml
+              </span>
+            ) : null}
+          </p>
+
+          {product.availability === "OUT_OF_STOCK" ? (
+            <p className="mt-2 text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
+              {HOME_COLLECTION.soldOut}
+            </p>
+          ) : null}
+        </div>
       </div>
     </Link>
   );
@@ -118,18 +146,8 @@ function CollectionCard({
 export function Collection({ products }: { products: ProductListItem[] }) {
   const shown = products.slice(0, 4);
 
-  /**
-   * Baseline padding on both sides now that Materials sits on `paper-deep`
-   * (not the same parchment) above this — that's a real colour seam, not a
-   * silent same-tone stack, so this section owning its own top clearance no
-   * longer doubles up on Materials' bottom padding the way it used to.
-   * ~56% of the `py-20 md:py-28` baseline (45px / 63px) — full baseline read
-   * as too much on both sides once there was a real seam to lean on.
-   */
   return (
     <section className="bg-paper py-[45px] md:py-[63px]">
-      {/* Header and grid share one BandInner so their left edges line up — the
-          old grid had its own narrower max-width and drifted past 1320px. */}
       <BandInner>
         <div className="lg:flex lg:items-end lg:justify-between lg:gap-10">
           <div>

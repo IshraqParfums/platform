@@ -154,6 +154,13 @@ function toNotesPyramid(value: unknown): ProductDetail['notesPyramid'] {
   return { opening, heart, base };
 }
 
+const OPENING_NOTES_PREVIEW = 3;
+
+function toOpeningNotesPreview(value: unknown): string[] {
+  const notes = toNotesPyramid(value)?.opening?.notes ?? [];
+  return notes.slice(0, OPENING_NOTES_PREVIEW);
+}
+
 function toOlfactoryProfile(
   product: ProductWithCatalogRelations,
 ): ProductDetail['olfactoryProfile'] {
@@ -246,6 +253,7 @@ export function toProductListItem(
     nameUrdu: product.nameUrdu,
     slug: product.slug,
     shortDescription: product.shortDescription,
+    openingNotes: toOpeningNotesPreview(product.notesPyramidJson),
     collectionSlug: product.collection.slug,
     primaryImage: toPrimaryImage(product.images),
     fromSizeMl: cheapest?.sizeMl ?? null,
@@ -272,7 +280,6 @@ export function toProductDetail(
     nameUrdu: product.nameUrdu,
     slug: product.slug,
     shortDescription: product.shortDescription,
-    detailedDescription: product.detailedDescription,
     collection: {
       name: product.collection.name,
       slug: product.collection.slug,
@@ -288,9 +295,6 @@ export function toProductDetail(
     notesPyramid: toNotesPyramid(product.notesPyramidJson),
     olfactoryProfile: toOlfactoryProfile(product),
     format: toFormatInfo(product),
-    howToUse: product.howToUse,
-    care: product.care,
-    claims: product.claims,
     faq: toFaq(product.faqJson),
   };
 }
@@ -348,7 +352,6 @@ export function toAdminProductDetail(
     nameUrdu: product.nameUrdu,
     slug: product.slug,
     shortDescription: product.shortDescription,
-    detailedDescription: product.detailedDescription,
     status: product.status,
     archiveReason: product.archiveReason,
     collectionId: product.collectionId,
@@ -375,9 +378,6 @@ export function toAdminProductDetail(
     concentration: product.concentration,
     application: product.application,
     bottleDescription: product.bottleDescription,
-    howToUse: product.howToUse,
-    care: product.care,
-    claims: product.claims,
     faq: toFaq(product.faqJson),
   };
 }

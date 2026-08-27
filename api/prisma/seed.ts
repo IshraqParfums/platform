@@ -44,8 +44,7 @@ async function upsertCollection(input: {
 }
 
 /** { notes: string[]; notesTranslation: string[] | null } — one tier of the
- *  fragrance notes pyramid. `notesTranslation` is left null throughout this
- *  seed (see `upsertProductWithDetails` doc comment). */
+ *  fragrance notes pyramid. English notes plus optional Urdu names. */
 type NoteList = {
   notes: string[];
   notesTranslation: string[] | null;
@@ -79,21 +78,18 @@ async function upsertProductWithDetails(input: {
   nameUrdu?: string;
   collectionId: string;
   shortDescription: string;
-  detailedDescription: string;
   variants: Array<{
     sizeMl: number;
     pricePaise: number;
     compareAtPricePaise?: number | null;
     stockQty: number;
   }>;
-  imageUrl: string;
-  imageAlt: string;
+  images: Array<{ url: string; alt: string }>;
 
   // --- PDP content -------------------------------------------------------
   // Seeded values are placeholder-quality (not final client copy) but
   // structurally complete, so every product PDP section renders with
-  // real-looking content. `*Translation`/`bodyTranslation`/`notesTranslation`
-  // are left null throughout — we don't guess at Hindi/Urdu we can't verify.
+  // real-looking content. Translation fields are Urdu (Nastaliq) placeholders.
   pronunciation: string;
   meaning: string;
   taglinePrimary: string;
@@ -112,9 +108,6 @@ async function upsertProductWithDetails(input: {
   concentration: string;
   application: string;
   bottleDescription: string;
-  howToUse: string[];
-  care: string[];
-  claims: string[];
   faq: FaqItem[];
 }) {
   const pdpFields = {
@@ -136,9 +129,6 @@ async function upsertProductWithDetails(input: {
     concentration: input.concentration,
     application: input.application,
     bottleDescription: input.bottleDescription,
-    howToUse: input.howToUse,
-    care: input.care,
-    claims: input.claims,
     faqJson: input.faq as unknown as Prisma.InputJsonValue,
   };
 
@@ -150,7 +140,6 @@ async function upsertProductWithDetails(input: {
       nameUrdu: input.nameUrdu ?? null,
       collectionId: input.collectionId,
       shortDescription: input.shortDescription,
-      detailedDescription: input.detailedDescription,
       status: ProductStatus.ACTIVE,
       ...pdpFields,
     },
@@ -159,7 +148,6 @@ async function upsertProductWithDetails(input: {
       nameUrdu: input.nameUrdu ?? null,
       collectionId: input.collectionId,
       shortDescription: input.shortDescription,
-      detailedDescription: input.detailedDescription,
       status: ProductStatus.ACTIVE,
       ...pdpFields,
     },
@@ -192,37 +180,92 @@ async function upsertProductWithDetails(input: {
     });
   }
 
-  // storagePath stays null: these point at local `web/public/products/*.jpg`
-  // assets (or, for the one product without generated art yet, a
-  // placehold.co URL) rather than a real Supabase Storage object.
-  // MediaService.remove() no-ops entirely when storagePath is falsy, so this
-  // is the documented, sanctioned way to seed images with no Storage upload.
-  const existingImage = await prisma.productImage.findFirst({
-    where: { productId: product.id, displayOrder: 0 },
+  // Local files in `web/public/products/*.webp`. storagePath stays null so
+  // MediaService.remove() no-ops — the documented way to seed without Storage.
+  await prisma.productImage.deleteMany({ where: { productId: product.id } });
+  await prisma.productImage.createMany({
+    data: input.images.map((image, index) => ({
+      productId: product.id,
+      url: image.url,
+      altText: image.alt,
+      displayOrder: index,
+      storagePath: null,
+    })),
   });
 
-  if (existingImage) {
-    await prisma.productImage.update({
-      where: { id: existingImage.id },
-      data: {
-        url: input.imageUrl,
-        altText: input.imageAlt,
-        storagePath: null,
+  return product;
+}
+
+const SEED_REVIEWER_PHONES = Array.from(
+  { length: 10 },
+  (_, index) => `+9190000000${String(index + 1).padStart(2, '0')}`,
+);
+
+const SEED_REVIEWER_NAMES = [
+  'Aarav Mehta',
+  'Zara Khan',
+  'Kabir Iyer',
+  'Meher Qureshi',
+  'Rohan Desai',
+  'Ananya Shah',
+  'Vivaan Patel',
+  'Sara Hussain',
+  'Ishaan Nair',
+  'Noor Rahman',
+] as const;
+
+const SEED_REVIEW_BODIES = [
+  'Wears close and stays. I keep catching it on my sleeve the next morning.',
+  'The opening is louder than the drydown, which is how I like it.',
+  'Not sweet. Dry, a little smoky, very easy to live in.',
+  'Sprayed twice and it filled the room — next time I will go lighter.',
+  'This is the one I reach for when I do not want to think.',
+  null,
+  'Lasts through a long dinner without turning sour.',
+  null,
+  'People asked what I was wearing, which almost never happens.',
+  'Quiet on me at first, then the woods come up after an hour.',
+] as const;
+
+async function seedDemoReviews(counts: Record<string, number>) {
+  const customers = [];
+  for (let i = 0; i < SEED_REVIEWER_PHONES.length; i++) {
+    const phone = SEED_REVIEWER_PHONES[i];
+    const customer = await prisma.customer.upsert({
+      where: { phone },
+      create: {
+        phone,
+        name: SEED_REVIEWER_NAMES[i],
+        email: `seed.reviewer.${i + 1}@ishraq.local`,
       },
+      update: { name: SEED_REVIEWER_NAMES[i] },
     });
-  } else {
-    await prisma.productImage.create({
-      data: {
-        productId: product.id,
-        url: input.imageUrl,
-        altText: input.imageAlt,
-        displayOrder: 0,
-        storagePath: null,
-      },
-    });
+    customers.push(customer);
   }
 
-  return product;
+  await prisma.review.deleteMany({
+    where: { customerId: { in: customers.map((c) => c.id) } },
+  });
+
+  const ratings = [5, 4, 5, 3, 5, 4, 5, 4, 5, 3];
+
+  for (const [slug, count] of Object.entries(counts)) {
+    if (count === 0) continue;
+    const product = await prisma.product.findUnique({ where: { slug } });
+    if (!product) {
+      throw new Error(`Seed review: missing product ${slug}`);
+    }
+    for (let i = 0; i < count; i++) {
+      await prisma.review.create({
+        data: {
+          customerId: customers[i].id,
+          productId: product.id,
+          rating: ratings[i],
+          body: SEED_REVIEW_BODIES[i],
+        },
+      });
+    }
+  }
 }
 
 async function main() {
@@ -260,8 +303,6 @@ async function main() {
     nameUrdu: 'نکہتِ ترنج',
     collectionId: designer.id,
     shortDescription: 'Bright citrus over a clean, modern musk base.',
-    detailedDescription:
-      'Citrus Atelier is an airy, sunlit composition: sparkling top notes, a transparent floral heart, and a soft musk dry-down for all-day freshness.',
     variants: [
       {
         sizeMl: 30,
@@ -272,8 +313,12 @@ async function main() {
       { sizeMl: 50, pricePaise: 269900, stockQty: 20 },
       { sizeMl: 100, pricePaise: 399900, stockQty: 18 },
     ],
-    imageUrl: '/products/citrus-atelier.jpg',
-    imageAlt: 'Citrus Atelier perfume bottle in golden mist',
+    images: [
+      {
+        url: '/products/citrus-atelier.webp',
+        alt: 'Bergamot, lemon peel, and white petals on linen',
+      },
+    ],
     pronunciation: 'SIT-russ AT-uhl-yay',
     meaning: 'Citrus workshop',
     taglinePrimary: 'Sunlight, bottled.',
@@ -284,20 +329,23 @@ async function main() {
         "Citrus Atelier began as a study in brightness — how far a composition can lean into freshness without turning thin. The name borrows the idea of an atelier, a working studio, because that's what this scent feels like: citrus oils tested and retested until the balance felt right.",
         "It's the kind of fragrance you reach for on a morning that needs a lift — not loud, not complicated, just clean sunlight rendered as a scent.",
       ],
-      bodyTranslation: null,
+      bodyTranslation: [
+        'نکہتِ ترنج روشنی کے مطالعے سے شروع ہوا — تازگی کو اس حد تک لے جانا کہ وہ پتلی نہ لگے۔ نام اٹیلیے سے آیا ہے، ایک کام کرنے والی ورکشاپ، کیونکہ یہ خوشبو ویسی ہی ہے: کھٹی تیل بار بار آزمائی گئیں جب تک توازن ٹھیک نہ لگا۔',
+        'یہ وہ خوشبو ہے جو ایسے صبح کے لیے ہے جسے اٹھان چاہیے — نہ شور، نہ پیچیدگی، صرف صاف دھوپ جو خوشبو بن گئی۔',
+      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Sicilian bergamot', 'Lemon peel', 'Mandarin'],
-        notesTranslation: null,
+        notesTranslation: ['برگاموٹ', 'لیموں کا چھلکا', 'سنترہ'],
       },
       heart: {
         notes: ['Neroli', 'White petals', 'Green tea accord'],
-        notesTranslation: null,
+        notesTranslation: ['نرولی', 'سفید پنکھڑیاں', 'سبز چائے'],
       },
       base: {
         notes: ['White musk', 'Soft cedar', 'Ambrette'],
-        notesTranslation: null,
+        notesTranslation: ['سفید مشک', 'نرم دیودار', 'امبریٹ'],
       },
     },
     scentFamily: 'Citrus Aromatic',
@@ -312,17 +360,6 @@ async function main() {
     concentration: '16% concentrate',
     application: 'Spray',
     bottleDescription: 'Clear glass flacon with a brushed-gold cap',
-    howToUse: [
-      'Spray from 15–20cm onto pulse points — wrists, neck, inner elbows.',
-      'Apply to moisturised skin for better hold.',
-      'Reapply lightly after a few hours if a stronger presence is wanted.',
-      'Avoid rubbing wrists together after application.',
-    ],
-    care: [
-      'Store upright, away from direct sunlight and heat.',
-      'Keep the cap on tightly between uses to protect the top notes.',
-    ],
-    claims: ['Small-batch', 'IFRA compliant', 'No animal-derived materials'],
     faq: [
       {
         question: 'How long does Citrus Atelier last on skin?',
@@ -348,8 +385,6 @@ async function main() {
     nameUrdu: 'سیاہ مخمل',
     collectionId: designer.id,
     shortDescription: 'A dark, velvety amber-wood signature.',
-    detailedDescription:
-      'Noir Velvet opens with soft spice, settles into resinous amber, and finishes on smooth woods. Built for evening wear and lasting presence.',
     variants: [
       { sizeMl: 30, pricePaise: 189900, stockQty: 25 },
       { sizeMl: 50, pricePaise: 289900, stockQty: 16 },
@@ -360,32 +395,39 @@ async function main() {
         stockQty: 12,
       },
     ],
-    imageUrl: '/products/noir-velvet.jpg',
-    imageAlt: 'Noir Velvet perfume bottle in dark rose light',
+    images: [
+      {
+        url: '/products/noir-velvet.webp',
+        alt: 'Pink pepper, amber resin, and rose on dark linen',
+      },
+    ],
     pronunciation: 'nwahr VEL-vit',
     meaning: 'Black velvet',
-    taglinePrimary: 'رات کی مخملی خاموشی',
-    taglineTranslation: 'The velvet hush of night.',
+    taglinePrimary: 'The velvet hush of night.',
+    taglineTranslation: 'رات کی مخملی خاموشی',
     meaningStory: {
       heading: 'What the dark holds',
       body: [
         "Noir Velvet takes its name literally: noir for the hour it's built for, velvet for the way it sits on skin — soft-edged, warm, without a single sharp note to interrupt it.",
         "It's a composition for after the sun is down — spice at the opening giving way to something resinous and slow, built to linger rather than announce itself.",
       ],
-      bodyTranslation: null,
+      bodyTranslation: [
+        'سیاہ مخمل کا نام لفظی ہے: نوآر اس گھڑی کے لیے جس کے لیے یہ بنایا گیا، مخمل اس انداز کے لیے جس سے یہ جلد پر بیٹھتا ہے — نرم کنارے، گرم، بغیر کسی تیز نوٹ کے جو اسے توڑ دے۔',
+        'یہ سورج ڈھلنے کے بعد کی ترکیب ہے — شروع میں مصالحہ، پھر رال اور سست گرمی، جو اعلان کرنے کے بجائے ٹھہر جاتی ہے۔',
+      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Pink pepper', 'Cardamom', 'Bergamot'],
-        notesTranslation: null,
+        notesTranslation: ['گل مرچ', 'الائچی', 'برگاموٹ'],
       },
       heart: {
         notes: ['Amber resin', 'Rose absolute', 'Incense'],
-        notesTranslation: null,
+        notesTranslation: ['عنبر رال', 'گلاب', 'لوبان'],
       },
       base: {
         notes: ['Sandalwood', 'Dark musk', 'Tonka bean'],
-        notesTranslation: null,
+        notesTranslation: ['چندن', 'سیاہ مشک', 'ٹونکا'],
       },
     },
     scentFamily: 'Woody Amber',
@@ -400,17 +442,6 @@ async function main() {
     concentration: '20% concentrate',
     application: 'Spray',
     bottleDescription: 'Frosted black glass with a weighted matte-black cap',
-    howToUse: [
-      'Spray 2–3 times onto pulse points from a short distance.',
-      'One or two sprays is usually enough given its strong projection.',
-      'Best applied just before heading out for evening wear.',
-      'Layer sparingly with an unscented body lotion to extend wear.',
-    ],
-    care: [
-      'Store upright in a cool, dark place, away from bathroom humidity.',
-      'Keep tightly capped to preserve the resinous base notes.',
-    ],
-    claims: ['Small-batch', 'IFRA compliant', 'Long-lasting formula'],
     faq: [
       {
         question: 'Is Noir Velvet too strong for daytime wear?',
@@ -436,8 +467,6 @@ async function main() {
     nameUrdu: 'دیودار کی محفل',
     collectionId: designer.id,
     shortDescription: 'Dry cedar, vetiver roots, and clean woodsmoke.',
-    detailedDescription:
-      'A woody signature with no sweetness to hide behind. Petitgrain and black pepper up top, cedarwood and Iso E Super through the heart, vetiver holding the base. Dry, composed and quietly confident.',
     variants: [
       { sizeMl: 30, pricePaise: 169900, stockQty: 30 },
       { sizeMl: 50, pricePaise: 249900, stockQty: 22 },
@@ -448,32 +477,39 @@ async function main() {
         stockQty: 14,
       },
     ],
-    imageUrl: '/products/cedar-sessions.jpg',
-    imageAlt: 'Cedar Sessions perfume bottle in amber woodsmoke',
+    images: [
+      {
+        url: '/products/cedar-sessions.webp',
+        alt: 'Cedar shavings, vetiver roots, and clean woodsmoke',
+      },
+    ],
     pronunciation: 'SEE-der SESH-uns',
     meaning: 'Wood, in the moment',
     taglinePrimary: 'Dry wood, held steady.',
-    taglineTranslation: 'Composed, unhurried, wood to the bone.',
+    taglineTranslation: 'خشک لکڑی، سیدھی اور سنجیدہ۔',
     meaningStory: {
       heading: 'No sweetness to hide behind',
       body: [
         'Cedar Sessions is named for exactly what it is — a session spent with raw materials, cedar chief among them, with nothing added to soften the edges. No vanilla, no sugar, no shortcut to likability.',
         "It's a composition that trusts dryness: pepper and petitgrain at the top, cedarwood carrying the middle, vetiver holding everything down. Quiet, composed, and confident enough not to need embellishment.",
       ],
-      bodyTranslation: null,
+      bodyTranslation: [
+        'دیودار کی محفل کا نام وہی ہے جو یہ ہے — خام مواد کے ساتھ ایک نشست، سب سے پہلے دیودار، بغیر کسی چیز کے جو کنارے نرم کر دے۔ نہ ونیلا، نہ شکر، نہ پسندیدگی کا شارٹ کٹ۔',
+        'یہ خشکی پر بھروسہ کرتی ہے: اوپر مرچ اور پیٹیگرین، درمیان میں دیودار، نیچے ویٹیور۔ خاموش، سنجیدہ، اور اتنی پُراعتماد کہ سجاوٹ کی ضرورت نہیں۔',
+      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Black pepper', 'Petitgrain', 'Bergamot'],
-        notesTranslation: null,
+        notesTranslation: ['کالی مرچ', 'پیٹیگرین', 'برگاموٹ'],
       },
       heart: {
         notes: ['Cedarwood', 'Iso E Super', 'Cypress'],
-        notesTranslation: null,
+        notesTranslation: ['دیودار', 'آئسو ای', 'سرو'],
       },
       base: {
         notes: ['Vetiver', 'Dry amber', 'Oakmoss'],
-        notesTranslation: null,
+        notesTranslation: ['ویٹیور', 'خشک عنبر', 'اوک ماس'],
       },
     },
     scentFamily: 'Woody Aromatic',
@@ -488,17 +524,6 @@ async function main() {
     concentration: '18% concentrate',
     application: 'Spray',
     bottleDescription: 'Clear glass, brushed-steel cap',
-    howToUse: [
-      'Spray from 15–20cm onto wrists, neck and chest.',
-      'Two to three sprays is a natural amount for daily wear.',
-      'Apply straight after a shower, while skin is still slightly damp.',
-      'Reapply once past the midday mark if needed.',
-    ],
-    care: [
-      'Keep upright, out of direct sunlight.',
-      'Store below room temperature where possible to preserve the vetiver base.',
-    ],
-    claims: ['Small-batch', 'IFRA compliant', 'No animal-derived materials'],
     faq: [
       {
         question: 'Does Cedar Sessions have any sweetness to it?',
@@ -525,39 +550,44 @@ async function main() {
     nameUrdu: 'برسات کے خطوط',
     collectionId: nostalgia.id,
     shortDescription: 'Rain-soaked paper, tea, and soft woods.',
-    detailedDescription:
-      'Monsoon Letters captures wet earth after rain, warm tea steam, and the quiet of old letters — a nostalgic skin scent with gentle projection.',
     variants: [
       { sizeMl: 30, pricePaise: 179900, stockQty: 20 },
       { sizeMl: 50, pricePaise: 279900, stockQty: 14 },
       { sizeMl: 100, pricePaise: 429900, stockQty: 10 },
     ],
-    imageUrl: '/products/monsoon-letters.jpg',
-    imageAlt: 'Monsoon Letters perfume bottle in green rain mist',
+    images: [
+      {
+        url: '/products/monsoon-letters.webp',
+        alt: 'Rain-soaked paper, tea, and wet wood',
+      },
+    ],
     pronunciation: 'MON-soon LET-erz',
     meaning: 'Letters written in the rain',
-    taglinePrimary: 'بارش کے بعد کی خوشبو',
-    taglineTranslation: 'The scent that comes after rain.',
+    taglinePrimary: 'The scent that comes after rain.',
+    taglineTranslation: 'بارش کے بعد کی خوشبو',
     meaningStory: {
       heading: 'The smell of a letter you kept',
       body: [
         "Monsoon Letters is built around a very specific memory: rain on warm ground, tea going cold on a windowsill, an old letter re-read for no particular reason. It isn't trying to be a grand fragrance — it's trying to be a familiar one.",
         'The composition stays close to skin on purpose. This is a scent meant to be discovered by someone standing near you, not announced across a room.',
       ],
-      bodyTranslation: null,
+      bodyTranslation: [
+        'برسات کے خطوط ایک خاص یاد کے گرد بنائے گئے: گرم زمین پر بارش، کھڑکی پر ٹھنڈی ہوتی چائے، ایک پرانا خط بغیر کسی وجہ کے دوبارہ پڑھا ہوا۔ یہ بڑی خوشبو بننے کی کوشش نہیں — مانوس ہونے کی کوشش ہے۔',
+        'ترکیب جان بوجھ کر جلد کے قریب رہتی ہے۔ یہ وہ خوشبو ہے جو پاس کھڑے کسی کو معلوم ہو، کمرے کے اس پار اعلان نہ ہو۔',
+      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Petrichor accord', 'Bergamot', 'Green tea'],
-        notesTranslation: null,
+        notesTranslation: ['مٹی کی خوشبو', 'برگاموٹ', 'سبز چائے'],
       },
       heart: {
         notes: ['Wet paper accord', 'Fig leaf', 'Violet'],
-        notesTranslation: null,
+        notesTranslation: ['گیلا کاغذ', 'انجیر کا پتہ', 'بنفشہ'],
       },
       base: {
         notes: ['Soft woods', 'White musk', 'Amber'],
-        notesTranslation: null,
+        notesTranslation: ['نرم لکڑیاں', 'سفید مشک', 'عنبر'],
       },
     },
     scentFamily: 'Green Aromatic',
@@ -572,17 +602,6 @@ async function main() {
     concentration: '15% concentrate',
     application: 'Spray',
     bottleDescription: 'Sage-tinted glass with a natural cork cap',
-    howToUse: [
-      'Spray onto pulse points from a short distance.',
-      'Works well applied to clothing as well as skin for a softer trail.',
-      'Best experienced up close — this is a skin scent by design.',
-      'Reapply through the day as needed; it fades gently rather than sitting heavy.',
-    ],
-    care: [
-      'Store upright, away from humidity and direct light.',
-      'Keep capped between uses to preserve the green top notes.',
-    ],
-    claims: ['Small-batch', 'IFRA compliant', 'Vegan formulation'],
     faq: [
       {
         question: 'Why does Monsoon Letters feel so close to the skin?',
@@ -608,8 +627,6 @@ async function main() {
     nameUrdu: 'اتوار کا عطر',
     collectionId: nostalgia.id,
     shortDescription: 'Powdered rose, soft violet, and warm skin musk.',
-    detailedDescription:
-      'Built around the memory of a dressing table: classical rose, nostalgic violet powder, and a soft musk underneath. Gentle, close-wearing and unmistakably familiar even the first time you smell it.',
     variants: [
       { sizeMl: 30, pricePaise: 159900, stockQty: 28 },
       { sizeMl: 50, pricePaise: 239900, stockQty: 20 },
@@ -620,8 +637,12 @@ async function main() {
         stockQty: 15,
       },
     ],
-    imageUrl: '/products/attar-of-sundays.jpg',
-    imageAlt: 'Attar of Sundays perfume bottle in soft rose light',
+    images: [
+      {
+        url: '/products/attar-of-sundays.webp',
+        alt: 'Powdered rose petals and violet on a brass tray',
+      },
+    ],
     pronunciation: 'AT-tar of SUN-dayz',
     meaning: "A Sunday's fragrance",
     taglinePrimary: 'The scent of slow mornings.',
@@ -632,20 +653,23 @@ async function main() {
         "Attar of Sundays is built around one image: a dressing table on a slow Sunday morning, rose and powder in the air before anyone else is awake. It's a fragrance about unhurried time, not about being anywhere in particular.",
         'Rose leads, violet powders it, and a soft musk sits underneath — close, familiar, the kind of scent that feels like it was already part of the room before you walked in.',
       ],
-      bodyTranslation: null,
+      bodyTranslation: [
+        'اتوار کا عطر ایک تصویر کے گرد ہے: اتوار کی سست صبح، کوئی جاگا نہیں، میز پر گلاب اور پاؤڈر کی ہوا۔ یہ بے تابی کی خوشبو نہیں — بے جلدی وقت کی ہے۔',
+        'گلاب آگے ہے، بنفشہ اسے پاؤڈر کرتا ہے، اور نیچے نرم مشک — قریب، مانوس، جیسی خوشبو کمرے میں تم سے پہلے سے تھی۔',
+      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Rose otto', 'Pink pepper'],
-        notesTranslation: null,
+        notesTranslation: ['گلاب اٹو', 'گل مرچ'],
       },
       heart: {
         notes: ['Violet', 'Iris powder', 'Geranium'],
-        notesTranslation: null,
+        notesTranslation: ['بنفشہ', 'آئرس', 'جیرانیم'],
       },
       base: {
         notes: ['White musk', 'Sandalwood'],
-        notesTranslation: null,
+        notesTranslation: ['سفید مشک', 'چندن'],
       },
     },
     scentFamily: 'Powdery Floral',
@@ -660,17 +684,6 @@ async function main() {
     concentration: 'Pure oil concentrate, alcohol-free',
     application: 'Roll-on',
     bottleDescription: 'Small rose-tinted glass vial with a rollerball fitment',
-    howToUse: [
-      'Roll onto pulse points — wrists, behind the ears, inner elbows.',
-      'A little goes further than a spray format; start with one pass per point.',
-      'Let it warm on skin for a few minutes before judging the scent.',
-      'Reapply as needed since oil-based attars sit close to the skin.',
-    ],
-    care: [
-      'Store upright in a cool, dark place — attars are more heat-sensitive than alcohol-based sprays.',
-      'Keep the rollerball cap tightly closed to prevent evaporation.',
-    ],
-    claims: ['Small-batch', 'IFRA compliant', 'Alcohol-free'],
     faq: [
       {
         question: "What's the difference between an attar and a regular perfume?",
@@ -696,8 +709,6 @@ async function main() {
     nameUrdu: 'عنبرِ نیم روز',
     collectionId: nostalgia.id,
     shortDescription: 'Golden amber, warm resin, and a slow-burning sweetness.',
-    detailedDescription:
-      'Amber Meridian opens on bright cardamom and pink pepper before settling into labdanum resin and benzoin, honeyed and unhurried. Built for cool evenings and long conversations.',
     variants: [
       {
         sizeMl: 30,
@@ -708,8 +719,12 @@ async function main() {
       { sizeMl: 50, pricePaise: 269900, stockQty: 18 },
       { sizeMl: 100, pricePaise: 429900, stockQty: 12 },
     ],
-    imageUrl: '/products/amber-meridian.jpg',
-    imageAlt: 'Amber Meridian perfume bottle backlit in golden mist',
+    images: [
+      {
+        url: '/products/amber-meridian.webp',
+        alt: 'Golden amber resin, cardamom, and benzoin in noon light',
+      },
+    ],
     pronunciation: 'AM-ber muh-RID-ee-un',
     meaning: 'Amber at high noon',
     taglinePrimary: 'Gold at its slowest hour.',
@@ -720,20 +735,23 @@ async function main() {
         'Amber Meridian is named for the meridian line — the point where the day is at its fullest — reimagined as a scent rather than a time. It is warm without being heavy, sweet without tipping into dessert.',
         'Cardamom and pink pepper open it brightly before labdanum and benzoin take over, honeyed and unhurried. Built less for any one moment than for the long stretch of an evening that is in no rush to end.',
       ],
-      bodyTranslation: null,
+      bodyTranslation: [
+        'عنبرِ نیم روز نصف النہار کی لکیر کے نام پر ہے — دن کی سب سے بھری گھڑی — وقت نہیں، خوشبو۔ گرم ہے مگر بھاری نہیں، میٹھی ہے مگر میٹھی ڈش نہیں بنتی۔',
+        'الائچی اور گل مرچ اسے روشن کھولتی ہیں، پھر لبدانم اور بینزوائن سنہری اور بے جلدی لے لیتے ہیں۔ کسی ایک لمحے کے لیے نہیں، ایک لمبی شام کے لیے جو ختم ہونے کو جلدی نہیں۔',
+      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Cardamom', 'Pink pepper', 'Bergamot'],
-        notesTranslation: null,
+        notesTranslation: ['الائچی', 'گل مرچ', 'برگاموٹ'],
       },
       heart: {
         notes: ['Labdanum', 'Benzoin', 'Cinnamon'],
-        notesTranslation: null,
+        notesTranslation: ['لبدانم', 'بینزوائن', 'دارچینی'],
       },
       base: {
         notes: ['Amber', 'Vanilla', 'Soft musk'],
-        notesTranslation: null,
+        notesTranslation: ['عنبر', 'ونیلا', 'نرم مشک'],
       },
     },
     scentFamily: 'Oriental Amber',
@@ -748,17 +766,6 @@ async function main() {
     concentration: '19% concentrate',
     application: 'Spray',
     bottleDescription: 'Amber glass bottle with a brass-finish cap',
-    howToUse: [
-      'Spray from 15–20cm onto pulse points.',
-      "Two sprays is typically enough for a full evening's wear.",
-      'Apply before dressing to let the top notes settle first.',
-      'Reapply lightly if you want the amber base to carry into late evening.',
-    ],
-    care: [
-      'Store upright, away from direct sunlight.',
-      'Keep the cap closed between uses to protect the resin notes from oxidising.',
-    ],
-    claims: ['Small-batch', 'IFRA compliant', 'No animal-derived materials'],
     faq: [
       {
         question: 'Is Amber Meridian sweet?',
@@ -785,8 +792,6 @@ async function main() {
     nameUrdu: 'عودِ اشراق',
     collectionId: limitedEdition.id,
     shortDescription: 'Smoky oud, saffron leather, and dark resin.',
-    detailedDescription:
-      'Our most concentrated composition — a smoky, animalic oud base lifted by spiced suede and a thread of frankincense. Made in strictly limited batches; when a batch is gone, it is gone.',
     variants: [
       { sizeMl: 30, pricePaise: 349900, stockQty: 12 },
       { sizeMl: 50, pricePaise: 549900, stockQty: 8 },
@@ -797,32 +802,43 @@ async function main() {
         stockQty: 5,
       },
     ],
-    imageUrl: '/products/oud-ishraq.jpg',
-    imageAlt: 'Oud Ishraq perfume bottle in deep red smoke',
+    images: [
+      {
+        url: '/products/oud-ishraq-1.webp',
+        alt: 'Agarwood chips, saffron, and dark resin',
+      },
+      {
+        url: '/products/oud-ishraq-2.webp',
+        alt: 'Frankincense, spiced suede, and dried rose',
+      },
+    ],
     pronunciation: 'ood ish-RAAK',
     meaning: 'Oud of the dawn light',
-    taglinePrimary: 'اشراق کی روشنی',
-    taglineTranslation: 'Radiance, before the world wakes.',
+    taglinePrimary: 'Radiance, before the world wakes.',
+    taglineTranslation: 'اشراق کی روشنی',
     meaningStory: {
       heading: 'The light before sunrise',
       body: [
         'Ishraq means radiance — the particular light of early morning, just before the sun fully clears the horizon. Pairing it with oud is deliberate: our most concentrated, most serious composition, named for a moment of quiet brilliance rather than volume.',
         'It opens smoky and animalic, a genuine oud base, before spiced suede and a thread of frankincense lift it toward something closer to warmth than darkness. Made in strictly limited batches — when a batch is gone, it is gone.',
       ],
-      bodyTranslation: null,
+      bodyTranslation: [
+        'اشراق کا مطلب چمک ہے — وہ خاص روشنی جو سورج افق سے پہلے آتی ہے۔ اسے عود کے ساتھ جوڑنا جان بوجھ کر ہے: ہماری سب سے گہری، سنجیدہ ترکیب، شور کے بجائے خاموش چمک کے نام پر۔',
+        'شروع میں دھواں اور حیوانی عود، پھر مصالحہ سوئڈ اور لوبان کی ایک لکیڑ اسے اندھیرے سے زیادہ گرمی کی طرف اٹھاتی ہے۔ محدود بیچ — بیچ ختم تو ختم۔',
+      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Smoked oud', 'Saffron', 'Black pepper'],
-        notesTranslation: null,
+        notesTranslation: ['دھواں دار عود', 'زعفران', 'کالی مرچ'],
       },
       heart: {
         notes: ['Spiced suede', 'Frankincense', 'Rose'],
-        notesTranslation: null,
+        notesTranslation: ['مصالحہ سوئڈ', 'لوبان', 'گلاب'],
       },
       base: {
         notes: ['Dark resin', 'Agarwood', 'Musk'],
-        notesTranslation: null,
+        notesTranslation: ['گہری رال', 'اگر', 'مشک'],
       },
     },
     scentFamily: 'Oriental Woody',
@@ -837,17 +853,6 @@ async function main() {
     concentration: '28% concentrate',
     application: 'Spray',
     bottleDescription: 'Deep red glass with a weighted brass cap',
-    howToUse: [
-      'One spray to a pulse point is typically enough given its concentration.',
-      'Apply to clothing as well as skin for a longer-lasting trail.',
-      'Best reserved for evenings and occasions where a strong presence is wanted.',
-      'Allow a few minutes for the smoky opening to settle before judging the scent.',
-    ],
-    care: [
-      'Store upright, away from heat and direct light — extrait concentrations are sensitive to temperature swings.',
-      'Keep tightly capped; a small amount of air exposure can shift the smoky top notes over time.',
-    ],
-    claims: ['Small-batch', 'IFRA compliant', 'Limited release'],
     faq: [
       {
         question: "What does 'Ishraq' mean?",
@@ -873,8 +878,6 @@ async function main() {
     nameUrdu: 'دھواں و زعفران',
     collectionId: limitedEdition.id,
     shortDescription: 'Saffron, ember-warm spice, and dry amber.',
-    detailedDescription:
-      'Saffron and cinnamon bark over a base of labdanum, with a whisper of campfire smoke. Warm, resinous and faintly edible without ever turning sweet.',
     variants: [
       { sizeMl: 30, pricePaise: 299900, stockQty: 14 },
       { sizeMl: 50, pricePaise: 449900, stockQty: 10 },
@@ -885,8 +888,16 @@ async function main() {
         stockQty: 6,
       },
     ],
-    imageUrl: '/products/smoke-and-saffron.jpg',
-    imageAlt: 'Smoke and Saffron perfume bottle in ember light',
+    images: [
+      {
+        url: '/products/smoke-and-saffron-1.webp',
+        alt: 'Saffron threads, cinnamon bark, and cardamom',
+      },
+      {
+        url: '/products/smoke-and-saffron-2.webp',
+        alt: 'Labdanum, clove, and dry amber resin',
+      },
+    ],
     pronunciation: 'smohk and SAF-run',
     meaning: 'Ember and spice',
     taglinePrimary: 'Ember and gold, side by side.',
@@ -897,20 +908,23 @@ async function main() {
         'Smoke & Saffron sits right at the edge of edible without ever crossing it — saffron and cinnamon bark warmed over a base of labdanum, with just a whisper of campfire smoke threaded through.',
         'It is a composition built for cooler months and low light: resinous, a little smoky, closer to sitting near a fire than to a bakery. Part of the same limited-batch philosophy as the rest of this collection.',
       ],
-      bodyTranslation: null,
+      bodyTranslation: [
+        'دھواں و زعفران کھانے کی حد کے بالکل کنارے پر ہے مگر پار نہیں جاتا — زعفران اور دارچینی کی چھال، لبدانم کے اوپر گرم، اور آگ کے دھوئیں کی ایک سرگوشی۔',
+        'ٹھنڈے مہینوں اور کم روشنی کے لیے: رال، تھوڑا دھواں، بیکری سے زیادہ آگ کے پاس بیٹھنے جیسا۔ اسی محدود بیچ کے فلسفے کا حصہ۔',
+      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Saffron', 'Cinnamon bark', 'Cardamom'],
-        notesTranslation: null,
+        notesTranslation: ['زعفران', 'دارچینی کی چھال', 'الائچی'],
       },
       heart: {
         notes: ['Labdanum', 'Campfire smoke accord', 'Clove'],
-        notesTranslation: null,
+        notesTranslation: ['لبدانم', 'آگ کا دھواں', 'لونگ'],
       },
       base: {
         notes: ['Dry amber', 'Guaiac wood', 'Musk'],
-        notesTranslation: null,
+        notesTranslation: ['خشک عنبر', 'گائیک لکڑی', 'مشک'],
       },
     },
     scentFamily: 'Spicy Woody',
@@ -925,17 +939,6 @@ async function main() {
     concentration: '22% concentrate',
     application: 'Spray',
     bottleDescription: 'Smoked-glass bottle with a copper-toned cap',
-    howToUse: [
-      'Spray from 15–20cm onto pulse points.',
-      'Two sprays is a good starting point given its strength.',
-      'Layering onto a scarf or collar carries the smoke accord well through the evening.',
-      'Reapply sparingly — it builds rather than fading flat.',
-    ],
-    care: [
-      'Store upright, away from direct sunlight and heat sources.',
-      'Keep tightly capped between uses to preserve the smoke and spice top notes.',
-    ],
-    claims: ['Small-batch', 'IFRA compliant', 'Limited release'],
     faq: [
       {
         question: 'Does Smoke & Saffron smell like food?',
@@ -955,48 +958,54 @@ async function main() {
     ],
   });
 
-  // TODO: swap for real generated photography once available — every other
-  // product in this seed uses the real bottle renders committed at
-  // web/public/products/; this is the one exception.
   await upsertProductWithDetails({
     slug: 'velvet-reserve',
     name: 'Velvet Reserve',
     nameUrdu: 'مخملی ذخیرہ',
     collectionId: limitedEdition.id,
     shortDescription: 'A rare, velvet-dark signature reserved for collectors.',
-    detailedDescription:
-      'Velvet Reserve rounds out the Limited Edition line: patchouli and dark musk over a base of vetiver and ambrette, deep and slow to fade.',
     variants: [
       { sizeMl: 30, pricePaise: 269900, stockQty: 10 },
       { sizeMl: 50, pricePaise: 399900, stockQty: 7 },
       { sizeMl: 100, pricePaise: 649900, stockQty: 4 },
     ],
-    imageUrl: 'https://placehold.co/800x1000/1a0f08/e8cb93?text=Velvet+Reserve',
-    imageAlt: 'Velvet Reserve placeholder',
+    images: [
+      {
+        url: '/products/velvet-reserve-1.webp',
+        alt: 'Dark plums, folded velvet, and patchouli leaf',
+      },
+      {
+        url: '/products/velvet-reserve-2.webp',
+        alt: 'Crushed velvet, ambrette, and vetiver roots',
+      },
+    ],
     pronunciation: 'VEL-vit ri-ZERV',
     meaning: 'Held back, kept dark',
     taglinePrimary: 'Kept for those who wait.',
-    taglineTranslation: 'Reserved. Quietly, deliberately.',
+    taglineTranslation: 'جو انتظار کرتے ہیں ان کے لیے۔',
     meaningStory: {
       heading: 'The last word in the collection',
       body: [
         'Velvet Reserve closes out the Limited Edition line the way a reserve bottling should — patchouli and dark musk laid over vetiver and ambrette, deep, unhurried, and slow to let go.',
         'The name is literal: this is the one we held back, released only in small numbers, meant for whoever is patient enough to seek it out rather than whoever finds it first.',
       ],
-      bodyTranslation: null,
+      bodyTranslation: [
+        'مخملی ذخیرہ لمیٹڈ لائن کو ویسے بند کرتا ہے جیسے ایک ریزرو بوتل کو ہونا چاہیے — پیچولی اور سیاہ مشک، ویٹیور اور امبریٹ پر، گہری، بے جلدی، چھوڑنے میں سست۔',
+        'نام لفظی ہے: یہ وہ ہے جسے ہم نے روک کر رکھا، چھوٹی تعداد میں، اس کے لیے جو پہلے ملنے والے کے بجائے ڈھونڈنے کا انتظار کرے۔',
+      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Dark plum', 'Bergamot'],
-        notesTranslation: null,
+        notesTranslation: ['آلو بخارا', 'برگاموٹ'],
       },
       heart: {
         notes: ['Patchouli', 'Rose', 'Ambrette'],
-        notesTranslation: null,
+        notesTranslation: ['پیچولی', 'گلاب', 'امبریٹ'],
       },
       base: {
         notes: ['Vetiver', 'Dark musk', 'Oakmoss'],
-        notesTranslation: null,
+        notesTranslation: ['ویٹیور', 'سیاہ مشک', 'اوک ماس'],
       },
     },
     scentFamily: 'Chypre Woody',
@@ -1011,17 +1020,6 @@ async function main() {
     concentration: '20% concentrate',
     application: 'Spray',
     bottleDescription: 'Deep plum glass presented in a velvet-finish box',
-    howToUse: [
-      'Spray from 15–20cm onto pulse points.',
-      'One to two sprays is enough given its strength and longevity.',
-      'Apply ahead of dressing to let the plum top notes settle first.',
-      'Best saved for evenings and occasions that call for something considered.',
-    ],
-    care: [
-      'Store upright, away from direct light and heat.',
-      'Keep the box and cap closed between uses — this release is not restocked once sold out.',
-    ],
-    claims: ['Small-batch', 'IFRA compliant', 'Limited release'],
     faq: [
       {
         question: "Why is it called 'Reserve'?",
@@ -1034,11 +1032,23 @@ async function main() {
           'It is one of our longest-wearing fragrances — the vetiver and dark musk base is designed to carry well into the following day on fabric.',
       },
       {
-        question: 'Will there be a real product photo for this listing?',
+        question: 'Is Velvet Reserve a limited release?',
         answer:
-          'Not yet — Velvet Reserve currently uses a placeholder image while photography is finalised; the listing itself is fully live.',
+          'Yes — it is held back in small numbers as the last word in the Limited Edition line. When a batch is gone, it is gone.',
       },
     ],
+  });
+
+  await seedDemoReviews({
+    'citrus-atelier': 0,
+    'monsoon-letters': 0,
+    'velvet-reserve': 0,
+    'noir-velvet': 5,
+    'attar-of-sundays': 5,
+    'smoke-and-saffron': 5,
+    'cedar-sessions': 10,
+    'amber-meridian': 10,
+    'oud-ishraq': 10,
   });
 }
 

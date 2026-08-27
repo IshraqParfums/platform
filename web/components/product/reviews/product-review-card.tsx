@@ -111,11 +111,6 @@ export function ProductReviewCard({
       <div className="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
         <Stars rating={review.rating} />
         <span className="sr-only">{review.rating} out of 5 stars</span>
-        {review.title ? (
-          <h3 className="text-[15px] font-semibold text-graphite">
-            {review.title}
-          </h3>
-        ) : null}
       </div>
 
       {review.body ? (

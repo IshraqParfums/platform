@@ -1,7 +1,6 @@
 export interface ReviewResponse {
   id: string;
   rating: number;
-  title: string | null;
   body: string | null;
   reviewerName: string;
   isVerifiedBuyer: boolean;
@@ -11,13 +10,11 @@ export interface ReviewResponse {
 
 export interface CreateReviewBody {
   rating: number;
-  title?: string;
   body?: string;
 }
 
 export interface UpdateReviewBody {
   rating?: number;
-  title?: string | null;
   body?: string | null;
 }
 

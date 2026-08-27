@@ -49,7 +49,7 @@ export class ReviewService {
   /**
    * Community reviews for a product.
    * When `excludeCustomerId` is set, that shopper’s review is omitted from
-   * `items`/`total` (it lives in the sticky “yours” column). Aggregates
+   * `items`/`total` (the PDP shows it separately). Aggregates
    * (`ratingAverage`, `ratingCount`, `ratingBreakdown`) always include everyone.
    */
   async listForProduct(
@@ -142,7 +142,6 @@ export class ReviewService {
         customerId,
         productId: product.id,
         rating: input.rating,
-        title: input.title?.trim(),
         body: input.body?.trim(),
       });
 
@@ -179,9 +178,6 @@ export class ReviewService {
 
     const updated = await this.reviewRepository.update(reviewId, {
       ...(input.rating !== undefined ? { rating: input.rating } : {}),
-      ...(input.title !== undefined
-        ? { title: input.title === null ? null : input.title.trim() }
-        : {}),
       ...(input.body !== undefined
         ? { body: input.body === null ? null : input.body.trim() }
         : {}),

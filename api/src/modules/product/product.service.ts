@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import {
   PRODUCT_LIST_SORT_DEFAULT,
+  isUrduScript,
   type AdminLowStockVariant,
   type AdminProductDetail,
   type AdminProductImage,
@@ -75,6 +76,59 @@ type DbClient = Prisma.TransactionClient | PrismaService;
 function normalizeNameUrdu(value: string | undefined): string | null {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
+}
+
+function requireUrduIfPresent(
+  value: string | null,
+  label: string,
+): string | null {
+  if (!value) return null;
+  if (!isUrduScript(value)) {
+    throw new BadRequestException(`${label} must be written in Urdu.`);
+  }
+  return value;
+}
+
+function requireUrduListIfPresent(
+  value: string[] | null,
+  label: string,
+): string[] | null {
+  if (!value || value.length === 0) return value;
+  for (const item of value) {
+    if (item.trim() && !isUrduScript(item)) {
+      throw new BadRequestException(`${label} must be written in Urdu.`);
+    }
+  }
+  return value;
+}
+
+function assertPdpUrdu(input: {
+  nameUrdu?: string | null;
+  taglineTranslation?: string | null;
+  meaningStory?: ProductMeaningStory | null;
+  notesPyramid?: ProductNotesPyramid | null;
+}) {
+  requireUrduIfPresent(input.nameUrdu ?? null, "Urdu name");
+  requireUrduIfPresent(input.taglineTranslation ?? null, "Tagline Urdu");
+  requireUrduListIfPresent(
+    input.meaningStory?.bodyTranslation ?? null,
+    "Story translation",
+  );
+  const pyramid = input.notesPyramid;
+  if (pyramid) {
+    requireUrduListIfPresent(
+      pyramid.opening?.notesTranslation ?? null,
+      "Opening notes Urdu",
+    );
+    requireUrduListIfPresent(
+      pyramid.heart?.notesTranslation ?? null,
+      "Heart notes Urdu",
+    );
+    requireUrduListIfPresent(
+      pyramid.base?.notesTranslation ?? null,
+      "Base notes Urdu",
+    );
+  }
 }
 
 /**
@@ -585,6 +639,13 @@ export class ProductService {
       this.assertActivatable([], 0);
     }
 
+    assertPdpUrdu({
+      nameUrdu: normalizeNameUrdu(input.nameUrdu),
+      taglineTranslation: normalizeTaglineTranslation(input.taglineTranslation),
+      meaningStory: asMeaningStory(input.meaningStory),
+      notesPyramid: asNotesPyramid(input.notesPyramid),
+    });
+
     try {
       const product = await this.productRepository.create({
         collection: { connect: { id: input.collectionId } },
@@ -592,7 +653,6 @@ export class ProductService {
         nameUrdu: normalizeNameUrdu(input.nameUrdu),
         slug: input.slug,
         shortDescription: input.shortDescription.trim(),
-        detailedDescription: input.detailedDescription.trim(),
         status: nextStatus,
         archiveReason: archiveReasonForStatusChange(nextStatus),
         pronunciation: normalizePronunciation(input.pronunciation),
@@ -615,9 +675,6 @@ export class ProductService {
         concentration: normalizeConcentration(input.concentration),
         application: normalizeApplication(input.application),
         bottleDescription: normalizeBottleDescription(input.bottleDescription),
-        howToUse: normalizeStringList(input.howToUse),
-        care: normalizeStringList(input.care),
-        claims: normalizeStringList(input.claims),
         faqJson: toJsonColumn(asFaqList(input.faq)),
       });
 
@@ -685,6 +742,13 @@ export class ProductService {
 
     this.assertCanPlaceActiveProduct(destinationCollection.status, nextStatus);
 
+    assertPdpUrdu({
+      nameUrdu: normalizeNameUrdu(input.nameUrdu),
+      taglineTranslation: normalizeTaglineTranslation(input.taglineTranslation),
+      meaningStory: asMeaningStory(input.meaningStory),
+      notesPyramid: asNotesPyramid(input.notesPyramid),
+    });
+
     try {
       const product = await this.productRepository.update(id, {
         ...(input.collectionId !== undefined
@@ -697,9 +761,6 @@ export class ProductService {
         ...(input.slug !== undefined ? { slug: input.slug } : {}),
         ...(input.shortDescription !== undefined
           ? { shortDescription: input.shortDescription.trim() }
-          : {}),
-        ...(input.detailedDescription !== undefined
-          ? { detailedDescription: input.detailedDescription.trim() }
           : {}),
         status: nextStatus,
         archiveReason: nextArchiveReason,
@@ -768,15 +829,6 @@ export class ProductService {
                 input.bottleDescription,
               ),
             }
-          : {}),
-        ...(input.howToUse !== undefined
-          ? { howToUse: normalizeStringList(input.howToUse) }
-          : {}),
-        ...(input.care !== undefined
-          ? { care: normalizeStringList(input.care) }
-          : {}),
-        ...(input.claims !== undefined
-          ? { claims: normalizeStringList(input.claims) }
           : {}),
         ...(input.faq !== undefined
           ? { faqJson: toJsonColumn(asFaqList(input.faq)) }

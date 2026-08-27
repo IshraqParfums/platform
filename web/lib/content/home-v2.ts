@@ -8,8 +8,8 @@ export const HOME_HERO = {
   primaryCta: { label: "Discover your scent", href: "#consultation" },
   secondaryCta: { label: "Explore the collection", href: "/shop" },
   image: {
-    src: "/home/studio/hero-perfume-still.webp",
-    alt: "Amber perfume bottle with oud wood and citrus peel",
+    src: "/home/studio/hero-oud-smoke.webp",
+    alt: "Smoky oud chips and incense on a dark studio table",
   },
 } as const;
 
@@ -18,14 +18,14 @@ export const HOME_MATERIALS = {
   heading: "The materials, as they arrive.",
   items: [
     {
-      id: "oud",
-      name: "Oud",
+      id: "sandalwood",
+      name: "Sandalwood",
       role: "Base",
-      notes: "dark wood · resin · smoke",
+      notes: "cream wood · milk · dust",
       blurb:
-        "The spine of our darker compositions. Aged wood and resin that hold a trail.",
-      src: "/home/studio/specimen-oud.webp",
-      alt: "Cutout of agarwood chips and dark resin",
+        "The quiet wood that holds a composition together. Soft, milky, close to the skin.",
+      src: "/home/studio/specimen-sandalwood.webp",
+      alt: "Cutout of pale sandalwood chips and shavings",
       float: "a",
     },
     {
@@ -64,102 +64,35 @@ export const HOME_MATERIALS = {
   ],
 } as const;
 
-export interface ProductWorld {
-  src: string;
-  alt: string;
-  /** `·`-separated note list. The collection card sets these as lines. */
-  descriptors: string;
-}
-
-/** Visual world per known slug. Unknown products cycle the four stills. */
-export const PRODUCT_WORLDS: Record<string, ProductWorld> = {
-  "velvet-reserve": {
-    src: "/home/studio/world-velvet.webp",
-    alt: "Burgundy velvet in intimate shadow",
-    descriptors: "soft textile · intimate shadow · skin",
-  },
-  "smoke-and-saffron": {
-    src: "/home/studio/world-smoke.webp",
-    alt: "Saffron threads, charred wood, and smoke",
-    descriptors: "dry saffron · smoke · amber · skin",
-  },
-  "oud-ishraq": {
-    src: "/home/studio/world-oud.webp",
-    alt: "Agarwood chips and resin on stone",
-    descriptors: "agarwood · resin · dark timber · earth",
-  },
-  "amber-meridian": {
-    src: "/home/studio/world-amber.webp",
-    alt: "Amber glass and citrus peel in afternoon light",
-    descriptors: "warm stone · citrus peel · amber glass",
-  },
-};
-
-const DIRECTED_SLUGS = [
+const FEATURED_SLUGS = [
   "velvet-reserve",
   "smoke-and-saffron",
   "oud-ishraq",
   "amber-meridian",
 ] as const;
 
-const DIRECTED_SLUG_SET = new Set<string>(DIRECTED_SLUGS);
+const FEATURED_SLUG_SET = new Set<string>(FEATURED_SLUGS);
 
-/** Prefer the four directed worlds; fill from the rest of the catalog. */
+/** Prefer four known bottles; fill from the rest of the catalog. */
 export function pickCollection(
   products: ProductListItem[],
   limit = 4,
 ): ProductListItem[] {
   const bySlug = new Map(products.map((product) => [product.slug, product]));
-  const preferred = DIRECTED_SLUGS.flatMap((slug) => {
+  const preferred = FEATURED_SLUGS.flatMap((slug) => {
     const product = bySlug.get(slug);
     return product ? [product] : [];
   });
   const rest = products.filter(
-    (product) => !DIRECTED_SLUG_SET.has(product.slug),
+    (product) => !FEATURED_SLUG_SET.has(product.slug),
   );
   return [...preferred, ...rest].slice(0, limit);
-}
-
-/**
- * Atmosphere still for a product — the collection card's image fallback and the
- * consultation's backdrop. Cycling is fine here: any of the four stills reads as
- * "a perfumer's table", so an undirected product borrowing one is not a claim
- * about that product. `notesForProduct` deliberately does not cycle.
- */
-export function worldForProduct(
-  product: ProductListItem,
-  index: number,
-): ProductWorld {
-  const fallbacks = Object.values(PRODUCT_WORLDS);
-  return (
-    PRODUCT_WORLDS[product.slug] ??
-    fallbacks[index % fallbacks.length] ??
-    fallbacks[0]
-  );
-}
-
-/**
- * The note lines under a collection card, split out of the authored descriptor
- * string. Strict by slug, unlike `worldForProduct`: a descriptor names actual
- * materials, so letting an undirected product cycle onto one would print
- * another perfume's notes under its name.
- */
-export function notesForProduct(product: ProductListItem): string[] | null {
-  const world = PRODUCT_WORLDS[product.slug];
-  if (!world) return null;
-  const notes = world.descriptors
-    .split("·")
-    .map((note) => note.trim())
-    .filter(Boolean);
-  return notes.length > 0 ? notes : null;
 }
 
 export const HOME_COLLECTION = {
   kicker: "The collection",
   heading: "Four perfumes, ready to wear.",
   lead: "Composed and bottled in small runs. Wear one as it is, or start from it.",
-  notesLabel: "Notes",
-  action: "View",
   soldOut: "Sold out",
   cta: { label: "View all perfumes", href: "/shop" },
   empty: "The collection is being bottled. Take the consultation in the meantime.",

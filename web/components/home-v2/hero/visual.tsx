@@ -12,10 +12,9 @@ import { HOME_HERO } from "@/lib/content/home-v2";
  *
  * Crop: below lg the composer sizes the container by viewport height, not a
  * fixed aspect ratio, so the effective crop ratio shifts with viewport width
- * — object position keeps the bottle (roughly image-centre, sitting a little
- * above the vertical middle) in frame regardless of exactly how wide or
- * short that ends up. At lg push into the wood/citrus so the material enters
- * the split from the right, unchanged from the original desktop crop.
+ * — object position keeps the oud chips and smoke (lower-centre of the still)
+ * in frame. At lg keep that same material in the split, slightly toward the
+ * chips rather than the empty wood at the top.
  */
 export function HeroVisual({
   className,
@@ -32,7 +31,7 @@ export function HeroVisual({
         fill
         priority={priority}
         sizes="(min-width: 1024px) 46vw, 100vw"
-        className="object-cover object-[50%_40%] lg:object-[70%_40%]"
+        className="object-cover object-[50%_58%] lg:object-[48%_62%]"
       />
     </div>
   );

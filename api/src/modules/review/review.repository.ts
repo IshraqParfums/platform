@@ -106,7 +106,6 @@ export class ReviewRepository {
     customerId: string;
     productId: string;
     rating: number;
-    title?: string;
     body?: string;
   }): Promise<ReviewWithCustomer> {
     return this.prisma.review.create({
@@ -114,7 +113,6 @@ export class ReviewRepository {
         customerId: data.customerId,
         productId: data.productId,
         rating: data.rating,
-        title: data.title,
         body: data.body,
       },
       include: {

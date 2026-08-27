@@ -28,14 +28,12 @@ export function ProductReviewEditModal({
   onSaved: (review: ReviewResponse) => void;
 }) {
   const [rating, setRating] = useState(5);
-  const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!open || !review) return;
     setRating(review.rating);
-    setTitle(review.title ?? "");
     setBody(review.body ?? "");
     setSaving(false);
   }, [open, review]);
@@ -46,7 +44,6 @@ export function ProductReviewEditModal({
     try {
       const updated = await updateReview(review.id, {
         rating,
-        title: title.trim() ? title.trim() : null,
         body: body.trim() ? body.trim() : null,
       });
       toast.success("Review updated");
@@ -98,11 +95,9 @@ export function ProductReviewEditModal({
     >
       <ProductReviewFields
         rating={rating}
-        title={title}
         body={body}
         disabled={saving}
         onRatingChange={setRating}
-        onTitleChange={setTitle}
         onBodyChange={setBody}
       />
     </Modal>

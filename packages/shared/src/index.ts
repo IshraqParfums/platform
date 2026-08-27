@@ -28,6 +28,7 @@ export {
   PRODUCT_LIST_SORT_DEFAULT,
   isProductListSort,
 } from "./catalog/index.js";
+export { isUrduScript } from "./script/urdu.js";
 export type {
   AuthTokenResponse,
   LogoutBody,

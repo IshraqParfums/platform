@@ -36,7 +36,7 @@ function MaterialEntry({
         float={item.float}
         sizes={sizes}
         className="mt-6 h-[132px] w-[132px] shrink-0 sm:mt-8 sm:h-[148px] sm:w-[148px]"
-        priority={item.id === "oud"}
+        priority={item.id === "sandalwood"}
       />
       <div
         className={cn(

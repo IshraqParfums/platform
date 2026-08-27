@@ -65,17 +65,12 @@ export async function POST(
   }
 
   const rating = (body as { rating: number }).rating;
-  const title =
-    typeof (body as { title?: unknown }).title === "string"
-      ? (body as { title: string }).title.trim()
-      : undefined;
   const reviewBody =
     typeof (body as { body?: unknown }).body === "string"
       ? (body as { body: string }).body.trim()
       : undefined;
 
-  const payload: { rating: number; title?: string; body?: string } = { rating };
-  if (title) payload.title = title;
+  const payload: { rating: number; body?: string } = { rating };
   if (reviewBody) payload.body = reviewBody;
 
   try {

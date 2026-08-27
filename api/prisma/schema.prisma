@@ -102,7 +102,6 @@ model Product {
   nameUrdu            String?
   slug                String                @unique
   shortDescription    String
-  detailedDescription String
   status              ProductStatus         @default(DRAFT)
   archiveReason       ProductArchiveReason?
   /// 10-dimension scent profile (0–4) for bespoke catalogue_select nodes.
@@ -131,9 +130,6 @@ model Product {
   concentration       String?
   application         String?
   bottleDescription   String?
-  howToUse            String[]              @default([])
-  care                String[]              @default([])
-  claims              String[]              @default([])
   /// ProductFaqItem[] = { question: string; answer: string }[]
   faqJson             Json?
 
@@ -418,7 +414,6 @@ model Review {
   customerId String
   productId  String
   rating     Int
-  title      String?
   body       String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

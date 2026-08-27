@@ -2,21 +2,26 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Band, BandInner } from "@/components/home-v2/ui/band";
-import { ProductDetailInfo } from "@/components/product/product-detail-info";
-import { ProductFaq } from "@/components/product/product-faq";
-import { ProductFormatInfo } from "@/components/product/product-format-info";
-import { ProductGallery } from "@/components/product/product-gallery";
-import { ProductHowToUse } from "@/components/product/product-how-to-use";
-import { ProductCare } from "@/components/product/product-care";
-import { ProductMeaning } from "@/components/product/product-meaning";
-import { ProductNotesPyramid } from "@/components/product/product-notes-pyramid";
-import { ProductPurchasePanel } from "@/components/product/product-purchase-panel";
-import { ProductRelated } from "@/components/product/product-related";
-import { ProductReviewsSection } from "@/components/product/reviews/product-reviews-section";
-import { ProductScentProfile } from "@/components/product/product-scent-profile";
-import { ProductStory } from "@/components/product/product-story";
-import { ProductTagline } from "@/components/product/product-tagline";
-import { ProductUnavailableNotice } from "@/components/product/product-unavailable-notice";
+import { ProductArrival } from "@/components/product-v2/product-arrival";
+import { ProductBackLabel } from "@/components/product-v2/product-back-label";
+import { ProductBuyBarSentinel } from "@/components/product-v2/product-buy-bar-sentinel";
+import { ProductClosingBuy } from "@/components/product-v2/product-closing-buy";
+import { ProductFaq } from "@/components/product-v2/product-faq";
+import { ProductMobileBuyBar } from "@/components/product-v2/product-mobile-buy-bar";
+import { ProductNameChapter } from "@/components/product-v2/product-name-chapter";
+import { ProductNotesChapter } from "@/components/product-v2/product-notes-chapter";
+import { ProductRelated } from "@/components/product-v2/product-related";
+import { ProductReviewsSection } from "@/components/product-v2/reviews/product-reviews-section";
+import { ProductSmellsChapter } from "@/components/product-v2/product-smells-chapter";
+import { ProductWearingChapter } from "@/components/product-v2/product-wearing-chapter";
+import { ProductPurchaseProvider } from "@/components/product-v2/purchase-context";
+import {
+  hasBackLabel,
+  hasMeaning,
+  hasNotes,
+  hasSmells,
+  pdpSplitPairClass,
+} from "@/components/product-v2/chapters";
 import { getProductBySlug } from "@/lib/api/catalog";
 import { getProductReviews } from "@/lib/api/reviews";
 import { getRelatedProducts } from "@/lib/catalog/related-products";
@@ -45,13 +50,23 @@ export async function generateMetadata({
 }
 
 /**
- * PDP. Every new content section (`ProductTagline`, `ProductMeaning`,
- * `ProductNotesPyramid`, `ProductScentProfile`, `ProductFormatInfo`,
- * `ProductHowToUse`, `ProductCare`, `ProductFaq`) is rendered
- * unconditionally — no ternaries here — because each one returns `null`
- * internally when its slice of `product` is absent. That's what keeps this
- * page correct both for the 9 seeded products (which now carry real PDP
- * content) and for any future product that doesn't yet.
+ * PDP v2.
+ *
+ * Ordered for a shopper rather than a perfumer: what it smells like in plain
+ * English, then the note pyramid, then where the name comes from — not the
+ * reverse. Every band alternates tone (paper → paper-deep → paper → shell →
+ * …) because that's how the homepage separates sections; hairlines between
+ * blocks were doing that job badly.
+ *
+ * Bands are gated on the presence predicates in `chapters.ts` so a sparse
+ * product never renders an empty stripe of parchment. The sections still
+ * self-null on their own — that's the real guard, this just avoids the
+ * empty frame around it.
+ *
+ * `ProductPurchaseProvider` wraps everything so the arrival panel, the
+ * sticky mobile bar and the closing row share one selected variant and one
+ * add-to-cart path. Media never pins; the only sticky element is the mobile
+ * bar, and it retires at the sentinel so it never covers the footer.
  */
 export default async function ProductDetailPage({
   params,
@@ -67,103 +82,148 @@ export default async function ProductDetailPage({
     getRelatedProducts(product),
   ]);
 
-  const unavailable = product.availability !== "AVAILABLE";
+  const primaryImageUrl =
+    [...product.images].sort((a, b) => a.displayOrder - b.displayOrder)[0]
+      ?.url ?? null;
+
+  // The closing CTA is client-gated on the selected variant, but availability
+  // is known here — and AVAILABLE guarantees at least one sellable size, so
+  // this band never renders empty.
+  const showClosingBuy = product.availability === "AVAILABLE";
 
   return (
-    <>
-      <Band tone="paper" space="none" className="pt-5 pb-6 md:pt-6 md:pb-8">
-        <BandInner>
-          <nav
-            aria-label="Breadcrumb"
-            className="mb-5 flex flex-wrap items-center gap-x-2 gap-y-1 font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint"
+    <ProductPurchaseProvider
+      variants={product.variants}
+      availability={product.availability}
+      product={{
+        name: product.name,
+        slug: product.slug,
+        collectionName: product.collection.name,
+        shortDescription: product.shortDescription,
+        primaryImageUrl,
+      }}
+    >
+      {/* `font-ui` so PDP body copy is Jost, like the rest of the v2 house —
+          without it the page inherits the v1 sans from `body`. */}
+      <div className="font-ui text-graphite">
+        <Band tone="paper" space="none" className="pt-5 pb-16 md:pt-6 md:pb-20">
+          <BandInner>
+            <nav
+              aria-label="Breadcrumb"
+              className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-graphite-faint"
+            >
+              <Link
+                href="/shop"
+                className="transition-colors hover:text-graphite"
+              >
+                Shop
+              </Link>
+              <span aria-hidden="true">/</span>
+              <Link
+                href={`/shop?collection=${product.collection.slug}`}
+                className="transition-colors hover:text-graphite"
+              >
+                {product.collection.name}
+              </Link>
+              <span aria-hidden="true">/</span>
+              <span className="text-graphite-soft">{product.name}</span>
+            </nav>
+
+            <ProductArrival product={product} />
+          </BandInner>
+        </Band>
+
+        {hasSmells(product) || hasNotes(product) ? (
+          <Band
+            tone="paper-deep"
+            space="none"
+            className="py-[3.75rem] md:py-[5.25rem]"
           >
-            <Link
-              href="/shop"
-              className="transition-colors hover:text-graphite"
-            >
-              Shop
-            </Link>
-            <span aria-hidden="true">/</span>
-            <Link
-              href={`/shop?collection=${product.collection.slug}`}
-              className="transition-colors hover:text-graphite"
-            >
-              {product.collection.name}
-            </Link>
-            <span aria-hidden="true">/</span>
-            <span className="font-ui text-[13px] normal-case tracking-normal text-graphite-soft">
-              {product.name}
-            </span>
-          </nav>
-
-          <div className="grid gap-6 md:grid-cols-2 md:items-start md:gap-8 lg:gap-12">
-            <div className="md:sticky md:top-24">
-              <ProductGallery name={product.name} images={product.images} />
-            </div>
-
-            <div className="flex flex-col gap-5 md:gap-6">
-              <ProductDetailInfo product={product} />
-              <ProductTagline tagline={product.tagline} />
-              {unavailable ? (
-                <ProductUnavailableNotice
-                  availability={
-                    product.availability === "UNAVAILABLE"
-                      ? "UNAVAILABLE"
-                      : "OUT_OF_STOCK"
-                  }
+            <BandInner>
+              <div className={pdpSplitPairClass}>
+                <ProductSmellsChapter
+                  olfactoryProfile={product.olfactoryProfile}
                 />
-              ) : null}
-              <ProductPurchasePanel
-                availability={product.availability}
-                variants={product.variants}
-                claims={product.claims}
-                product={{
-                  name: product.name,
-                  slug: product.slug,
-                  collectionName: product.collection.name,
-                  shortDescription: product.shortDescription,
-                  primaryImageUrl:
-                    [...product.images].sort(
-                      (a, b) => a.displayOrder - b.displayOrder,
-                    )[0]?.url ?? null,
-                }}
-              />
-              <ProductMeaning
+                <ProductNotesChapter notesPyramid={product.notesPyramid} />
+              </div>
+            </BandInner>
+          </Band>
+        ) : null}
+
+        {hasMeaning(product) ? (
+          <Band
+            tone="paper"
+            space="none"
+            className="py-[3.75rem] md:py-[5.25rem]"
+          >
+            <BandInner>
+              <ProductNameChapter
                 identity={product.identity}
                 meaningStory={product.meaningStory}
               />
-              <ProductNotesPyramid notesPyramid={product.notesPyramid} />
-              <ProductScentProfile olfactoryProfile={product.olfactoryProfile} />
-              <ProductFormatInfo format={product.format} />
-              <ProductStory text={product.detailedDescription} />
-              <ProductHowToUse steps={product.howToUse} />
-              <ProductCare items={product.care} />
-            </div>
-          </div>
-        </BandInner>
-      </Band>
+            </BandInner>
+          </Band>
+        ) : null}
 
-      <Band tone="shell" space="compact">
-        <BandInner>
-          <ProductFaq faq={product.faq} />
-        </BandInner>
-      </Band>
-
-      {reviews ? (
-        <Band tone="paper-deep" space="compact" bordered id="reviews">
+        <Band
+          tone="shell"
+          space="none"
+          className="py-[3.75rem] md:py-[5.25rem]"
+        >
           <BandInner>
-            <ProductReviewsSection slug={slug} initial={reviews} />
+            <ProductWearingChapter />
           </BandInner>
         </Band>
-      ) : null}
 
-      {related.length > 0 ? (
-        <Band tone="paper" space="compact">
-          <BandInner>
-            <ProductRelated products={related} />
-          </BandInner>
-        </Band>
-      ) : null}
-    </>
+        {hasBackLabel(product) || showClosingBuy ? (
+          <Band tone="paper" space="default">
+            <BandInner>
+              <div className="flex flex-col gap-14">
+                <ProductBackLabel
+                  format={product.format}
+                  olfactoryProfile={product.olfactoryProfile}
+                />
+                <ProductClosingBuy />
+              </div>
+            </BandInner>
+          </Band>
+        ) : null}
+
+        {product.faq && product.faq.length > 0 ? (
+          <Band
+            tone="paper-deep"
+            space="none"
+            className="py-[3.25rem] md:py-[4.55rem]"
+          >
+            <BandInner>
+              <ProductFaq faq={product.faq} />
+            </BandInner>
+          </Band>
+        ) : null}
+
+        {/* `id="reviews"` lives on the section itself (with its own
+            scroll-margin), so the band must not repeat it. */}
+        {reviews ? (
+          <Band tone="paper" space="compact">
+            <BandInner>
+              <ProductReviewsSection slug={slug} initial={reviews} />
+            </BandInner>
+          </Band>
+        ) : null}
+
+        {related.length > 0 ? (
+          <Band tone="paper-deep" space="compact">
+            <BandInner>
+              <ProductRelated products={related} />
+            </BandInner>
+          </Band>
+        ) : null}
+
+        {/* Retires the sticky bar before the footer. */}
+        <ProductBuyBarSentinel />
+      </div>
+
+      <ProductMobileBuyBar />
+    </ProductPurchaseProvider>
   );
 }

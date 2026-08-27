@@ -1,0 +1,132 @@
+import Link from "next/link";
+import type { ProductDetail } from "@ishraqparfums/shared";
+import { Urdu } from "@/components/home-v2/ui/urdu";
+import { ProductHeroPlate } from "@/components/product-v2/product-hero-plate";
+import { ProductPurchasePanel } from "@/components/product-v2/product-purchase-panel";
+import { ProductRating } from "@/components/product-v2/product-rating";
+import { ProductUnavailableNotice } from "@/components/product-v2/product-unavailable-notice";
+import { isUrduScript } from "@/components/product-v2/urdu-script";
+import { ProductShare } from "@/components/product/product-share";
+
+/**
+ * The arrival — identity and commerce in one composition.
+ *
+ * Structure follows the home hero: eyebrow → Urdu → headline → lead → CTA
+ * group, type on the left at `lg` with photography entering from the right.
+ * It does not borrow the hero's `100dvh`, because this column also carries
+ * size, price and a cart button.
+ *
+ * `nameUrdu` is the identity line — the product's actual name, which is why
+ * it sits directly above the English one rather than floating elsewhere on
+ * the page. It renders in `brass-deep` rather than the homepage's `brass`:
+ * plain brass measures 3.2:1 on parchment and fails at this size, and the
+ * point of the line is to be read, not to be a wash.
+ *
+ * `tagline` takes the lead slot; `shortDescription` only stands in when
+ * there's no tagline. Carrying both said the same thing twice, and the short
+ * description was already read on the card that got you here. Pronunciation
+ * and meaning live in the name section below, where they open the story
+ * instead of crowding the hero.
+ */
+export function ProductArrival({ product }: { product: ProductDetail }) {
+  const images = [...product.images].sort(
+    (a, b) => a.displayOrder - b.displayOrder,
+  );
+  const lead = product.tagline?.primary ?? product.shortDescription;
+  const leadIsUrdu = isUrduScript(lead);
+  const translation = product.tagline?.translation ?? null;
+  const unavailable = product.availability !== "AVAILABLE";
+
+  return (
+    <div className="lg:grid lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] lg:items-stretch lg:gap-12">
+      <ProductHeroPlate
+        name={product.name}
+        images={images}
+        className="lg:col-start-2 lg:row-start-1"
+      />
+
+      <div className="pt-8 lg:col-start-1 lg:row-start-1 lg:flex lg:flex-col lg:justify-center lg:pt-0 lg:pr-8">
+        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+          <Link
+            href={`/shop?collection=${product.collection.slug}`}
+            className="text-[13px] text-terra transition-colors hover:opacity-80"
+          >
+            {product.collection.name}
+          </Link>
+          <ProductShare
+            name={product.name}
+            slug={product.slug}
+            blurb={product.shortDescription}
+            className="shrink-0"
+          />
+        </div>
+
+        {product.nameUrdu ? (
+          <Urdu size="md" tone="brass-deep" leading="tight" className="mt-4">
+            {product.nameUrdu}
+          </Urdu>
+        ) : null}
+
+        <h1 className="mt-2 font-editorial text-[clamp(34px,5vw,56px)] leading-[1.04] tracking-[-0.02em] text-graphite">
+          {product.name}
+        </h1>
+
+        {lead ? (
+          leadIsUrdu ? (
+            <Urdu
+              size="md"
+              tone="brass-deep"
+              leading="loose"
+              className="mt-4 max-w-[46ch]"
+            >
+              {lead}
+            </Urdu>
+          ) : (
+            <p className="mt-5 max-w-[46ch] text-[17px] leading-[1.6] text-graphite">
+              {lead}
+            </p>
+          )
+        ) : null}
+
+        {translation ? (
+          <Urdu
+            size="md"
+            tone="brass-deep"
+            leading="loose"
+            className="mt-3 max-w-[46ch]"
+          >
+            {translation}
+          </Urdu>
+        ) : null}
+
+        {product.ratingAverage !== null && product.reviewCount > 0 ? (
+          <a
+            href="#reviews"
+            className="mt-6 inline-flex transition-opacity hover:opacity-80"
+          >
+            <ProductRating
+              average={product.ratingAverage}
+              count={product.reviewCount}
+            />
+          </a>
+        ) : null}
+
+        {unavailable ? (
+          <div className="mt-7">
+            <ProductUnavailableNotice
+              availability={
+                product.availability === "UNAVAILABLE"
+                  ? "UNAVAILABLE"
+                  : "OUT_OF_STOCK"
+              }
+            />
+          </div>
+        ) : null}
+
+        <div className="mt-8">
+          <ProductPurchasePanel />
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,7 +1,6 @@
 export type ReviewDraft = {
   slug: string;
   rating: number;
-  title: string;
   body: string;
 };
 
@@ -32,7 +31,6 @@ export function readReviewDraft(slug: string): ReviewDraft | null {
     return {
       slug: parsed.slug,
       rating: parsed.rating,
-      title: typeof parsed.title === "string" ? parsed.title : "",
       body: typeof parsed.body === "string" ? parsed.body : "",
     };
   } catch {

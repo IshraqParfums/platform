@@ -18,7 +18,6 @@ export type ProductCreateReadinessInput = {
   collectionId: string;
   collectionArchived: boolean;
   shortDescription: string;
-  detailedDescription: string;
   sizes: CreateSizeDraftMap;
   imageCount: number;
 };
@@ -28,12 +27,10 @@ export function hasValidCreateDetails(input: {
   slug: string;
   collectionId: string;
   shortDescription: string;
-  detailedDescription: string;
 }): boolean {
   return (
     Boolean(input.name.trim()) &&
     Boolean(input.shortDescription.trim()) &&
-    Boolean(input.detailedDescription.trim()) &&
     Boolean(input.collectionId) &&
     isValidSlug(input.slug)
   );
@@ -53,7 +50,7 @@ export function getProductCreateReleaseBlockers(
   if (!hasValidCreateDetails(input)) {
     blockers.push({
       id: "details",
-      label: "Fill name, slug, collection, and both descriptions",
+      label: "Fill name, slug, collection, and short description",
     });
   }
 
@@ -78,18 +75,14 @@ export function getProductCreateReleaseBlockers(
 export function getProductCreateDraftBlockers(
   input: Pick<
     ProductCreateReadinessInput,
-    | "name"
-    | "slug"
-    | "collectionId"
-    | "shortDescription"
-    | "detailedDescription"
+    "name" | "slug" | "collectionId" | "shortDescription"
   >,
 ): ProductCreateReleaseBlocker[] {
   if (hasValidCreateDetails(input)) return [];
   return [
     {
       id: "details",
-      label: "Fill name, slug, collection, and both descriptions",
+      label: "Fill name, slug, collection, and short description",
     },
   ];
 }
@@ -97,11 +90,7 @@ export function getProductCreateDraftBlockers(
 export function canSaveProductDraft(
   input: Pick<
     ProductCreateReadinessInput,
-    | "name"
-    | "slug"
-    | "collectionId"
-    | "shortDescription"
-    | "detailedDescription"
+    "name" | "slug" | "collectionId" | "shortDescription"
   >,
 ): boolean {
   return getProductCreateDraftBlockers(input).length === 0;

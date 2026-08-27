@@ -45,12 +45,13 @@ import {
   type CreateSizeDraftMap,
 } from "@/lib/admin/product-create";
 import { isValidSlug } from "@/lib/admin/slugify";
+import { urduIfPresent, URDU_FIELD_PROPS } from "@/lib/admin/urdu-field";
 import { useAutoSlug } from "@/lib/admin/use-auto-slug";
 import { adminFetch } from "@/lib/auth/admin-fetch";
 
 // Parsing conventions for the PDP content fields below: comma-separated
 // Inputs for short lists (notes, tags), one-item-per-line Textareas for
-// longer lists (steps, paragraphs, claims). Blank lines/entries are dropped.
+// longer lists (steps, paragraphs). Blank lines/entries are dropped.
 function parseCommaList(value: string): string[] {
   return value
     .split(",")
@@ -117,7 +118,6 @@ export function ProductCreateForm({
   const [nameUrdu, setNameUrdu] = useState("");
   const [collectionId, setCollectionId] = useState(collections[0]?.id ?? "");
   const [shortDescription, setShortDescription] = useState("");
-  const [detailedDescription, setDetailedDescription] = useState("");
 
   // --- PDP content (all optional, progressively authored) ---
   const [pronunciation, setPronunciation] = useState("");
@@ -150,9 +150,6 @@ export function ProductCreateForm({
   const [application, setApplication] = useState("");
   const [bottleDescription, setBottleDescription] = useState("");
 
-  const [howToUse, setHowToUse] = useState("");
-  const [care, setCare] = useState("");
-  const [claims, setClaims] = useState("");
   const [faq, setFaq] = useState<ProductFaqDraft[]>([]);
 
   const [sizes, setSizes] = useState<CreateSizeDraftMap>(() =>
@@ -177,7 +174,6 @@ export function ProductCreateForm({
       collectionId,
       collectionArchived,
       shortDescription,
-      detailedDescription,
       sizes,
       imageCount: imageDrafts.length,
     }),
@@ -187,7 +183,6 @@ export function ProductCreateForm({
       collectionId,
       collectionArchived,
       shortDescription,
-      detailedDescription,
       sizes,
       imageDrafts.length,
     ],
@@ -259,7 +254,6 @@ export function ProductCreateForm({
 
     const trimmedName = name.trim();
     const trimmedShort = shortDescription.trim();
-    const trimmedDetailed = detailedDescription.trim();
 
     if (!trimmedName) {
       toast.error("Name is required");
@@ -267,10 +261,6 @@ export function ProductCreateForm({
     }
     if (!trimmedShort) {
       toast.error("Short description is required");
-      return;
-    }
-    if (!trimmedDetailed) {
-      toast.error("Detailed description is required");
       return;
     }
     if (!collectionId) {
@@ -282,10 +272,22 @@ export function ProductCreateForm({
       return;
     }
 
+    const urduError =
+      urduIfPresent(nameUrdu, "Urdu name") ??
+      urduIfPresent(taglineTranslation, "Tagline Urdu") ??
+      urduIfPresent(storyBodyTranslation, "Story translation") ??
+      urduIfPresent(openingNotesTranslation, "Opening notes Urdu") ??
+      urduIfPresent(heartNotesTranslation, "Heart notes Urdu") ??
+      urduIfPresent(baseNotesTranslation, "Base notes Urdu");
+    if (urduError) {
+      toast.error(urduError);
+      return;
+    }
+
     const releaseNow = intent === "release";
 
     if (!releaseNow && !draftReady) {
-      toast.error("Fill name, slug, collection, and both descriptions");
+      toast.error("Fill name, slug, collection, and short description");
       return;
     }
 
@@ -338,9 +340,6 @@ export function ProductCreateForm({
     const characterTagsList = parseCommaList(characterTags);
     const seasonList = parseCommaList(season);
     const occasionList = parseCommaList(occasion);
-    const howToUseList = parseLines(howToUse);
-    const careList = parseLines(care);
-    const claimsList = parseLines(claims);
     const faqList = faq
       .map((row) => ({ question: row.question.trim(), answer: row.answer.trim() }))
       .filter((row) => row.question && row.answer);
@@ -361,7 +360,6 @@ export function ProductCreateForm({
           slug,
           collectionId,
           shortDescription: trimmedShort,
-          detailedDescription: trimmedDetailed,
           status: "DRAFT" satisfies ProductStatus,
           ...(pronunciation.trim()
             ? { pronunciation: pronunciation.trim() }
@@ -397,9 +395,6 @@ export function ProductCreateForm({
           ...(bottleDescription.trim()
             ? { bottleDescription: bottleDescription.trim() }
             : {}),
-          ...(howToUseList.length > 0 ? { howToUse: howToUseList } : {}),
-          ...(careList.length > 0 ? { care: careList } : {}),
-          ...(claimsList.length > 0 ? { claims: claimsList } : {}),
           ...(faqList.length > 0 ? { faq: faqList } : {}),
         }),
       });
@@ -615,17 +610,6 @@ export function ProductCreateForm({
               className="min-h-16"
             />
           </label>
-
-          <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Detailed description
-            </span>
-            <Textarea
-              value={detailedDescription}
-              onChange={(event) => setDetailedDescription(event.target.value)}
-              required
-            />
-          </label>
         </div>
       </div>
 
@@ -702,11 +686,13 @@ export function ProductCreateForm({
 
           <label className="flex flex-col gap-1.5">
             <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Tagline translation
+              Tagline Urdu (optional)
             </span>
             <Input
               value={taglineTranslation}
               onChange={(event) => setTaglineTranslation(event.target.value)}
+              {...URDU_FIELD_PROPS}
+              className="text-right"
             />
           </label>
         </div>
@@ -745,11 +731,13 @@ export function ProductCreateForm({
 
           <label className="flex flex-col gap-1.5">
             <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Body translation
+              Body Urdu (optional)
             </span>
             <Textarea
               value={storyBodyTranslation}
               onChange={(event) => setStoryBodyTranslation(event.target.value)}
+              {...URDU_FIELD_PROPS}
+              className="text-right"
             />
             <span className="text-xs text-ink-faint">
               One paragraph per line, matching the body above. Optional.
@@ -779,13 +767,15 @@ export function ProductCreateForm({
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Opening notes translation
+                Opening notes Urdu (optional)
               </span>
               <Input
                 value={openingNotesTranslation}
                 onChange={(event) =>
                   setOpeningNotesTranslation(event.target.value)
                 }
+                {...URDU_FIELD_PROPS}
+                className="text-right"
               />
             </label>
           </div>
@@ -803,13 +793,15 @@ export function ProductCreateForm({
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Heart notes translation
+                Heart notes Urdu (optional)
               </span>
               <Input
                 value={heartNotesTranslation}
                 onChange={(event) =>
                   setHeartNotesTranslation(event.target.value)
                 }
+                {...URDU_FIELD_PROPS}
+                className="text-right"
               />
             </label>
           </div>
@@ -827,13 +819,15 @@ export function ProductCreateForm({
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Base notes translation
+                Base notes Urdu (optional)
               </span>
               <Input
                 value={baseNotesTranslation}
                 onChange={(event) =>
                   setBaseNotesTranslation(event.target.value)
                 }
+                {...URDU_FIELD_PROPS}
+                className="text-right"
               />
             </label>
           </div>
@@ -985,57 +979,6 @@ export function ProductCreateForm({
               value={bottleDescription}
               onChange={(event) => setBottleDescription(event.target.value)}
             />
-          </label>
-        </div>
-      </div>
-
-      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
-        <h2 className="font-display text-lg font-semibold text-ink">
-          Ritual &amp; care
-        </h2>
-        <p className="mt-1 text-sm text-ink-faint">
-          How to wear it and how to look after the bottle, one step per line.
-        </p>
-        <div className="mt-4 flex flex-col gap-4">
-          <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              How to use
-            </span>
-            <Textarea
-              value={howToUse}
-              onChange={(event) => setHowToUse(event.target.value)}
-            />
-            <span className="text-xs text-ink-faint">One step per line.</span>
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Care
-            </span>
-            <Textarea value={care} onChange={(event) => setCare(event.target.value)} />
-            <span className="text-xs text-ink-faint">
-              One instruction per line.
-            </span>
-          </label>
-        </div>
-      </div>
-
-      <div className="rounded-lg border border-ink/10 bg-card p-4 sm:p-5">
-        <h2 className="font-display text-lg font-semibold text-ink">
-          Claims
-        </h2>
-        <p className="mt-1 text-sm text-ink-faint">
-          Short trust claims shown near the buy box, one per line.
-        </p>
-        <div className="mt-4">
-          <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Claims
-            </span>
-            <Textarea
-              value={claims}
-              onChange={(event) => setClaims(event.target.value)}
-            />
-            <span className="text-xs text-ink-faint">One claim per line.</span>
           </label>
         </div>
       </div>

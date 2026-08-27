@@ -78,9 +78,6 @@ export interface AdminProductPdpFields {
   concentration: string | null;
   application: string | null;
   bottleDescription: string | null;
-  howToUse: string[];
-  care: string[];
-  claims: string[];
   faq: ProductFaqItem[] | null;
 }
 
@@ -91,7 +88,6 @@ export interface AdminProductDetail extends AdminProductPdpFields {
   nameUrdu: string | null;
   slug: string;
   shortDescription: string;
-  detailedDescription: string;
   status: ProductStatus;
   archiveReason: ProductArchiveReason | null;
   collectionId: string;
@@ -122,9 +118,6 @@ export interface WriteProductPdpFields {
   concentration?: string;
   application?: string;
   bottleDescription?: string;
-  howToUse?: string[];
-  care?: string[];
-  claims?: string[];
   faq?: ProductFaqItem[];
 }
 
@@ -135,7 +128,6 @@ export interface CreateProductBody extends WriteProductPdpFields {
   nameUrdu?: string;
   slug: string;
   shortDescription: string;
-  detailedDescription: string;
   status?: ProductStatus;
 }
 
@@ -146,7 +138,6 @@ export interface UpdateProductBody extends WriteProductPdpFields {
   nameUrdu?: string;
   slug?: string;
   shortDescription?: string;
-  detailedDescription?: string;
   status?: ProductStatus;
 }
 

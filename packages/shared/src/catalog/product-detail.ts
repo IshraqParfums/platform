@@ -105,7 +105,6 @@ export interface ProductDetail {
   nameUrdu: string | null;
   slug: string;
   shortDescription: string;
-  detailedDescription: string;
   collection: ProductDetailCollection;
   variants: ProductDetailVariant[];
   images: ProductDetailImage[];
@@ -119,8 +118,5 @@ export interface ProductDetail {
   notesPyramid: ProductNotesPyramid | null;
   olfactoryProfile: ProductOlfactoryProfile | null;
   format: ProductFormatInfo | null;
-  howToUse: string[];
-  care: string[];
-  claims: string[];
   faq: ProductFaqItem[] | null;
 }

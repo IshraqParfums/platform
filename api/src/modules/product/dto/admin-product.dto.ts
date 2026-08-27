@@ -120,21 +120,6 @@ class ProductPdpFieldsDto {
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  howToUse?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  care?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  claims?: string[];
-
-  @IsOptional()
-  @IsArray()
   faq?: unknown[];
 }
 
@@ -161,10 +146,6 @@ export class CreateProductDto extends ProductPdpFieldsDto {
   @IsString()
   @MinLength(1)
   shortDescription!: string;
-
-  @IsString()
-  @MinLength(1)
-  detailedDescription!: string;
 
   @IsOptional()
   @IsEnum(ProductStatus)
@@ -194,11 +175,6 @@ export class UpdateProductDto extends ProductPdpFieldsDto {
   @IsString()
   @MinLength(1)
   shortDescription?: string;
-
-  @IsOptional()
-  @IsString()
-  @MinLength(1)
-  detailedDescription?: string;
 
   @IsOptional()
   @IsEnum(ProductStatus)

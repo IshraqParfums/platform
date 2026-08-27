@@ -58,21 +58,19 @@ function purchaseErrorMessage(error: unknown): string {
  *
  * Ported from product/product-purchase-panel.tsx: every hook and handler
  * below (cart line state, add-to-cart transition, guest-cart modal wiring,
- * variant selection, stock logic) is unchanged — only the JSX classes and the
- * new `claims` passthrough to `ProductTrustStrip` are v2. The v1 CTA icons
- * (lucide `Check`/`ShoppingBag`) are dropped per this site's no-icon rule;
- * the button's state text alone still carries idle/adding/added/error.
+ * variant selection, stock logic) is unchanged — only the JSX classes
+ * differ. The v1 CTA icons (lucide `Check`/`ShoppingBag`) are dropped per
+ * this site's no-icon rule; the button's state text alone still carries
+ * idle/adding/added/error.
  */
 export function ProductPurchasePanel({
   variants,
   product,
   availability,
-  claims,
 }: {
   variants: ProductDetailVariant[];
   product: PurchaseProductMeta;
   availability: ProductAvailability;
-  claims?: string[] | null;
 }) {
   const ordered = useMemo(() => sortVariantsBySize(variants), [variants]);
   const [selectedId, setSelectedId] = useState(
@@ -263,7 +261,7 @@ export function ProductPurchasePanel({
             This size is currently unavailable.
           </p>
         )}
-        {purchasable ? <ProductTrustStrip claims={claims} /> : null}
+        {purchasable ? <ProductTrustStrip /> : null}
         {ctaState === "error" && errorMessage ? (
           <p className="text-sm text-rose-deep">{errorMessage}</p>
         ) : null}

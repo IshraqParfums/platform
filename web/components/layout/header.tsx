@@ -42,9 +42,11 @@ function Monogram() {
  */
 export function Header() {
   const pathname = usePathname();
-  // The home page is the only paper route today. As other pages migrate onto
-  // the v2 tokens, this becomes a list — or moves into the layout.
-  const light = pathname === "/";
+  // Paper routes — those migrated onto the v2 tokens. Product detail pages
+  // joined the homepage here; `startsWith` is safe because admin's product
+  // screens live under `/admin/products`, not `/products`. As more pages
+  // migrate this list grows, or it moves into the layout.
+  const light = pathname === "/" || pathname.startsWith("/products/");
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
