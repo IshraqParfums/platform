@@ -123,6 +123,14 @@ export const HOME_BESPOKE = {
     label: "Opening question",
     step: "1 of 15",
     progress: 1 / 15,
+    /**
+     * Where the bar travels to once an option is chosen. Answering here
+     * really does start a session and land the visitor on question two, so
+     * the card advances to match rather than sitting still while the route
+     * changes under it. Stated, not derived from `progress`, so it stays
+     * correct if the card ever opens on a different question.
+     */
+    progressAnswered: 2 / 15,
     // Mirrors the bespoke engine's real start node ("I-fluency"). Keep
     // option ids in sync with packages/bespoke-engine/data/questions.json if
     // that node's options ever change — these are submitted to the API
