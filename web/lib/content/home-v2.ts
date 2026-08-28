@@ -1,7 +1,15 @@
 import type { ProductListItem } from "@ishraqparfums/shared";
 
+/**
+ * The Urdu line and the English headline are the same sentence, which is why
+ * the hero sets them as a matched pair either side of a rule rather than
+ * stacking a small Urdu label above an unrelated headline.
+ *
+ * No eyebrow. It used to carry "Small-batch perfumery · Made in India", which
+ * pushed the hero to five stacked text elements and said nothing that Belief's
+ * body copy at the foot of the page doesn't already say in a full sentence.
+ */
 export const HOME_HERO = {
-  eyebrow: "Small-batch perfumery · Made in India",
   urdu: "خوشبو جو صرف تمہاری ہے",
   headline: ["A scent that’s", "unmistakably yours."],
   lead: "Composed from real perfumery materials, one question at a time.",

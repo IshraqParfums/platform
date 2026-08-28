@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 export type UrduTone = "brass" | "brass-deep" | "on-dark";
-export type UrduSize = "sm" | "md" | "lg" | "display";
+export type UrduSize = "sm" | "md" | "lg" | "hero" | "display";
 export type UrduAlign = "start" | "center" | "end";
 export type UrduLeading = "loose" | "tight";
 
@@ -51,6 +51,22 @@ const SIZES: Record<UrduSize, string> = {
   sm: "text-[15px]",
   md: "text-[19px] sm:text-[21px]",
   lg: "text-[22px] sm:text-[25px]",
+  /**
+   * Co-headline scale, for the hero, where this line and the English h1 are
+   * the same sentence and have to read as equals. Deliberately short of
+   * `display`: Nastaliq carries far more visual mass per point than a Latin
+   * face, so it balances a serif half again its size.
+   *
+   * The only size on this ramp that is fluid, because it is the only one
+   * that has to hold a *single line*. Wrapping a Nastaliq line costs 1.5
+   * leading of a large face, which is enough to push the hero's CTAs under
+   * the fold — and unlike Latin type it cannot be rescued by a tighter
+   * leading. So the ramp tracks the hero's type column rather than the
+   * viewport, and steps down at lg: that is where the column stops being
+   * the full width of the page and becomes 54% of it, so the available
+   * measure drops at the exact width a plain vw ramp would grow through.
+   */
+  hero: "text-[clamp(24px,7vw,30px)] sm:text-[clamp(24px,4vw,32px)] lg:text-[clamp(34px,3.4vw,46px)]",
   display: "text-[28px] sm:text-[38px] lg:text-[52px]",
 };
 

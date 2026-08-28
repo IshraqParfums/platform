@@ -108,7 +108,19 @@
   --font-ui: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
   --font-urdu: var(--font-nastaliq), serif;
 
-  --text-h1-editorial: clamp(40px, 6.2vw, 88px);
+  /* Sized to the hero's type column, not to the viewport. That column is
+     ~54% of the 1320px container less its own gutter: 455px of line at
+     1024, 615px once the container caps out.
+
+     The budget is set against Georgia, not against Instrument Serif. The
+     longest line ("unmistakably yours.") measures ~0.34em per character in
+     Instrument and ~0.42em in Georgia, and Georgia is what paints during
+     the `display: swap` window on a cold cache. Sizing to Instrument alone
+     buys a bigger headline that reflows from three lines to two once the
+     webfont lands. At this ramp both faces hold two lines at every width
+     the lg layout covers — the binding case is 1024, where the column is
+     at its narrowest but the vw term has just jumped. */
+  --text-h1-editorial: clamp(40px, 5.1vw, 74px);
   --text-h1-editorial--line-height: 1.02;
   --text-h1-editorial--letter-spacing: -0.03em;
 
@@ -693,6 +705,113 @@ html::-webkit-scrollbar-thumb:hover {
   padding-top: 4px;
 }
 
+/* ---- hero: the dawn aperture -------------------------------------
+   Ishraq is radiance, dawn — so the hero opens like a window at first
+   light. The brass frame is painted immediately, the photograph rises
+   into it off the sill, and the type follows the light up.
+
+   Every rule here declares the *resting* value, and each keyframe runs
+   from a displaced start toward it. That inversion is the whole point:
+   it lets the reduced-motion block kill these outright with
+   `animation: none` and still land on the finished composition. A
+   conventional `to { ... }` reveal would strand a paper curtain across
+   the photograph the moment the animation was disabled.
+
+   Only `transform` and `opacity` move. The curtain is a scaled overlay
+   rather than an animated clip-path for that reason. */
+@keyframes aperture-rise {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0);
+  }
+}
+
+/* Origin top, scaling to zero: the covered area retreats upward, so the
+   photograph is revealed from the sill up rather than wiped downward. */
+.aperture-curtain {
+  transform: scaleY(0);
+  transform-origin: top;
+  animation: aperture-rise 1.15s cubic-bezier(0.22, 0.8, 0.28, 1) 120ms both;
+}
+
+/* The light behind the arch. Slow enough (16s) to register as weather
+   rather than as a pulse — at this duration you notice it has changed,
+   never that it is changing. */
+@keyframes dawn-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.86;
+    transform: scale(1.09);
+  }
+}
+
+.dawn-breathe {
+  opacity: 0.5;
+  animation: dawn-breathe 16s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+/* Below sm the photograph stops being a panel and becomes the ground the
+   type stands on: full bleed, dropped to a fraction of its opacity, and fed
+   into the parchment through a radial mask so it has no edge anywhere to
+   read as a pasted rectangle. It is the same trick `.photo-mask` plays for
+   the material cutouts, tuned for a full-bleed still rather than a subject.
+
+   A small arch on a phone was the worst of both: too little photograph to be
+   an image, too much furniture to be type, and a hard bottom edge floating
+   in the middle of the screen. Losing it is also what lets the whole hero
+   sit inside one viewport at phone widths.
+
+   0.17 is a legibility budget, not a taste call. Composited over paper the
+   darkest part of the still lands around #d1c9be, which still leaves
+   graphite body copy above 11:1 — well clear of AA.
+
+   Self-cancelling at sm, where this same element becomes the arch. One
+   <Image> serves both: rendering a separate mobile copy would download the
+   still twice, on the one element that is the LCP. */
+.hero-field {
+  opacity: 0.17;
+  -webkit-mask-image: radial-gradient(
+    ellipse 78% 58% at 50% 50%,
+    #000 26%,
+    transparent 76%
+  );
+  mask-image: radial-gradient(
+    ellipse 78% 58% at 50% 50%,
+    #000 26%,
+    transparent 76%
+  );
+}
+
+@media (min-width: 640px) {
+  .hero-field {
+    opacity: 1;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* Load stagger for the hero type. Shares `rise-in` with `.reveal`, but
+   fires on paint instead of on intersection — the hero is above the fold
+   at every viewport, so there is nothing to wait for, and routing it
+   through the observer would cost a client component and a hydration
+   round-trip on the LCP element.
+
+   Per-element delay is set inline at the call site, not by a Tailwind
+   `[animation-delay:...]` utility: this rule is unlayered and therefore
+   beats anything in the utilities layer, so its shorthand's implicit
+   `animation-delay: 0s` would win. Same reason `Reveal` uses a style
+   attribute for its delay. */
+.hero-rise {
+  animation: rise-in 0.85s var(--ease-out-soft) both;
+}
+
 .material-plate {
   transform: scale(1.06);
   animation: material-settle linear both;
@@ -890,6 +1009,19 @@ html::-webkit-scrollbar-thumb:hover {
   .bottle-arrive {
     animation: none !important;
     transform: none;
+  }
+  /* Safe to cancel outright rather than fast-forward: each of these
+     declares its finished state as its resting style and animates *from*
+     a displaced start. Cancelling also drops their load delays, which the
+     blanket 0.001ms override above does not touch — otherwise a reader on
+     reduced motion would watch the hero sit blank for a third of a second
+     before popping in. `.aperture-curtain` in particular must be cancelled
+     this way and not held at frame zero, or the photograph stays behind a
+     paper screen for good. */
+  .aperture-curtain,
+  .dawn-breathe,
+  .hero-rise {
+    animation: none !important;
   }
   /* Collapse the note-pyramid pin. movements.tsx already declines to attach the
      scroll listener here, but the 220vh spacer is a layout rule, not an
