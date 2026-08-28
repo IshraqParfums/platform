@@ -10,7 +10,9 @@ import { ensureShopSession } from "@/lib/auth/shop-session";
 import { emitCartChanged } from "@/lib/cart/cart-events";
 import {
   clearGuestCart,
+  guestBespokeItems,
   guestCartItemCount,
+  guestCatalogItems,
   readGuestCart,
 } from "@/lib/cart/guest-cart";
 import { cn } from "@/lib/cn";
@@ -256,8 +258,13 @@ async function mergeGuestCartAfterLogin(): Promise<void> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        items: guest.items.map((line) => ({
+        items: guestCatalogItems(guest).map((line) => ({
           variantId: line.variantId,
+          quantity: line.quantity,
+        })),
+        bespokeItems: guestBespokeItems(guest).map((line) => ({
+          bespokePerfumeId: line.bespokePerfumeId,
+          sizeMl: line.sizeMl,
           quantity: line.quantity,
         })),
       }),

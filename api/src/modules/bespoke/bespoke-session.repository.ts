@@ -84,6 +84,13 @@ export class BespokeSessionRepository {
     return this.prisma.bespokeSession.findUnique({ where: { id } });
   }
 
+  findByBespokePerfumeId(bespokePerfumeId: string): Promise<BespokeSession | null> {
+    return this.prisma.bespokeSession.findFirst({
+      where: { bespokePerfumeId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   countRecentByIpHash(ipHash: string, since: Date): Promise<number> {
     return this.prisma.bespokeSession.count({
       where: { ipHash, createdAt: { gte: since } },
@@ -152,9 +159,8 @@ export class BespokeSessionRepository {
   }
 
   /**
-   * Completing an owned session mints the brew and points the session at it
-   * in one write, so a session can never end up COMPLETED with a result the
-   * customer has no row for.
+   * Mint the brew and point the session at it. Guest completes stay COMPLETED
+   * (unowned); logged-in completes are CLAIMED.
    */
   async completeWithBrew(
     id: string,

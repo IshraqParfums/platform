@@ -121,12 +121,16 @@ export default async function AdminBespokeListPage({
                   ) : null}
                 </td>
                 <td className="px-3 py-3 text-ink-soft">
-                  <Link
-                    href={`/admin/customers/${row.customerId}`}
-                    className="hover:text-ink hover:underline"
-                  >
-                    {row.customerName ?? row.customerPhone}
-                  </Link>
+                  {row.customerId ? (
+                    <Link
+                      href={`/admin/customers/${row.customerId}`}
+                      className="hover:text-ink hover:underline"
+                    >
+                      {row.customerName ?? row.customerPhone}
+                    </Link>
+                  ) : (
+                    <span className="text-ink-faint">Guest</span>
+                  )}
                 </td>
                 <td className="px-3 py-3">
                   {row.familyPrimary ? (

@@ -1,7 +1,9 @@
 export {
   BESPOKE_ALLOWED_SIZES_ML,
+  BESPOKE_MAX_LINE_QUANTITY,
   BESPOKE_PAISE_PER_ML,
   assertAllowedBespokeSize,
+  clampBespokeLineQuantity,
   isAllowedBespokeSize,
   pricePaiseForSize,
 } from "./pricing.js";
@@ -149,6 +151,7 @@ export type {
   BespokeFormulaSnapshotV1,
   BespokeFormulaSnapshotV2,
   BespokeFunnelStep,
+  BespokeNotesByPosition,
   BespokePerfumeAdminResponse,
   BespokePerfumeCustomerResponse,
   BespokePricingConfig,

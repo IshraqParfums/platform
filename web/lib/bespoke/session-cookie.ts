@@ -70,3 +70,11 @@ export async function listBespokeSessionIds(): Promise<string[]> {
   const { store } = parseSessionCookieStore(await readRaw());
   return listSessionIds(store);
 }
+
+/** Raw session tokens on this device — BFF injects these into cart attach. */
+export async function listBespokeSessionTokens(): Promise<string[]> {
+  const { store, legacyToken } = parseSessionCookieStore(await readRaw());
+  const tokens = store.entries.map((entry) => entry.token);
+  if (legacyToken && tokens.length === 0) tokens.push(legacyToken);
+  return tokens;
+}

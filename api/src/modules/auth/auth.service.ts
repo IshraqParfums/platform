@@ -27,7 +27,8 @@ export class AuthService {
   async verifyOtp(rawPhone: string, code: string): Promise<AuthTokenResponse> {
     const phone = normalizeIndianPhone(rawPhone);
 
-    // Guest cart / bespoke merge on login is Phase 4 — verify only issues a token here.
+    // Guest catalog / bespoke lines merge in the shop BFF after verify.
+
     await this.otpService.verifyOtp(phone, code);
 
     const customer = await this.customerService.upsertByPhone(phone);

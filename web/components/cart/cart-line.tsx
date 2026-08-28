@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { BESPOKE_MAX_LINE_QUANTITY } from "@ishraqparfums/shared";
 import { CartQuantityStepper } from "@/components/cart/cart-quantity-stepper";
 import type { CartViewLine } from "@/lib/cart/cart-view";
 import { cartUnavailableReasonCopy } from "@/lib/cart/cart-view";
@@ -22,7 +23,11 @@ export function CartLine({
   onRemove: () => void;
 }) {
   const maxQty =
-    line.stockQty !== null && line.stockQty > 0 ? line.stockQty : undefined;
+    line.kind === "bespoke"
+      ? BESPOKE_MAX_LINE_QUANTITY
+      : line.stockQty !== null && line.stockQty > 0
+        ? line.stockQty
+        : undefined;
   const badge =
     line.kind === "bespoke"
       ? "Bespoke"

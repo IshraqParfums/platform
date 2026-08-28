@@ -10,7 +10,7 @@ import type {
   CartMutationView,
   CartResponse,
 } from '@ishraqparfums/shared';
-import { DEFAULT_CART_MUTATION_VIEW } from '@ishraqparfums/shared';
+import { DEFAULT_CART_MUTATION_VIEW, BESPOKE_MAX_LINE_QUANTITY } from '@ishraqparfums/shared';
 import { BespokePricingService } from '../bespoke/bespoke-pricing.service';
 import { BespokeService } from '../bespoke/bespoke.service';
 import { ProductService } from '../product/product.service';
@@ -74,13 +74,18 @@ export class CartService {
     sizeMl: number,
     quantity: number,
     view: CartMutationView = DEFAULT_CART_MUTATION_VIEW,
+    sessionTokens: string[] = [],
   ): Promise<CartMutationResult> {
     if (!Number.isInteger(quantity) || quantity < 1) {
       throw new BadRequestException('quantity must be at least 1');
     }
 
     this.bespokePricing.assertAllowedSize(sizeMl);
-    await this.bespokeService.requireOwned(customerId, bespokePerfumeId);
+    await this.bespokeService.requireOwnedOrAttach(
+      customerId,
+      bespokePerfumeId,
+      sessionTokens,
+    );
 
     const cartId = await this.cartRepository.findOrCreateCartId(customerId);
     const existing = await this.cartRepository.findItemByCartBespokeSize(
@@ -90,6 +95,7 @@ export class CartService {
     );
 
     const desiredQuantity = (existing?.quantity ?? 0) + quantity;
+    this.bespokePricing.assertLineQuantity(desiredQuantity);
     const item = await this.cartRepository.upsertBespokeItem(
       cartId,
       bespokePerfumeId,
@@ -119,6 +125,11 @@ export class CartService {
     quantity: number,
     view: CartMutationView = DEFAULT_CART_MUTATION_VIEW,
   ): Promise<CartMutationResult> {
+    const owned = await this.cartRepository.findOwnedItem(customerId, itemId);
+    if (owned?.bespokePerfumeId && quantity > 0) {
+      this.bespokePricing.assertLineQuantity(quantity);
+    }
+
     const row = await this.cartRepository.updateOwnedItemQuantity(
       customerId,
       itemId,
@@ -169,10 +180,16 @@ export class CartService {
   async merge(
     customerId: string,
     guestItems: Array<{ variantId: string; quantity: number }>,
+    bespokeItems: Array<{
+      bespokePerfumeId: string;
+      sizeMl: number;
+      quantity: number;
+    }> = [],
+    sessionTokens: string[] = [],
   ): Promise<CartMergeResponse> {
     const warnings: string[] = [];
 
-    if (guestItems.length === 0) {
+    if (guestItems.length === 0 && bespokeItems.length === 0) {
       const cart = await this.getCart(customerId);
       return { cart, warnings };
     }
@@ -227,6 +244,49 @@ export class CartService {
       );
     }
 
+    for (const guestItem of bespokeItems) {
+      const normalizedQuantity = Math.trunc(guestItem.quantity);
+      if (normalizedQuantity < 1) {
+        warnings.push(
+          `Skipped blend ${guestItem.bespokePerfumeId}: quantity must be at least 1`,
+        );
+        continue;
+      }
+
+      try {
+        this.bespokePricing.assertAllowedSize(guestItem.sizeMl);
+        await this.bespokeService.requireOwnedOrAttach(
+          customerId,
+          guestItem.bespokePerfumeId,
+          sessionTokens,
+        );
+      } catch (error) {
+        warnings.push(
+          this.formatMergeWarning(guestItem.bespokePerfumeId, error),
+        );
+        continue;
+      }
+
+      const existing = await this.cartRepository.findItemByCartBespokeSize(
+        cartId,
+        guestItem.bespokePerfumeId,
+        guestItem.sizeMl,
+      );
+      let desiredQuantity = (existing?.quantity ?? 0) + normalizedQuantity;
+      if (desiredQuantity > BESPOKE_MAX_LINE_QUANTITY) {
+        warnings.push(
+          `Quantity for blend ${guestItem.bespokePerfumeId} capped at ${BESPOKE_MAX_LINE_QUANTITY}`,
+        );
+        desiredQuantity = BESPOKE_MAX_LINE_QUANTITY;
+      }
+      await this.cartRepository.upsertBespokeItem(
+        cartId,
+        guestItem.bespokePerfumeId,
+        guestItem.sizeMl,
+        desiredQuantity,
+      );
+    }
+
     const updatedCart = await this.reloadCart(cartId);
     return { cart: updatedCart, warnings };
   }
@@ -253,6 +313,10 @@ export class CartService {
         owned.productVariantId,
         quantity,
       );
+    }
+
+    if (owned.bespokePerfumeId && quantity > 0) {
+      this.bespokePricing.assertLineQuantity(quantity);
     }
 
     await this.cartRepository.updateItemQuantity(itemId, quantity);

@@ -50,6 +50,7 @@ import {
   BespokeSessionRepository,
   BespokeSessionVersionConflict,
 } from './bespoke-session.repository';
+import { BespokeRepository } from './bespoke.repository';
 import type { AnswerBespokeSessionDto } from './dto/bespoke.dto';
 import {
   buildFormulaSnapshot,
@@ -64,7 +65,7 @@ const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT_MAX_SESSIONS = 30;
 /** Concurrent ACTIVE consultations per logged-in customer; oldest is expired. */
-const MAX_ACTIVE_SESSIONS_PER_CUSTOMER = 3;
+const MAX_ACTIVE_SESSIONS_PER_CUSTOMER = 1;
 const MAX_FOLLOWUP_TEXT = 500;
 const MAX_FREE_TEXT = 1000;
 
@@ -154,6 +155,7 @@ function materialNames(accord: Accord, position: 'top' | 'heart' | 'base') {
 export class BespokeSessionService {
   constructor(
     private readonly sessions: BespokeSessionRepository,
+    private readonly perfumes: BespokeRepository,
     private readonly data: BespokeDataService,
   ) {}
 
@@ -358,6 +360,16 @@ export class BespokeSessionService {
     const existing = readResult(session);
 
     if (existing) {
+      if (!session.bespokePerfumeId) {
+        const minted = await this.mintBrew(
+          session,
+          existing,
+          session.customerId ?? customerId,
+          readState(session),
+        );
+        await this.recordCompletion(id, readState(minted.session));
+        return this.toResultResponse(minted.session, existing, minted.brewId);
+      }
       return this.toResultResponse(session, existing);
     }
 
@@ -378,21 +390,6 @@ export class BespokeSessionService {
 
     const result = this.buildResult(state, readShortlistIds(session));
     const owner = session.customerId ?? customerId;
-
-    if (!owner) {
-      const updated = await this.sessions.patch(id, session.version, {
-        resultJson: asJson(result),
-        status: BespokeSessionStatus.COMPLETED,
-      });
-
-      if (!updated) {
-        return this.toResultResponseOrThrow(await this.reload(id));
-      }
-
-      await this.recordCompletion(id, state);
-      return this.toResultResponse(updated, result);
-    }
-
     const minted = await this.mintBrew(session, result, owner, state);
     await this.recordCompletion(id, state);
     return this.toResultResponse(minted.session, result, minted.brewId);
@@ -428,7 +425,9 @@ export class BespokeSessionService {
     }
 
     if (session.bespokePerfumeId) {
-      return this.toResultResponse(session, stored);
+      await this.markClaimed(session, customerId);
+      const fresh = await this.reload(id);
+      return this.toResultResponse(fresh, stored);
     }
 
     const state = readState(session);
@@ -703,7 +702,7 @@ export class BespokeSessionService {
   private async mintBrew(
     session: BespokeSession,
     result: StoredSessionResult,
-    customerId: string,
+    customerId: string | null,
     state: EngineState,
   ): Promise<{ session: BespokeSession; brewId: string }> {
     try {
@@ -712,7 +711,9 @@ export class BespokeSessionService {
         session.version,
         {
           resultJson: asJson(result),
-          status: BespokeSessionStatus.CLAIMED,
+          status: customerId
+            ? BespokeSessionStatus.CLAIMED
+            : BespokeSessionStatus.COMPLETED,
           customerId,
         },
         {
@@ -764,6 +765,14 @@ export class BespokeSessionService {
     }
 
     const theme = stored.formula.colorTheme;
+    const bottle = stored.formula.bottle as unknown as Accord | undefined;
+    const notes = bottle
+      ? {
+          top: materialNames(bottle, 'top'),
+          heart: materialNames(bottle, 'heart'),
+          base: materialNames(bottle, 'base'),
+        }
+      : { top: [], heart: [], base: [] };
 
     return {
       sessionId: session.id,
@@ -775,9 +784,31 @@ export class BespokeSessionService {
       sampleFraming: stored.sampleFraming || DIVERGENCE_FRAMING,
       familyPrimary: theme.primary,
       familySecondary: theme.secondary,
+      notesByPosition: notes,
       brewId,
-      claimed: brewId != null,
+      claimed: session.status === BespokeSessionStatus.CLAIMED,
     };
+  }
+
+  private async markClaimed(
+    session: BespokeSession,
+    customerId: string,
+  ): Promise<void> {
+    if (session.bespokePerfumeId) {
+      const attached = await this.perfumes.attachCustomer(
+        session.bespokePerfumeId,
+        customerId,
+      );
+      if (!attached) {
+        throw new NotFoundException(
+          `Bespoke perfume with id "${session.bespokePerfumeId}" not found`,
+        );
+      }
+    }
+    await this.sessions.patch(session.id, session.version, {
+      status: BespokeSessionStatus.CLAIMED,
+      customerId,
+    });
   }
 
   // ------------------------------------------------------------ answer parsing

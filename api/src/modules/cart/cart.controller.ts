@@ -64,6 +64,7 @@ export class CartController {
       body.sizeMl,
       body.quantity,
       query.view ?? DEFAULT_CART_MUTATION_VIEW,
+      body.sessionTokens ?? [],
     );
   }
 
@@ -100,6 +101,11 @@ export class CartController {
     @Req() request: RequestWithCustomer,
     @Body() body: MergeCartDto,
   ): Promise<CartMergeResponse> {
-    return this.cartService.merge(request.user.customerId, body.items);
+    return this.cartService.merge(
+      request.user.customerId,
+      body.items,
+      body.bespokeItems ?? [],
+      body.sessionTokens ?? [],
+    );
   }
 }

@@ -93,7 +93,7 @@ export interface BespokePerfumeAdminResponse {
   id: string;
   name: string;
   dedication: string | null;
-  customerId: string;
+  customerId: string | null;
   engineVersion: string;
   graphVersion: string;
   formula: BespokeFormulaSnapshotV2;
@@ -112,9 +112,9 @@ export interface BespokeAdminListItem {
   id: string;
   name: string;
   dedication: string | null;
-  customerId: string;
+  customerId: string | null;
   customerName: string | null;
-  customerPhone: string;
+  customerPhone: string | null;
   engineVersion: string;
   graphVersion: string;
   colorTheme: BespokeColorTheme;
@@ -268,6 +268,13 @@ export interface BespokeAnswerRequest {
   answer: BespokeAnswerBody;
 }
 
+/** Customer-safe note names — no percentages or bench data. */
+export interface BespokeNotesByPosition {
+  top: string[];
+  heart: string[];
+  base: string[];
+}
+
 export interface BespokeSessionResultResponse {
   sessionId: string;
   name: string;
@@ -278,6 +285,7 @@ export interface BespokeSessionResultResponse {
   sampleFraming: string;
   familyPrimary: BespokeDimension | null;
   familySecondary: BespokeDimension | null;
+  notesByPosition: BespokeNotesByPosition;
   brewId: string | null;
   claimed: boolean;
 }

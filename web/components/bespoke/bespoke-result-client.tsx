@@ -6,16 +6,22 @@ import {
   BESPOKE_DIMENSION_LABEL,
   BESPOKE_FAMILY_COLOR,
   type BespokeDimension,
+  type BespokeNotesByPosition,
   type BespokeSessionResultResponse,
 } from "@ishraqparfums/shared";
 import { BespokeBrewPurchase } from "@/components/bespoke/bespoke-brew-purchase";
 import { BottleGlyph } from "@/components/bespoke/bottle-glyph";
 import { BespokeBrewSkeleton } from "@/components/bespoke/bespoke-skeletons";
+import { BandInner } from "@/components/home-v2/ui/band";
+import { Urdu } from "@/components/home-v2/ui/urdu";
 import { Button, ButtonLink } from "@/components/ui/button";
-import { Container } from "@/components/ui/container";
-import { Eyebrow } from "@/components/ui/eyebrow";
 import { loadBespokeSessionResult } from "@/lib/bespoke/complete-session";
 
+/**
+ * The payoff. Full-width: larger bottle, notes pyramid, size and price
+ * without requiring Save first. `loadBespokeSessionResult` completes the
+ * session on 401/404/409 so the quiz can navigate here on the last tap.
+ */
 export function BespokeResultClient() {
   const params = useParams<{ sessionId: string }>();
   const router = useRouter();
@@ -43,48 +49,29 @@ export function BespokeResultClient() {
     };
   }, [sessionId]);
 
-  async function ensureClaimed(): Promise<string> {
-    if (result?.brewId) return result.brewId;
-    const res = await fetch(`/api/bespoke/sessions/${sessionId}/claim`, {
-      method: "POST",
-    });
-    if (res.status === 401) {
-      router.push(
-        `/login?next=${encodeURIComponent(`/bespoke/result/${sessionId}`)}`,
-      );
-      throw new Error("Login required");
-    }
-    if (!res.ok) {
-      const body = (await res.json().catch(() => ({}))) as { message?: string };
-      throw new Error(body.message ?? "Could not save your blend");
-    }
-    const data = (await res.json()) as BespokeSessionResultResponse;
-    setResult(data);
-    if (!data.brewId) throw new Error("Claim did not return a brew");
-    return data.brewId;
-  }
-
-  async function claimForPurchase() {
-    setBusy(true);
-    setError(null);
-    try {
-      await ensureClaimed();
-    } catch (e) {
-      if (e instanceof Error && e.message === "Login required") return;
-      setError(e instanceof Error ? e.message : "Could not save");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function saveOnly() {
     setBusy(true);
     setError(null);
     try {
-      await ensureClaimed();
+      const res = await fetch(`/api/bespoke/sessions/${sessionId}/claim`, {
+        method: "POST",
+      });
+      if (res.status === 401) {
+        router.push(
+          `/login?next=${encodeURIComponent(`/bespoke/result/${sessionId}`)}`,
+        );
+        return;
+      }
+      if (!res.ok) {
+        const body = (await res.json().catch(() => ({}))) as {
+          message?: string;
+        };
+        throw new Error(body.message ?? "Could not save your blend");
+      }
+      const data = (await res.json()) as BespokeSessionResultResponse;
+      setResult(data);
       router.push("/bespoke/saved");
     } catch (e) {
-      if (e instanceof Error && e.message === "Login required") return;
       setError(e instanceof Error ? e.message : "Could not save");
     } finally {
       setBusy(false);
@@ -93,22 +80,26 @@ export function BespokeResultClient() {
 
   if (error && !result) {
     return (
-      <Container size="narrow" className="py-10">
-        <p className="text-rose" role="alert">
-          {error}
-        </p>
-        <ButtonLink href="/bespoke/quiz" variant="emphasis" className="mt-6">
-          Restart the quiz
-        </ButtonLink>
-      </Container>
+      <section className="bg-paper py-16 md:py-24">
+        <BandInner>
+          <p className="text-[15px] text-terra" role="alert">
+            {error}
+          </p>
+          <ButtonLink href="/bespoke/quiz" variant="ink" size="pill" className="mt-6">
+            Restart the quiz
+          </ButtonLink>
+        </BandInner>
+      </section>
     );
   }
 
   if (!result) {
     return (
-      <Container size="narrow" className="py-8 sm:py-12">
-        <BespokeBrewSkeleton />
-      </Container>
+      <section className="bg-paper py-16 md:py-24">
+        <BandInner>
+          <BespokeBrewSkeleton />
+        </BandInner>
+      </section>
     );
   }
 
@@ -116,95 +107,128 @@ export function BespokeResultClient() {
   const accent =
     result.colorTheme.accent ||
     (primary ? BESPOKE_FAMILY_COLOR[primary] : BESPOKE_FAMILY_COLOR.woody);
+  const notes = result.notesByPosition ?? {
+    top: [],
+    heart: [],
+    base: [],
+  };
 
   return (
-    <Container size="narrow" className="py-8 sm:py-12">
-      <Eyebrow>Your blend</Eyebrow>
-      <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row sm:items-start">
-        <BottleGlyph color={accent} fill={1} glow className="h-40 w-24" />
-        <div className="min-w-0 flex-1">
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] font-semibold text-ink">
-            {result.name}
-          </h1>
-          {result.dedication ? (
-            <p className="mt-2 text-sm italic text-ink-soft">
-              {result.dedication}
-            </p>
-          ) : null}
-          <div className="mt-4 flex flex-wrap gap-2">
-            {result.familyPrimary ? (
-              <FamilyChip dim={result.familyPrimary} />
+    <section className="bg-paper py-16 md:py-24">
+      <BandInner>
+        <Urdu size="sm" tone="brass" align="start">
+          {"آپ کی خوشبو"}
+        </Urdu>
+
+        <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)] lg:gap-16">
+          <BottleGlyph
+            color={accent}
+            fill={1}
+            glow
+            className="mx-auto h-[min(52vh,420px)] w-[min(38vw,200px)] lg:mx-0"
+          />
+          <div className="min-w-0">
+            <h1 className="font-editorial text-[clamp(36px,5vw,64px)] leading-[1.04] text-graphite">
+              {result.name}
+            </h1>
+            {result.dedication ? (
+              <p className="mt-2.5 font-editorial text-[16px] italic leading-[1.4] text-graphite-soft">
+                {result.dedication}
+              </p>
             ) : null}
-            {result.familySecondary ? (
-              <FamilyChip dim={result.familySecondary} />
+
+            <div className="mt-5 flex flex-wrap gap-2.5">
+              {result.familyPrimary ? (
+                <FamilyChip dim={result.familyPrimary} />
+              ) : null}
+              {result.familySecondary ? (
+                <FamilyChip dim={result.familySecondary} />
+              ) : null}
+            </div>
+
+            <p className="mt-6 max-w-[58ch] text-[16px] leading-[1.65] text-graphite-soft">
+              {result.brief}
+            </p>
+
+            {result.whatIHeard ? (
+              <p className="mt-4 max-w-[58ch] text-[14px] leading-[1.6] text-graphite-mute">
+                {result.whatIHeard}
+              </p>
+            ) : null}
+
+            <NotesPyramid notes={notes} />
+
+            {error ? (
+              <p className="mt-5 text-[14px] text-terra" role="alert">
+                {error}
+              </p>
             ) : null}
           </div>
-          <p className="mt-5 text-[15px] leading-relaxed text-ink-soft">
-            {result.brief}
-          </p>
-          {result.whatIHeard ? (
-            <p className="mt-4 text-sm leading-relaxed text-ink/80">
-              {result.whatIHeard}
-            </p>
-          ) : null}
-          {/*
-            sampleFraming ("There were two answers...") is deliberately not
-            shown here — the second, divergent sample is still computed and
-            still goes out with every order (see bespoke-session.service.ts's
-            buildFormulaSnapshot), the surprise is meant to be discovered
-            with the physical vial, not narrated in advance on this page.
-          */}
         </div>
-      </div>
 
-      {error ? (
-        <p className="mt-4 text-sm text-rose" role="alert">
-          {error}
-        </p>
-      ) : null}
-
-      {result.brewId ? (
-        <BespokeBrewPurchase
-          brewId={result.brewId}
-          productName={result.name}
-          backHref="/bespoke/saved"
-        />
-      ) : (
-        <div className="mt-8 rounded-lg border border-ink/12 bg-card p-5">
-          <p className="text-sm text-ink-soft">
-            Save this blend to your account to choose a size and add it to cart.
+        {result.brewId ? (
+          <BespokeBrewPurchase
+            brewId={result.brewId}
+            productName={result.name}
+            backHref={null}
+          />
+        ) : (
+          <p className="mt-8 text-[15px] text-graphite-soft">
+            This blend is still composing. Refresh in a moment.
           </p>
-          <div className="mt-5 flex flex-wrap gap-3">
+        )}
+
+        {!result.claimed ? (
+          <div className="mt-4">
             <Button
               type="button"
-              variant="emphasis"
-              size="lg"
-              className="cursor-pointer"
-              disabled={busy}
-              onClick={() => void claimForPurchase()}
-            >
-              {busy ? "Saving…" : "Save & choose size"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
+              variant="outline-paper"
+              size="pill"
               className="cursor-pointer"
               disabled={busy}
               onClick={() => void saveOnly()}
             >
-              Save for later
+              {busy ? "Saving…" : "Save for later"}
             </Button>
           </div>
-        </div>
-      )}
-    </Container>
+        ) : null}
+      </BandInner>
+    </section>
+  );
+}
+
+function NotesPyramid({ notes }: { notes: BespokeNotesByPosition }) {
+  const rows: { label: string; names: string[] }[] = [
+    { label: "Opening", names: notes.top },
+    { label: "Heart", names: notes.heart },
+    { label: "Base", names: notes.base },
+  ];
+  if (rows.every((row) => row.names.length === 0)) return null;
+
+  return (
+    <div className="mt-8 max-w-[42rem] border-t border-graphite/12 pt-6">
+      <p className="font-ui text-[11px] uppercase tracking-[0.16em] text-graphite-mute">
+        Notes
+      </p>
+      <dl className="mt-4 grid gap-4 sm:grid-cols-3">
+        {rows.map((row) => (
+          <div key={row.label}>
+            <dt className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
+              {row.label}
+            </dt>
+            <dd className="mt-1.5 font-editorial text-[17px] leading-[1.35] text-graphite">
+              {row.names.length > 0 ? row.names.join(", ") : "—"}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   );
 }
 
 function FamilyChip({ dim }: { dim: BespokeDimension }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-ink/12 px-3 py-1 text-sm text-ink">
+    <span className="inline-flex items-center gap-2 rounded-full border border-graphite/15 px-3.5 py-1.5 text-[13px] text-graphite">
       <span
         className="h-2 w-2 rounded-full"
         style={{ backgroundColor: BESPOKE_FAMILY_COLOR[dim] }}

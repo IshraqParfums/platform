@@ -21,6 +21,16 @@ export function BespokeEntry() {
     if (pendingId) return;
     setPendingId(optionId);
     try {
+      const listRes = await fetch("/api/bespoke/sessions");
+      if (listRes.ok) {
+        const body = (await listRes.json()) as {
+          sessions?: { sessionId: string }[];
+        };
+        if (Array.isArray(body.sessions) && body.sessions.length > 0) {
+          router.push("/bespoke/quiz");
+          return;
+        }
+      }
       const res = await fetch("/api/bespoke/quick-start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -30,8 +40,6 @@ export function BespokeEntry() {
       const { sessionId } = (await res.json()) as { sessionId: string };
       router.push(`/bespoke/quiz?s=${sessionId}`);
     } catch {
-      // Storefront must never dead-end on a marketing card — fall through to
-      // a plain, unparameterized quiz start instead of stranding the visitor.
       router.push("/bespoke/quiz");
     }
   }

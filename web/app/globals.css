@@ -1033,3 +1033,49 @@ html::-webkit-scrollbar-thumb:hover {
     height: auto !important;
   }
 }
+
+
+/* ==================================================================
+   Bespoke consultation
+   ================================================================== */
+
+/* The record entries and the incoming question, both entering. Motivated
+   by the same thing the quiz redesign is: something has to visibly happen
+   the instant a tap lands, before the server has answered, or the wait
+   between tap and next question reads as a dead screen. */
+@keyframes record-settle {
+  from {
+    opacity: 0;
+    translate: -6px 0;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.record-settle {
+  animation: record-settle 0.5s var(--ease-out-soft) both;
+}
+
+@keyframes question-arrive {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.question-arrive {
+  animation: question-arrive 0.55s var(--ease-out-soft) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .record-settle,
+  .question-arrive {
+    animation: none !important;
+  }
+}

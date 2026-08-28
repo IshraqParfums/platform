@@ -12,6 +12,7 @@ export type {
   CartUnavailableReason,
   CatalogCartItemResponse,
   MergeCartBody,
+  MergeBespokeCartItemBody,
   MergeCartItemBody,
   UpdateCartItemBody,
 } from './cart-contracts.js';
