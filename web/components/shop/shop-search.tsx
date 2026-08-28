@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import type { ProductListSort } from "@ishraqparfums/shared";
+import { SHOP_CONTROL_HEIGHT } from "@/components/shop/shop-control";
 import { useShopNavigate } from "@/components/shop/shop-navigation";
 import { SearchIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
@@ -77,7 +78,7 @@ export function ShopSearch({
       <label htmlFor="shop-q" className="sr-only">
         Search products
       </label>
-      <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-ink-faint" />
+      <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-graphite-faint" />
       <input
         id="shop-q"
         type="search"
@@ -85,8 +86,8 @@ export function ShopSearch({
         placeholder="Find a perfume"
         autoComplete="off"
         className={cn(
-          "w-full rounded-lg border border-ink/15 bg-cream pl-11 pr-4 text-[15px] text-ink outline-none transition-colors placeholder:text-ink-faint hover:border-ink/30 focus:border-ink/40 md:rounded-md",
-          "h-12",
+          "w-full rounded-md border border-graphite/25 bg-paper pl-11 pr-4 text-[15px] text-graphite outline-none transition-colors placeholder:text-graphite-faint hover:border-graphite/40 focus:border-graphite/50",
+          SHOP_CONTROL_HEIGHT,
         )}
         onChange={(event) => {
           const next = event.target.value;

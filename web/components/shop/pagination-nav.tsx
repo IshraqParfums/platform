@@ -32,12 +32,12 @@ export function PaginationNav({
     <nav
       aria-label="Pagination"
       className={cn(
-        "flex flex-col items-center gap-5 border-t border-line/50",
+        "flex flex-col items-center gap-5 border-t border-graphite/10",
         compact ? "mt-8 gap-3 pt-6" : "mt-16 pt-10",
       )}
     >
-      <p className="font-mono text-label-sm text-ink-faint">
-        Showing {rangeStart}–{rangeEnd} of {total}
+      <p className="text-[13px] text-graphite-soft">
+        Showing {rangeStart}-{rangeEnd} of {total}
       </p>
 
       {totalPages > 1 ? (
@@ -57,7 +57,7 @@ export function PaginationNav({
               />
             ))
           ) : (
-            <span className="px-3 font-mono text-label-sm text-ink-faint">
+            <span className="px-3 text-[13px] text-graphite-soft">
               Page {page} of {totalPages}
             </span>
           )}
@@ -77,7 +77,6 @@ function PageLink({
   label,
   current,
 }: {
-  /** Undefined renders a disabled state instead of a link. */
   href?: string;
   label: string;
   current?: boolean;
@@ -92,8 +91,8 @@ function PageLink({
         className={cn(
           base,
           current
-            ? "bg-ink text-cream-soft"
-            : "text-ink-faint opacity-40",
+            ? "bg-graphite text-paper"
+            : "text-graphite-faint opacity-40",
         )}
       >
         {label}
@@ -102,7 +101,10 @@ function PageLink({
   }
 
   return (
-    <Link href={href} className={cn(base, "text-ink hover:bg-ink/5")}>
+    <Link
+      href={href}
+      className={cn(base, "text-graphite hover:bg-graphite/5")}
+    >
       {label}
     </Link>
   );

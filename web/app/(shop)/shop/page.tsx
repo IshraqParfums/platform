@@ -1,20 +1,13 @@
-import type { Metadata } from "next";
-import {
-  PRODUCT_LIST_SORT_DEFAULT,
-  type ProductListSort,
-} from "@ishraqparfums/shared";
-import { ProductGridSkeleton } from "@/components/product/product-card-skeleton";
 import { ProductListing } from "@/components/shop/product-listing";
 import { ShopClosingBand } from "@/components/shop/shop-closing-band";
 import { ShopFilterRail } from "@/components/shop/shop-filter-rail";
+import { ShopJournalSkeleton } from "@/components/shop/shop-journal-skeleton";
 import { ShopMasthead } from "@/components/shop/shop-masthead";
 import { ShopNavigationProvider } from "@/components/shop/shop-navigation";
 import { ShopResults } from "@/components/shop/shop-results";
-import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
+import { BandInner } from "@/components/home-v2/ui/band";
 import {
   getCollections,
-  getHomepageCollections,
   getProducts,
 } from "@/lib/api/catalog";
 import {
@@ -22,11 +15,16 @@ import {
   parseShopPage,
   parseShopSort,
 } from "@/lib/shop-query";
+import {
+  PRODUCT_LIST_SORT_DEFAULT,
+  type ProductListSort,
+} from "@ishraqparfums/shared";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "All Perfumes",
   description:
-    "Browse every Ishraq Parfums composition — small-batch perfumes built from a real perfumer's palette.",
+    "Browse every Ishraq Parfums composition. Small-batch perfumes built from a real perfumer's palette.",
 };
 
 export default async function ShopPage({
@@ -45,9 +43,8 @@ export default async function ShopPage({
   const sort: ProductListSort = parseShopSort(params.sort);
   const page = parseShopPage(params.page);
 
-  const [products, homepageCollections, collections] = await Promise.all([
+  const [products, collections] = await Promise.all([
     getProducts({ collection, q, sort, page }),
-    getHomepageCollections(),
     getCollections(),
   ]);
 
@@ -57,31 +54,28 @@ export default async function ShopPage({
 
   return (
     <ShopNavigationProvider>
-      <ShopMasthead
-        total={products.total}
-        collection={activeCollection}
-        q={q}
-      />
-
-      <Section space="compact" className="!pt-0 md:!pt-0">
-        <Container size="wide">
+      <div className="bg-paper font-ui text-graphite">
+        <BandInner className="pt-6 pb-16 md:pt-8 sm:pb-20">
           <ShopFilterRail
-            homepageCollections={homepageCollections}
-            activeCollection={activeCollection}
-            totalCollectionCount={collections.length}
+            title={
+              <ShopMasthead
+                total={products.total}
+                collection={activeCollection}
+                q={q}
+                sort={sort}
+              />
+            }
             collection={collection}
             q={q}
             sort={sort}
           />
 
           <div className="mt-8 md:mt-10">
-            <ShopResults skeleton={<ProductGridSkeleton count={8} />}>
+            <ShopResults skeleton={<ShopJournalSkeleton count={4} />}>
               <ProductListing
                 page={products}
-                collections={collections}
                 emptyQuery={q}
                 emptyCollectionName={activeCollection?.name}
-                emptyCollectionSlug={activeCollection?.slug}
                 buildPageHref={(pageNumber) =>
                   buildShopHref({
                     collection,
@@ -94,10 +88,10 @@ export default async function ShopPage({
               />
             </ShopResults>
           </div>
-        </Container>
-      </Section>
+        </BandInner>
 
-      <ShopClosingBand />
+        <ShopClosingBand />
+      </div>
     </ShopNavigationProvider>
   );
 }

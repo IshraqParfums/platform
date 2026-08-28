@@ -9,21 +9,37 @@ export type FooterNavColumn = {
   links: { href: string; label: string }[];
 };
 
+export type FooterNavTone = "paper" | "espresso";
+
 /**
  * Mobile-only accordion for footer link groups.
  * Desktop columns stay in Footer — this is purpose-built for thumbs.
  */
-export function FooterMobileNav({ columns }: { columns: FooterNavColumn[] }) {
+export function FooterMobileNav({
+  columns,
+  tone = "espresso",
+}: {
+  columns: FooterNavColumn[];
+  tone?: FooterNavTone;
+}) {
   const baseId = useId();
-  const [openTitle, setOpenTitle] = useState<string | null>(columns[0]?.title ?? null);
+  const [openTitle, setOpenTitle] = useState<string | null>(
+    columns[0]?.title ?? null,
+  );
+  const paper = tone === "paper";
 
   return (
-    <div className="border-t border-cream/10">
+    <div className={paper ? "border-t border-graphite/10" : "border-t border-cream/10"}>
       {columns.map((col) => {
         const open = openTitle === col.title;
         const panelId = `${baseId}-${col.title}`;
         return (
-          <div key={col.title} className="border-b border-cream/10">
+          <div
+            key={col.title}
+            className={
+              paper ? "border-b border-graphite/10" : "border-b border-cream/10"
+            }
+          >
             <button
               type="button"
               aria-expanded={open}
@@ -35,7 +51,14 @@ export function FooterMobileNav({ columns }: { columns: FooterNavColumn[] }) {
                 )
               }
             >
-              <span className="font-mono text-label-sm uppercase tracking-[0.14em] text-gold-soft/80">
+              <span
+                className={cn(
+                  "text-[13px]",
+                  paper
+                    ? "text-terra"
+                    : "font-mono text-label-sm uppercase tracking-[0.14em] text-gold-soft/80",
+                )}
+              >
                 {col.title}
               </span>
               <svg
@@ -43,7 +66,8 @@ export function FooterMobileNav({ columns }: { columns: FooterNavColumn[] }) {
                 fill="none"
                 aria-hidden="true"
                 className={cn(
-                  "h-3.5 w-3.5 shrink-0 text-cream/45 transition-transform duration-200",
+                  "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
+                  paper ? "text-graphite-faint" : "text-cream/45",
                   open && "rotate-180",
                 )}
               >
@@ -67,7 +91,12 @@ export function FooterMobileNav({ columns }: { columns: FooterNavColumn[] }) {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="block py-0.5 text-[15px] text-cream/70 transition-colors hover:text-cream-soft"
+                      className={cn(
+                        "block py-0.5 text-[15px] transition-colors",
+                        paper
+                          ? "text-graphite-soft hover:text-graphite"
+                          : "text-cream/70 hover:text-cream-soft",
+                      )}
                     >
                       {link.label}
                     </Link>

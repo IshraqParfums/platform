@@ -13,7 +13,7 @@ const OPTIONS: { value: ProductListSort; label: string }[] = [
   { value: "newest", label: "Newest" },
   { value: "price-asc", label: "Price: low to high" },
   { value: "price-desc", label: "Price: high to low" },
-  { value: "name-asc", label: "Name A–Z" },
+  { value: "name-asc", label: "Name A-Z" },
 ];
 
 export function ShopSortSelect({
@@ -34,8 +34,10 @@ export function ShopSortSelect({
       ariaLabel="Sort products"
       value={sort}
       options={OPTIONS}
-      triggerClassName={`${SHOP_CONTROL_HEIGHT} w-full min-w-0 sm:min-w-[12rem] max-md:min-h-12 max-md:h-12`}
-      className="w-full md:w-auto md:shrink-0"
+      tone="paper"
+      triggerClassName={`${SHOP_CONTROL_HEIGHT} w-auto min-w-[7.25rem] md:min-w-[11rem]`}
+      className="w-auto shrink-0"
+      labelClassName="max-md:hidden"
       onChange={(next) => {
         const value = next as ProductListSort;
         navigate(

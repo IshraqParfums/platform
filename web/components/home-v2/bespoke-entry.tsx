@@ -43,15 +43,13 @@ export function BespokeEntry() {
    * colour change hiding it less. Bottom keeps the full baseline — Belief's
    * closing statement below sets its own generous top rhythm independently.
    *
-   * `id` is the hero's primary CTA target ("Discover your scent" points at
-   * `#consultation` in HOME_HERO). Nothing on the page carried that anchor,
-   * so the button did nothing when clicked. `scroll-mt` keeps the heading
-   * clear of the fixed header once the smooth scroll lands.
+   * `id` stays as a stable in-page landmark for the teaser. The hero's
+   * primary CTA goes to `/bespoke` rather than jumping here.
    */
   return (
     <section
       id="consultation"
-      className="scroll-mt-20 bg-paper-deep pt-10 pb-20 md:pt-14 md:pb-28 lg:pt-16"
+      className="scroll-mt-20 bg-paper pt-10 pb-20 md:pt-14 md:pb-28 lg:pt-16"
     >
       <BandInner>
         <div className="grid items-start gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">

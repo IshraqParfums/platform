@@ -62,7 +62,7 @@ export function HeroCopy({ className }: { className?: string }) {
         `--text-h1-editorial` comment in globals.css.
       */}
       <h1
-        className="hero-rise mt-5 font-editorial text-[clamp(38px,10.4vw,50px)] leading-[0.98] tracking-[-0.03em] text-graphite sm:mt-6 sm:text-[clamp(36px,5.4vw,52px)] sm:leading-[0.96] lg:mt-7 lg:text-h1-editorial lg:leading-[var(--text-h1-editorial--line-height)] lg:tracking-[var(--text-h1-editorial--letter-spacing)]"
+        className="hero-rise mt-5 font-editorial text-[clamp(45.6px,12.48vw,60px)] leading-[0.98] tracking-[-0.03em] text-graphite sm:mt-6 sm:text-[clamp(36px,5.4vw,52px)] sm:leading-[0.96] lg:mt-7 lg:text-h1-editorial lg:leading-[var(--text-h1-editorial--line-height)] lg:tracking-[var(--text-h1-editorial--letter-spacing)]"
         style={{ animationDelay: "160ms" }}
       >
         {HOME_HERO.headline[0]}
@@ -71,7 +71,7 @@ export function HeroCopy({ className }: { className?: string }) {
       </h1>
 
       <p
-        className="hero-rise mx-auto mt-4 max-w-[28ch] text-[14.5px] leading-[1.45] text-graphite-soft sm:mx-0 sm:mt-5 sm:max-w-[30ch] sm:text-[15.5px] sm:leading-[1.5] lg:mt-6 lg:max-w-[36ch] lg:text-[17px] lg:leading-[1.55]"
+        className="hero-rise mx-auto mt-4 max-w-[28ch] text-[17.4px] leading-[1.45] text-graphite-soft sm:mx-0 sm:mt-5 sm:max-w-[30ch] sm:text-[15.5px] sm:leading-[1.5] lg:mt-6 lg:max-w-[36ch] lg:text-[17px] lg:leading-[1.55]"
         style={{ animationDelay: "240ms" }}
       >
         {HOME_HERO.lead}

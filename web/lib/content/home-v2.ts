@@ -13,7 +13,7 @@ export const HOME_HERO = {
   urdu: "خوشبو جو صرف تمہاری ہے",
   headline: ["A scent that’s", "unmistakably yours."],
   lead: "Composed from real perfumery materials, one question at a time.",
-  primaryCta: { label: "Discover your scent", href: "#consultation" },
+  primaryCta: { label: "Discover your scent", href: "/bespoke" },
   secondaryCta: { label: "Explore the collection", href: "/shop" },
   image: {
     src: "/home/studio/hero-oud-smoke.webp",

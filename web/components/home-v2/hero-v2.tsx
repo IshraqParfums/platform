@@ -42,7 +42,7 @@ import { BandInner } from "@/components/home-v2/ui/band";
  */
 export function HeroV2() {
   return (
-    <section className="relative min-h-[100dvh] overflow-hidden bg-paper">
+    <section className="relative min-h-[100svh] overflow-hidden bg-paper">
       <div className="absolute inset-0">
         <BandInner className="relative h-full">
           {/*
@@ -67,7 +67,7 @@ export function HeroV2() {
         reason — 68px + 12px (HEADER_HEIGHT_PX in lib/layout.ts) is exactly
         `pt-20`'s 80px.
       */}
-      <BandInner className="relative z-[1] flex min-h-[100dvh] flex-col justify-center pt-[68px] pb-8 sm:pt-20 sm:pb-16">
+      <BandInner className="relative z-[1] flex min-h-[100svh] flex-col justify-center pt-[68px] pb-8 sm:pt-20 sm:pb-16">
         {/*
           The type's measure is the band less the arch, worked out from the
           same tokens the arch is placed with so the two can never disagree.

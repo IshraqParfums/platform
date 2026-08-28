@@ -11,7 +11,7 @@ import { HOME_BELIEF } from "@/lib/content/home-v2";
  */
 export function Belief() {
   return (
-    <section className="bg-paper py-16 md:py-20 lg:py-24">
+    <section className="bg-paper-deep py-16 md:py-20 lg:py-24">
       <BandInner className="flex flex-col items-center text-center">
         <div className="mx-auto max-w-[760px]">
           <Reveal>
