@@ -787,10 +787,8 @@ html::-webkit-scrollbar-thumb:hover {
     #000 26%,
     transparent 76%
   );
-}
 
-@media (min-width: 640px) {
-  .hero-field {
+  @media (width >= 40rem) {
     opacity: 1;
     -webkit-mask-image: none;
     mask-image: none;

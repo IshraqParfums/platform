@@ -66,7 +66,7 @@ const SIZES: Record<UrduSize, string> = {
    * the full width of the page and becomes 54% of it, so the available
    * measure drops at the exact width a plain vw ramp would grow through.
    */
-  hero: "text-[clamp(24px,7vw,30px)] sm:text-[clamp(24px,4vw,32px)] lg:text-[clamp(34px,3.4vw,46px)]",
+  hero: "text-[clamp(28.8px,8.4vw,36px)] sm:text-[clamp(24px,4vw,32px)] lg:text-[clamp(34px,3.4vw,46px)]",
   display: "text-[28px] sm:text-[38px] lg:text-[52px]",
 };
 

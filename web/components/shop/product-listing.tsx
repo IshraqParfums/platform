@@ -1,30 +1,29 @@
-import Link from "next/link";
-import type { CollectionSummary, PaginatedResponse, ProductListItem } from "@ishraqparfums/shared";
+import type {
+  PaginatedResponse,
+  ProductListItem,
+} from "@ishraqparfums/shared";
+import { Fragment } from "react";
 import { PaginationNav } from "@/components/shop/pagination-nav";
-import { ProductGrid } from "@/components/shop/product-grid";
-import { OrnamentalDivider } from "@/components/ui/ornamental-divider";
+import { ShopJournalRow } from "@/components/shop/shop-journal-row";
+import { ButtonLink } from "@/components/ui/button";
+import { SHOP } from "@/lib/content/shop";
 
 /**
- * Owns the "given a page of products, what does the page look like" concerns —
- * empty state, grid, pagination — so shop listing stays one implementation.
+ * Owns empty state, the two-column journal grid, and pagination.
+ * Order follows the catalogue query (newest by default).
  */
 export function ProductListing({
   page,
-  collections,
   buildPageHref,
   emptyMessage,
   emptyQuery,
   emptyCollectionName,
-  emptyCollectionSlug,
 }: {
   page: PaginatedResponse<ProductListItem>;
-  collections: CollectionSummary[];
   buildPageHref: (pageNumber: number) => string;
   emptyMessage?: string;
   emptyQuery?: string;
   emptyCollectionName?: string;
-  /** Active collection filter — excluded from “try another” chips. */
-  emptyCollectionSlug?: string;
 }) {
   if (page.items.length === 0) {
     const query = emptyQuery?.trim();
@@ -34,48 +33,42 @@ export function ProductListing({
         ? `Nothing in ${emptyCollectionName} yet`
         : emptyMessage ?? "No products match your filters yet.";
 
-    const suggestions = collections
-      .filter((item) => item.slug !== emptyCollectionSlug)
-      .slice(0, 4);
-
     return (
-      <div className="rounded-3xl border border-line/60 bg-card px-6 py-14 text-center sm:px-10 sm:py-16">
-        <OrnamentalDivider className="mb-6 max-w-[10rem] text-ink-faint/70" />
-        <p className="font-display text-[1.35rem] font-semibold text-ink sm:text-[1.5rem]">
+      <div className="py-6">
+        <h2 className="font-editorial text-[clamp(24px,3vw,32px)] leading-[1.15] text-graphite">
           {headline}
-        </p>
-        <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-ink-soft">
-          Try another collection, clear the search, or browse the full shelf.
+        </h2>
+        <p className="mt-4 max-w-[46ch] text-[16px] leading-[1.6] text-graphite-soft">
+          {SHOP.emptyLead}
         </p>
 
-        {suggestions.length > 0 ? (
-          <ul className="mt-7 flex flex-wrap items-center justify-center gap-2">
-            {suggestions.map((item) => (
-              <li key={item.slug}>
-                <Link
-                  href={`/shop?collection=${item.slug}`}
-                  className="inline-flex items-center rounded-full border border-ink/20 px-3.5 py-1.5 text-[13px] font-medium text-ink-soft transition-colors hover:border-ink/40 hover:text-ink"
-                >
-                  {item.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-
-        <Link
+        <ButtonLink
           href="/shop"
-          className="mt-8 inline-flex items-center justify-center rounded-full border border-ink/20 px-4 py-2 text-[13px] font-medium text-ink transition-colors hover:border-ink/40 hover:bg-ink/5"
+          variant="outline-paper"
+          size="pill"
+          className="mt-8"
         >
-          View all perfumes
-        </Link>
+          {SHOP.emptyCta}
+        </ButtonLink>
       </div>
     );
   }
 
   return (
     <>
-      <ProductGrid products={page.items} collections={collections} />
+      <div className="grid grid-cols-1 gap-x-12 gap-y-0 md:grid-cols-2 md:gap-y-14">
+        {page.items.map((product, index) => (
+          <Fragment key={product.slug}>
+            {index > 0 ? (
+              <div
+                aria-hidden="true"
+                className="col-span-full mt-[2.625rem] mb-[2.8rem] h-px bg-graphite/40 md:hidden"
+              />
+            ) : null}
+            <ShopJournalRow product={product} priority={index < 2} />
+          </Fragment>
+        ))}
+      </div>
       <PaginationNav
         page={page.page}
         pageSize={page.pageSize}

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ProductDetail } from "@ishraqparfums/shared";
 import { Urdu } from "@/components/home-v2/ui/urdu";
 import { ProductHeroPlate } from "@/components/product-v2/product-hero-plate";
@@ -11,7 +10,7 @@ import { ProductShare } from "@/components/product/product-share";
 /**
  * The arrival — identity and commerce in one composition.
  *
- * Structure follows the home hero: eyebrow → Urdu → headline → lead → CTA
+ * Structure follows the home hero: Urdu → headline → lead → CTA
  * group, type on the left at `lg` with photography entering from the right.
  * It does not borrow the hero's `100dvh`, because this column also carries
  * size, price and a cart button.
@@ -46,30 +45,23 @@ export function ProductArrival({ product }: { product: ProductDetail }) {
       />
 
       <div className="pt-8 lg:col-start-1 lg:row-start-1 lg:flex lg:flex-col lg:justify-center lg:pt-0 lg:pr-8">
-        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-          <Link
-            href={`/shop?collection=${product.collection.slug}`}
-            className="text-[13px] text-terra transition-colors hover:opacity-80"
-          >
-            {product.collection.name}
-          </Link>
-          <ProductShare
-            name={product.name}
-            slug={product.slug}
-            blurb={product.shortDescription}
-            className="shrink-0"
-          />
-        </div>
-
         {product.nameUrdu ? (
-          <Urdu size="md" tone="brass-deep" leading="tight" className="mt-4">
+          <Urdu size="md" tone="brass-deep" leading="tight">
             {product.nameUrdu}
           </Urdu>
         ) : null}
 
-        <h1 className="mt-2 font-editorial text-[clamp(34px,5vw,56px)] leading-[1.04] tracking-[-0.02em] text-graphite">
-          {product.name}
-        </h1>
+        <div className="mt-2 flex items-start justify-between gap-4">
+          <h1 className="min-w-0 font-editorial text-[clamp(34px,5vw,56px)] leading-[1.04] tracking-[-0.02em] text-graphite">
+            {product.name}
+          </h1>
+          <ProductShare
+            name={product.name}
+            slug={product.slug}
+            blurb={product.shortDescription}
+            className="mt-1 shrink-0"
+          />
+        </div>
 
         {lead ? (
           leadIsUrdu ? (

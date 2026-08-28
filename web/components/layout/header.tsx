@@ -8,7 +8,7 @@ import { CartNavLink } from "@/components/layout/cart-nav-link";
 import { Container } from "@/components/ui/container";
 import { ACCOUNT_HOME } from "@/lib/auth/account-routes";
 import { cn } from "@/lib/cn";
-import { HEADER_HEIGHT_PX } from "@/lib/layout";
+import { HEADER_HEIGHT_PX, isPaperStorefrontPath } from "@/lib/layout";
 
 const NAV = [
   { href: "/shop", label: "Shop" },
@@ -42,11 +42,7 @@ function Monogram() {
  */
 export function Header() {
   const pathname = usePathname();
-  // Paper routes — those migrated onto the v2 tokens. Product detail pages
-  // joined the homepage here; `startsWith` is safe because admin's product
-  // screens live under `/admin/products`, not `/products`. As more pages
-  // migrate this list grows, or it moves into the layout.
-  const light = pathname === "/" || pathname.startsWith("/products/");
+  const light = isPaperStorefrontPath(pathname);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {

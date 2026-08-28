@@ -24,9 +24,13 @@ type SelectProps = {
   label?: string;
   /** `above` stacks the label; `inline` sits beside the trigger (same row height). */
   labelPlacement?: SelectLabelPlacement;
+  /** `paper` is the v2 shop rail. Default cream stays for admin. */
+  tone?: "cream" | "paper";
   placeholder?: string;
   className?: string;
   triggerClassName?: string;
+  /** Extra classes on the visible label (e.g. hide it on small screens). */
+  labelClassName?: string;
 };
 
 /**
@@ -40,9 +44,11 @@ export function Select({
   ariaLabel,
   label,
   labelPlacement = "above",
+  tone = "cream",
   placeholder = "Select",
   className,
   triggerClassName,
+  labelClassName,
 }: SelectProps) {
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -125,13 +131,18 @@ export function Select({
     }
   }
 
+  const paper = tone === "paper";
+
   const labelNode = label ? (
     <span
       className={cn(
         "shrink-0",
         inline
-          ? "text-sm text-ink-soft"
+          ? paper
+            ? "text-sm text-graphite-soft"
+            : "text-sm text-ink-soft"
           : "font-mono text-label-sm uppercase tracking-wide text-ink-faint",
+        labelClassName,
       )}
     >
       {label}
@@ -157,13 +168,16 @@ export function Select({
           aria-expanded={open}
           aria-controls={listboxId}
           className={cn(
-            "inline-flex w-full min-w-[11rem] items-center justify-between gap-3 rounded-md border border-ink/15 bg-cream px-3 py-2.5 text-left text-sm text-ink outline-none transition-colors hover:border-ink/30 focus-visible:border-ink/40",
+            "inline-flex w-full min-w-0 items-center justify-between gap-3 rounded-md border px-3 py-2.5 text-left text-sm outline-none transition-colors",
+            paper
+              ? "border-graphite/25 bg-paper text-graphite hover:border-graphite/40 focus-visible:border-graphite/50"
+              : "border-ink/15 bg-cream text-ink hover:border-ink/30 focus-visible:border-ink/40",
             triggerClassName,
           )}
           onClick={() => setOpen((current) => !current)}
           onKeyDown={onTriggerKeyDown}
         >
-          <span className={cn(!selected && "text-ink-faint")}>
+          <span className={cn(!selected && (paper ? "text-graphite-faint" : "text-ink-faint"))}>
             {selected?.label ?? placeholder}
           </span>
           <svg
@@ -171,7 +185,8 @@ export function Select({
             fill="none"
             aria-hidden="true"
             className={cn(
-              "h-3.5 w-3.5 shrink-0 text-ink-faint transition-transform",
+              "h-3.5 w-3.5 shrink-0 transition-transform",
+              paper ? "text-graphite-faint" : "text-ink-faint",
               open && "rotate-180",
             )}
           >
@@ -191,7 +206,12 @@ export function Select({
             role="listbox"
             tabIndex={-1}
             aria-activedescendant={`${listboxId}-option-${activeIndex}`}
-            className="absolute top-full left-0 z-40 mt-1 max-h-60 min-w-full overflow-auto rounded-md border border-ink/15 bg-cream py-1 shadow-[0_12px_32px_-16px_rgba(28,22,18,0.35)] outline-none"
+            className={cn(
+              "absolute top-full left-0 z-40 mt-1 max-h-60 min-w-full overflow-auto rounded-md border py-1 outline-none",
+              paper
+                ? "border-graphite/15 bg-paper shadow-[0_12px_32px_-16px_rgba(22,19,16,0.22)]"
+                : "border-ink/15 bg-cream shadow-[0_12px_32px_-16px_rgba(28,22,18,0.35)]",
+            )}
             onKeyDown={onListKeyDown}
             ref={(node) => node?.focus()}
           >
@@ -205,8 +225,9 @@ export function Select({
                   role="option"
                   aria-selected={isSelected}
                   className={cn(
-                    "cursor-pointer px-3 py-2 text-sm text-ink transition-colors",
-                    isActive && "bg-ink/5",
+                    "cursor-pointer px-3 py-2 text-sm transition-colors",
+                    paper ? "text-graphite" : "text-ink",
+                    isActive && (paper ? "bg-graphite/5" : "bg-ink/5"),
                     isSelected && "font-medium",
                   )}
                   onMouseEnter={() => setActiveIndex(index)}

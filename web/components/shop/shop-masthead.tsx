@@ -1,56 +1,85 @@
-import type { CollectionSummary } from "@ishraqparfums/shared";
-import { Container } from "@/components/ui/container";
-import { Eyebrow } from "@/components/ui/eyebrow";
-import { Section } from "@/components/ui/section";
+import {
+  PRODUCT_LIST_SORT_DEFAULT,
+  type CollectionSummary,
+  type ProductListSort,
+} from "@ishraqparfums/shared";
+import Link from "next/link";
+import { Urdu } from "@/components/home-v2/ui/urdu";
+import { SHOP } from "@/lib/content/shop";
+import { buildShopHref } from "@/lib/shop-query";
 
 /**
- * Espresso arrival band for `/shop`.
- * Default: catalogue masthead. Collection / search: same band, text-only.
+ * Compact catalogue index title. Collection description is one line when a
+ * collection is selected; search uses the results meta instead.
  */
 export function ShopMasthead({
   total,
   collection,
   q,
+  sort,
 }: {
   total: number;
   collection?: CollectionSummary;
   q?: string;
+  sort: ProductListSort;
 }) {
   const query = q?.trim() || undefined;
-  const countLabel = `${total} composition${total === 1 ? "" : "s"}`;
-  const meta = query
+  const unfiltered = !collection && !query;
+  const searchMeta = query
     ? `${total} result${total === 1 ? "" : "s"} for "${query}"`
-    : countLabel;
+    : undefined;
 
-  const eyebrow = collection?.editorialLabel?.trim() || "The catalogue";
-  const title = collection?.name ?? "All Perfumes";
-  const lead =
-    collection?.description?.trim() ||
-    "Handcrafted compositions built from a real perfumer's palette.";
+  const kicker = collection?.editorialLabel?.trim() || SHOP.kicker;
+  const title = collection?.name ?? SHOP.heading;
+  const collectionLead = collection?.description?.trim();
+  const allHref = buildShopHref({
+    q: query,
+    sort: sort === PRODUCT_LIST_SORT_DEFAULT ? undefined : sort,
+  });
 
   return (
-    <Section
-      tone="deep"
-      glow
-      mist="subtle"
-      space="compact"
-      className="!py-8 md:!py-12"
-    >
-      <Container size="wide">
-        <Eyebrow tone="gold">{eyebrow}</Eyebrow>
-
-        <h1 className="font-display mt-4 text-[clamp(1.85rem,5vw,2.75rem)] font-semibold tracking-tight text-cream-soft md:mt-5 md:text-[clamp(2rem,3.2vw,2.75rem)]">
+    <header>
+      {collection ? (
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-graphite-faint"
+        >
+          <Link
+            href={allHref}
+            className="transition-colors hover:text-graphite"
+          >
+            All perfumes
+          </Link>
+          <span aria-hidden="true">/</span>
+          <Link
+            href="/collections"
+            className="transition-colors hover:text-graphite"
+          >
+            Collections
+          </Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-graphite-soft">{collection.name}</span>
+        </nav>
+      ) : null}
+      <p className="text-[12px] text-terra md:text-[13px]">{kicker}</p>
+      <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <h1 className="font-editorial text-[28px] leading-[1.1] text-graphite md:text-[32px]">
           {title}
         </h1>
-
-        <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-cream/70 md:mt-4 md:text-[15.5px]">
-          {lead}
+        {unfiltered ? (
+          <Urdu size="sm" tone="brass" align="start" leading="tight" as="span">
+            {SHOP.urdu}
+          </Urdu>
+        ) : null}
+        {searchMeta ? (
+          <p className="text-[13px] text-graphite-soft">{searchMeta}</p>
+        ) : null}
+      </div>
+      {collectionLead && !query ? (
+        <p className="mt-1.5 max-w-[54ch] truncate text-[14px] leading-[1.45] text-graphite-soft">
+          {collectionLead}
         </p>
-
-        <p className="mt-5 font-mono text-label-sm uppercase tracking-wide text-gold-soft/80 md:mt-6">
-          {meta}
-        </p>
-      </Container>
-    </Section>
+      ) : null}
+    </header>
   );
 }
