@@ -7,11 +7,16 @@ export const HEADER_HEIGHT_PX = 68;
  * `/bespoke` covers the whole consultation: the pitch, the quiz itself, the
  * result and the saved-formula locker all moved onto v2 tokens together, so
  * a visitor never crosses from parchment into espresso mid-consultation.
+ * `/cart` joined them for the same reason — it's one tap from a bespoke
+ * result or a paper PDP, and a visitor landing on it should never see the
+ * bar flash to espresso for one page in the middle of an otherwise-paper
+ * journey.
  */
 export function isPaperStorefrontPath(pathname: string): boolean {
   return (
     pathname === "/" ||
     pathname === "/shop" ||
+    pathname === "/cart" ||
     pathname.startsWith("/products/") ||
     pathname.startsWith("/bespoke")
   );

@@ -20,14 +20,14 @@ export function CartSkeleton() {
             </SkeletonStack>
           </header>
 
-          <div className="mt-10 divide-y divide-ink/[0.08] border-y border-ink/[0.08]">
+          <div className="mt-10 divide-y divide-graphite/[0.08] border-y border-graphite/[0.08]">
             {Array.from({ length: 3 }, (_, index) => (
               <CartLineSkeleton key={index} />
             ))}
           </div>
         </div>
 
-        <aside className="rounded-xl border border-ink/10 bg-cream-soft/90 p-6 sm:p-7 lg:sticky lg:top-24 lg:self-start">
+        <aside className="rounded-[4px] border border-graphite/10 bg-shell p-6 sm:p-7 lg:sticky lg:top-24 lg:self-start">
           <Skeleton className="h-7 w-28" />
           <div className="mt-7 space-y-4">
             <div className="flex justify-between gap-6">
@@ -38,7 +38,7 @@ export function CartSkeleton() {
               <Skeleton className="h-4 w-16" />
               <Skeleton className="h-4 w-14" />
             </div>
-            <div className="flex justify-between gap-6 border-t border-ink/[0.08] pt-4">
+            <div className="flex justify-between gap-6 border-t border-graphite/[0.08] pt-4">
               <Skeleton className="h-5 w-14" />
               <Skeleton className="h-5 w-16" />
             </div>

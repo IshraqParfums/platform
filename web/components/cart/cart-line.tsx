@@ -9,7 +9,7 @@ import { cartUnavailableReasonCopy } from "@/lib/cart/cart-view";
 import { formatPaise } from "@/lib/format/money";
 import { cn } from "@/lib/cn";
 
-const EASE = "duration-200 ease-[cubic-bezier(0.22,0.8,0.28,1)]";
+const EASE = "duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)]";
 
 export function CartLine({
   line,
@@ -33,6 +33,23 @@ export function CartLine({
       ? "Bespoke"
       : line.collectionName;
 
+  /*
+   * BUG FIX: bespoke lines used to link to `/products/${line.productSlug}`
+   * along with catalog lines. A bespoke formula was never a catalog product
+   * and has no product slug — both the guest cart (`cart-view.ts`,
+   * `cartViewFromGuest`) and the server cart mapping hand this line a
+   * placeholder `productSlug` rather than a real one, because there is no
+   * real one to give it. The link resolved to `/products/bespoke`, a route
+   * that has never existed. The formula's real page is
+   * `/bespoke/brews/[id]`, the same one the saved-formula locker already
+   * links to (`bespoke-saved-client.tsx`) — this line was simply never
+   * updated to match when that route was built.
+   */
+  const href =
+    line.kind === "bespoke"
+      ? `/bespoke/brews/${line.bespokePerfumeId}`
+      : `/products/${line.productSlug}`;
+
   return (
     <article
       className={cn(
@@ -41,12 +58,12 @@ export function CartLine({
       )}
     >
       <Link
-        href={`/products/${line.productSlug}`}
+        href={href}
         className={cn(
-          "relative h-[6.5rem] w-[6.5rem] shrink-0 overflow-hidden rounded-xl bg-deep ring-1 ring-line/35 sm:h-32 sm:w-32",
+          "relative h-[6.5rem] w-[6.5rem] shrink-0 overflow-hidden rounded-[3px] bg-tobacco ring-1 ring-graphite/10 sm:h-32 sm:w-32",
           "transition-[box-shadow,ring-color]",
           EASE,
-          "hover:ring-gold/30",
+          "hover:ring-terra/35",
         )}
       >
         {line.primaryImageUrl ? (
@@ -62,7 +79,7 @@ export function CartLine({
             )}
           />
         ) : (
-          <span className="flex h-full w-full items-center justify-center font-display text-3xl text-gold-soft/45">
+          <span className="flex h-full w-full items-center justify-center font-editorial text-3xl text-brass/45">
             {line.productName.charAt(0)}
           </span>
         )}
@@ -72,33 +89,33 @@ export function CartLine({
         <div className="flex items-start justify-between gap-5 sm:gap-8">
           <div className="min-w-0">
             <Link
-              href={`/products/${line.productSlug}`}
-              className="font-display text-[1.125rem] font-semibold leading-snug tracking-[-0.015em] text-ink transition-colors duration-200 hover:text-rose-deep sm:text-[1.2rem]"
+              href={href}
+              className="font-editorial text-[19px] leading-snug text-graphite transition-colors duration-300 hover:text-terra sm:text-[21px]"
             >
               {line.productName}
             </Link>
             {line.shortDescription ? (
-              <p className="mt-1.5 line-clamp-2 max-w-md text-[13px] leading-relaxed text-ink-soft sm:text-sm">
+              <p className="mt-1.5 line-clamp-2 max-w-md text-[13px] leading-relaxed text-graphite-soft sm:text-sm">
                 {line.shortDescription}
               </p>
             ) : null}
-            <p className="mt-2 text-sm tabular-nums text-ink-soft sm:text-[15px]">
+            <p className="mt-2 text-sm tabular-nums text-graphite-soft sm:text-[15px]">
               {line.sizeMl} ml
             </p>
             {badge ? (
-              <p className="mt-2 inline-block font-mono text-label-sm uppercase tracking-[0.14em] text-ink-faint">
+              <p className="mt-2 inline-block font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
                 {badge}
               </p>
             ) : null}
           </div>
 
-          <p className="shrink-0 pt-0.5 text-[15px] font-semibold tabular-nums tracking-tight text-ink sm:text-base">
+          <p className="shrink-0 pt-0.5 text-[15px] font-medium tabular-nums tracking-tight text-graphite sm:text-base">
             {formatPaise(line.lineTotalPaise)}
           </p>
         </div>
 
         {!line.isAvailable ? (
-          <p className="mt-3 text-sm text-rose-deep">
+          <p className="mt-3 text-sm text-terra">
             {cartUnavailableReasonCopy(line.unavailableReason)}
           </p>
         ) : null}
@@ -119,8 +136,8 @@ export function CartLine({
           <button
             type="button"
             className={cn(
-              "cursor-pointer font-mono text-label-sm uppercase tracking-wide text-ink-faint",
-              "transition-colors duration-200 hover:text-ink disabled:opacity-40",
+              "cursor-pointer font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint",
+              "transition-colors duration-300 hover:text-terra disabled:cursor-default disabled:opacity-40",
             )}
             disabled={pending}
             onClick={onRemove}
