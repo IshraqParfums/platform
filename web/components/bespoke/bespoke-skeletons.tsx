@@ -9,7 +9,7 @@ export function BespokeBrewSkeleton() {
     <SkeletonScreen label="Loading blend">
       <Skeleton className="h-3 w-24" />
       <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row sm:items-start">
-        <Skeleton className="h-40 w-24 shrink-0 rounded-[45%]" />
+        <Skeleton className="h-64 w-36 shrink-0 rounded-[45%] sm:h-80 sm:w-44" />
         <SkeletonStack gap="md" className="min-w-0 flex-1">
           <Skeleton className="h-9 w-56 max-w-full" />
           <Skeleton className="h-4 w-32" />

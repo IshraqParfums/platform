@@ -14,7 +14,9 @@ import { emitCartChanged } from "@/lib/cart/cart-events";
 import {
   guestCartItemCount,
   readGuestCart,
+  removeGuestBespokeItem,
   removeGuestCartItem,
+  setGuestBespokeQuantity,
   setGuestCartQuantity,
 } from "@/lib/cart/guest-cart";
 import {
@@ -95,6 +97,10 @@ export async function setCartLineQuantity(
   mode: CartView["mode"],
 ): Promise<CartView> {
   if (mode === "guest") {
+    if (line.kind === "bespoke" && line.bespokePerfumeId) {
+      setGuestBespokeQuantity(line.bespokePerfumeId, line.sizeMl, quantity);
+      return publishCart(cartViewFromGuest(readGuestCart().items));
+    }
     if (!line.variantId) return cartViewFromGuest(readGuestCart().items);
     setGuestCartQuantity(line.variantId, quantity);
     return publishCart(cartViewFromGuest(readGuestCart().items));
@@ -116,6 +122,10 @@ export async function removeCartLine(
   mode: CartView["mode"],
 ): Promise<CartView> {
   if (mode === "guest") {
+    if (line.kind === "bespoke" && line.bespokePerfumeId) {
+      removeGuestBespokeItem(line.bespokePerfumeId, line.sizeMl);
+      return publishCart(cartViewFromGuest(readGuestCart().items));
+    }
     if (!line.variantId) return cartViewFromGuest(readGuestCart().items);
     removeGuestCartItem(line.variantId);
     return publishCart(cartViewFromGuest(readGuestCart().items));

@@ -18,6 +18,10 @@ import { BespokeRepository } from './bespoke.repository';
 import { BespokeSessionRepository } from './bespoke-session.repository';
 import type { RenameBespokeDto } from './dto/bespoke.dto';
 import {
+  hexDigestsMatch,
+  sha256Hex,
+} from './bespoke.helpers';
+import {
   toBespokeAdminListItem,
   toBespokePerfumeAdminResponse,
   toBespokePerfumeCustomerResponse,
@@ -103,6 +107,69 @@ export class BespokeService {
     }
 
     return row;
+  }
+
+  /**
+   * Own it already, or attach an unowned guest brew when a matching session
+   * token proves this device minted it. Does not claim into the locker.
+   */
+  async requireOwnedOrAttach(
+    customerId: string,
+    perfumeId: string,
+    sessionTokens: string[],
+  ): Promise<BespokePerfume> {
+    const owned = await this.bespokeRepository.findLiveOwned(
+      customerId,
+      perfumeId,
+    );
+    if (owned) return owned;
+
+    const row = await this.bespokeRepository.findById(perfumeId);
+    if (!row || row.deletedAt) {
+      throw new NotFoundException(
+        `Bespoke perfume with id "${perfumeId}" not found`,
+      );
+    }
+    if (row.customerId && row.customerId !== customerId) {
+      throw new NotFoundException(
+        `Bespoke perfume with id "${perfumeId}" not found`,
+      );
+    }
+
+    const session =
+      await this.sessionRepository.findByBespokePerfumeId(perfumeId);
+    if (!session) {
+      throw new NotFoundException(
+        `Bespoke perfume with id "${perfumeId}" not found`,
+      );
+    }
+
+    const tokenOk = sessionTokens.some((token) =>
+      hexDigestsMatch(sha256Hex(token), session.tokenHash),
+    );
+    if (!tokenOk) {
+      throw new NotFoundException(
+        `Bespoke perfume with id "${perfumeId}" not found`,
+      );
+    }
+
+    const attached = await this.bespokeRepository.attachCustomer(
+      perfumeId,
+      customerId,
+    );
+    if (!attached) {
+      throw new NotFoundException(
+        `Bespoke perfume with id "${perfumeId}" not found`,
+      );
+    }
+
+    if (!session.customerId) {
+      await this.sessionRepository.patch(session.id, session.version, {
+        customerId,
+      });
+    }
+
+    return attached;
   }
 
   async adminList(

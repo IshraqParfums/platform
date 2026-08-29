@@ -318,7 +318,8 @@ model OrderItem {
 
 model BespokePerfume {
   id            String          @id @default(uuid())
-  customerId    String
+  /// Null until the guest brew is attached (claim, cart merge, or checkout).
+  customerId    String?
   name          String
   dedication    String?
   /// Composite v2 snapshot: bottle + sample + fingerprint + colorTheme.
@@ -331,7 +332,7 @@ model BespokePerfume {
   deletedAt     DateTime?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
-  customer      Customer        @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  customer      Customer?       @relation(fields: [customerId], references: [id], onDelete: Restrict)
   cartItems     CartItem[]
   orderItems    OrderItem[]
   sessions      BespokeSession[]

@@ -130,6 +130,15 @@ export interface MergeCartItemBody {
   quantity: number;
 }
 
+export interface MergeBespokeCartItemBody {
+  bespokePerfumeId: string;
+  sizeMl: number;
+  quantity: number;
+}
+
 export interface MergeCartBody {
   items: MergeCartItemBody[];
+  bespokeItems?: MergeBespokeCartItemBody[];
+  /** Injected by the BFF from the httpOnly session cookie — not from the browser. */
+  sessionTokens?: string[];
 }

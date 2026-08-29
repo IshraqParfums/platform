@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type {
   BespokeAnswerBody,
@@ -11,26 +11,23 @@ import type {
   BespokeSessionViewResponse,
 } from "@ishraqparfums/shared";
 import {
-  BESPOKE_DIMENSION_LABEL,
-  BESPOKE_FAMILY_COLOR,
-  type BespokeDimension,
-} from "@ishraqparfums/shared";
-import {
-  BespokeQuizLanding,
   BespokeQuizLostSession,
 } from "@/components/bespoke/bespoke-quiz-landing";
-import { BottleGlyph } from "@/components/bespoke/bottle-glyph";
+import { BespokeSessionResumeModal } from "@/components/bespoke/bespoke-session-resume-modal";
+import {
+  ConsultationRecord,
+  type RecordEntry,
+} from "@/components/bespoke/consultation-record";
 import { FollowupTextStep } from "@/components/bespoke/followup-text-step";
+import { BandInner } from "@/components/home-v2/ui/band";
 import { Button } from "@/components/ui/button";
-import { Container } from "@/components/ui/container";
 import { B1_CATCHALL_OPTION_ID, B1_CATEGORIES } from "@/lib/bespoke/b1-categories";
-import { completeBespokeSession } from "@/lib/bespoke/complete-session";
 import { useBespokeSessions } from "@/lib/bespoke/use-bespoke-sessions";
 
 type CreateSafe = Omit<BespokeSessionCreateResponse, "sessionToken">;
 
 type QuizPhase =
-  | { kind: "landing" }
+  | { kind: "gate" }
   | { kind: "loading" }
   | { kind: "lost" }
   | { kind: "quiz" }
@@ -65,6 +62,49 @@ function needsComplete(view: BespokeSessionViewResponse): boolean {
   );
 }
 
+/**
+ * What to write in the record for an answer, in the visitor's own terms.
+ *
+ * Derived here from the node and the submitted body rather than passed up
+ * from each input component: every node type already carries the labels this
+ * needs, and threading a display string back through six different bodies
+ * (some of which submit ids, some raw text) would put the same lookup in six
+ * places and let them drift.
+ *
+ * Returns null when there is nothing worth writing down, in which case the
+ * answer simply does not appear in the record.
+ */
+function answerSummary(
+  node: BespokePublicNode,
+  answer: BespokeAnswerBody,
+  shortlist: BespokeSessionViewResponse["shortlist"],
+): string | null {
+  switch (answer.kind) {
+    case "select": {
+      const byId = new Map((node.options ?? []).map((o) => [o.id, o.label]));
+      const labels = answer.optionIds
+        .map((id) => byId.get(id))
+        .filter((label): label is string => Boolean(label));
+      if (labels.length === 0) return null;
+      // Comma, not the middle dot the rest of the page uses for note lists:
+      // these are sentences the visitor chose, not a spec strip.
+      return labels.join(", ");
+    }
+    case "free_text":
+      return answer.text?.trim() || null;
+    case "name":
+      return answer.perfumeName?.trim() || null;
+    case "candidate":
+      return (
+        (shortlist ?? []).find((c) => c.id === answer.accordId)?.label ?? null
+      );
+    case "catalogue_reference":
+      return answer.perfumeName ?? null;
+    default:
+      return null;
+  }
+}
+
 async function abandonDeviceSession(sessionId: string): Promise<void> {
   await fetch(`/api/bespoke/sessions/${sessionId}/device`, {
     method: "DELETE",
@@ -75,11 +115,16 @@ export function BespokeQuizClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlSessionId = searchParams.get("s");
-  const { state: listState, refresh: refreshList } = useBespokeSessions();
+  const { state: listState } = useBespokeSessions();
 
   const [phase, setPhase] = useState<QuizPhase>(() =>
-    urlSessionId ? { kind: "loading" } : { kind: "landing" },
+    urlSessionId ? { kind: "loading" } : { kind: "loading" },
   );
+  const bootstrapped = useRef(false);
+  const [resume, setResume] = useState<{
+    kind: "unfinished" | "finished";
+    id: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -96,6 +141,17 @@ export function BespokeQuizClient() {
   const [references, setReferences] = useState<BespokeReferenceProduct[]>([]);
   const [canBack, setCanBack] = useState(false);
   const [finishedPending, setFinishedPending] = useState(false);
+  /**
+   * The answers written down so far, and the one currently in flight.
+   *
+   * `pending` is what makes the wait bearable: the tapped option keeps its
+   * own state and the rest of the page stays live, instead of `loading`
+   * greying out every control until the round trip lands. It is cleared by
+   * `applyView`, which is the moment the next question actually arrives.
+   */
+  const [record, setRecord] = useState<RecordEntry[]>([]);
+  const [pending, setPending] = useState<string | null>(null);
+  const [backing, setBacking] = useState(false);
 
   const applyView = useCallback((view: BespokeSessionViewResponse) => {
     setSessionId(view.sessionId);
@@ -105,6 +161,7 @@ export function BespokeQuizClient() {
     setShortlist(view.shortlist);
     setCanBack(view.progress.questionsAnswered > 0 && !view.finished);
     setFinishedPending(needsComplete(view));
+    setPending(null);
     setPhase({ kind: "quiz" });
   }, []);
 
@@ -115,10 +172,19 @@ export function BespokeQuizClient() {
     await abandonDeviceSession(id);
   }, []);
 
+  /**
+   * Last tap goes straight to the result.
+   *
+   * It used to `await complete` first, which hung a second heavy call off
+   * the end of the final answer — the slowest moment in the quiz, on the
+   * question where people are most impatient. `loadBespokeSessionResult`
+   * already completes on 401/404/409 (lib/bespoke/complete-session.ts), so
+   * the result page recovers an uncompleted session on its own and nothing
+   * is lost by leaving it to do that.
+   */
   const finishAndNavigate = useCallback(
-    async (id: string) => {
+    (id: string) => {
       setPhase({ kind: "finishing" });
-      await completeBespokeSession(id);
       router.push(`/bespoke/result/${id}`);
     },
     [router],
@@ -142,21 +208,40 @@ export function BespokeQuizClient() {
       router.replace(`/bespoke/quiz?s=${encodeURIComponent(data.sessionId)}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not start the quiz");
-      setPhase({ kind: "landing" });
+      setPhase({ kind: "gate" });
     } finally {
       setLoading(false);
     }
   }, [router]);
 
-  // Load the URL-bound session (or return to landing when `s` is cleared).
+  // Load the URL-bound session, or open Q1 / the resume modal when there is none.
   useEffect(() => {
     if (!urlSessionId) {
-      setPhase({ kind: "landing" });
-      setSessionId(null);
-      setNode(null);
-      setFinishedPending(false);
+      if (phase.kind === "quiz" && sessionId) {
+        return;
+      }
+      if (listState.status === "loading") {
+        setPhase({ kind: "loading" });
+        return;
+      }
+      if (bootstrapped.current) return;
+      bootstrapped.current = true;
       setError(null);
-      refreshList();
+      if (listState.status === "ready") {
+        const live = listState.unfinished[0];
+        const done = listState.finished[0];
+        if (live) {
+          setResume({ kind: "unfinished", id: live.sessionId });
+          setPhase({ kind: "gate" });
+          return;
+        }
+        if (done) {
+          setResume({ kind: "finished", id: done.sessionId });
+          setPhase({ kind: "gate" });
+          return;
+        }
+      }
+      void createAndEnter();
       return;
     }
 
@@ -185,7 +270,7 @@ export function BespokeQuizClient() {
         if (needsComplete(view)) {
           setPhase({ kind: "finishing" });
           try {
-            await finishAndNavigate(view.sessionId);
+            finishAndNavigate(view.sessionId);
           } catch (e) {
             if (!cancelled) {
               setError(e instanceof Error ? e.message : "Could not finish");
@@ -204,7 +289,8 @@ export function BespokeQuizClient() {
           return;
         }
         setError(e instanceof Error ? e.message : "Could not load consultation");
-        setPhase({ kind: "landing" });
+        setPhase({ kind: "gate" });
+        bootstrapped.current = false;
         router.replace("/bespoke/quiz");
       }
     })();
@@ -212,12 +298,26 @@ export function BespokeQuizClient() {
     return () => {
       cancelled = true;
     };
-    // sessionId/phase omitted intentionally — only react to URL changes.
+    // sessionId/phase omitted intentionally — only react to URL / device list.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- URL is the source of truth
-  }, [urlSessionId]);
+  }, [urlSessionId, listState, createAndEnter]);
 
+  /*
+   * Reference products, fetched once the consultation itself is open rather
+   * than once the `catalogue_select` node is actually on screen.
+   *
+   * That node sits partway through the graph, so waiting for it meant the
+   * question would render with an empty list and "Matching…" filled in a
+   * beat later — the one moment in the quiz where the network was visible
+   * *inside* a question instead of between two of them. Nothing about the
+   * request changed, only when it starts: by the time this node actually
+   * comes up the list has had the rest of the quiz to arrive.
+   *
+   * Runs once per session (keyed on `sessionId`, not on the node), and only
+   * once real data exists to fetch, which is `phase === "quiz"`.
+   */
   useEffect(() => {
-    if (node?.type !== "catalogue_select") return;
+    if (phase.kind !== "quiz" || !sessionId) return;
     let cancelled = false;
     void fetch("/api/bespoke/reference-products")
       .then((r) => r.json())
@@ -230,7 +330,7 @@ export function BespokeQuizClient() {
     return () => {
       cancelled = true;
     };
-  }, [node?.id, node?.type]);
+  }, [sessionId, phase.kind]);
 
   async function restartSession() {
     if (!sessionId) return;
@@ -270,6 +370,34 @@ export function BespokeQuizClient() {
     setError(null);
     if (option?.echo) setEcho(option.echo);
     else setEcho(null);
+
+    /*
+     * Write the answer down before asking the server about it.
+     *
+     * This is the whole perceived-speed fix. The round trip is unchanged —
+     * browser to the BFF to Nest and back through two writes — but the tap
+     * now lands on something immediately: the answer settles into the record
+     * and the chosen option holds its own state, while every other control
+     * stays live. What used to happen was `loading` disabling the entire
+     * body, so the same wait read as a dead screen with no sign of which
+     * option had even been pressed.
+     *
+     * Rolled back in the `catch` rather than left hopeful: a failed answer
+     * that stayed written down would put a line in the record the server has
+     * no idea about, and `Back` would then disagree with the server's own
+     * history.
+     */
+    const summary = answerSummary(node, answer, shortlist);
+    const entryId = `${node.id}-${version}`;
+    const question = node.text ?? node.text_gift ?? "";
+    if (summary && question) {
+      setPending(summary);
+      setRecord((prev) => [
+        ...prev,
+        { id: entryId, question, answer: summary },
+      ]);
+    }
+
     try {
       const res = await fetch(`/api/bespoke/sessions/${sessionId}/answer`, {
         method: "POST",
@@ -288,7 +416,7 @@ export function BespokeQuizClient() {
         if (body.session) {
           applyView(body.session);
           if (needsComplete(body.session)) {
-            await finishAndNavigate(body.session.sessionId);
+            finishAndNavigate(body.session.sessionId);
           }
           return;
         }
@@ -296,9 +424,11 @@ export function BespokeQuizClient() {
       const view = await readJson<BespokeSessionViewResponse>(res);
       applyView(view);
       if (needsComplete(view)) {
-        await finishAndNavigate(view.sessionId);
+        finishAndNavigate(view.sessionId);
       }
     } catch (e) {
+      setPending(null);
+      setRecord((prev) => prev.filter((entry) => entry.id !== entryId));
       const status =
         e instanceof Error && "status" in e
           ? (e as Error & { status: number }).status
@@ -314,9 +444,14 @@ export function BespokeQuizClient() {
   }
 
   async function goBack() {
-    if (!sessionId) return;
+    if (!sessionId || loading || pending !== null || backing) return;
+    setBacking(true);
     setLoading(true);
     setEcho(null);
+    setPending(null);
+    // The server is the authority on the history; this only keeps the
+    // written record in step with the question it is about to hand back.
+    setRecord((prev) => prev.slice(0, -1));
     try {
       const res = await fetch(`/api/bespoke/sessions/${sessionId}/back`, {
         method: "POST",
@@ -338,17 +473,7 @@ export function BespokeQuizClient() {
       }
       setError(e instanceof Error ? e.message : "Could not go back");
     } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleAbandon(id: string) {
-    setLoading(true);
-    setError(null);
-    try {
-      await abandonDeviceSession(id);
-      refreshList();
-    } finally {
+      setBacking(false);
       setLoading(false);
     }
   }
@@ -358,7 +483,8 @@ export function BespokeQuizClient() {
       <BespokeQuizLostSession
         busy={loading}
         onBack={() => {
-          setPhase({ kind: "landing" });
+          bootstrapped.current = false;
+          setResume(null);
           router.replace("/bespoke/quiz");
         }}
         onStartNew={() => void createAndEnter()}
@@ -366,73 +492,93 @@ export function BespokeQuizClient() {
     );
   }
 
-  if (phase.kind === "landing" || !urlSessionId) {
-    const unfinished =
-      listState.status === "ready" ? listState.unfinished : [];
-    const finished = listState.status === "ready" ? listState.finished : [];
+  if (phase.kind === "gate") {
     return (
-      <BespokeQuizLanding
-        unfinished={unfinished}
-        finished={finished}
-        loadingList={listState.status === "loading"}
-        listError={listState.status === "error" ? listState.message : null}
-        busy={loading}
-        error={error}
-        onBegin={() => void createAndEnter()}
-        onContinue={(id) => {
-          router.push(`/bespoke/quiz?s=${encodeURIComponent(id)}`);
-        }}
-        onAbandon={(id) => void handleAbandon(id)}
-        onStartNew={() => void createAndEnter()}
-      />
+      <>
+        <QuizOpeningChrome>
+          {error ? (
+            <p className="text-[14px] text-terra" role="alert">
+              {error}
+            </p>
+          ) : null}
+        </QuizOpeningChrome>
+        <BespokeSessionResumeModal
+          open={resume != null}
+          kind={resume?.kind ?? "unfinished"}
+          busy={loading}
+          onContinue={() => {
+            if (!resume) return;
+            router.replace(
+              `/bespoke/quiz?s=${encodeURIComponent(resume.id)}`,
+            );
+          }}
+          onViewResult={() => {
+            if (!resume) return;
+            router.push(`/bespoke/result/${resume.id}`);
+          }}
+          onStartNew={() => {
+            void (async () => {
+              if (resume) await abandonDeviceSession(resume.id);
+              setResume(null);
+              bootstrapped.current = true;
+              await createAndEnter();
+            })();
+          }}
+        />
+      </>
     );
   }
 
-  if (phase.kind === "loading" || phase.kind === "finishing") {
+  if (phase.kind === "finishing") {
     return (
-      <Container size="narrow" className="py-12">
-        <p className="text-ink-soft">
-          {phase.kind === "finishing"
-            ? "Preparing your result…"
-            : "Loading consultation…"}
+      <QuizFrame>
+        <p className="font-editorial text-h3-editorial text-graphite-soft">
+          Composing your formula…
         </p>
-      </Container>
+      </QuizFrame>
     );
+  }
+
+  if (phase.kind === "loading") {
+    return <QuizOpeningChrome />;
   }
 
   if (!node && !finishedPending) {
     return (
-      <Container size="narrow" className="py-12">
-        <h2 className="font-display text-2xl font-semibold text-ink">
-          This consultation is outdated
+      <QuizFrame>
+        <h2 className="max-w-[18ch] font-editorial text-h2-editorial text-graphite">
+          This consultation is out of date.
         </h2>
-        <p className="mt-3 text-[15px] text-ink-soft">
-          The question graph moved on. Restart to continue from the beginning of
-          this session.
+        <p className="mt-5 max-w-[46ch] text-[16px] leading-[1.6] text-graphite-soft">
+          The questions moved on while this one was open. Starting again takes
+          it from the top.
         </p>
         {error ? (
-          <p className="mt-4 text-sm text-rose" role="alert">
+          <p className="mt-4 text-[14px] text-terra" role="alert">
             {error}
           </p>
         ) : null}
         <Button
           type="button"
-          variant="emphasis"
-          className="mt-6 cursor-pointer"
+          variant="ink"
+          size="pill"
+          className="mt-8"
           disabled={loading}
           onClick={() => void restartSession()}
         >
-          {loading ? "Restarting…" : "Restart consultation"}
+          {loading ? "Starting…" : "Start again"}
         </Button>
-      </Container>
+      </QuizFrame>
     );
   }
 
   if (!node && finishedPending) {
     return (
-      <Container size="narrow" className="py-12">
-        <p className="text-ink-soft">Preparing your result…</p>
-      </Container>
+      <QuizFrame>
+        <p className="font-editorial text-h3-editorial text-graphite-soft">
+          Composing your formula…
+        </p>
+      </QuizFrame>
     );
   }
 
@@ -446,75 +592,138 @@ export function BespokeQuizClient() {
   );
 
   return (
-    <Container size="narrow" className="py-8 sm:py-12">
-      <div className="flex items-center justify-between gap-4">
-        <span className="font-mono text-label uppercase text-ink-faint">
-          {progress.questionsAnswered} / {progress.questionBudget}
-        </span>
+    <>
+    <QuizFrame>
+      {/*
+        The head of the page is the state of the consultation: how far in you
+        are, and the way back. Both sit on one line above a hairline that
+        fills — a rule rather than a bar, because a filled track with a
+        rounded cap is dashboard furniture and this page is a page.
+      */}
+      <div className="flex items-baseline justify-between gap-4">
+        <p className="font-ui text-[11px] uppercase tracking-[0.18em] text-graphite-mute">
+          Question {Math.min(progress.questionsAnswered + 1, progress.questionBudget)}{" "}
+          of {progress.questionBudget}
+        </p>
         {canBack ? (
           <button
             type="button"
-            className="cursor-pointer font-mono text-label uppercase text-ink-soft transition-colors hover:text-ink"
-            disabled={loading}
+            className="cursor-pointer font-ui text-[11px] uppercase tracking-[0.16em] text-graphite-mute transition-colors hover:text-terra disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={loading || pending !== null || backing}
+            aria-busy={backing}
             onClick={() => void goBack()}
           >
-            Back
+            {backing ? "Going back…" : "Back"}
           </button>
         ) : null}
       </div>
-      <div className="mt-3 h-[3px] w-full overflow-hidden rounded-full bg-ink/10">
+
+      <div
+        aria-hidden="true"
+        className="mt-3 h-px w-full bg-graphite/12"
+      >
         <div
-          className="h-full rounded-full bg-gradient-to-r from-gold to-rose transition-[width] duration-300"
+          className="h-full bg-terra transition-[width] duration-500 ease-[cubic-bezier(0.22,0.8,0.28,1)]"
           style={{ width: `${pct}%` }}
         />
       </div>
 
-      <EssenceOrb answerCount={progress.questionsAnswered} fillPct={pct} />
+      {/*
+        `key` on the question is what makes each one arrive rather than
+        swap: remounting restarts the entrance, so the new question rises
+        into the space the answer just vacated instead of the old text being
+        replaced in place.
+      */}
+      <div key={`${node.id}-${version}`} className="question-arrive mt-10">
+        <h2 className="max-w-[24ch] font-editorial text-[clamp(26px,3.4vw,40px)] leading-[1.14] text-graphite">
+          {node.text}
+        </h2>
 
-      <h2 className="font-display mt-8 text-[clamp(22px,3vw,32px)] font-semibold leading-snug text-ink">
-        {node.text}
-      </h2>
-      {node.disclosure_copy ? (
-        <p className="mt-3 text-sm text-ink-soft">{node.disclosure_copy}</p>
-      ) : null}
-      {echo ? (
-        <p className="mt-4 border-l-2 border-gold/60 pl-3 text-sm italic text-ink-soft">
-          {echo}
-        </p>
-      ) : null}
-      {error ? (
-        <p className="mt-4 text-sm text-rose" role="alert">
-          {error}
-        </p>
-      ) : null}
+        {node.disclosure_copy ? (
+          <p className="mt-4 max-w-[52ch] text-[14.5px] leading-[1.6] text-graphite-soft">
+            {node.disclosure_copy}
+          </p>
+        ) : null}
 
-      <div className="mt-8">
-        <NodeBody
-          node={node}
-          shortlist={shortlist}
-          references={references}
-          disabled={loading}
-          onAnswer={(answer, option) => void submitAnswer(answer, option)}
-        />
+        {echo ? (
+          <p className="mt-5 border-l border-brass/50 pl-4 font-editorial text-[18px] italic leading-[1.4] text-graphite-soft">
+            {echo}
+          </p>
+        ) : null}
+
+        {error ? (
+          <p className="mt-5 text-[14px] text-terra" role="alert">
+            {error}
+          </p>
+        ) : null}
+
+        {/*
+          `disabled` is deliberately NOT wired to `loading` any more. The
+          answer is already written down and the chosen option is already
+          holding its own state, so freezing the rest of the body adds
+          nothing except the feeling that the page has stopped. It still
+          locks while an answer is genuinely in flight for THIS node, which
+          is what stops a double tap submitting twice.
+        */}
+        <div className="mt-9">
+          <NodeBody
+            node={node}
+            shortlist={shortlist}
+            references={references}
+            disabled={pending !== null || backing}
+            onAnswer={(answer, option) => void submitAnswer(answer, option)}
+          />
+        </div>
       </div>
-    </Container>
+    </QuizFrame>
+      {record.length > 0 ? (
+        <section className="bg-paper-deep py-10 md:py-14">
+          <BandInner className="max-w-[720px]">
+            <p className="font-ui text-[11px] uppercase tracking-[0.16em] text-graphite-mute">
+              Your answers
+            </p>
+            <div className="mt-5">
+              <ConsultationRecord entries={record} />
+            </div>
+          </BandInner>
+        </section>
+      ) : null}
+    </>
   );
 }
 
-function EssenceOrb({
-  answerCount,
-  fillPct,
-}: {
-  answerCount: number;
-  fillPct: number;
-}) {
-  const dims = Object.keys(BESPOKE_FAMILY_COLOR) as BespokeDimension[];
-  const dim = dims[Math.min(answerCount, dims.length - 1)] ?? "woody";
-  const color = BESPOKE_FAMILY_COLOR[dim];
+/**
+ * One measure for every state the quiz can be in.
+ *
+ * Narrower than the band the rest of the site uses. A consultation is read
+ * one question at a time and the answers under it are short; at the full
+ * 1320 the options stretched into strips you had to track across, and the
+ * question itself ran past a comfortable line length.
+ */
+function QuizFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-8 flex justify-center" aria-hidden title={BESPOKE_DIMENSION_LABEL[dim]}>
-      <BottleGlyph color={color} fill={fillPct / 100} className="h-24 w-16" />
-    </div>
+    <section className="min-h-[70vh] bg-paper py-14 md:py-20">
+      <BandInner className="max-w-[720px]">{children}</BandInner>
+    </section>
+  );
+}
+
+/** Quiz chrome while the session is still being opened — not a status sentence. */
+function QuizOpeningChrome({ children }: { children?: React.ReactNode }) {
+  return (
+    <QuizFrame>
+      <p className="font-ui text-[11px] uppercase tracking-[0.18em] text-graphite-mute">
+        Question 1 of 15
+      </p>
+      <div aria-hidden="true" className="mt-3 h-px w-full bg-graphite/12" />
+      <div className="mt-10">
+        <div
+          className="h-10 w-[min(24ch,100%)] animate-pulse rounded-sm bg-graphite/10"
+          aria-hidden
+        />
+        {children ? <div className="mt-5">{children}</div> : null}
+      </div>
+    </QuizFrame>
   );
 }
 
@@ -593,15 +802,19 @@ function NodeBody({
               <button
                 type="button"
                 disabled={disabled}
-                className="w-full cursor-pointer rounded-xl border border-ink/12 bg-card px-4 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-cream-soft disabled:opacity-50"
+                className="group relative w-full cursor-pointer overflow-hidden rounded-[3px] border border-graphite/[0.14] bg-shell px-4 py-4 text-left transition-colors duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] hover:border-terra/35 hover:bg-terra/[0.045] disabled:cursor-default disabled:opacity-45"
                 onClick={() =>
                   onAnswer({ kind: "candidate", accordId: card.id })
                 }
               >
-                <span className="font-display text-lg font-semibold text-ink">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-y-0 left-0 w-[2px] origin-bottom scale-y-0 bg-terra transition-transform duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] group-hover:scale-y-100"
+                />
+                <span className="font-editorial text-[20px] leading-none text-graphite">
                   {card.label}
                 </span>
-                <span className="mt-2 block text-sm text-ink-soft">
+                <span className="mt-2.5 block text-[13px] leading-[1.5] text-graphite-soft">
                   {[
                     ...card.notesByPosition.top,
                     ...card.notesByPosition.heart,
@@ -614,7 +827,9 @@ function NodeBody({
             </li>
           ))}
           {!shortlist?.length ? (
-            <p className="text-sm text-ink-soft">Matching candidates…</p>
+            <p className="text-[14px] text-graphite-soft">
+              Matching candidates…
+            </p>
           ) : null}
         </ul>
       );
@@ -659,6 +874,7 @@ function CategorizedSingleSelect({
   onAnswer: (answer: BespokeAnswerBody, option?: BespokePublicOption) => void;
 }) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [clickedId, setClickedId] = useState<string | null>(null);
   const byId = new Map(options.map((o) => [o.id, o]));
   const catchall = byId.get(B1_CATCHALL_OPTION_ID);
 
@@ -675,6 +891,7 @@ function CategorizedSingleSelect({
     : B1_CATEGORIES;
 
   function pick(option: BespokePublicOption) {
+    setClickedId(option.id);
     onAnswer({ kind: "select", optionIds: [option.id] }, option);
   }
 
@@ -689,7 +906,7 @@ function CategorizedSingleSelect({
           type="button"
           disabled={disabled}
           onClick={() => setActiveCategory(null)}
-          className="mb-4 cursor-pointer font-mono text-label uppercase text-ink-soft transition-colors hover:text-ink disabled:opacity-50"
+          className="mb-4 cursor-pointer font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-mute transition-colors hover:text-terra disabled:cursor-default disabled:opacity-45"
         >
           ‹ All categories
         </button>
@@ -698,6 +915,7 @@ function CategorizedSingleSelect({
             <li key={option.id}>
               <OptionButton
                 disabled={disabled}
+                chosen={disabled && clickedId === option.id}
                 label={option.label}
                 index={i}
                 onClick={() => pick(option)}
@@ -718,10 +936,10 @@ function CategorizedSingleSelect({
               type="button"
               disabled={disabled}
               onClick={() => setActiveCategory(category.id)}
-              className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-ink/12 bg-card px-4 py-3.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-cream-soft disabled:opacity-50"
+              className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-[3px] border border-graphite/[0.14] bg-shell px-4 py-3.5 text-left transition-colors duration-300 hover:border-terra/35 hover:bg-terra/[0.045] disabled:cursor-default disabled:opacity-45"
             >
-              <span className="text-[15px] font-semibold text-ink">{category.label}</span>
-              <span className="font-mono text-label-sm text-ink-faint">{category.optionIds.length}</span>
+              <span className="text-[15px] text-graphite">{category.label}</span>
+              <span className="font-ui text-[11px] text-graphite-faint">{category.optionIds.length}</span>
             </button>
           </li>
         ))}
@@ -731,7 +949,12 @@ function CategorizedSingleSelect({
           type="button"
           disabled={disabled}
           onClick={() => pick(catchall)}
-          className="mt-4 w-full cursor-pointer rounded-xl border border-dashed border-ink/20 px-4 py-3.5 text-left text-[15px] text-ink-soft transition-all duration-200 hover:border-gold/50 hover:text-ink disabled:opacity-50"
+          className={
+            "mt-4 w-full cursor-pointer rounded-[3px] border border-dashed px-4 py-3.5 text-left text-[15px] transition-colors duration-300 disabled:cursor-default " +
+            (disabled && clickedId === catchall.id
+              ? "border-terra/50 bg-terra/[0.05] text-graphite"
+              : "border-graphite/25 text-graphite-soft hover:border-terra/45 hover:text-graphite disabled:opacity-45")
+          }
         >
           {catchall.label}
         </button>
@@ -750,6 +973,10 @@ function SingleSelectWithFollowup({
   onAnswer: (answer: BespokeAnswerBody, option?: BespokePublicOption) => void;
 }) {
   const [pending, setPending] = useState<BespokePublicOption | null>(null);
+  // Which option was actually tapped, kept apart from `pending` above (that
+  // one only tracks the follow-up-text detour). This is what lets a single
+  // option hold the chosen state while `disabled` is true for everyone else.
+  const [clickedId, setClickedId] = useState<string | null>(null);
 
   if (pending?.followup_free_text) {
     return (
@@ -759,6 +986,7 @@ function SingleSelectWithFollowup({
         disabled={disabled}
         onCancel={() => setPending(null)}
         onSubmit={(followupText) => {
+          setClickedId(pending.id);
           onAnswer(
             { kind: "select", optionIds: [pending.id], followupText },
             pending,
@@ -775,6 +1003,7 @@ function SingleSelectWithFollowup({
         <li key={option.id}>
           <OptionButton
             disabled={disabled}
+            chosen={disabled && clickedId === option.id}
             label={option.label}
             highlight={option.highlight}
             index={i}
@@ -783,6 +1012,7 @@ function SingleSelectWithFollowup({
                 setPending(option);
                 return;
               }
+              setClickedId(option.id);
               onAnswer({ kind: "select", optionIds: [option.id] }, option);
             }}
           />
@@ -792,16 +1022,27 @@ function SingleSelectWithFollowup({
   );
 }
 
+/**
+ * One answer.
+ *
+ * `chosen` is what a tap looks like while the request is in flight: the
+ * option holds a terra rule and its number turns terra, rather than the
+ * option going grey along with every other control on the page. Everything
+ * else stays interactive underneath it (the header, the Back link) because
+ * only this one question's answer is actually pending.
+ */
 function OptionButton({
   label,
   highlight,
   disabled,
+  chosen = false,
   index,
   onClick,
 }: {
   label: string;
   highlight?: string;
   disabled: boolean;
+  chosen?: boolean;
   index?: number;
   onClick: () => void;
 }) {
@@ -810,18 +1051,36 @@ function OptionButton({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="group flex w-full cursor-pointer items-start gap-3 rounded-xl border border-ink/12 bg-card px-4 py-3.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-cream-soft disabled:opacity-50"
+      className={
+        "group relative flex w-full cursor-pointer items-start gap-3 overflow-hidden rounded-[3px] border px-4 py-3.5 text-left " +
+        "transition-[background-color,border-color] duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] disabled:cursor-default " +
+        (chosen
+          ? "border-terra/45 bg-terra/[0.06]"
+          : "border-graphite/[0.14] bg-shell hover:border-terra/35 hover:bg-terra/[0.045] disabled:opacity-45")
+      }
     >
+      <span
+        aria-hidden="true"
+        className={
+          "pointer-events-none absolute inset-y-0 left-0 w-[2px] origin-bottom bg-terra transition-transform duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] " +
+          (chosen ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100")
+        }
+      />
       {typeof index === "number" ? (
-        <span className="font-mono text-label-sm text-ink-faint transition-colors group-hover:text-gold-deeper">
+        <span
+          className={
+            "font-ui text-[11px] font-semibold transition-colors duration-300 " +
+            (chosen ? "text-terra" : "text-graphite-faint group-hover:text-terra")
+          }
+        >
           {index + 1}
         </span>
       ) : null}
-      <span className="min-w-0 flex-1 text-[15px] font-semibold text-ink">
+      <span className="min-w-0 flex-1 text-[15px] leading-[1.4] text-graphite">
         {label}
       </span>
       {highlight ? (
-        <span className="shrink-0 font-mono text-label-sm uppercase text-ink-faint">
+        <span className="shrink-0 font-ui text-[11px] uppercase tracking-[0.1em] text-graphite-faint">
           {highlight}
         </span>
       ) : null}
@@ -897,12 +1156,21 @@ function MultiSelect({
                 type="button"
                 disabled={disabled}
                 onClick={() => toggle(option)}
-                className={`w-full cursor-pointer rounded-xl border px-4 py-3.5 text-left text-[15px] font-semibold transition-all duration-200 disabled:opacity-50 ${
-                  on
-                    ? "border-gold bg-gold text-deep"
-                    : "border-ink/12 bg-card text-ink hover:-translate-y-0.5 hover:border-gold/50"
-                }`}
+                className={
+                  "relative w-full cursor-pointer overflow-hidden rounded-[3px] border px-4 py-3.5 text-left text-[15px] leading-[1.4] " +
+                  "transition-colors duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] disabled:cursor-default disabled:opacity-45 " +
+                  (on
+                    ? "border-terra/45 bg-terra/[0.08] text-graphite"
+                    : "border-graphite/[0.14] bg-shell text-graphite hover:border-terra/35 hover:bg-terra/[0.045]")
+                }
               >
+                <span
+                  aria-hidden="true"
+                  className={
+                    "pointer-events-none absolute inset-y-0 left-0 w-[2px] origin-bottom bg-terra transition-transform duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] " +
+                    (on ? "scale-y-100" : "scale-y-0")
+                  }
+                />
                 {option.label}
               </button>
             </li>
@@ -911,8 +1179,9 @@ function MultiSelect({
       </ul>
       <Button
         type="button"
-        variant="emphasis"
-        className="mt-5 cursor-pointer"
+        variant="ink"
+        size="pill"
+        className="mt-6 cursor-pointer"
         disabled={disabled || (selected.length === 0 && !noneOption)}
         onClick={() => {
           if (followupPrompt) {
@@ -951,12 +1220,13 @@ function FreeText({
         onChange={(e) => setText(e.target.value)}
         rows={4}
         disabled={disabled}
-        className="w-full rounded-xl border border-ink/12 bg-card px-4 py-3 text-[15px] text-ink outline-none focus:border-gold/50"
+        className="w-full rounded-[3px] border border-graphite/[0.16] bg-shell px-4 py-3 text-[15px] leading-[1.5] text-graphite outline-none transition-colors duration-300 focus:border-terra/45 disabled:opacity-45"
       />
-      <div className="mt-4 flex gap-3">
+      <div className="mt-5 flex gap-3">
         <Button
           type="button"
-          variant="emphasis"
+          variant="ink"
+          size="pill"
           className="cursor-pointer"
           disabled={disabled || (!optional && !text.trim())}
           onClick={() => onSubmit(text.trim())}
@@ -967,7 +1237,7 @@ function FreeText({
           <Button
             type="button"
             variant="ghost"
-            className="cursor-pointer"
+            className="cursor-pointer text-graphite-soft hover:text-graphite"
             disabled={disabled}
             onClick={() => onSubmit("")}
           >
@@ -1007,7 +1277,7 @@ function NameEntry({
               key={offer}
               type="button"
               disabled={disabled}
-              className="cursor-pointer rounded-full border border-ink/15 px-3 py-1.5 text-sm text-ink hover:border-ink/40 disabled:opacity-50"
+              className="cursor-pointer rounded-full border border-graphite/20 px-3.5 py-1.5 font-editorial text-[15px] text-graphite transition-colors duration-300 hover:border-terra/45 hover:text-terra disabled:cursor-default disabled:opacity-45"
               onClick={() =>
                 onSubmit(offer, dedication || undefined, "chose_offered")
               }
@@ -1018,7 +1288,7 @@ function NameEntry({
         </div>
       ) : null}
       <label className="block">
-        <span className="font-mono text-label-sm uppercase text-ink-faint">
+        <span className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-mute">
           Name
         </span>
         <input
@@ -1026,11 +1296,11 @@ function NameEntry({
           maxLength={maxName}
           disabled={disabled}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1.5 w-full rounded-xl border border-ink/12 bg-card px-4 py-3 text-[15px] outline-none focus:border-gold/50"
+          className="mt-2 w-full rounded-[3px] border border-graphite/[0.16] bg-shell px-4 py-3 text-[15px] text-graphite outline-none transition-colors duration-300 focus:border-terra/45 disabled:opacity-45"
         />
       </label>
       <label className="block">
-        <span className="font-mono text-label-sm uppercase text-ink-faint">
+        <span className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-mute">
           Dedication (optional)
         </span>
         <input
@@ -1039,12 +1309,13 @@ function NameEntry({
           disabled={disabled}
           placeholder={fields?.dedication.placeholder}
           onChange={(e) => setDedication(e.target.value)}
-          className="mt-1.5 w-full rounded-xl border border-ink/12 bg-card px-4 py-3 text-[15px] outline-none focus:border-gold/50"
+          className="mt-2 w-full rounded-[3px] border border-graphite/[0.16] bg-shell px-4 py-3 text-[15px] text-graphite outline-none transition-colors duration-300 placeholder:text-graphite-faint focus:border-terra/45 disabled:opacity-45"
         />
       </label>
       <Button
         type="button"
-        variant="emphasis"
+        variant="ink"
+        size="pill"
         className="cursor-pointer self-start"
         disabled={
           disabled || name.trim().length < (fields?.perfume_name.min ?? 1)
@@ -1077,21 +1348,21 @@ function CatalogueSelect({
           key={perfume.id}
           type="button"
           disabled={disabled}
-          className="cursor-pointer rounded-xl border border-ink/12 bg-card px-4 py-3.5 text-left font-semibold text-ink transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-cream-soft disabled:opacity-50"
+          className="relative cursor-pointer overflow-hidden rounded-[3px] border border-graphite/[0.14] bg-shell px-4 py-3.5 text-left font-editorial text-[17px] text-graphite transition-colors duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] hover:border-terra/35 hover:bg-terra/[0.045] disabled:cursor-default disabled:opacity-45"
           onClick={() => onPick(perfume)}
         >
           {perfume.name}
         </button>
       ))}
       {!references.length ? (
-        <p className="text-sm text-ink-soft">
-          No reference products are profiled yet — you can skip.
+        <p className="text-[14px] text-graphite-soft">
+          No reference products are profiled yet, you can skip this one.
         </p>
       ) : null}
       <Button
         type="button"
         variant="ghost"
-        className="mt-2 cursor-pointer self-start"
+        className="mt-2 cursor-pointer self-start text-graphite-soft hover:text-graphite"
         disabled={disabled}
         onClick={() => onPick(null)}
       >

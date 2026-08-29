@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import type { BespokePerfume, Prisma } from '@prisma/client';
+import { BespokeSessionStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 export type BespokePerfumeWithCustomer = BespokePerfume & {
-  customer: { id: string; name: string | null; phone: string };
+  customer: { id: string; name: string | null; phone: string } | null;
 };
 
 const CUSTOMER_SELECT = {
@@ -48,7 +49,11 @@ export class BespokeRepository {
     options: { skip: number; take: number },
   ): Promise<BespokePerfume[]> {
     return this.prisma.bespokePerfume.findMany({
-      where: { customerId, deletedAt: null },
+      where: {
+        customerId,
+        deletedAt: null,
+        sessions: { some: { status: BespokeSessionStatus.CLAIMED } },
+      },
       orderBy: { createdAt: 'desc' },
       skip: options.skip,
       take: options.take,
@@ -57,7 +62,25 @@ export class BespokeRepository {
 
   countByCustomerId(customerId: string): Promise<number> {
     return this.prisma.bespokePerfume.count({
-      where: { customerId, deletedAt: null },
+      where: {
+        customerId,
+        deletedAt: null,
+        sessions: { some: { status: BespokeSessionStatus.CLAIMED } },
+      },
+    });
+  }
+
+  async attachCustomer(
+    perfumeId: string,
+    customerId: string,
+  ): Promise<BespokePerfume | null> {
+    const row = await this.findById(perfumeId);
+    if (!row || row.deletedAt) return null;
+    if (row.customerId && row.customerId !== customerId) return null;
+    if (row.customerId === customerId) return row;
+    return this.prisma.bespokePerfume.update({
+      where: { id: perfumeId },
+      data: { customerId },
     });
   }
 

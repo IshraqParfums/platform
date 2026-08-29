@@ -11,6 +11,7 @@ import { CartEmpty } from "@/components/cart/cart-empty";
 import { CartLine } from "@/components/cart/cart-line";
 import { CartSkeleton } from "@/components/cart/cart-skeleton";
 import { CartSummary } from "@/components/cart/cart-summary";
+import { Urdu } from "@/components/home-v2/ui/urdu";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toaster";
 import { ensureShopSession } from "@/lib/auth/shop-session";
@@ -42,6 +43,10 @@ import {
 /**
  * Client cart orchestrator — loads guest or server cart and handles mutations.
  * On load: auto-removes DISCONTINUED lines, toasts unavailable lines.
+ *
+ * URDU: "آپ کی ٹوکری" ("your basket") is new and unreviewed — check with a
+ * native reader before shipping, same as the other Urdu lines added across
+ * this pass.
  */
 export function CartPageClient() {
   const [view, setView] = useState<CartView | null>(null);
@@ -272,25 +277,28 @@ export function CartPageClient() {
     <div className="grid gap-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(17rem,21rem)] lg:items-start lg:gap-14 xl:gap-20">
       <div className="min-w-0">
         <header className="max-w-xl">
-          <h1 className="font-display text-[clamp(1.85rem,3.2vw,2.5rem)] font-semibold tracking-[-0.025em] text-ink">
-            Your cart
+          <Urdu size="sm" tone="brass" align="start">
+            {"آپ کی ٹوکری"}
+          </Urdu>
+          <h1 className="mt-3 font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
+            Your cart.
           </h1>
-          <p className="mt-3 font-display text-[1.05rem] leading-snug text-ink-soft sm:text-[1.125rem]">
+          <p className="mt-3 font-editorial text-[17px] italic leading-snug text-graphite-soft">
             {cartEditorialLine(view.lines.length)}
           </p>
-          <p className="mt-3 font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+          <p className="mt-3 font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-mute">
             {cartItemCountLabel(view.itemCount)}
             {view.mode === "guest" ? " · Saved on this device" : null}
           </p>
         </header>
 
         {error ? (
-          <p className="mt-6 text-sm text-rose-deep" role="alert">
+          <p className="mt-6 text-sm text-terra" role="alert">
             {error}
           </p>
         ) : null}
 
-        <div className="mt-10 divide-y divide-ink/[0.08] border-y border-ink/[0.08]">
+        <div className="mt-10 divide-y divide-graphite/[0.08] border-y border-graphite/[0.08]">
           {view.lines.map((line) => (
             <CartLine
               key={line.key}
@@ -313,7 +321,7 @@ export function CartPageClient() {
         {unavailableCount > 0 ? (
           <Button
             type="button"
-            variant="outline"
+            variant="outline-paper"
             size="md"
             className="w-full cursor-pointer"
             onClick={() => removeUnavailable(view)}

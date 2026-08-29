@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { shopAuthFetch } from '@/lib/api/auth-fetch';
 import { jsonFromNestError, unauthorizedResponse } from '@/lib/api/route-response';
 import { getShopAccessToken } from '@/lib/auth/session';
+import { listBespokeSessionTokens } from '@/lib/bespoke/session-cookie';
 
 function viewQuery(request: Request): string {
   const view = new URL(request.url).searchParams.get('view');
@@ -42,7 +43,12 @@ export async function POST(request: Request): Promise<NextResponse> {
       `/cart/items/bespoke${viewQuery(request)}`,
       {
         method: 'POST',
-        body: { bespokePerfumeId, sizeMl, quantity },
+        body: {
+          bespokePerfumeId,
+          sizeMl,
+          quantity,
+          sessionTokens: await listBespokeSessionTokens(),
+        },
       },
     );
     return NextResponse.json(data);

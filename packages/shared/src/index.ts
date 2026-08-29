@@ -163,6 +163,7 @@ export type {
   CartUnavailableReason,
   CatalogCartItemResponse,
   MergeCartBody,
+  MergeBespokeCartItemBody,
   MergeCartItemBody,
   UpdateCartItemBody,
 } from "./cart/index.js";
@@ -197,9 +198,11 @@ export {
   BESPOKE_ENGINE_VERSION,
   BESPOKE_FAMILY_COLOR,
   BESPOKE_FAMILY_PALETTE,
+  BESPOKE_MAX_LINE_QUANTITY,
   BESPOKE_PAISE_PER_ML,
   BESPOKE_TEASER_MATERIALS,
   assertAllowedBespokeSize,
+  clampBespokeLineQuantity,
   isAllowedBespokeSize,
   pricePaiseForSize,
 } from "./bespoke/index.js";
@@ -219,6 +222,7 @@ export type {
   BespokeFormulaSnapshotV1,
   BespokeFormulaSnapshotV2,
   BespokeFunnelStep,
+  BespokeNotesByPosition,
   BespokePerfumeAdminResponse,
   BespokePerfumeCustomerResponse,
   BespokePricingConfig,

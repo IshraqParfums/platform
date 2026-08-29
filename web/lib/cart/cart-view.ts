@@ -136,6 +136,29 @@ export function cartViewFromServer(cart: CartResponse): CartView {
 
 export function cartViewFromGuest(items: GuestCartLine[]): CartView {
   const lines: CartViewLine[] = items.map((item) => {
+    if (item.kind === "bespoke") {
+      return {
+        key: `bespoke:${item.bespokePerfumeId}:${item.sizeMl}`,
+        kind: "bespoke" as const,
+        itemId: null,
+        variantId: null,
+        bespokePerfumeId: item.bespokePerfumeId,
+        quantity: item.quantity,
+        sizeMl: item.sizeMl,
+        pricePaise: item.pricePaise,
+        compareAtPricePaise: null,
+        stockQty: null,
+        isAvailable: true,
+        unavailableReason: null,
+        productName: item.productName,
+        productSlug: "bespoke",
+        collectionName: "Bespoke",
+        shortDescription: null,
+        primaryImageUrl: null,
+        lineTotalPaise: item.pricePaise * item.quantity,
+      };
+    }
+
     const available = item.stockQty > 0;
     const quantity = available
       ? Math.min(item.quantity, item.stockQty)

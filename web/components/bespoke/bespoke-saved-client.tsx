@@ -8,11 +8,11 @@ import {
   BESPOKE_DIMENSION_LABEL,
   BESPOKE_FAMILY_COLOR,
 } from "@ishraqparfums/shared";
-import { Button, ButtonLink } from "@/components/ui/button";
-import { Container } from "@/components/ui/container";
-import { Eyebrow } from "@/components/ui/eyebrow";
-import { Modal } from "@/components/ui/modal";
 import { BespokeSavedSkeleton } from "@/components/bespoke/bespoke-skeletons";
+import { BandInner } from "@/components/home-v2/ui/band";
+import { Urdu } from "@/components/home-v2/ui/urdu";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { cn } from "@/lib/cn";
 
 export function BespokeSavedClient() {
@@ -71,92 +71,101 @@ export function BespokeSavedClient() {
   }
 
   return (
-    <Container size="narrow" className="py-8 sm:py-12">
-      <Eyebrow>Saved</Eyebrow>
-      <h1 className="font-display mt-3 text-section font-semibold text-ink">
-        Your bespoke blends
-      </h1>
-      {error ? (
-        <p className="mt-4 text-sm text-rose" role="alert">
-          {error}
-        </p>
-      ) : null}
-      {!items ? (
-        <div className="mt-8">
-          <BespokeSavedSkeleton />
-        </div>
-      ) : items.length === 0 ? (
-        <div className="mt-8 rounded-lg border border-ink/12 bg-card px-5 py-8">
-          <p className="text-[15px] text-ink-soft">No saved blends yet.</p>
-          <ButtonLink href="/bespoke/quiz" variant="emphasis" className="mt-5">
-            Take the quiz
-          </ButtonLink>
-        </div>
-      ) : (
-        <ul className="mt-8 grid gap-3">
-          {items.map((brew) => {
-            const accent =
-              brew.colorTheme.accent ||
-              (brew.familyPrimary
-                ? BESPOKE_FAMILY_COLOR[brew.familyPrimary]
-                : BESPOKE_FAMILY_COLOR.woody);
-            return (
-              <li key={brew.id}>
-                <div
-                  className={cn(
-                    "flex flex-col gap-4 rounded-lg border border-ink/12 px-5 py-4 sm:flex-row sm:items-stretch",
-                    "transition-[background-color,border-color] duration-200",
-                    "hover:border-ink/25 hover:bg-card",
-                  )}
-                >
-                  <span
-                    className="hidden h-auto w-2 shrink-0 rounded-full sm:block"
-                    style={{ backgroundColor: accent }}
-                    aria-hidden
-                  />
-                  <div className="min-w-0 flex-1">
-                    <Link
-                      href={`/bespoke/brews/${brew.id}`}
-                      className="font-display text-lg font-semibold text-ink underline decoration-transparent decoration-1 underline-offset-[3px] transition-colors hover:decoration-ink/40"
-                    >
-                      {brew.name}
-                    </Link>
-                    <p className="mt-1 font-mono text-label-sm uppercase text-ink-faint">
-                      {brew.familyPrimary
-                        ? BESPOKE_DIMENSION_LABEL[brew.familyPrimary]
-                        : "Bespoke"}
-                      {brew.familySecondary
-                        ? ` · ${BESPOKE_DIMENSION_LABEL[brew.familySecondary]}`
-                        : ""}
-                    </p>
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-ink-soft">
-                      {brew.brief}
-                    </p>
+    <section className="bg-paper py-16 md:py-24">
+      <BandInner className="max-w-[760px]">
+        <Urdu size="sm" tone="brass" align="start">
+          {"محفوظ شدہ"}
+        </Urdu>
+        <h1 className="mt-3 font-editorial text-h2-editorial text-graphite">
+          Your bespoke formulas.
+        </h1>
+
+        {error ? (
+          <p className="mt-4 text-[14px] text-terra" role="alert">
+            {error}
+          </p>
+        ) : null}
+
+        {!items ? (
+          <div className="mt-10">
+            <BespokeSavedSkeleton />
+          </div>
+        ) : items.length === 0 ? (
+          <div className="mt-10 rounded-[4px] border border-graphite/10 bg-shell px-6 py-10">
+            <p className="text-[15px] leading-[1.55] text-graphite-soft">
+              No formulas saved yet. Start a consultation and it lives here
+              once you claim it.
+            </p>
+            <ButtonLink href="/bespoke/quiz" variant="ink" size="pill" className="mt-6">
+              Begin the quiz
+            </ButtonLink>
+          </div>
+        ) : (
+          <ul className="mt-10 grid gap-3">
+            {items.map((brew) => {
+              const accent =
+                brew.colorTheme.accent ||
+                (brew.familyPrimary
+                  ? BESPOKE_FAMILY_COLOR[brew.familyPrimary]
+                  : BESPOKE_FAMILY_COLOR.woody);
+              return (
+                <li key={brew.id}>
+                  <div
+                    className={cn(
+                      "flex flex-col gap-4 rounded-[4px] border border-graphite/10 bg-shell px-5 py-4 sm:flex-row sm:items-stretch",
+                      "transition-colors duration-300",
+                      "hover:border-terra/30",
+                    )}
+                  >
+                    <span
+                      className="hidden h-auto w-[3px] shrink-0 rounded-full sm:block"
+                      style={{ backgroundColor: accent }}
+                      aria-hidden
+                    />
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`/bespoke/brews/${brew.id}`}
+                        className="font-editorial text-[22px] leading-none text-graphite underline decoration-transparent decoration-1 underline-offset-[4px] transition-colors hover:text-terra hover:decoration-terra/40"
+                      >
+                        {brew.name}
+                      </Link>
+                      <p className="mt-2 font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-mute">
+                        {brew.familyPrimary
+                          ? BESPOKE_DIMENSION_LABEL[brew.familyPrimary]
+                          : "Bespoke"}
+                        {brew.familySecondary
+                          ? ` · ${BESPOKE_DIMENSION_LABEL[brew.familySecondary]}`
+                          : ""}
+                      </p>
+                      <p className="mt-2.5 line-clamp-2 text-[14px] leading-[1.55] text-graphite-soft">
+                        {brew.brief}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-stretch sm:justify-center">
+                      <ButtonLink
+                        href={`/bespoke/brews/${brew.id}`}
+                        variant="ink"
+                        size="sm"
+                      >
+                        Open
+                      </ButtonLink>
+                      <Button
+                        type="button"
+                        variant="outline-paper"
+                        size="sm"
+                        className="cursor-pointer"
+                        onClick={() => setToRemove(brew)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-stretch sm:justify-center">
-                    <ButtonLink
-                      href={`/bespoke/brews/${brew.id}`}
-                      variant="emphasis"
-                      size="sm"
-                    >
-                      Open
-                    </ButtonLink>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="cursor-pointer"
-                      onClick={() => setToRemove(brew)}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </BandInner>
 
       <Modal
         open={toRemove !== null}
@@ -196,6 +205,6 @@ export function BespokeSavedClient() {
             : null}
         </p>
       </Modal>
-    </Container>
+    </section>
   );
 }
