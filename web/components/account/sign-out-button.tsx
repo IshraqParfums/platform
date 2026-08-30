@@ -39,7 +39,7 @@ export function SignOutButton({ className }: { className?: string }) {
     <>
       <Button
         type="button"
-        variant="outline"
+        variant="outline-paper"
         size="sm"
         disabled={signingOut}
         className={cn("cursor-pointer", className)}
@@ -52,6 +52,7 @@ export function SignOutButton({ className }: { className?: string }) {
         open={open}
         title="Sign out?"
         dismissible={!signingOut}
+        theme="v2"
         onClose={() => {
           if (!signingOut) setOpen(false);
         }}
@@ -59,7 +60,7 @@ export function SignOutButton({ className }: { className?: string }) {
           <div className="flex flex-col gap-2.5 sm:flex-row-reverse">
             <Button
               type="button"
-              variant="emphasis"
+              variant="ink"
               size="md"
               disabled={signingOut}
               className="w-full cursor-pointer sm:w-auto"
@@ -74,7 +75,7 @@ export function SignOutButton({ className }: { className?: string }) {
               variant="ghost"
               size="md"
               disabled={signingOut}
-              className="w-full cursor-pointer text-ink-soft sm:w-auto"
+              className="w-full cursor-pointer text-graphite-soft sm:w-auto"
               onClick={() => setOpen(false)}
             >
               Cancel
@@ -82,7 +83,7 @@ export function SignOutButton({ className }: { className?: string }) {
           </div>
         }
       >
-        <p className="text-[15px] leading-relaxed text-ink-soft">
+        <p className="text-[15px] leading-relaxed text-graphite-soft">
           You’ll sign out of this device. A guest cart saved in this browser
           stays here.
         </p>

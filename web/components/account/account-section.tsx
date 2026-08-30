@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
  * One panel of the account lobby: a quiet heading, an optional link out, and
  * content. Sections are separated by hairlines rather than boxed in cards —
  * this is a salon card, not a dashboard of tiles. Optional `surface="muted"`
- * gives a soft cream band so adjacent sections read as distinct.
+ * gives a soft shell band so adjacent sections read as distinct.
  */
 export function AccountSection({
   title,
@@ -30,7 +30,7 @@ export function AccountSection({
     action == null ? null : isLinkAction(action) ? (
       <Link
         href={action.href}
-        className="font-mono text-label-sm uppercase text-ink-faint transition-colors duration-200 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink/30"
+        className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint transition-colors duration-200 hover:text-terra focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-graphite/30"
       >
         {action.label}
       </Link>
@@ -44,14 +44,14 @@ export function AccountSection({
       className={cn(
         "py-7 last:pb-0 sm:py-9",
         surface === "muted" &&
-          "-mx-4 rounded-xl bg-cream-soft/80 px-4 sm:-mx-5 sm:px-5",
+          "-mx-4 rounded-[4px] bg-shell px-4 sm:-mx-5 sm:px-5",
         className,
       )}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
         <h2
           id={headingId}
-          className="font-display text-xl font-semibold tracking-[-0.015em] text-ink"
+          className="font-editorial text-[22px] leading-none text-graphite"
         >
           {title}
         </h2>
@@ -83,7 +83,7 @@ export function AccountEmpty({
   className?: string;
 }) {
   return (
-    <p className={cn("text-[15px] leading-relaxed text-ink-soft", className)}>
+    <p className={cn("text-[15px] leading-relaxed text-graphite-soft", className)}>
       {children}
     </p>
   );

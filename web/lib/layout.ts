@@ -12,8 +12,11 @@ export const HEADER_HEIGHT_PX = 68;
  * bar flash to espresso for one page in the middle of an otherwise-paper
  * journey. `/checkout` is the very next tap after `/cart`, so it joined
  * too. `/collections` is one tap from the header nav on any paper page and
- * routes straight back into `/shop`, so it joined for the same reason —
- * account (`/account`, order history) stays on v1 for now.
+ * routes straight back into `/shop`, so it joined for the same reason.
+ * `/account` (and its order-history subroutes) joined last — it's reachable
+ * from the header on every paper page and is where checkout's own receipt
+ * (`/account/orders/[id]`) lands right after payment, so the chrome must
+ * already be paper by the time a customer arrives there.
  */
 export function isPaperStorefrontPath(pathname: string): boolean {
   return (
@@ -23,6 +26,7 @@ export function isPaperStorefrontPath(pathname: string): boolean {
     pathname === "/checkout" ||
     pathname === "/collections" ||
     pathname.startsWith("/products/") ||
-    pathname.startsWith("/bespoke")
+    pathname.startsWith("/bespoke") ||
+    pathname.startsWith("/account")
   );
 }

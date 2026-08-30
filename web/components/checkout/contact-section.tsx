@@ -1,9 +1,9 @@
 "use client";
 
-import { CheckoutField } from "@/components/checkout/checkout-field";
-import { CheckoutInput } from "@/components/checkout/checkout-input";
-import { CheckoutHeading } from "@/components/checkout/checkout-heading";
 import { checkoutLayoutV2 } from "@/components/checkout/checkout-layout-v2";
+import { FormField } from "@/components/ui/field";
+import { FormInput } from "@/components/ui/form-input";
+import { StepHeading } from "@/components/ui/step-heading";
 import { cn } from "@/lib/cn";
 
 export function ContactSection({
@@ -31,7 +31,7 @@ export function ContactSection({
       aria-label={showHeading ? undefined : "Contact details"}
     >
       {showHeading ? (
-        <CheckoutHeading
+        <StepHeading
           id="checkout-contact-heading"
           title="Contact"
           description="We’ll send your order confirmation here."
@@ -45,12 +45,12 @@ export function ContactSection({
           checkoutLayoutV2.fieldGrid,
         )}
       >
-        <CheckoutField
+        <FormField
           label="Full name"
           htmlFor="checkout-contact-name"
           error={nameError}
         >
-          <CheckoutInput
+          <FormInput
             id="checkout-contact-name"
             name="name"
             type="text"
@@ -61,14 +61,14 @@ export function ContactSection({
             invalid={Boolean(nameError)}
             onChange={(event) => onNameChange(event.target.value)}
           />
-        </CheckoutField>
+        </FormField>
 
-        <CheckoutField
+        <FormField
           label="Email"
           htmlFor="checkout-contact-email"
           error={emailError}
         >
-          <CheckoutInput
+          <FormInput
             id="checkout-contact-email"
             name="email"
             type="email"
@@ -80,7 +80,7 @@ export function ContactSection({
             invalid={Boolean(emailError)}
             onChange={(event) => onEmailChange(event.target.value)}
           />
-        </CheckoutField>
+        </FormField>
       </div>
     </section>
   );

@@ -5,9 +5,8 @@ import {
   indianMobileNationalDigits,
   normalizeIndianMobile,
 } from "@ishraqparfums/shared";
-import { FormField, fieldControlClassName } from "@/components/checkout/form-field";
-import { FormInput } from "@/components/checkout/form-input";
-import { checkoutLayout } from "@/components/checkout/checkout-layout";
+import { FormField, fieldControlClassName } from "@/components/ui/field";
+import { FormInput } from "@/components/ui/form-input";
 import { lookupPincode } from "@/lib/address/pincode-lookup";
 import type {
   AddressDraft,
@@ -15,6 +14,11 @@ import type {
 } from "@/lib/checkout/checkout-validation";
 import { cn } from "@/lib/cn";
 
+/**
+ * Delivery-address fields, paper/graphite surface — shared by checkout's
+ * address composer and account's address editor, the only two places this
+ * form appears.
+ */
 export function AddressForm({
   draft,
   errors,
@@ -70,8 +74,8 @@ export function AddressForm({
   const nationalPhone = indianMobileNationalDigits(draft.phone);
 
   return (
-    <div className={checkoutLayout.fieldStack}>
-      <div className={cn("grid sm:grid-cols-2", checkoutLayout.fieldGrid)}>
+    <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <FormField
           label="Recipient name"
           htmlFor="checkout-address-name"
@@ -101,7 +105,10 @@ export function AddressForm({
               "flex items-center gap-2",
             )}
           >
-            <span className="shrink-0 tabular-nums text-ink-soft" aria-hidden>
+            <span
+              className="shrink-0 tabular-nums text-graphite-soft"
+              aria-hidden
+            >
               +91
             </span>
             <input
@@ -116,7 +123,7 @@ export function AddressForm({
               placeholder="98765 43210"
               maxLength={10}
               aria-invalid={Boolean(errors?.phone) || undefined}
-              className="min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink-faint disabled:cursor-not-allowed"
+              className="min-w-0 flex-1 bg-transparent text-[15px] text-graphite outline-none placeholder:text-graphite-faint disabled:cursor-not-allowed"
               onChange={(event) => setNationalMobile(event.target.value)}
             />
           </div>
@@ -157,7 +164,7 @@ export function AddressForm({
         />
       </FormField>
 
-      <div className={cn("grid sm:grid-cols-3", checkoutLayout.fieldGrid)}>
+      <div className="grid gap-3 sm:grid-cols-3">
         <FormField
           label="PIN code"
           htmlFor="checkout-address-pincode"
@@ -226,7 +233,7 @@ export function AddressForm({
       {showDefaultToggle ? (
         <label
           className={cn(
-            "flex min-h-10 cursor-pointer items-center gap-2.5 text-sm text-ink-soft",
+            "flex min-h-10 cursor-pointer items-center gap-2.5 text-sm text-graphite-soft",
             disabled && "cursor-not-allowed opacity-55",
           )}
         >
@@ -235,7 +242,7 @@ export function AddressForm({
             checked={draft.isDefault}
             disabled={disabled}
             onChange={(event) => patch({ isDefault: event.target.checked })}
-            className="size-4 accent-gold"
+            className="size-4 accent-terra"
           />
           Save as default
         </label>

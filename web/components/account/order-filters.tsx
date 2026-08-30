@@ -62,16 +62,16 @@ export function OrderFilters({
             onKeyDown={(event) => handleKeyDown(index, event)}
             className={cn(
               "cursor-pointer rounded-full border px-3.5 py-1.5",
-              "font-mono text-label-sm uppercase",
+              "font-ui text-[11px] uppercase tracking-[0.12em]",
               "transition-[background-color,border-color,color] duration-200 ease-[cubic-bezier(0.22,0.8,0.28,1)]",
-              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink/30",
+              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-graphite/30",
               selected
-                ? "border-ink/40 bg-card text-ink"
-                : "border-ink/12 text-ink-faint hover:border-ink/25 hover:text-ink-soft",
+                ? "border-graphite/40 bg-shell text-graphite"
+                : "border-graphite/12 text-graphite-faint hover:border-graphite/25 hover:text-graphite-soft",
             )}
           >
             {filter.label}
-            <span className="ml-1.5 text-ink-faint">{counts[filter.id]}</span>
+            <span className="ml-1.5 text-graphite-faint">{counts[filter.id]}</span>
           </button>
         );
       })}

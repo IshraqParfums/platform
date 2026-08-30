@@ -5,16 +5,16 @@ import { cn } from "@/lib/cn";
 /**
  * State of an order, at a glance.
  *
- * The label stays `text-ink-soft` at every state — a coloured 11px label on
- * cream is a legibility problem, not a signal. The tone is carried by a small
- * dot instead, and the dot is only ever reinforcement: the words already say
- * what the colour says.
+ * The label stays `text-graphite-soft` at every state — a coloured 11px
+ * label on paper is a legibility problem, not a signal. The tone is carried
+ * by a small dot instead, and the dot is only ever reinforcement: the words
+ * already say what the colour says.
  */
 const DOT: Record<ReturnType<typeof orderTone>, string> = {
-  awaiting: "bg-rose-deep",
-  active: "bg-gold",
-  completed: "bg-sage",
-  failed: "bg-rose-deep",
+  awaiting: "bg-terra",
+  active: "bg-brass",
+  completed: "bg-graphite",
+  failed: "bg-terra-deep",
 };
 
 export function OrderStatusChip({
@@ -27,8 +27,8 @@ export function OrderStatusChip({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-2 rounded-full border border-ink/12 px-2.5 py-1",
-        "font-mono text-label-sm uppercase text-ink-soft",
+        "inline-flex shrink-0 items-center gap-2 rounded-full border border-graphite/12 px-2.5 py-1",
+        "font-ui text-[11px] uppercase tracking-[0.12em] text-graphite-soft",
         className,
       )}
     >

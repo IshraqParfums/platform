@@ -3,16 +3,15 @@
 import type { ReactNode } from "react";
 
 /**
- * v2 checkout step heading — forked from `form-field.tsx`'s `SectionHeading`
- * so the account order-detail view, which still renders through the v1
- * version, keeps its current look.
- *
- * The step numeral is set in italic editorial serif rather than tracked
- * mono — a chapter mark, not a progress-bar digit. Delivery and payment
- * really are the only two steps here, so numbering them still earns its
- * keep; it just reads as the book this order is a short chapter of.
+ * Paper/graphite section heading — an optional italic-serif numeral or
+ * marker beside a title, with a description and trailing action. Named
+ * apart from `ui/section-heading.tsx` (a v1 marketing-section heading with
+ * an eyebrow + centered/light variants) since this is a different shape for
+ * a different job: a step or record inside a flow, not a page section.
+ * Promoted from `checkout/checkout-heading.tsx` once account needed the
+ * same heading for its own sections.
  */
-export function CheckoutHeading({
+export function StepHeading({
   id,
   step,
   title,

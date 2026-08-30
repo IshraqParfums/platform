@@ -2,7 +2,7 @@
 
 import { useId, type ReactNode } from "react";
 import { checkoutLayoutV2 } from "@/components/checkout/checkout-layout-v2";
-import { CheckoutHeading } from "@/components/checkout/checkout-heading";
+import { StepHeading } from "@/components/ui/step-heading";
 import { cn } from "@/lib/cn";
 
 /**
@@ -38,7 +38,7 @@ export function CheckoutSection({
       aria-labelledby={headingId}
       className={cn(checkoutLayoutV2.section, "scroll-mt-24", className)}
     >
-      <CheckoutHeading
+      <StepHeading
         id={headingId}
         step={step}
         title={title}

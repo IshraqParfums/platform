@@ -19,7 +19,7 @@ import { AccountHubSkeleton } from "@/components/account/account-skeletons";
 import { OrderCards } from "@/components/account/order-card";
 import { ProfileEditModal } from "@/components/account/profile-edit-modal";
 import { SignOutButton } from "@/components/account/sign-out-button";
-import { FactRecord } from "@/components/checkout/fact-record";
+import { FactRecord } from "@/components/ui/fact-record";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { listAddresses } from "@/lib/address/address-client";
 import { ACCOUNT_ORDERS } from "@/lib/auth/account-routes";
@@ -103,12 +103,12 @@ export function AccountHubView({
     <div>
       <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
         <div className="min-w-0">
-          <h1 className="font-display text-[clamp(1.85rem,3.2vw,2.5rem)] font-semibold tracking-[-0.025em] text-ink">
+          <h1 className="font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
             {displayName || "Your account"}
           </h1>
-          <p className="mt-2 font-mono text-label-sm uppercase text-ink-faint">
+          <p className="mt-3 font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
             Signed in as{" "}
-            <span className="normal-case tracking-normal text-ink-soft">
+            <span className="normal-case tracking-normal text-graphite-soft">
               {formatIndianMobileDisplay(me.phone)}
             </span>
           </p>
@@ -116,7 +116,7 @@ export function AccountHubView({
         <SignOutButton />
       </header>
 
-      <div className="mt-8 border-t border-ink/[0.08] divide-y divide-ink/[0.08]">
+      <div className="mt-8 border-t border-graphite/10 divide-y divide-graphite/10">
         <AccountSection
           title="Details"
           action={
@@ -124,7 +124,7 @@ export function AccountHubView({
               type="button"
               variant="ghost"
               size="sm"
-              className="cursor-pointer text-ink-soft"
+              className="cursor-pointer text-graphite-soft"
               onClick={() => setProfileOpen(true)}
             >
               Edit
@@ -137,25 +137,25 @@ export function AccountHubView({
                 label: "Name",
                 value: displayName || "Not added yet",
                 valueClassName: displayName
-                  ? "font-medium text-ink"
-                  : "text-ink-faint",
+                  ? "font-medium text-graphite"
+                  : "text-graphite-faint",
               },
               {
                 label: "Email",
                 value: me.email?.trim() || "Not added yet",
                 valueClassName: me.email
-                  ? "break-words text-ink-soft"
-                  : "text-ink-faint",
+                  ? "break-words text-graphite-soft"
+                  : "text-graphite-faint",
               },
               {
                 label: "Phone",
                 value: formatIndianMobileDisplay(me.phone),
-                valueClassName: "tabular-nums text-ink-soft",
+                valueClassName: "tabular-nums text-graphite-soft",
               },
             ]}
           />
           {!me.email?.trim() || !displayName ? (
-            <p className="mt-4 text-sm text-ink-faint">
+            <p className="mt-4 text-sm text-graphite-faint">
               Add these so order confirmations reach you — or we’ll ask at
               checkout.
             </p>
@@ -183,7 +183,7 @@ export function AccountHubView({
               <button
                 type="button"
                 onClick={onRetry}
-                className="cursor-pointer underline decoration-ink/25 underline-offset-[3px] transition-colors hover:text-ink hover:decoration-ink/50"
+                className="cursor-pointer underline decoration-graphite/25 underline-offset-[3px] transition-colors hover:text-terra hover:decoration-terra/50"
               >
                 Try again
               </button>
@@ -196,7 +196,7 @@ export function AccountHubView({
               </AccountEmpty>
               <ButtonLink
                 href="/shop"
-                variant="outline"
+                variant="outline-paper"
                 size="md"
                 className="mt-6"
               >
@@ -221,10 +221,10 @@ export function AccountHubView({
             add to cart when you&apos;re ready.
           </AccountEmpty>
           <div className="mt-6 flex flex-wrap gap-3">
-            <ButtonLink href="/bespoke/saved" variant="emphasis" size="md">
+            <ButtonLink href="/bespoke/saved" variant="ink" size="md">
               Saved blends
             </ButtonLink>
-            <ButtonLink href="/bespoke/quiz" variant="outline" size="md">
+            <ButtonLink href="/bespoke/quiz" variant="outline-paper" size="md">
               Take the quiz
             </ButtonLink>
           </div>
@@ -238,7 +238,7 @@ export function AccountHubView({
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="cursor-pointer text-ink-soft"
+                className="cursor-pointer text-graphite-soft"
                 onClick={() => setAddressEditor("new")}
               >
                 Add
@@ -271,11 +271,11 @@ export function AccountHubView({
         </AccountSection>
       </div>
 
-      <p className="mt-10 text-sm text-ink-faint">
+      <p className="mt-10 text-sm text-graphite-faint">
         Need help with an order?{" "}
         <Link
           href="/contact"
-          className="underline decoration-ink/25 underline-offset-[3px] transition-colors hover:text-ink hover:decoration-ink/50"
+          className="underline decoration-graphite/25 underline-offset-[3px] transition-colors hover:text-terra hover:decoration-terra/50"
         >
           Contact us
         </Link>
@@ -319,16 +319,16 @@ function AccountAddressCard({
   onDelete: () => void;
 }) {
   return (
-    <div className="flex h-full flex-col rounded-lg border border-ink/12 px-5 py-4">
+    <div className="flex h-full flex-col rounded-[4px] border border-graphite/12 px-5 py-4">
       <p className="flex flex-wrap items-baseline gap-x-2 text-[15px]">
-        <span className="font-medium text-ink">{address.name}</span>
+        <span className="font-medium text-graphite">{address.name}</span>
         {address.isDefault ? (
-          <span className="font-mono text-label-sm uppercase text-ink-faint">
+          <span className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
             Default
           </span>
         ) : null}
       </p>
-      <p className="mt-1.5 flex-1 text-sm leading-relaxed text-ink-soft">
+      <p className="mt-1.5 flex-1 text-sm leading-relaxed text-graphite-soft">
         {address.line1}
         {address.line2 ? `, ${address.line2}` : ""}
         <br />
@@ -340,14 +340,14 @@ function AccountAddressCard({
         <button
           type="button"
           onClick={onEdit}
-          className="cursor-pointer font-mono text-label-sm uppercase text-ink-faint transition-colors hover:text-ink"
+          className="cursor-pointer font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint transition-colors hover:text-terra"
         >
           Edit
         </button>
         <button
           type="button"
           onClick={onDelete}
-          className="cursor-pointer font-mono text-label-sm uppercase text-ink-faint transition-colors hover:text-ink"
+          className="cursor-pointer font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint transition-colors hover:text-terra"
         >
           Remove
         </button>

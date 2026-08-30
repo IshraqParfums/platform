@@ -2,7 +2,7 @@
 
 import type { AddressResponse } from "@ishraqparfums/shared";
 import { AddressComposerPanel } from "@/components/checkout/address-choice";
-import { CheckoutAddressForm } from "@/components/checkout/checkout-address-form";
+import { AddressForm } from "@/components/address/address-form";
 import { AddressList } from "@/components/checkout/address-list";
 import { CheckoutSection } from "@/components/checkout/checkout-section";
 import {
@@ -117,7 +117,7 @@ export function AddressSection({
             </>
           }
         >
-          <CheckoutAddressForm
+          <AddressForm
             draft={draft}
             errors={draftErrors}
             disabled={disabled}

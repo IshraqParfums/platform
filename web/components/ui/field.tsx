@@ -1,18 +1,17 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { checkoutLayoutV2 } from "@/components/checkout/checkout-layout-v2";
 import { cn } from "@/lib/cn";
 
 /**
- * v2 checkout field chrome — forked from `form-field.tsx` so the account
- * address editor, which still renders through the v1 `AddressForm`, is
- * unaffected.
+ * Labeled form-field chrome — paper/graphite surface. Promoted from
+ * `checkout/checkout-field.tsx` once account's v1 `AddressForm`/`FormField`
+ * migrated too, so checkout and account (the only two places a field like
+ * this appears) share one implementation instead of two forks.
  */
-export function checkoutFieldControlClassName(invalid?: boolean): string {
+export function fieldControlClassName(invalid?: boolean): string {
   return cn(
-    "w-full min-h-11 rounded-[3px] border bg-paper px-3.5 py-2.5",
-    checkoutLayoutV2.labelToControl,
+    "w-full min-h-11 rounded-[3px] border bg-paper px-3.5 py-2.5 mt-1.5",
     "text-[15px] text-graphite outline-none transition-colors",
     "placeholder:text-graphite-faint",
     "focus-visible:border-graphite/45",
@@ -21,7 +20,7 @@ export function checkoutFieldControlClassName(invalid?: boolean): string {
   );
 }
 
-export function CheckoutField({
+export function FormField({
   label,
   htmlFor,
   hint,

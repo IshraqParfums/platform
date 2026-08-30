@@ -68,13 +68,14 @@ export function ProfileEditModal({
       open={open}
       title="Edit details"
       dismissible={!saving}
+      theme="v2"
       onClose={onClose}
       panelClassName="max-w-xl"
       footer={
         <div className="flex flex-col gap-2.5 sm:flex-row-reverse">
           <Button
             type="button"
-            variant="emphasis"
+            variant="ink"
             size="md"
             disabled={saving}
             className="w-full cursor-pointer sm:w-auto"
@@ -89,7 +90,7 @@ export function ProfileEditModal({
             variant="ghost"
             size="md"
             disabled={saving}
-            className="w-full cursor-pointer text-ink-soft sm:w-auto"
+            className="w-full cursor-pointer text-graphite-soft sm:w-auto"
             onClick={onClose}
           >
             Cancel
@@ -97,9 +98,9 @@ export function ProfileEditModal({
         </div>
       }
     >
-      <p className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+      <p className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
         Signed in as{" "}
-        <span className="normal-case tracking-normal text-ink">
+        <span className="normal-case tracking-normal text-graphite">
           {formatIndianMobileDisplay(me.phone)}
         </span>
       </p>
