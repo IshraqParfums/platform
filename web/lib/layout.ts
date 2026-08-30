@@ -11,7 +11,9 @@ export const HEADER_HEIGHT_PX = 68;
  * result or a paper PDP, and a visitor landing on it should never see the
  * bar flash to espresso for one page in the middle of an otherwise-paper
  * journey. `/checkout` is the very next tap after `/cart`, so it joined
- * too — account (`/account`, order history) stays on v1 for now.
+ * too. `/collections` is one tap from the header nav on any paper page and
+ * routes straight back into `/shop`, so it joined for the same reason —
+ * account (`/account`, order history) stays on v1 for now.
  */
 export function isPaperStorefrontPath(pathname: string): boolean {
   return (
@@ -19,6 +21,7 @@ export function isPaperStorefrontPath(pathname: string): boolean {
     pathname === "/shop" ||
     pathname === "/cart" ||
     pathname === "/checkout" ||
+    pathname === "/collections" ||
     pathname.startsWith("/products/") ||
     pathname.startsWith("/bespoke")
   );
