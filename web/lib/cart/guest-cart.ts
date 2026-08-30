@@ -1,4 +1,7 @@
-import { clampBespokeLineQuantity } from "@ishraqparfums/shared";
+import {
+  clampBespokeLineQuantity,
+  clampCatalogLineQuantity,
+} from "@ishraqparfums/shared";
 
 export const GUEST_CART_STORAGE_KEY = "ishraq_guest_cart_v1";
 
@@ -90,6 +93,9 @@ function normalizeCatalogLine(line: GuestCatalogLine): GuestCatalogLine {
     kind: "catalog",
     collectionName: line.collectionName ?? null,
     shortDescription: line.shortDescription ?? null,
+    // localStorage is user-editable and may predate a cap change, so the
+    // clamp is re-applied on every read rather than trusted from the write.
+    quantity: Math.max(1, clampCatalogLineQuantity(line.quantity, line.stockQty)),
   };
 }
 
@@ -154,7 +160,10 @@ export function addGuestCartItem(
     (line) => line.kind !== "bespoke" && line.variantId === snapshot.variantId,
   );
   if (existing && existing.kind !== "bespoke") {
-    existing.quantity += qty;
+    existing.quantity = Math.max(
+      1,
+      clampCatalogLineQuantity(existing.quantity + qty, snapshot.stockQty),
+    );
     existing.productName = snapshot.productName;
     existing.productSlug = snapshot.productSlug;
     existing.collectionName = snapshot.collectionName;
@@ -165,7 +174,11 @@ export function addGuestCartItem(
     existing.primaryImageUrl = snapshot.primaryImageUrl;
     existing.stockQty = snapshot.stockQty;
   } else {
-    cart.items.push({ ...snapshot, kind: "catalog", quantity: qty });
+    cart.items.push({
+      ...snapshot,
+      kind: "catalog",
+      quantity: Math.max(1, clampCatalogLineQuantity(qty, snapshot.stockQty)),
+    });
   }
   writeGuestCart(cart);
   return cart;
@@ -211,9 +224,10 @@ export function setGuestCartQuantity(
   );
   if (!line || line.kind === "bespoke") return cart;
 
-  const max = Math.max(1, line.stockQty);
-  const next = Math.min(max, Math.max(1, Math.floor(quantity)));
-  line.quantity = next;
+  line.quantity = Math.max(
+    1,
+    clampCatalogLineQuantity(quantity, line.stockQty),
+  );
   writeGuestCart(cart);
   return cart;
 }

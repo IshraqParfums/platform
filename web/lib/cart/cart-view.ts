@@ -227,6 +227,26 @@ export function findCartLineByBespokeSize(
   );
 }
 
+/**
+ * Qty already in cart for each catalog variant, keyed by variant id.
+ *
+ * Keyed on id rather than `sizeMl` because that is the identity buy surfaces
+ * already select on, and two variants of one product could share an ml.
+ */
+export function variantQuantitiesInCart(
+  view: CartView | null,
+): Record<string, number> {
+  if (!view) return {};
+  const out: Record<string, number> = {};
+  for (const line of view.lines) {
+    if (line.kind === "bespoke" || !line.variantId || line.quantity <= 0) {
+      continue;
+    }
+    out[line.variantId] = (out[line.variantId] ?? 0) + line.quantity;
+  }
+  return out;
+}
+
 /** Qty already in cart for each size of a given brew. */
 export function bespokeSizeQuantitiesInCart(
   view: CartView | null,

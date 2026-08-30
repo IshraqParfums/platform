@@ -10,13 +10,15 @@ export const HEADER_HEIGHT_PX = 68;
  * `/cart` joined them for the same reason — it's one tap from a bespoke
  * result or a paper PDP, and a visitor landing on it should never see the
  * bar flash to espresso for one page in the middle of an otherwise-paper
- * journey.
+ * journey. `/checkout` is the very next tap after `/cart`, so it joined
+ * too — account (`/account`, order history) stays on v1 for now.
  */
 export function isPaperStorefrontPath(pathname: string): boolean {
   return (
     pathname === "/" ||
     pathname === "/shop" ||
     pathname === "/cart" ||
+    pathname === "/checkout" ||
     pathname.startsWith("/products/") ||
     pathname.startsWith("/bespoke")
   );

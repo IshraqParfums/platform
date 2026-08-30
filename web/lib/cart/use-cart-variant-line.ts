@@ -18,6 +18,7 @@ import {
 import { emitCartChanged, subscribeCartChanged } from "@/lib/cart/cart-events";
 import {
   findCartLineByVariantId,
+  variantQuantitiesInCart,
   withLineQuantity,
   type CartView,
   type CartViewLine,
@@ -62,6 +63,12 @@ export function useCartVariantLine(variantId: string | null) {
 
   const line: CartViewLine | null =
     variantId && view ? findCartLineByVariantId(view, variantId) : null;
+
+  /**
+   * Every sibling variant's qty, not just the selected one — lets size
+   * pickers badge each size with what is already in the cart.
+   */
+  const variantQuantities = variantQuantitiesInCart(view);
 
   /**
    * Merge a slim mutation ack. Emit outside setState — subscribers call
@@ -154,6 +161,7 @@ export function useCartVariantLine(variantId: string | null) {
     mode: view?.mode ?? "guest",
     line,
     quantity: line?.quantity ?? 0,
+    variantQuantities,
     setQuantity,
     applySummary,
     refresh,

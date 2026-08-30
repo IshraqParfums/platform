@@ -17,6 +17,11 @@ export type {
   UpdateCartItemBody,
 } from './cart-contracts.js';
 export {
+  MAX_CATALOG_LINE_QUANTITY,
+  clampCatalogLineQuantity,
+  maxCatalogLineQuantity,
+} from './line-quantity.js';
+export {
   CART_MUTATION_VIEWS,
   DEFAULT_CART_MUTATION_VIEW,
   isCartMutationSummary,

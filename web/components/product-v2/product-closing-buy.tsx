@@ -19,6 +19,7 @@ export function ProductClosingBuy() {
     inCart,
     isPending,
     cartReady,
+    variantQuantities,
     ctaState,
     addSelectedToCart,
     product,
@@ -37,6 +38,7 @@ export function ProductClosingBuy() {
           selectedId={selected.id}
           onSelect={selectVariant}
           heading={false}
+          quantities={variantQuantities}
         />
       </div>
 

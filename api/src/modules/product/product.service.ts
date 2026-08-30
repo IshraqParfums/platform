@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
+  MAX_CATALOG_LINE_QUANTITY,
   PRODUCT_LIST_SORT_DEFAULT,
   isUrduScript,
   type AdminLowStockVariant,
@@ -451,6 +452,26 @@ export class ProductService {
         `Only ${available} unit(s) of ${variant.sizeMl}ml in stock`,
       );
     }
+
+    // Kept distinct from the stock check above: "out of stock" and "per-order
+    // limit" have different remedies, so the customer must be told which.
+    this.assertWithinLineLimit(quantity, variant.sizeMl);
+  }
+
+  /**
+   * Per-order ceiling, independent of how much stock is on hand.
+   *
+   * Takes no variant so callers holding only a cart row (the `/cart` stepper,
+   * whose stock check lives in SQL) can enforce the cap without a extra read.
+   */
+  assertWithinLineLimit(quantity: number, sizeMl?: number | null): void {
+    if (quantity <= MAX_CATALOG_LINE_QUANTITY) return;
+
+    throw new BadRequestException(
+      sizeMl != null
+        ? `Limit ${MAX_CATALOG_LINE_QUANTITY} bottles of ${sizeMl}ml per order`
+        : `Limit ${MAX_CATALOG_LINE_QUANTITY} bottles per size, per order`,
+    );
   }
 
   /**

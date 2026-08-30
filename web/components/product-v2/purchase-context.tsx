@@ -10,9 +10,10 @@ import {
   type ReactNode,
 } from "react";
 import { useInView } from "@/components/product-v2/use-in-view";
-import type {
-  ProductAvailability,
-  ProductDetailVariant,
+import {
+  maxCatalogLineQuantity,
+  type ProductAvailability,
+  type ProductDetailVariant,
 } from "@ishraqparfums/shared";
 import { CartGuestSavedModal } from "@/components/cart/cart-guest-saved-modal";
 import { toast } from "@/components/ui/toaster";
@@ -66,6 +67,8 @@ type PurchaseValue = {
   setCartQty: (quantity: number) => void;
   cartPending: boolean;
   cartReady: boolean;
+  /** Qty in cart per variant id — size pickers badge each size with this. */
+  variantQuantities: Record<string, number>;
   maxQty: number | undefined;
   isPending: boolean;
   ctaState: CtaState;
@@ -148,6 +151,7 @@ export function ProductPurchaseProvider({
     ready: cartReady,
     pending: cartPending,
     quantity: cartQty,
+    variantQuantities,
     setQuantity: setCartQty,
     applySummary,
   } = useCartVariantLine(selected?.id ?? null);
@@ -157,7 +161,9 @@ export function ProductPurchaseProvider({
   const stock = stockLabel(selected);
   const inCart = cartReady && cartQty > 0;
   const maxQty =
-    selected && selected.stockQty > 0 ? selected.stockQty : undefined;
+    selected && selected.stockQty > 0
+      ? maxCatalogLineQuantity(selected.stockQty)
+      : undefined;
 
   const closeGuestModal = useCallback(() => {
     setGuestModalOpen(false);
@@ -237,6 +243,7 @@ export function ProductPurchaseProvider({
         setCartQty,
         cartPending,
         cartReady,
+        variantQuantities,
         maxQty,
         isPending,
         ctaState,

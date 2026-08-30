@@ -1,8 +1,9 @@
 "use client";
 
-import { FormField, SectionHeading } from "@/components/checkout/form-field";
-import { FormInput } from "@/components/checkout/form-input";
-import { checkoutLayout } from "@/components/checkout/checkout-layout";
+import { CheckoutField } from "@/components/checkout/checkout-field";
+import { CheckoutInput } from "@/components/checkout/checkout-input";
+import { CheckoutHeading } from "@/components/checkout/checkout-heading";
+import { checkoutLayoutV2 } from "@/components/checkout/checkout-layout-v2";
 import { cn } from "@/lib/cn";
 
 export function ContactSection({
@@ -30,7 +31,7 @@ export function ContactSection({
       aria-label={showHeading ? undefined : "Contact details"}
     >
       {showHeading ? (
-        <SectionHeading
+        <CheckoutHeading
           id="checkout-contact-heading"
           title="Contact"
           description="We’ll send your order confirmation here."
@@ -40,16 +41,16 @@ export function ContactSection({
       <div
         className={cn(
           "grid sm:grid-cols-2",
-          showHeading && checkoutLayout.sectionToContent,
-          checkoutLayout.fieldGrid,
+          showHeading && checkoutLayoutV2.sectionToContent,
+          checkoutLayoutV2.fieldGrid,
         )}
       >
-        <FormField
+        <CheckoutField
           label="Full name"
           htmlFor="checkout-contact-name"
           error={nameError}
         >
-          <FormInput
+          <CheckoutInput
             id="checkout-contact-name"
             name="name"
             type="text"
@@ -60,14 +61,14 @@ export function ContactSection({
             invalid={Boolean(nameError)}
             onChange={(event) => onNameChange(event.target.value)}
           />
-        </FormField>
+        </CheckoutField>
 
-        <FormField
+        <CheckoutField
           label="Email"
           htmlFor="checkout-contact-email"
           error={emailError}
         >
-          <FormInput
+          <CheckoutInput
             id="checkout-contact-email"
             name="email"
             type="email"
@@ -79,7 +80,7 @@ export function ContactSection({
             invalid={Boolean(emailError)}
             onChange={(event) => onEmailChange(event.target.value)}
           />
-        </FormField>
+        </CheckoutField>
       </div>
     </section>
   );

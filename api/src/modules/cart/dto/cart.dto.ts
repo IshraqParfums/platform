@@ -14,6 +14,7 @@ import {
 import {
   BESPOKE_MAX_LINE_QUANTITY,
   CART_MUTATION_VIEWS,
+  MAX_CATALOG_LINE_QUANTITY,
   type CartMutationView,
 } from '@ishraqparfums/shared';
 
@@ -23,6 +24,7 @@ export class AddCartItemDto {
 
   @IsInt()
   @Min(1)
+  @Max(MAX_CATALOG_LINE_QUANTITY)
   quantity!: number;
 }
 

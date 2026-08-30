@@ -10,7 +10,11 @@ import type {
   CartMutationView,
   CartResponse,
 } from '@ishraqparfums/shared';
-import { DEFAULT_CART_MUTATION_VIEW, BESPOKE_MAX_LINE_QUANTITY } from '@ishraqparfums/shared';
+import {
+  DEFAULT_CART_MUTATION_VIEW,
+  BESPOKE_MAX_LINE_QUANTITY,
+  clampCatalogLineQuantity,
+} from '@ishraqparfums/shared';
 import { BespokePricingService } from '../bespoke/bespoke-pricing.service';
 import { BespokeService } from '../bespoke/bespoke.service';
 import { ProductService } from '../product/product.service';
@@ -129,6 +133,11 @@ export class CartService {
     if (owned?.bespokePerfumeId && quantity > 0) {
       this.bespokePricing.assertLineQuantity(quantity);
     }
+    // Catalog stock is enforced atomically in the UPDATE below, but the
+    // per-order cap has no stock row to hang off — so it is checked here.
+    if (owned?.productVariantId && quantity > 0) {
+      this.productService.assertWithinLineLimit(quantity);
+    }
 
     const row = await this.cartRepository.updateOwnedItemQuantity(
       customerId,
@@ -227,13 +236,18 @@ export class CartService {
         guestItem.variantId,
       );
       const desiredQuantity = (existing?.quantity ?? 0) + normalizedQuantity;
-      let finalQuantity = desiredQuantity;
       const available = this.productService.availableQty(variant);
+      // Clamp rather than throw: signing in must not fail over a guest cart.
+      const finalQuantity = clampCatalogLineQuantity(
+        desiredQuantity,
+        available,
+      );
 
-      if (desiredQuantity > available) {
-        finalQuantity = available;
+      if (finalQuantity < desiredQuantity) {
         warnings.push(
-          `Quantity for variant ${guestItem.variantId} reduced to ${available} (stock limit)`,
+          desiredQuantity > available
+            ? `Quantity for variant ${guestItem.variantId} reduced to ${finalQuantity} (stock limit)`
+            : `Quantity for variant ${guestItem.variantId} reduced to ${finalQuantity} (per-order limit)`,
         );
       }
 

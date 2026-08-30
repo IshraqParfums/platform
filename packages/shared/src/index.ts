@@ -170,9 +170,12 @@ export type {
 export {
   CART_MUTATION_VIEWS,
   DEFAULT_CART_MUTATION_VIEW,
+  MAX_CATALOG_LINE_QUANTITY,
+  clampCatalogLineQuantity,
   isCartMutationSummary,
   isCartMutationView,
   isCartResponse,
+  maxCatalogLineQuantity,
 } from "./cart/index.js";
 export {
   PAGINATION_DEFAULT_PAGE,
