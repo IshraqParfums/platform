@@ -11,7 +11,7 @@ function OrderCardSkeletons({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }, (_, index) => (
         <div
           key={index}
-          className="rounded-lg border border-ink/12 px-5 py-4"
+          className="rounded-[4px] border border-graphite/12 px-5 py-4"
         >
           <div className="flex items-baseline justify-between gap-4">
             <Skeleton className="h-4 w-40" />
@@ -38,7 +38,7 @@ export function AccountHubSkeleton() {
         <Skeleton className="h-9 w-24 shrink-0" rounded="full" />
       </div>
 
-      <div className="mt-8 border-t border-ink/[0.08] pt-8">
+      <div className="mt-8 border-t border-graphite/[0.08] pt-8">
         <Skeleton className="h-6 w-24" />
         <div className="mt-5 flex flex-wrap gap-x-10 gap-y-4">
           <Skeleton className="h-4 w-40" />
@@ -47,7 +47,7 @@ export function AccountHubSkeleton() {
         </div>
       </div>
 
-      <div className="mt-8 border-t border-ink/[0.08] pt-8">
+      <div className="mt-8 border-t border-graphite/[0.08] pt-8">
         <Skeleton className="h-6 w-20" />
         <div className="mt-5">
           <OrderCardSkeletons />
@@ -85,7 +85,7 @@ export function OrderDetailSkeleton() {
         <Skeleton className="h-3 w-48" />
       </SkeletonStack>
 
-      <div className="mt-9 grid gap-4 border-y border-ink/[0.08] py-7 sm:grid-cols-2">
+      <div className="mt-9 grid gap-4 border-y border-graphite/[0.08] py-7 sm:grid-cols-2">
         {Array.from({ length: 4 }, (_, index) => (
           <SkeletonStack key={index} gap="sm">
             <Skeleton className="h-3 w-16" />
@@ -94,7 +94,7 @@ export function OrderDetailSkeleton() {
         ))}
       </div>
 
-      <div className="mt-8 rounded-xl border border-ink/12 p-6">
+      <div className="mt-8 rounded-[4px] border border-graphite/10 p-6">
         <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(15rem,18rem)]">
           <div className="grid gap-4">
             {Array.from({ length: 3 }, (_, index) => (

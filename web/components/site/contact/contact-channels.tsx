@@ -1,87 +1,57 @@
 import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/ui/button";
-import { Container } from "@/components/ui/container";
 import { Reveal } from "@/components/ui/reveal";
-import { Section } from "@/components/ui/section";
-import { SectionHeading } from "@/components/ui/section-heading";
 import { CONTACT_CHANNELS, getSiteContact } from "@/lib/site/contact";
 import { cn } from "@/lib/cn";
 
 /**
- * Two equal premium channel cards — WhatsApp primary (gold CTA), email secondary.
- * Borders only; no shadows or fills that read as SaaS cards.
+ * Two equal channel cards — WhatsApp primary, email secondary. Borders and a
+ * quiet shadow only; no fills that read as a SaaS pricing table.
  */
 export function ContactChannels() {
   const contact = getSiteContact();
   const { whatsapp, email } = CONTACT_CHANNELS;
 
   return (
-    <Section
-      tone="cream"
-      space="default"
-      className="!pt-10 md:!pt-14 !pb-16 md:!pb-24"
-    >
-      <Container size="default">
-        <Reveal>
-          <SectionHeading
-            title="Reach Us At"
-            description="Message the people who compose and bottle every fragrance — not a ticket queue."
-          />
-        </Reveal>
+    <div className="grid gap-5 md:grid-cols-2 md:gap-6 lg:gap-8">
+      <Reveal delay={60}>
+        <ChannelCard>
+          <ChannelHeader label={whatsapp.label} blurb={whatsapp.blurb} uses={whatsapp.uses} />
+          <div className="mt-auto flex flex-col items-start gap-3 pt-8">
+            <ButtonLink
+              href={contact.whatsappUrl}
+              variant="ink"
+              size="lg"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <WhatsAppIcon />
+              {whatsapp.cta}
+            </ButtonLink>
+            <p className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
+              {contact.whatsappDisplay}
+            </p>
+          </div>
+        </ChannelCard>
+      </Reveal>
 
-        <div className="mt-10 grid gap-5 md:mt-12 md:grid-cols-2 md:gap-6 lg:gap-8">
-          <Reveal delay={60}>
-            <ChannelCard>
-              <ChannelHeader
-                label={whatsapp.label}
-                blurb={whatsapp.blurb}
-                uses={whatsapp.uses}
-              />
-              <div className="mt-auto flex flex-col items-start gap-3 pt-8">
-                <ButtonLink
-                  href={contact.whatsappUrl}
-                  variant="emphasis"
-                  size="lg"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <WhatsAppIcon />
-                  {whatsapp.cta}
-                </ButtonLink>
-                <p className="font-mono text-label-sm text-ink-faint">
-                  {contact.whatsappDisplay}
-                </p>
-              </div>
-            </ChannelCard>
-          </Reveal>
-
-          <Reveal delay={120}>
-            <ChannelCard>
-              <ChannelHeader
-                label={email.label}
-                blurb={email.blurb}
-                uses={email.uses}
-              />
-              <div className="mt-auto flex flex-col items-start gap-3 pt-8">
-                <ButtonLink
-                  href={contact.mailtoUrl}
-                  variant="outline"
-                  size="lg"
-                >
-                  {email.cta}
-                </ButtonLink>
-                <a
-                  href={contact.mailtoUrl}
-                  className="text-[14.5px] text-ink-soft underline decoration-ink/20 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink/50"
-                >
-                  {contact.email}
-                </a>
-              </div>
-            </ChannelCard>
-          </Reveal>
-        </div>
-      </Container>
-    </Section>
+      <Reveal delay={120}>
+        <ChannelCard>
+          <ChannelHeader label={email.label} blurb={email.blurb} uses={email.uses} />
+          <div className="mt-auto flex flex-col items-start gap-3 pt-8">
+            <ButtonLink href={contact.mailtoUrl} variant="outline-paper" size="lg">
+              {email.cta}
+            </ButtonLink>
+            <a
+              href={contact.mailtoUrl}
+              className="text-[14.5px] text-graphite-soft underline decoration-graphite/20 underline-offset-4 transition-colors hover:text-terra hover:decoration-terra/50"
+            >
+              {contact.email}
+            </a>
+          </div>
+        </ChannelCard>
+      </Reveal>
+    </div>
   );
 }
 
@@ -89,8 +59,8 @@ function ChannelCard({ children }: { children: ReactNode }) {
   return (
     <div
       className={cn(
-        "flex h-full flex-col rounded-lg border border-ink/12 bg-cream px-7 py-8",
-        "transition-[border-color] duration-200 hover:border-ink/25",
+        "flex h-full flex-col rounded-[4px] border border-graphite/10 bg-shell px-7 py-8",
+        "shadow-[0_18px_44px_-30px_rgba(22,19,16,0.42)] transition-[border-color] duration-200 hover:border-graphite/20",
         "md:px-9 md:py-10",
       )}
     >
@@ -110,17 +80,14 @@ function ChannelHeader({
 }) {
   return (
     <div>
-      <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-ink">
+      <h2 className="font-editorial text-[24px] leading-snug text-graphite">
         {label}
       </h2>
-      <p className="mt-3 text-[15.5px] leading-relaxed text-ink-soft">{blurb}</p>
-      <ul className="mt-6 space-y-2 text-[15px] leading-relaxed text-ink-soft">
+      <p className="mt-3 text-[15.5px] leading-relaxed text-graphite-soft">{blurb}</p>
+      <ul className="mt-6 space-y-2 text-[15px] leading-relaxed text-graphite-soft">
         {uses.map((item) => (
-          <li key={item} className="flex gap-2.5">
-            <span
-              className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-ink/35"
-              aria-hidden
-            />
+          <li key={item} className="flex items-center gap-2.5">
+            <span aria-hidden className="h-px w-3 shrink-0 bg-terra/60" />
             <span>{item}</span>
           </li>
         ))}

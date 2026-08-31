@@ -30,6 +30,7 @@ export function ProductPurchasePanel() {
     setCartQty,
     cartPending,
     cartReady,
+    variantQuantities,
     maxQty,
     isPending,
     ctaState,
@@ -53,6 +54,7 @@ export function ProductPurchasePanel() {
         variants={ordered}
         selectedId={selected.id}
         onSelect={selectVariant}
+        quantities={variantQuantities}
       />
 
       <div>

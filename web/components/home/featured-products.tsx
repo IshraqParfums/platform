@@ -24,7 +24,7 @@ export function FeaturedProducts({
         <SectionHeading
           eyebrow="The collection"
           title="Compositions worth wearing"
-          description="Each one built on a small set of real perfumery materials — bright at the top, warm through the heart, and long-wearing at the base."
+          description="Each one built on a small set of real perfumery materials: bright at the top, warm through the heart, and long-wearing at the base."
           action={{ href: "/shop", label: "View all" }}
         />
 

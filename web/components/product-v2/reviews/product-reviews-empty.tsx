@@ -8,7 +8,7 @@ export function ProductReviewsEmpty() {
         Be the first to review.
       </p>
       <p className="mt-3 text-[15px] leading-relaxed text-graphite-soft">
-        Share how it wears — notes, projection, and how it settles on skin.
+        Share how it wears: notes, projection, and how it settles on skin.
       </p>
     </div>
   );

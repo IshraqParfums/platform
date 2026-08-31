@@ -1,8 +1,8 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
-import { checkoutLayout } from "@/components/checkout/checkout-layout";
-import { SectionHeading } from "@/components/checkout/form-field";
+import { checkoutLayoutV2 } from "@/components/checkout/checkout-layout-v2";
+import { StepHeading } from "@/components/ui/step-heading";
 import { cn } from "@/lib/cn";
 
 /**
@@ -36,16 +36,16 @@ export function CheckoutSection({
     <section
       id={id}
       aria-labelledby={headingId}
-      className={cn(checkoutLayout.section, "scroll-mt-24", className)}
+      className={cn(checkoutLayoutV2.section, "scroll-mt-24", className)}
     >
-      <SectionHeading
+      <StepHeading
         id={headingId}
         step={step}
         title={title}
         description={description}
         action={action}
       />
-      <div className={checkoutLayout.sectionToContent}>{children}</div>
+      <div className={checkoutLayoutV2.sectionToContent}>{children}</div>
     </section>
   );
 }

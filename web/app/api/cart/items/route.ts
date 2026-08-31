@@ -1,5 +1,5 @@
 import type { CartMutationResult } from "@ishraqparfums/shared";
-import { isCartMutationView } from "@ishraqparfums/shared";
+import { isCartLinePosition, isCartMutationView } from "@ishraqparfums/shared";
 import { NextResponse } from "next/server";
 import { shopAuthFetch } from "@/lib/api/auth-fetch";
 import { jsonFromNestError, unauthorizedResponse } from "@/lib/api/route-response";
@@ -46,12 +46,24 @@ export async function POST(request: Request): Promise<NextResponse> {
   const quantity =
     Number.isInteger(quantityRaw) && quantityRaw > 0 ? quantityRaw : 1;
 
+  const positionRaw =
+    typeof body === "object" &&
+    body !== null &&
+    typeof (body as { position?: unknown }).position === "number"
+      ? (body as { position: number }).position
+      : undefined;
+  const position = isCartLinePosition(positionRaw) ? positionRaw : undefined;
+
   try {
     const { data } = await shopAuthFetch<CartMutationResult>(
       `/cart/items${viewQuery(request)}`,
       {
         method: "POST",
-        body: { variantId, quantity },
+        body: {
+          variantId,
+          quantity,
+          ...(position !== undefined ? { position } : {}),
+        },
       },
     );
     return NextResponse.json(data);

@@ -43,12 +43,13 @@ export function AddressDeleteModal({
       open={open && address !== null}
       title="Remove address?"
       dismissible={!deleting}
+      theme="v2"
       onClose={onClose}
       footer={
         <div className="flex flex-col gap-2.5 sm:flex-row-reverse">
           <Button
             type="button"
-            variant="emphasis"
+            variant="ink"
             size="md"
             disabled={deleting}
             className="w-full cursor-pointer sm:w-auto"
@@ -63,7 +64,7 @@ export function AddressDeleteModal({
             variant="ghost"
             size="md"
             disabled={deleting}
-            className="w-full cursor-pointer text-ink-soft sm:w-auto"
+            className="w-full cursor-pointer text-graphite-soft sm:w-auto"
             onClick={onClose}
           >
             Cancel
@@ -71,9 +72,9 @@ export function AddressDeleteModal({
         </div>
       }
     >
-      <p className="text-[15px] leading-relaxed text-ink-soft">
+      <p className="text-[15px] leading-relaxed text-graphite-soft">
         {address
-          ? `${address.name} — ${address.line1}, ${address.city} will be removed from your account.`
+          ? `${address.name} · ${address.line1}, ${address.city} will be removed from your account.`
           : null}
       </p>
     </Modal>

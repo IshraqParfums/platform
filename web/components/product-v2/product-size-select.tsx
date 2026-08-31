@@ -1,6 +1,7 @@
 "use client";
 
 import type { ProductDetailVariant } from "@ishraqparfums/shared";
+import { CartCountBadge } from "@/components/cart/cart-count-badge";
 import { isVariantSellable } from "@/lib/catalog/product-variants";
 import { cn } from "@/lib/cn";
 
@@ -23,12 +24,15 @@ export function ProductSizeSelect({
   selectedId,
   onSelect,
   heading = true,
+  quantities,
 }: {
   variants: ProductDetailVariant[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   /** Set false in the closing buy row, where the product name already leads. */
   heading?: boolean;
+  /** Qty in cart per variant id. Omit to hide the count badges entirely. */
+  quantities?: Record<string, number>;
 }) {
   if (variants.length === 0) return null;
 
@@ -54,7 +58,7 @@ export function ProductSizeSelect({
               aria-disabled={!sellable}
               onClick={() => onSelect(variant.id)}
               className={cn(
-                "cursor-pointer border px-4 py-2 text-[15px] transition-colors duration-200",
+                "relative cursor-pointer border px-4 py-2 text-[15px] transition-colors duration-200",
                 active
                   ? "border-terra bg-terra/[0.06] text-terra"
                   : "border-graphite/30 text-graphite hover:border-graphite/60",
@@ -62,6 +66,14 @@ export function ProductSizeSelect({
               )}
             >
               {variant.sizeMl} ml
+              {/* Sold-out sizes skip the badge: a struck-through size wearing
+                  a count reads as a contradiction. */}
+              {sellable ? (
+                <CartCountBadge
+                  quantity={quantities?.[variant.id] ?? 0}
+                  label={`× ${variant.sizeMl} ml`}
+                />
+              ) : null}
             </button>
           );
         })}

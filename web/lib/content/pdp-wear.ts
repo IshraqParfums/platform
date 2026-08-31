@@ -1,5 +1,5 @@
 export const PDP_WEAR = [
-  "Spray from about 15–20cm onto pulse points — wrists, neck, inner elbows.",
+  "Spray from about 15–20cm onto pulse points: wrists, neck, inner elbows.",
   "One or two sprays is enough; let it settle before dressing.",
 ] as const;
 

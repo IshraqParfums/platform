@@ -36,8 +36,8 @@ export function PaymentSection({
 
       <Button
         type="button"
-        variant="emphasis"
-        size="lg"
+        variant="ink"
+        size="pill"
         disabled={disabled || preparing}
         onClick={onPay}
         className="w-full cursor-pointer"

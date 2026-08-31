@@ -34,7 +34,7 @@ export function buildProductSharePayload({
 }: ProductShareInput): SharePayload {
   const line = blurb?.trim()
     ? blurb.trim()
-    : `Discover ${name} from ${BRAND} — fragrance crafted to linger.`;
+    : `Discover ${name} from ${BRAND}. Fragrance crafted to linger.`;
 
   return {
     title: `${name} · ${BRAND}`,

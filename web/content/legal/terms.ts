@@ -67,7 +67,7 @@ export const termsContent: LegalDocumentContent = {
       id: "ip",
       title: "Intellectual property",
       paragraphs: [
-        "Site content — including names, copy, imagery, and design — belongs to Ishraq Parfums or its licensors. You may not copy or reuse it for commercial purposes without permission.",
+        "Site content (including names, copy, imagery, and design) belongs to Ishraq Parfums or its licensors. You may not copy or reuse it for commercial purposes without permission.",
       ],
     },
     {

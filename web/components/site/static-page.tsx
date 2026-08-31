@@ -1,59 +1,63 @@
 import type { ReactNode } from "react";
-import { Container } from "@/components/ui/container";
-import { Eyebrow } from "@/components/ui/eyebrow";
-import { Section } from "@/components/ui/section";
-import { cn } from "@/lib/cn";
+import { BandInner } from "@/components/home-v2/ui/band";
+import { Urdu } from "@/components/home-v2/ui/urdu";
 
 /**
- * Shared shell for storefront static pages (privacy, terms, …).
- * Contact uses its own two-column layout; legal pages stay narrow for reading.
- *
- * Keeps typography, width, and spacing consistent without per-page layout drift.
+ * Shared shell for storefront static pages (privacy, terms, contact, …) —
+ * kicker, title, optional meta/Urdu/description, then whatever body the
+ * page supplies. Legal docs and the contact channel grid both fit the same
+ * `width="form"` measure, so there's one shell instead of a per-page layout.
  */
 export function StaticPage({
-  eyebrow,
+  kicker,
   title,
   description,
   meta,
+  urdu,
   children,
-  className,
-  size = "narrow",
+  width = "form",
 }: {
-  eyebrow?: string;
+  kicker?: string;
   title: string;
   description?: string;
   /** e.g. effective date under the title. */
   meta?: string;
+  /** Set only where a bilingual accent fits the page's register — skip it for legal copy. */
+  urdu?: string;
   children: ReactNode;
-  className?: string;
-  size?: "default" | "wide" | "narrow" | "form";
+  width?: "default" | "form";
 }) {
   return (
-    <Section space="default" className="!pt-10 md:!pt-14 !pb-16 md:!pb-24">
-      <Container size={size} className={cn(className)}>
+    <section className="bg-paper py-10 pb-16 md:py-14 md:pb-24">
+      <BandInner width={width}>
         <header className="max-w-2xl">
-          {eyebrow ? (
-            <Eyebrow tone="rose" className="mb-4">
-              {eyebrow}
-            </Eyebrow>
+          {kicker ? (
+            <p className="text-[12px] text-terra md:text-[13px]">{kicker}</p>
           ) : null}
-          <h1 className="font-display text-section font-semibold text-ink">
-            {title}
-          </h1>
+          <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h1 className="font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
+              {title}
+            </h1>
+            {urdu ? (
+              <Urdu size="sm" tone="brass" align="start" leading="tight" as="span">
+                {urdu}
+              </Urdu>
+            ) : null}
+          </div>
           {meta ? (
-            <p className="mt-3 font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+            <p className="mt-3 font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
               {meta}
             </p>
           ) : null}
           {description ? (
-            <p className="mt-5 text-[15.5px] leading-relaxed text-ink-soft">
+            <p className="mt-4 text-[15.5px] leading-relaxed text-graphite-soft">
               {description}
             </p>
           ) : null}
         </header>
 
         <div className="mt-10 md:mt-12">{children}</div>
-      </Container>
-    </Section>
+      </BandInner>
+    </section>
   );
 }

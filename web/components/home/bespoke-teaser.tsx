@@ -20,7 +20,7 @@ const STEPS = [
   },
   {
     title: "We match your fingerprint",
-    body: "Your answers build a scent fingerprint. We match it to a bottle — and a divergent 2 ml sample.",
+    body: "Your answers build a scent fingerprint. We match it to a bottle, and a divergent 2 ml sample.",
   },
   {
     title: "Name it, save it, or buy it",
@@ -50,7 +50,7 @@ export function BespokeTeaser() {
               </em>
             </h2>
             <p className="mt-5 max-w-md text-[15px] leading-relaxed text-cream/70">
-              Fifteen questions about how you want to feel — none of them about
+              Fifteen questions about how you want to feel, none of them about
               perfume. The result is a matched bottle and a small divergent
               sample, composed from the same materials our perfumer works with.
             </p>
@@ -111,7 +111,7 @@ export function BespokeTeaser() {
               </ul>
 
               <p className="mt-6 text-center font-mono text-label-sm uppercase text-cream/50">
-                Begin the consultation — nothing to sign up for
+                Begin the consultation. Nothing to sign up for
               </p>
             </div>
           </Reveal>
@@ -130,7 +130,7 @@ export function BespokeTeaser() {
               <div className="min-w-0 flex-1">
                 <Eyebrow tone="gold">What you leave with</Eyebrow>
                 <p className="font-display mt-5 text-[clamp(20px,2.4vw,28px)] font-semibold text-cream-soft">
-                  A bottle matched to you — and a 2&nbsp;ml vial of the other
+                  A bottle matched to you, and a 2&nbsp;ml vial of the other
                   answer.
                 </p>
                 <p className="mt-3 max-w-lg text-[15px] leading-relaxed text-cream/70">

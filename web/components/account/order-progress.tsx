@@ -57,29 +57,29 @@ export function OrderProgress({
                   aria-hidden
                   className={cn(
                     "h-px w-3 shrink-0 sm:w-8",
-                    done || active ? "bg-ink/25" : "bg-ink/12",
+                    done || active ? "bg-graphite/25" : "bg-graphite/12",
                   )}
                 />
               ) : null}
               <span
                 aria-hidden
                 className={cn(
-                  "size-1.5 shrink-0 rounded-full bg-gold transition-opacity duration-300",
+                  "size-1.5 shrink-0 rounded-full bg-terra transition-opacity duration-300",
                   active ? "opacity-100" : "opacity-0",
                 )}
               />
               <span
                 className={cn(
-                  "font-mono text-label-sm uppercase",
+                  "font-ui text-[11px] uppercase tracking-[0.12em]",
                   active
-                    ? "text-ink"
+                    ? "text-graphite"
                     : done
-                      ? "text-ink-soft"
-                      : "text-ink-faint/70",
+                      ? "text-graphite-soft"
+                      : "text-graphite-faint/70",
                 )}
               >
                 {label}
-                {done ? <span className="sr-only"> — done</span> : null}
+                {done ? <span className="sr-only">, done</span> : null}
               </span>
             </li>
           );

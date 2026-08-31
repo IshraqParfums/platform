@@ -5,10 +5,32 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 
 type Size = "md" | "xl";
+type Theme = "v1" | "v2";
 
 const SIZES: Record<Size, string> = {
   md: "max-w-md max-h-[min(90dvh,44rem)]",
   xl: "max-w-4xl max-h-[min(92dvh,56rem)]",
+};
+
+/**
+ * Panel chrome and title style, keyed by surface. A themed variant lookup,
+ * not a `className`/`panelClassName` override — those merge via `cn()`,
+ * a plain join with no Tailwind conflict resolution, so a conflicting
+ * `bg-shell` passed in from outside wouldn't reliably beat the default
+ * `bg-cream-soft` (see the note on this exact trap in `ui/button.tsx`).
+ * `v1` (default) keeps every existing call site pixel-identical.
+ */
+const THEMES: Record<Theme, { panel: string; title: string }> = {
+  v1: {
+    panel:
+      "border border-ink/10 bg-cream-soft shadow-[0_16px_40px_rgba(28,22,18,0.18)]",
+    title: "font-display text-xl font-semibold tracking-[-0.02em] text-ink",
+  },
+  v2: {
+    panel:
+      "border border-graphite/10 bg-shell shadow-[0_24px_60px_-30px_rgba(22,19,16,0.55)]",
+    title: "font-editorial text-xl text-graphite tracking-[-0.01em]",
+  },
 };
 
 const FOCUSABLE =
@@ -30,6 +52,7 @@ export function Modal({
   onClose,
   className,
   panelClassName,
+  theme = "v1",
 }: {
   open: boolean;
   title: string;
@@ -40,6 +63,8 @@ export function Modal({
   onClose?: () => void;
   className?: string;
   panelClassName?: string;
+  /** `v2` swaps panel + title chrome to the paper/graphite surface. */
+  theme?: Theme;
 }) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -135,15 +160,12 @@ export function Modal({
         className={cn(
           "relative z-10 flex w-full flex-col outline-none",
           SIZES[size],
-          "border border-ink/10 bg-cream-soft shadow-[0_16px_40px_rgba(28,22,18,0.18)]",
+          THEMES[theme].panel,
           panelClassName,
         )}
       >
         <div className="shrink-0 px-6 pt-6">
-          <h2
-            id={titleId}
-            className="font-display text-xl font-semibold tracking-[-0.02em] text-ink"
-          >
+          <h2 id={titleId} className={THEMES[theme].title}>
             {title}
           </h2>
         </div>

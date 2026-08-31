@@ -23,25 +23,25 @@ export function OrderCard({ order }: { order: OrderSummary }) {
     <Link
       href={accountOrderPath(order.id)}
       className={cn(
-        "group flex h-full flex-col gap-3 rounded-lg border border-ink/12 px-5 py-4",
+        "group flex h-full flex-col gap-3 rounded-[4px] border border-graphite/12 px-5 py-4",
         "transition-[background-color,border-color] duration-200 ease-[cubic-bezier(0.22,0.8,0.28,1)]",
-        "hover:border-ink/25 hover:bg-card",
-        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink/30",
+        "hover:border-graphite/25 hover:bg-shell",
+        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-graphite/30",
       )}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         {/* The card is the link; the date underlines on hover to say so
             without putting a chevron on every line. */}
-        <p className="text-[15px] font-medium text-ink underline decoration-transparent decoration-1 underline-offset-[3px] transition-colors duration-200 group-hover:decoration-ink/40">
+        <p className="text-[15px] font-medium text-graphite underline decoration-transparent decoration-1 underline-offset-[3px] transition-colors duration-200 group-hover:decoration-terra/50">
           {formatOrderDateTime(order.createdAt)}
         </p>
-        <p className="shrink-0 font-display text-lg font-semibold tabular-nums tracking-[-0.01em] text-ink">
+        <p className="shrink-0 font-editorial text-lg leading-none tabular-nums text-graphite">
           {formatPaise(order.totalPaise)}
         </p>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <p className="font-mono text-label-sm uppercase text-ink-faint">
+        <p className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
           {orderReference(order.id)}
           {" · "}
           {order.itemCount} {order.itemCount === 1 ? "item" : "items"}

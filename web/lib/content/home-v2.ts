@@ -136,7 +136,7 @@ export const HOME_BESPOKE = {
     // that node's options ever change — these are submitted to the API
     // verbatim by /api/bespoke/quick-start.
     question:
-      "Before we go further — how much do you want me to explain as we go?",
+      "Before we go further: how much do you want me to explain as we go?",
     options: [
       {
         id: "if-lover",
@@ -152,7 +152,7 @@ export const HOME_BESPOKE = {
 } as const;
 
 export const HOME_BELIEF = {
-  eyebrow: "Ishraq — radiance, dawn",
+  eyebrow: "Ishraq · radiance, dawn",
   urdu: "اشراق",
   statement:
     "A good perfume should feel like it was made for the person wearing it, not for a shelf.",

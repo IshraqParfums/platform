@@ -6,6 +6,7 @@ import {
   FooterMobileNav,
   type FooterNavColumn,
 } from "@/components/layout/footer-mobile-nav";
+import { Logo } from "@/components/layout/logo";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { cn } from "@/lib/cn";
@@ -172,27 +173,7 @@ export function FooterFrame({
 }
 
 function BrandMark({ paper }: { paper: boolean }) {
-  if (paper) {
-    return (
-      <p className="flex items-baseline gap-2.5">
-        <span className="font-editorial text-[25px] tracking-[0.01em] text-graphite">
-          Ishraq
-        </span>
-        <span className="font-ui text-[9px] font-semibold uppercase tracking-[0.28em] text-graphite-mute">
-          Parfums
-        </span>
-      </p>
-    );
-  }
-
-  return (
-    <p className="font-display text-2xl font-semibold text-cream-soft">
-      Ishraq
-      <span className="ml-2 font-mono text-label-sm uppercase text-gold-soft/75">
-        Parfums
-      </span>
-    </p>
-  );
+  return <Logo tone={paper ? "light" : "dark"} size="md" />;
 }
 
 function WhatsAppPill({

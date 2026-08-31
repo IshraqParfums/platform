@@ -7,7 +7,8 @@ import { formatIndianMobileDisplay } from "@ishraqparfums/shared";
 import { OrderDetailSkeleton } from "@/components/account/account-skeletons";
 import { OrderProgress } from "@/components/account/order-progress";
 import { OrderStatusChip } from "@/components/account/order-status-chip";
-import { checkoutLayout } from "@/components/checkout/checkout-layout";
+import { checkoutLayoutV2 } from "@/components/checkout/checkout-layout-v2";
+import { FactRecord } from "@/components/ui/fact-record";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { classifyApiError } from "@/lib/api/api-error";
 import { accountOrderPath } from "@/lib/auth/account-routes";
@@ -79,16 +80,16 @@ export function OrderDetailView({
           {/* The reference lives in the heading unless the heading is a
               greeting — it should be stated once, not twice. */}
           {justPlaced && paid ? (
-            <span className="font-mono text-label-sm uppercase text-ink-faint">
+            <span className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
               {orderReference(order.id)}
             </span>
           ) : null}
         </div>
 
-        <h1 className="mt-5 font-display text-[clamp(1.85rem,3.2vw,2.5rem)] font-semibold tracking-[-0.025em] text-ink">
+        <h1 className="mt-5 font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
           {justPlaced && paid ? "Thank you" : `Order ${orderReference(order.id)}`}
         </h1>
-        <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
+        <p className="mt-3 text-[15px] leading-relaxed text-graphite-soft">
           {justPlaced && paid
             ? "Your payment was received. We’ll keep you updated as your order moves forward."
             : `Placed ${formatOrderDateTime(order.createdAt)}.`}
@@ -98,7 +99,7 @@ export function OrderDetailView({
       <OrderProgress status={order.status} className="mt-7" />
 
       {order.status === "PENDING_PAYMENT" && order.expiresAt ? (
-        <p className="mt-7 border-l-2 border-rose-deep/40 pl-4 text-sm leading-relaxed text-rose-deep">
+        <p className="mt-7 border-l-2 border-terra/40 pl-4 text-sm leading-relaxed text-terra">
           This order is still awaiting payment and is held until{" "}
           {formatOrderDateTime(order.expiresAt)}.
         </p>
@@ -106,44 +107,67 @@ export function OrderDetailView({
 
       {/* Placed date and total are already stated above and in the receipt —
           these are the facts that appear nowhere else. */}
-      <dl className="mt-9 grid gap-6 border-y border-ink/[0.08] py-7 text-sm sm:grid-cols-2">
-        <Fact label="Contact">
-          {order.customerName}
-          <br />
-          <span className="text-ink-soft">{order.customerEmail}</span>
-        </Fact>
-        <Fact label="Ship to" valueClassName="text-ink-soft">
-          {order.shippingAddress.name}
-          <br />
-          {order.shippingAddress.line1}
-          {order.shippingAddress.line2 ? (
-            <>
-              <br />
-              {order.shippingAddress.line2}
-            </>
-          ) : null}
-          <br />
-          {order.shippingAddress.city}, {order.shippingAddress.state}{" "}
-          {order.shippingAddress.pincode}
-          <br />
-          {formatIndianMobileDisplay(order.shippingAddress.phone)}
-        </Fact>
-        {order.payment?.razorpayPaymentId ? (
-          <Fact label="Payment reference" valueClassName="text-ink-soft">
-            <span className="break-all font-mono text-[13px]">
-              {order.payment.razorpayPaymentId}
-            </span>
-          </Fact>
-        ) : null}
-      </dl>
+      <div className="mt-9 border-y border-graphite/10 py-7">
+        <FactRecord
+          fields={[
+            {
+              label: "Contact",
+              value: (
+                <>
+                  {order.customerName}
+                  <br />
+                  <span className="text-graphite-soft">
+                    {order.customerEmail}
+                  </span>
+                </>
+              ),
+            },
+            {
+              label: "Ship to",
+              value: (
+                <>
+                  {order.shippingAddress.name}
+                  <br />
+                  {order.shippingAddress.line1}
+                  {order.shippingAddress.line2 ? (
+                    <>
+                      <br />
+                      {order.shippingAddress.line2}
+                    </>
+                  ) : null}
+                  <br />
+                  {order.shippingAddress.city}, {order.shippingAddress.state}{" "}
+                  {order.shippingAddress.pincode}
+                  <br />
+                  {formatIndianMobileDisplay(order.shippingAddress.phone)}
+                </>
+              ),
+              valueClassName: "text-graphite-soft",
+            },
+            ...(order.payment?.razorpayPaymentId
+              ? [
+                  {
+                    label: "Payment reference",
+                    value: (
+                      <span className="break-all font-mono text-[13px]">
+                        {order.payment.razorpayPaymentId}
+                      </span>
+                    ),
+                    valueClassName: "text-graphite-soft",
+                  },
+                ]
+              : []),
+          ]}
+        />
+      </div>
 
       <OrderReceipt order={order} />
 
       <div className="mt-10 flex flex-wrap gap-3">
-        <ButtonLink href="/shop" variant="emphasis" size="md">
+        <ButtonLink href="/shop" variant="ink" size="md">
           Continue shopping
         </ButtonLink>
-        <ButtonLink href="/collections" variant="outline" size="md">
+        <ButtonLink href="/collections" variant="outline-paper" size="md">
           Browse collections
         </ButtonLink>
       </div>
@@ -151,12 +175,17 @@ export function OrderDetailView({
   );
 }
 
-/** Items beside totals — the same receipt split checkout closes with. */
+/**
+ * Items beside totals — the same receipt split checkout closes with. Reuses
+ * checkout's own `checkoutLayoutV2` panel tokens rather than a separate
+ * account copy: this is deliberately the same shape as checkout's order
+ * summary, not a coincidence.
+ */
 function OrderReceipt({ order }: { order: OrderDetailResponse }) {
   return (
-    <div className={cn(checkoutLayout.panel, "mt-8")}>
-      <div className={checkoutLayout.panelSplit}>
-        <ul className="divide-y divide-ink/[0.07]">
+    <div className={cn(checkoutLayoutV2.panel, "mt-8")}>
+      <div className={checkoutLayoutV2.panelSplit}>
+        <ul className="divide-y divide-graphite/[0.07]">
           {order.items.map((item) => {
             const href = orderItemHref(item);
             return (
@@ -165,11 +194,11 @@ function OrderReceipt({ order }: { order: OrderDetailResponse }) {
               className="flex justify-between gap-4 py-3 text-sm first:pt-0"
             >
               <div className="min-w-0">
-                <p className="font-medium text-ink">
+                <p className="font-medium text-graphite">
                   {href ? (
                     <Link
                       href={href}
-                      className="underline decoration-transparent decoration-1 underline-offset-[3px] transition-colors duration-200 hover:decoration-ink/40"
+                      className="underline decoration-transparent decoration-1 underline-offset-[3px] transition-colors duration-200 hover:decoration-terra/50"
                     >
                       {item.productName}
                     </Link>
@@ -177,12 +206,12 @@ function OrderReceipt({ order }: { order: OrderDetailResponse }) {
                     item.productName
                   )}
                 </p>
-                <p className="mt-0.5 font-mono text-label-sm uppercase text-ink-faint">
+                <p className="mt-0.5 font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
                   {item.sizeMl} ml · Qty {item.quantity}
                   {item.kind === "bespoke" ? " · Bespoke" : ""}
                 </p>
               </div>
-              <p className="shrink-0 tabular-nums text-ink">
+              <p className="shrink-0 tabular-nums text-graphite">
                 {formatPaise(item.lineTotalPaise)}
               </p>
             </li>
@@ -190,25 +219,25 @@ function OrderReceipt({ order }: { order: OrderDetailResponse }) {
           })}
         </ul>
 
-        <div className={checkoutLayout.panelAside}>
+        <div className={checkoutLayoutV2.panelAside}>
           <dl className="space-y-2.5 text-sm">
             <div className="flex justify-between gap-6">
-              <dt className="text-ink-soft">Subtotal</dt>
-              <dd className="tabular-nums text-ink">
+              <dt className="text-graphite-soft">Subtotal</dt>
+              <dd className="tabular-nums text-graphite">
                 {formatPaise(order.subtotalPaise)}
               </dd>
             </div>
             <div className="flex justify-between gap-6">
-              <dt className="text-ink-soft">Delivery</dt>
-              <dd className="tabular-nums text-ink">
+              <dt className="text-graphite-soft">Delivery</dt>
+              <dd className="tabular-nums text-graphite">
                 {formatPaise(order.shippingPaise)}
               </dd>
             </div>
-            <div className="flex items-baseline justify-between gap-6 border-t border-ink/10 pt-3">
-              <dt className="font-display text-lg font-semibold tracking-[-0.01em] text-ink">
+            <div className="flex items-baseline justify-between gap-6 border-t border-graphite/10 pt-3">
+              <dt className="font-editorial text-[19px] leading-none text-graphite">
                 Total
               </dt>
-              <dd className="font-display text-lg font-semibold tabular-nums tracking-[-0.01em] text-ink">
+              <dd className="font-editorial text-[19px] leading-none tabular-nums text-graphite">
                 {formatPaise(order.totalPaise)}
               </dd>
             </div>
@@ -219,39 +248,18 @@ function OrderReceipt({ order }: { order: OrderDetailResponse }) {
   );
 }
 
-function Fact({
-  label,
-  valueClassName,
-  children,
-}: {
-  label: string;
-  valueClassName?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="min-w-0">
-      <dt className="font-mono text-label-sm uppercase text-ink-faint">
-        {label}
-      </dt>
-      <dd className={cn("mt-1.5 leading-relaxed text-ink", valueClassName)}>
-        {children}
-      </dd>
-    </div>
-  );
-}
-
 export function OrderUnavailableScreen() {
   return (
     <div className="max-w-lg py-6">
-      <h1 className="font-display text-[clamp(1.75rem,3vw,2.25rem)] font-semibold tracking-[-0.02em] text-ink">
+      <h1 className="font-editorial text-[clamp(28px,3.4vw,36px)] leading-[1.05] text-graphite">
         Order not available
       </h1>
-      <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
+      <p className="mt-3 text-[15px] leading-relaxed text-graphite-soft">
         We couldn’t find this order on your account. The link may be incorrect,
         or it may belong to a different one.
       </p>
       <div className="mt-8">
-        <ButtonLink href="/shop" variant="outline" size="md">
+        <ButtonLink href="/shop" variant="outline-paper" size="md">
           Back to shop
         </ButtonLink>
       </div>
@@ -266,16 +274,16 @@ export function OrderLoadFailedScreen({
 }) {
   return (
     <div className="max-w-lg py-6">
-      <h1 className="font-display text-[clamp(1.75rem,3vw,2.25rem)] font-semibold tracking-[-0.02em] text-ink">
+      <h1 className="font-editorial text-[clamp(28px,3.4vw,36px)] leading-[1.05] text-graphite">
         Couldn’t load order
       </h1>
-      <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
-        Something went wrong on our side. Your order is safe — please try again
+      <p className="mt-3 text-[15px] leading-relaxed text-graphite-soft">
+        Something went wrong on our side. Your order is safe. Please try again
         in a moment.
       </p>
       <Button
         type="button"
-        variant="outline"
+        variant="outline-paper"
         size="md"
         className="mt-8 cursor-pointer"
         onClick={onRetry}

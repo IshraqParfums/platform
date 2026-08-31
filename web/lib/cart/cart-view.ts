@@ -4,6 +4,10 @@ import type {
   CartUnavailableReason,
   CatalogCartItemResponse,
 } from "@ishraqparfums/shared";
+import {
+  compareCartLinePosition,
+  isCartLinePosition,
+} from "@ishraqparfums/shared";
 import type { GuestCartLine } from "@/lib/cart/guest-cart";
 import { SHIPPING_PAISE } from "@/lib/cart/shipping";
 
@@ -27,6 +31,8 @@ export type CartViewLine = {
   shortDescription: string | null;
   primaryImageUrl: string | null;
   lineTotalPaise: number;
+  /** Stable slot; deletes leave gaps so Undo can reclaim the same place. */
+  position: number;
 };
 
 export type CartView = {
@@ -51,9 +57,35 @@ export function emptyCartView(mode: "server" | "guest" = "guest"): CartView {
   };
 }
 
+/**
+ * Stable identity for a cart line across delete + re-insert (Undo).
+ * `itemId` is the Nest row handle and changes; this key does not.
+ */
+export function cartLineKey(line: {
+  kind: "catalog" | "bespoke";
+  variantId?: string | null;
+  bespokePerfumeId?: string | null;
+  sizeMl: number;
+}): string {
+  if (line.kind === "bespoke") {
+    if (!line.bespokePerfumeId) {
+      throw new Error("Bespoke cart line is missing perfume id");
+    }
+    return `bespoke:${line.bespokePerfumeId}:${line.sizeMl}`;
+  }
+  if (!line.variantId) {
+    throw new Error("Catalog cart line is missing variant id");
+  }
+  return `catalog:${line.variantId}`;
+}
+
 function lineFromCatalog(item: CatalogCartItemResponse): CartViewLine {
   return {
-    key: item.id,
+    key: cartLineKey({
+      kind: "catalog",
+      variantId: item.variantId,
+      sizeMl: item.sizeMl,
+    }),
     kind: "catalog",
     itemId: item.id,
     variantId: item.variantId,
@@ -71,13 +103,18 @@ function lineFromCatalog(item: CatalogCartItemResponse): CartViewLine {
     shortDescription: item.shortDescription,
     primaryImageUrl: item.primaryImageUrl,
     lineTotalPaise: item.lineTotalPaise,
+    position: isCartLinePosition(item.position) ? item.position : 0,
   };
 }
 
 function lineFromServerItem(item: CartItemResponse): CartViewLine {
   if (item.kind === "bespoke") {
     return {
-      key: item.id,
+      key: cartLineKey({
+        kind: "bespoke",
+        bespokePerfumeId: item.bespokePerfumeId,
+        sizeMl: item.sizeMl,
+      }),
       kind: "bespoke",
       itemId: item.id,
       variantId: null,
@@ -95,6 +132,7 @@ function lineFromServerItem(item: CartItemResponse): CartViewLine {
       shortDescription: null,
       primaryImageUrl: item.primaryImageUrl,
       lineTotalPaise: item.lineTotalPaise,
+      position: isCartLinePosition(item.position) ? item.position : 0,
     };
   }
   return lineFromCatalog(item);
@@ -124,7 +162,9 @@ export function cartTotalsFromLines(lines: CartViewLine[]): {
 }
 
 export function cartViewFromServer(cart: CartResponse): CartView {
-  const lines = cart.items.map(lineFromServerItem);
+  const lines = cart.items
+    .map(lineFromServerItem)
+    .sort((a, b) => compareCartLinePosition(a.position, b.position));
   const totals = cartTotalsFromLines(lines);
   return {
     mode: "server",
@@ -138,7 +178,11 @@ export function cartViewFromGuest(items: GuestCartLine[]): CartView {
   const lines: CartViewLine[] = items.map((item) => {
     if (item.kind === "bespoke") {
       return {
-        key: `bespoke:${item.bespokePerfumeId}:${item.sizeMl}`,
+        key: cartLineKey({
+          kind: "bespoke",
+          bespokePerfumeId: item.bespokePerfumeId,
+          sizeMl: item.sizeMl,
+        }),
         kind: "bespoke" as const,
         itemId: null,
         variantId: null,
@@ -156,6 +200,7 @@ export function cartViewFromGuest(items: GuestCartLine[]): CartView {
         shortDescription: null,
         primaryImageUrl: null,
         lineTotalPaise: item.pricePaise * item.quantity,
+        position: item.position,
       };
     }
 
@@ -164,7 +209,11 @@ export function cartViewFromGuest(items: GuestCartLine[]): CartView {
       ? Math.min(item.quantity, item.stockQty)
       : item.quantity;
     return {
-      key: item.variantId,
+      key: cartLineKey({
+        kind: "catalog",
+        variantId: item.variantId,
+        sizeMl: item.sizeMl,
+      }),
       kind: "catalog" as const,
       itemId: null,
       variantId: item.variantId,
@@ -182,6 +231,7 @@ export function cartViewFromGuest(items: GuestCartLine[]): CartView {
       shortDescription: item.shortDescription,
       primaryImageUrl: item.primaryImageUrl,
       lineTotalPaise: item.pricePaise * quantity,
+      position: item.position,
     };
   });
 
@@ -205,6 +255,13 @@ export function cartUnavailableLines(view: CartView): CartViewLine[] {
   return view.lines.filter((line) => !line.isAvailable);
 }
 
+export function findCartLineByKey(
+  view: CartView,
+  key: string,
+): CartViewLine | null {
+  return view.lines.find((line) => line.key === key) ?? null;
+}
+
 export function findCartLineByVariantId(
   view: CartView,
   variantId: string,
@@ -225,6 +282,26 @@ export function findCartLineByBespokeSize(
         line.sizeMl === sizeMl,
     ) ?? null
   );
+}
+
+/**
+ * Qty already in cart for each catalog variant, keyed by variant id.
+ *
+ * Keyed on id rather than `sizeMl` because that is the identity buy surfaces
+ * already select on, and two variants of one product could share an ml.
+ */
+export function variantQuantitiesInCart(
+  view: CartView | null,
+): Record<string, number> {
+  if (!view) return {};
+  const out: Record<string, number> = {};
+  for (const line of view.lines) {
+    if (line.kind === "bespoke" || !line.variantId || line.quantity <= 0) {
+      continue;
+    }
+    out[line.variantId] = (out[line.variantId] ?? 0) + line.quantity;
+  }
+  return out;
 }
 
 /** Qty already in cart for each size of a given brew. */
@@ -250,10 +327,13 @@ export function bespokeSizeQuantitiesInCart(
  * Recompute cart sums from a line list (optimistic local updates).
  */
 function withLines(view: CartView, lines: CartViewLine[]): CartView {
+  const ordered = [...lines].sort((a, b) =>
+    compareCartLinePosition(a.position, b.position),
+  );
   return {
     ...view,
-    lines,
-    ...cartTotalsFromLines(lines),
+    lines: ordered,
+    ...cartTotalsFromLines(ordered),
   };
 }
 
@@ -283,6 +363,7 @@ export function withLineQuantity(
 
 /**
  * Put a removed line back for Undo — inserts if missing, else resets qty.
+ * Order comes from `line.position`, not array append.
  */
 export function withLineRestored(
   view: CartView,

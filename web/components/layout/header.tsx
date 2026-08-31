@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AccountMenu } from "@/components/layout/account-menu";
 import { BespokeSavedNavLink } from "@/components/layout/bespoke-saved-nav-link";
 import { CartNavLink } from "@/components/layout/cart-nav-link";
+import { Logo } from "@/components/layout/logo";
 import { Container } from "@/components/ui/container";
 import { ACCOUNT_HOME } from "@/lib/auth/account-routes";
 import { cn } from "@/lib/cn";
@@ -15,14 +17,6 @@ const NAV = [
   { href: "/collections", label: "Collections" },
   { href: "/bespoke", label: "Bespoke" },
 ];
-
-function Monogram() {
-  return (
-    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-gold/50 font-display text-[15px] font-semibold text-gold-soft">
-      I
-    </span>
-  );
-}
 
 /**
  * Surface modes:
@@ -71,28 +65,7 @@ export function Header() {
             className="flex items-center gap-3"
             onClick={() => setOpen(false)}
           >
-            {/* On paper the mark is the wordmark itself, set in the editorial
-                serif; the gold monogram only reads against espresso. */}
-            {light ? (
-              <span className="flex items-baseline gap-2.5">
-                <span className="font-editorial text-[25px] tracking-[0.01em] text-graphite">
-                  Ishraq
-                </span>
-                <span className="font-ui text-[9px] font-semibold uppercase tracking-[0.28em] text-graphite-mute">
-                  Parfums
-                </span>
-              </span>
-            ) : (
-              <>
-                <Monogram />
-                <span className="font-display text-[17px] font-semibold tracking-tight text-cream-soft">
-                  Ishraq
-                  <span className="ml-1.5 font-mono text-label-sm uppercase text-gold-soft/75">
-                    Parfums
-                  </span>
-                </span>
-              </>
-            )}
+            <Logo tone={light ? "light" : "dark"} priority />
           </Link>
 
           <nav className="hidden items-center gap-9 md:flex">
@@ -113,20 +86,7 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            {/* Always Account, never Login: the destination is the same door
-                either way, and `/account` sends a guest to sign in and back
-                without the header having to probe the session on every page. */}
-            <Link
-              href={ACCOUNT_HOME}
-              className={cn(
-                "hidden rounded-full px-4 py-2 transition-colors sm:inline-flex",
-                light
-                  ? "font-ui text-nav font-medium uppercase text-graphite/75 hover:bg-graphite/[0.06] hover:text-terra"
-                  : "text-sm font-medium text-cream/80 hover:bg-cream/10 hover:text-cream-soft",
-              )}
-            >
-              Account
-            </Link>
+            <AccountMenu tone={light ? "light" : "dark"} />
             <BespokeSavedNavLink tone={light ? "light" : "dark"} />
             <CartNavLink tone={light ? "light" : "dark"} />
 

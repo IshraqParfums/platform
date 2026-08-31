@@ -8,7 +8,7 @@ import {
   AddressChoiceRadio,
   addressChoiceClassName,
 } from "@/components/checkout/address-choice";
-import { checkoutLayout } from "@/components/checkout/checkout-layout";
+import { checkoutLayoutV2 } from "@/components/checkout/checkout-layout-v2";
 import { cn } from "@/lib/cn";
 
 export function AddressOption({
@@ -41,7 +41,7 @@ export function AddressOption({
       className={cn(
         "h-full w-full cursor-pointer",
         addressChoiceClassName(selected),
-        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink/30",
+        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-graphite/30",
         disabled && "opacity-55",
       )}
     >
@@ -51,14 +51,14 @@ export function AddressOption({
         <AddressChoiceRadio selected={selected} />
         <div className="min-w-0">
           <p className="flex flex-wrap items-baseline gap-x-2 text-[15px]">
-            <span className="font-medium text-ink">{address.name}</span>
+            <span className="font-medium text-graphite">{address.name}</span>
             {address.isDefault ? (
-              <span className="font-mono text-label-sm uppercase text-ink-faint">
+              <span className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
                 Default
               </span>
             ) : null}
           </p>
-          <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
+          <p className="mt-1.5 text-sm leading-relaxed text-graphite-soft">
             {address.line1}
             {address.line2 ? `, ${address.line2}` : ""}
             <br />
@@ -113,8 +113,8 @@ export function AddressList({
   return (
     <ul
       className={cn(
-        checkoutLayout.addressGrid,
-        addresses.length > 1 && checkoutLayout.addressGridMulti,
+        checkoutLayoutV2.addressGrid,
+        addresses.length > 1 && checkoutLayoutV2.addressGridMulti,
       )}
       role="radiogroup"
       aria-label="Saved addresses"

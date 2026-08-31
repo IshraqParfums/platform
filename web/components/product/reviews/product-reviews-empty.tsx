@@ -21,7 +21,7 @@ export function ProductReviewsEmpty({
       <p className="mt-3 text-[15px] leading-relaxed text-graphite-soft">
         {variant === "only-yours"
           ? "Yours is the first. When others share how it wears, they’ll show up here."
-          : "Be the first to share how it wears — notes, projection, and how it settles on skin. Your words help the next person choose with confidence."}
+          : "Be the first to share how it wears: notes, projection, and how it settles on skin. Your words help the next person choose with confidence."}
       </p>
 
       <div className="mt-8 hidden flex-1 items-center justify-center lg:flex">

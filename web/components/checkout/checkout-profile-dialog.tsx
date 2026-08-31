@@ -60,11 +60,12 @@ export function CheckoutProfileDialog({
       open={open}
       title="A few details"
       dismissible={false}
+      theme="v2"
       panelClassName="max-w-xl"
       footer={
         <Button
           type="button"
-          variant="emphasis"
+          variant="ink"
           size="lg"
           disabled={saving}
           className="w-full cursor-pointer"
@@ -76,13 +77,13 @@ export function CheckoutProfileDialog({
         </Button>
       }
     >
-      <p className="text-[15px] leading-relaxed text-ink-soft">
+      <p className="text-[15px] leading-relaxed text-graphite-soft">
         So we can send your order confirmation.
       </p>
 
-      <p className="mt-4 font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+      <p className="mt-4 font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
         Signed in as{" "}
-        <span className="normal-case tracking-normal text-ink">
+        <span className="normal-case tracking-normal text-graphite">
           {formatIndianMobileDisplay(phone)}
         </span>
       </p>

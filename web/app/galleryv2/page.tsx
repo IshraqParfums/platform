@@ -6,7 +6,7 @@ import { GallerySlider } from "./GallerySlider";
 export const metadata: Metadata = {
   title: "Gallery",
   description:
-    "Slide through the collection — turn a bottle toward you and spray it on the glass.",
+    "Slide through the collection: turn a bottle toward you and spray it on the glass.",
 };
 
 export default async function GalleryPageV2() {

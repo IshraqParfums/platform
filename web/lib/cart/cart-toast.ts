@@ -21,18 +21,15 @@ export function toastAddedToCart(productName: string) {
 }
 
 /**
- * Soft-remove toast: Undo cancels the pending delete; dismiss/timeout commits it.
- * Callers should update UI optimistically and register the commit with
- * `pending-cart-commits` before invoking this.
+ * Removed-from-cart toast with Undo. The delete is already persisted;
+ * Undo re-adds the line. Dismiss is a no-op so timeout cannot un-delete.
  */
 export function toastRemovedFromCart({
   productName,
   onUndo,
-  onCommit,
 }: {
   productName: string;
   onUndo: () => void;
-  onCommit: () => void;
 }): string | number {
   let settled = false;
 
@@ -49,6 +46,6 @@ export function toastRemovedFromCart({
       label: "Undo",
       onClick: () => finish(onUndo),
     },
-    onDismiss: () => finish(onCommit),
+    onDismiss: () => finish(() => {}),
   });
 }

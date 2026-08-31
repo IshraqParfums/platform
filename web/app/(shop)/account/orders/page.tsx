@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AccountOrders } from "@/components/account/account-orders";
 import { BackLink } from "@/components/ui/back-link";
-import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
+import { BandInner } from "@/components/home-v2/ui/band";
 import {
   ACCOUNT_HOME,
   ACCOUNT_ORDERS,
@@ -22,13 +21,15 @@ export default async function AccountOrdersPage() {
   }
 
   return (
-    <Section space="default" className="!pt-10 md:!pt-14 !pb-16 md:!pb-24">
-      <Container size="form">
-        <BackLink href={ACCOUNT_HOME}>Back to account</BackLink>
+    <section className="bg-paper py-10 pb-16 md:py-14 md:pb-24">
+      <BandInner width="form">
+        <BackLink href={ACCOUNT_HOME} theme="v2">
+          Back to account
+        </BackLink>
         <div className="mt-7">
           <AccountOrders />
         </div>
-      </Container>
-    </Section>
+      </BandInner>
+    </section>
   );
 }

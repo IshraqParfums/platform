@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <StaticPage
-      eyebrow="Legal"
+      kicker="Legal"
       title={termsContent.title}
       meta={termsContent.effectiveLabel}
     >

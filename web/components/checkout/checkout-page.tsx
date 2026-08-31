@@ -7,11 +7,12 @@ import {
   AddressSection,
   ADDRESS_SECTION_ID,
 } from "@/components/checkout/address-section";
-import { checkoutLayout } from "@/components/checkout/checkout-layout";
+import { checkoutLayoutV2 } from "@/components/checkout/checkout-layout-v2";
 import { CheckoutInvoiceNotice } from "@/components/checkout/checkout-invoice-notice";
 import { CheckoutProfileDialog } from "@/components/checkout/checkout-profile-dialog";
 import { CheckoutSkeleton } from "@/components/checkout/checkout-skeleton";
 import { OrderSection } from "@/components/checkout/order-section";
+import { Urdu } from "@/components/home-v2/ui/urdu";
 import { toast } from "@/components/ui/toaster";
 import { createAddress, listAddresses } from "@/lib/address/address-client";
 import { accountOrderPath } from "@/lib/auth/account-routes";
@@ -323,16 +324,22 @@ export function CheckoutPageClient() {
         aria-hidden={profileIncomplete || undefined}
       >
         <header className="max-w-xl">
-          <h1 className="font-display text-[clamp(1.85rem,3.2vw,2.5rem)] font-semibold tracking-[-0.025em] text-ink">
-            Checkout
+          {/* URDU: "آخری قدم" ("the last step") is new and unreviewed, same
+              as the other Urdu lines added across the paper-storefront
+              migration — check with a native reader before shipping. */}
+          <Urdu size="sm" tone="brass" align="start">
+            {"آخری قدم"}
+          </Urdu>
+          <h1 className="mt-3 font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
+            Complete your order.
           </h1>
-          <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
-            Confirm your details and pay securely.
+          <p className="mt-3 text-[15px] leading-relaxed text-graphite-soft">
+            Confirm where this goes, then pay securely, in one step.
           </p>
           <CheckoutInvoiceNotice email={email} />
         </header>
 
-        <div className={checkoutLayout.sectionStack}>
+        <div className={checkoutLayoutV2.sectionStack}>
           <AddressSection
             step="01"
             addresses={addresses}

@@ -10,15 +10,15 @@ import { Button } from "@/components/ui/button";
 export function AccountError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="max-w-lg py-10">
-      <h1 className="font-display text-[clamp(1.75rem,3vw,2.25rem)] font-semibold tracking-[-0.02em] text-ink">
+      <h1 className="font-editorial text-[clamp(28px,3.6vw,36px)] leading-[1.05] text-graphite">
         Couldn’t load your account
       </h1>
-      <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
+      <p className="mt-3 text-[15px] leading-relaxed text-graphite-soft">
         Something went wrong on our side. Please try again in a moment.
       </p>
       <Button
         type="button"
-        variant="outline"
+        variant="ink"
         size="md"
         className="mt-8 cursor-pointer"
         onClick={onRetry}

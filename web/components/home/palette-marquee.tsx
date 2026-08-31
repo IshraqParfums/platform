@@ -47,7 +47,7 @@ export function PaletteMarquee() {
         <div className="flex flex-col gap-4 text-center">
           <Eyebrow className="mx-auto">The perfumer&apos;s palette</Eyebrow>
           <p className="font-display mx-auto max-w-2xl text-subsection font-semibold text-ink">
-            Real perfumery materials — the same stock your bespoke match is
+            Real perfumery materials: the same stock your bespoke match is
             drawn from.
           </p>
         </div>

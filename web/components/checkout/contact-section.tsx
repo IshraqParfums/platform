@@ -1,8 +1,9 @@
 "use client";
 
-import { FormField, SectionHeading } from "@/components/checkout/form-field";
-import { FormInput } from "@/components/checkout/form-input";
-import { checkoutLayout } from "@/components/checkout/checkout-layout";
+import { checkoutLayoutV2 } from "@/components/checkout/checkout-layout-v2";
+import { FormField } from "@/components/ui/field";
+import { FormInput } from "@/components/ui/form-input";
+import { StepHeading } from "@/components/ui/step-heading";
 import { cn } from "@/lib/cn";
 
 export function ContactSection({
@@ -30,7 +31,7 @@ export function ContactSection({
       aria-label={showHeading ? undefined : "Contact details"}
     >
       {showHeading ? (
-        <SectionHeading
+        <StepHeading
           id="checkout-contact-heading"
           title="Contact"
           description="We’ll send your order confirmation here."
@@ -40,8 +41,8 @@ export function ContactSection({
       <div
         className={cn(
           "grid sm:grid-cols-2",
-          showHeading && checkoutLayout.sectionToContent,
-          checkoutLayout.fieldGrid,
+          showHeading && checkoutLayoutV2.sectionToContent,
+          checkoutLayoutV2.fieldGrid,
         )}
       >
         <FormField

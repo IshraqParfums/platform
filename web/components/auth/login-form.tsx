@@ -1,8 +1,19 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useTransition, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  type FormEvent,
+} from "react";
+import { formatIndianMobileDisplay } from "@ishraqparfums/shared";
+import { LoginAtmosphere } from "@/components/auth/login-atmosphere";
+import { OtpInput, type OtpInputHandle } from "@/components/auth/otp-input";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/field";
+import { PhoneField } from "@/components/ui/phone-field";
 import { ACCOUNT_HOME } from "@/lib/auth/account-routes";
 import { safeNext } from "@/lib/auth/safe-next";
 import { shopFetch } from "@/lib/auth/shop-fetch";
@@ -15,9 +26,24 @@ import {
   guestCatalogItems,
   readGuestCart,
 } from "@/lib/cart/guest-cart";
-import { cn } from "@/lib/cn";
 
 type Step = "phone" | "code";
+
+const DEFAULT_RESEND_COOLDOWN_SECONDS = 30;
+const OTP_LENGTH = 6;
+
+const STEP_COPY = {
+  phone: {
+    kicker: "Welcome back",
+    title: "Sign in.",
+    lead: "We’ll text a one-time code to your phone. No password needed. Your orders and delivery addresses stay with your number.",
+  },
+  code: {
+    kicker: "Verify it’s you",
+    title: "Enter your code.",
+    lead: "We just sent a 6-digit code by SMS.",
+  },
+} as const;
 
 /**
  * OTP sign-in. After verify, redirects to a safe `?next=` path, otherwise to
@@ -34,7 +60,9 @@ export function LoginForm() {
   const [devHint, setDevHint] = useState<string | null>(null);
   const [signedIn, setSignedIn] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [isPending, startTransition] = useTransition();
+  const otpInputRef = useRef<OtpInputHandle>(null);
 
   const next = searchParams.get("next");
 
@@ -62,24 +90,20 @@ export function LoginForm() {
     };
   }, [next, router]);
 
+  /** Ticks the resend cooldown down to zero once a code has been sent. */
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const id = setInterval(() => {
+      setResendCooldown((seconds) => Math.max(0, seconds - 1));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [resendCooldown]);
+
   function destination(): string {
     return safeNext(next) ?? ACCOUNT_HOME;
   }
 
-  if (signedIn || !sessionChecked) {
-    return (
-      <div className="mx-auto w-full max-w-md">
-        <p className="font-mono text-label-sm uppercase text-ink-faint">
-          {signedIn
-            ? "Already signed in — taking you through…"
-            : "Checking your session…"}
-        </p>
-      </div>
-    );
-  }
-
-  function onRequestOtp(event: FormEvent) {
-    event.preventDefault();
+  function requestOtp(onSent: () => void) {
     setError(null);
     setDevHint(null);
 
@@ -93,6 +117,7 @@ export function LoginForm() {
         const data = (await response.json().catch(() => ({}))) as {
           message?: string | string[];
           expiresInSeconds?: number;
+          resendAvailableInSeconds?: number;
           retryAfterSeconds?: number;
         };
 
@@ -101,18 +126,41 @@ export function LoginForm() {
           return;
         }
 
-        setStep("code");
+        setResendCooldown(
+          data.resendAvailableInSeconds ?? DEFAULT_RESEND_COOLDOWN_SECONDS,
+        );
         if (process.env.NODE_ENV === "development") {
           setDevHint("Check the API server logs for the OTP code.");
         }
+        onSent();
       } catch {
         setError("Could not send code. Try again.");
       }
     });
   }
 
-  function onVerify(event: FormEvent) {
+  function onRequestOtp(event: FormEvent) {
     event.preventDefault();
+    requestOtp(() => setStep("code"));
+  }
+
+  function onResend() {
+    if (resendCooldown > 0 || isPending) return;
+    setCode("");
+    requestOtp(() => {
+      otpInputRef.current?.focus();
+    });
+  }
+
+  function onChangeNumber() {
+    setStep("phone");
+    setCode("");
+    setError(null);
+    setDevHint(null);
+  }
+
+  function submitVerify(codeValue: string) {
+    if (isPending) return;
     setError(null);
 
     startTransition(async () => {
@@ -120,7 +168,7 @@ export function LoginForm() {
         const response = await fetch("/api/auth/otp/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: phone.trim(), code: code.trim() }),
+          body: JSON.stringify({ phone: phone.trim(), code: codeValue.trim() }),
         });
         const data = (await response.json().catch(() => ({}))) as {
           message?: string | string[];
@@ -128,6 +176,8 @@ export function LoginForm() {
 
         if (!response.ok) {
           setError(formatApiMessage(data.message) ?? "Invalid code");
+          setCode("");
+          otpInputRef.current?.focus();
           return;
         }
 
@@ -141,105 +191,133 @@ export function LoginForm() {
     });
   }
 
+  function onVerify(event: FormEvent) {
+    event.preventDefault();
+    submitVerify(code);
+  }
+
+  const copy = STEP_COPY[step];
+
   return (
-    <div className="mx-auto w-full max-w-md">
-      <h1 className="font-display text-[clamp(1.75rem,3vw,2.25rem)] font-semibold tracking-[-0.02em] text-ink">
-        Sign in
-      </h1>
-      <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
-        We’ll text a one-time code to your phone. No password needed — your
-        orders and delivery addresses stay with your number.
-      </p>
+    <div className="grid overflow-hidden rounded-[4px] border border-graphite/10 bg-shell shadow-[0_24px_60px_-30px_rgba(22,19,16,0.35)] lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+      <LoginAtmosphere step={step} />
 
-      {step === "phone" ? (
-        <form onSubmit={onRequestOtp} className="mt-8 space-y-5">
-          <label className="block">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Mobile number
-            </span>
-            <input
-              type="tel"
-              name="phone"
-              autoComplete="tel"
-              inputMode="tel"
-              required
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              placeholder="+91 98765 43210"
-              className={fieldClassName()}
-            />
-          </label>
-          <Button
-            type="submit"
-            variant="emphasis"
-            size="lg"
-            className="w-full cursor-pointer"
-            disabled={isPending}
-          >
-            {isPending ? "Sending…" : "Send code"}
-          </Button>
-        </form>
-      ) : (
-        <form onSubmit={onVerify} className="mt-8 space-y-5">
-          <p className="text-sm text-ink-soft">
-            Code sent to{" "}
-            <span className="font-medium text-ink">{phone.trim()}</span>
-            .{" "}
-            <button
-              type="button"
-              className="cursor-pointer underline underline-offset-2 hover:text-ink"
-              onClick={() => {
-                setStep("phone");
-                setCode("");
-                setError(null);
-                setDevHint(null);
-              }}
-            >
-              Change number
-            </button>
+      <div className="px-6 py-10 sm:px-10 sm:py-12">
+        {signedIn || !sessionChecked ? (
+          <p className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
+            {signedIn
+              ? "Already signed in. Taking you through…"
+              : "Checking your session…"}
           </p>
-          <label className="block">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              One-time code
-            </span>
-            <input
-              type="text"
-              name="code"
-              autoComplete="one-time-code"
-              inputMode="numeric"
-              required
-              maxLength={8}
-              value={code}
-              onChange={(event) => setCode(event.target.value)}
-              placeholder="6-digit code"
-              className={fieldClassName()}
-            />
-          </label>
-          <Button
-            type="submit"
-            variant="emphasis"
-            size="lg"
-            className="w-full cursor-pointer"
-            disabled={isPending || code.trim().length < 4}
-          >
-            {isPending ? "Verifying…" : "Verify & continue"}
-          </Button>
-        </form>
-      )}
+        ) : (
+          <>
+            <p className="text-[12px] text-terra md:text-[13px]">
+              {copy.kicker}
+            </p>
+            <h1 className="mt-1 font-editorial text-[clamp(28px,3.6vw,36px)] leading-[1.05] text-graphite">
+              {copy.title}
+            </h1>
+            <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-graphite-soft">
+              {copy.lead}
+            </p>
 
-      {devHint ? (
-        <p className="mt-4 text-sm text-ink-faint">{devHint}</p>
-      ) : null}
-      {error ? <p className="mt-4 text-sm text-rose-deep">{error}</p> : null}
+            {step === "phone" ? (
+              <form onSubmit={onRequestOtp} className="mt-8 space-y-6">
+                <FormField label="Mobile number" htmlFor="login-phone">
+                  <PhoneField
+                    id="login-phone"
+                    name="phone"
+                    autoComplete="tel-national"
+                    required
+                    autoFocus
+                    value={phone}
+                    onChange={setPhone}
+                  />
+                </FormField>
+                <Button
+                  type="submit"
+                  variant="ink"
+                  size="lg"
+                  className="w-full cursor-pointer"
+                  disabled={isPending}
+                >
+                  {isPending ? "Sending…" : "Send code"}
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={onVerify} className="mt-8 space-y-6">
+                <p className="text-sm text-graphite-soft">
+                  Code sent to{" "}
+                  <span className="font-medium text-graphite">
+                    {formatIndianMobileDisplay(phone)}
+                  </span>
+                  .{" "}
+                  <button
+                    type="button"
+                    onClick={onChangeNumber}
+                    className="cursor-pointer font-medium text-graphite underline decoration-graphite/25 underline-offset-[3px] transition-colors hover:text-terra hover:decoration-terra/50"
+                  >
+                    Change number
+                  </button>
+                </p>
+
+                <div>
+                  <span className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
+                    One-time code
+                  </span>
+                  <div className="mt-2.5">
+                    <OtpInput
+                      ref={otpInputRef}
+                      length={OTP_LENGTH}
+                      value={code}
+                      onChange={setCode}
+                      onComplete={submitVerify}
+                      disabled={isPending}
+                      invalid={Boolean(error)}
+                      autoFocus
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  variant="ink"
+                  size="lg"
+                  className="w-full cursor-pointer"
+                  disabled={isPending || code.replace(/\D/g, "").length < OTP_LENGTH}
+                >
+                  {isPending ? "Verifying…" : "Verify & continue"}
+                </Button>
+
+                <p className="text-[13px] text-graphite-faint">
+                  {resendCooldown > 0 ? (
+                    <>Resend code in {resendCooldown}s</>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={onResend}
+                      disabled={isPending}
+                      className="cursor-pointer font-medium text-graphite-soft underline decoration-graphite/25 underline-offset-[3px] transition-colors hover:text-terra hover:decoration-terra/50 disabled:cursor-not-allowed disabled:opacity-55"
+                    >
+                      Resend code
+                    </button>
+                  )}
+                </p>
+              </form>
+            )}
+
+            {devHint ? (
+              <p className="mt-5 text-sm text-graphite-faint">{devHint}</p>
+            ) : null}
+            {error ? (
+              <p className="mt-5 text-sm text-terra" role="alert">
+                {error}
+              </p>
+            ) : null}
+          </>
+        )}
+      </div>
     </div>
-  );
-}
-
-function fieldClassName(): string {
-  return cn(
-    "mt-2 w-full rounded-none border border-ink/20 bg-cream-soft px-3.5 py-3",
-    "text-[15px] text-ink outline-none transition-colors",
-    "placeholder:text-ink-faint focus:border-ink/45",
   );
 }
 

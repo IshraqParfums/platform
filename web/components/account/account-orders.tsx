@@ -88,20 +88,20 @@ export function AccountOrders() {
   return (
     <div>
       <header>
-        <h1 className="font-display text-[clamp(1.85rem,3.2vw,2.5rem)] font-semibold tracking-[-0.025em] text-ink">
+        <h1 className="font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
           Orders
         </h1>
-        <p className="mt-2 font-mono text-label-sm uppercase text-ink-faint">
+        <p className="mt-3 font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
           {counts.all} {counts.all === 1 ? "order" : "orders"}
         </p>
       </header>
 
       {counts.all === 0 ? (
-        <div className="mt-8 border-t border-ink/[0.08] pt-8">
+        <div className="mt-8 border-t border-graphite/10 pt-8">
           <AccountEmpty>
             Nothing ordered yet. When you do, every order will be here.
           </AccountEmpty>
-          <ButtonLink href="/shop" variant="outline" size="md" className="mt-6">
+          <ButtonLink href="/shop" variant="outline-paper" size="md" className="mt-6">
             Browse perfumes
           </ButtonLink>
         </div>
@@ -117,7 +117,7 @@ export function AccountOrders() {
           <div className="mt-6">
             {orders.length === 0 ? (
               <AccountEmpty>
-                No {filterLabel} orders — everything is under All.
+                No {filterLabel} orders. Everything is under All.
               </AccountEmpty>
             ) : (
               <OrderCards orders={orders} />
@@ -127,7 +127,7 @@ export function AccountOrders() {
           {hasMore ? (
             <Button
               type="button"
-              variant="outline"
+              variant="outline-paper"
               size="md"
               disabled={loadingMore}
               className="mt-6 cursor-pointer"

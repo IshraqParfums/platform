@@ -13,6 +13,8 @@ export interface CatalogCartItemResponse {
   kind: 'catalog';
   id: string;
   variantId: string;
+  /** Stable slot in the cart; gaps from deletes are reused on Undo. */
+  position: number;
   quantity: number;
   sizeMl: number;
   pricePaise: number;
@@ -32,6 +34,7 @@ export interface BespokeCartItemResponse {
   kind: 'bespoke';
   id: string;
   bespokePerfumeId: string;
+  position: number;
   quantity: number;
   sizeMl: number;
   pricePaise: number;
@@ -89,6 +92,8 @@ export interface CartMutationSummary {
   bespokePerfumeId?: string | null;
   /** Bottle size for a bespoke line (ml). */
   sizeMl?: number | null;
+  /** Present on add / update so clients can slot a new line without a full cart. */
+  position?: number | null;
 }
 
 export type CartMutationResult = CartResponse | CartMutationSummary;
@@ -113,12 +118,15 @@ export interface CartMergeResponse {
 export interface AddCartItemBody {
   variantId: string;
   quantity: number;
+  /** When set, create the line in this slot (Undo). Omit to append. */
+  position?: number;
 }
 
 export interface AddBespokeCartItemBody {
   bespokePerfumeId: string;
   sizeMl: number;
   quantity: number;
+  position?: number;
 }
 
 export interface UpdateCartItemBody {

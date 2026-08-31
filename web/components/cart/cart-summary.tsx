@@ -12,7 +12,6 @@ import {
   cartUnavailableLines,
   type CartView,
 } from "@/lib/cart/cart-view";
-import { flushPendingCartCommits } from "@/lib/cart/pending-cart-commits";
 import { SHIPPING_PAISE } from "@/lib/cart/shipping";
 import { formatPaise } from "@/lib/format/money";
 import { cn } from "@/lib/cn";
@@ -43,7 +42,7 @@ export function CartSummary({
     : "/login?next=/checkout";
 
   /**
-   * Re-fetch after flushing so a product made unavailable in another tab
+   * Re-fetch so a product made unavailable in another tab
    * cannot slip through on a stale cart view.
    */
   async function proceedToCheckout() {
@@ -51,7 +50,6 @@ export function CartSummary({
 
     setFlushing(true);
     try {
-      await flushPendingCartCommits();
       const fresh = await loadCart();
       emitCartChanged({ itemCount: fresh.itemCount, view: fresh });
 
@@ -101,7 +99,7 @@ export function CartSummary({
           <dt className="text-graphite-soft">Delivery</dt>
           <dd className="tabular-nums text-graphite">
             {view.lines.length === 0
-              ? "—"
+              ? "–"
               : formatPaise(view.shippingPaise)}
           </dd>
         </div>

@@ -168,7 +168,18 @@ body {
   color: var(--color-deep);
 }
 
-:focus-visible {
+/*
+ * `.focus-ring-quiet` is a deliberate escape hatch, not a Tailwind utility:
+ * this rule is unlayered (plain CSS, not inside a Tailwind `@layer`), and
+ * per the CSS Cascade Layers spec, unlayered rules always beat layered ones
+ * — including every Tailwind utility, which lives in `@layer utilities` —
+ * regardless of specificity or source order. A `focus-visible:outline-none`
+ * class on an element therefore cannot win against this rule no matter how
+ * it's written; only another unlayered rule can. v2 form fields (paper/
+ * graphite surface) carry their own border-colour focus treatment instead
+ * of this sitewide gold ring, and opt out via this class.
+ */
+:focus-visible:not(.focus-ring-quiet) {
   outline: 2px solid var(--color-gold);
   outline-offset: 3px;
   border-radius: 2px;

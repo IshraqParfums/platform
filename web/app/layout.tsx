@@ -61,13 +61,13 @@ const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
 
 export const metadata: Metadata = {
   title: {
-    default: "Ishraq Parfums — Perfume, composed for you",
+    default: "Ishraq Parfums | Perfume, composed for you",
     template: "%s · Ishraq Parfums",
   },
   description:
     "Small-batch perfumes built from a real perfumer's palette, and a bespoke blend composed around your answers. Handcrafted in India.",
   openGraph: {
-    title: "Ishraq Parfums — Perfume, composed for you",
+    title: "Ishraq Parfums | Perfume, composed for you",
     description:
       "Small-batch perfumes built from a real perfumer's palette, and a bespoke blend composed around your answers.",
     type: "website",

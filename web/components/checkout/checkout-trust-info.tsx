@@ -11,9 +11,11 @@ const ITEMS = [
 ] as const;
 
 /**
- * Reassurance under the pay CTA. It wraps onto one or two rows where the CTA
- * is full width, and stacks in the narrow totals column — no prop needed,
- * because the right form follows from the width it is given.
+ * Reassurance under the pay CTA. Terra hairline ticks, matching the same
+ * assurance list on `/cart` — no icon glyph, the paper surface doesn't reach
+ * for a set. It wraps onto one or two rows where the CTA is full width, and
+ * stacks in the narrow totals column — no prop needed, because the right
+ * form follows from the width it is given.
  */
 export function CheckoutTrustInfo({ className }: { className?: string }) {
   return (
@@ -26,11 +28,9 @@ export function CheckoutTrustInfo({ className }: { className?: string }) {
       {ITEMS.map((label) => (
         <li
           key={label}
-          className="flex items-center gap-1.5 font-mono text-label-sm uppercase text-ink-faint"
+          className="flex items-center gap-2.5 font-ui text-[11px] uppercase tracking-[0.1em] text-graphite-faint"
         >
-          <span className="text-ink-soft" aria-hidden>
-            ✓
-          </span>
+          <span aria-hidden="true" className="h-px w-3 shrink-0 bg-terra/60" />
           <span>{label}</span>
         </li>
       ))}

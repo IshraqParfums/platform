@@ -102,13 +102,14 @@ export function AddressEditModal({
       open={open}
       title={editing ? "Edit address" : "Add address"}
       dismissible={!saving}
+      theme="v2"
       onClose={onClose}
       panelClassName="max-w-xl"
       footer={
         <div className="flex flex-col gap-2.5 sm:flex-row-reverse">
           <Button
             type="button"
-            variant="emphasis"
+            variant="ink"
             size="md"
             disabled={saving}
             className="w-full cursor-pointer sm:w-auto"
@@ -123,7 +124,7 @@ export function AddressEditModal({
             variant="ghost"
             size="md"
             disabled={saving}
-            className="w-full cursor-pointer text-ink-soft sm:w-auto"
+            className="w-full cursor-pointer text-graphite-soft sm:w-auto"
             onClick={onClose}
           >
             Cancel

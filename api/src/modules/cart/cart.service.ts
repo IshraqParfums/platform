@@ -10,7 +10,11 @@ import type {
   CartMutationView,
   CartResponse,
 } from '@ishraqparfums/shared';
-import { DEFAULT_CART_MUTATION_VIEW, BESPOKE_MAX_LINE_QUANTITY } from '@ishraqparfums/shared';
+import {
+  DEFAULT_CART_MUTATION_VIEW,
+  BESPOKE_MAX_LINE_QUANTITY,
+  clampCatalogLineQuantity,
+} from '@ishraqparfums/shared';
 import { BespokePricingService } from '../bespoke/bespoke-pricing.service';
 import { BespokeService } from '../bespoke/bespoke.service';
 import { ProductService } from '../product/product.service';
@@ -37,6 +41,7 @@ export class CartService {
     variantId: string,
     quantity: number,
     view: CartMutationView = DEFAULT_CART_MUTATION_VIEW,
+    position?: number,
   ): Promise<CartMutationResult> {
     const variant =
       await this.productService.findPurchasableVariantLean(variantId);
@@ -53,6 +58,7 @@ export class CartService {
       cartId,
       variantId,
       desiredQuantity,
+      existing ? undefined : position,
     );
 
     return this.respondAfterWrite(
@@ -63,6 +69,7 @@ export class CartService {
         lineTotalPaise: variant.pricePaise * item.quantity,
         stockQty: this.productService.availableQty(variant),
         variantId,
+        position: item.position,
       },
       view,
     );
@@ -75,6 +82,7 @@ export class CartService {
     quantity: number,
     view: CartMutationView = DEFAULT_CART_MUTATION_VIEW,
     sessionTokens: string[] = [],
+    position?: number,
   ): Promise<CartMutationResult> {
     if (!Number.isInteger(quantity) || quantity < 1) {
       throw new BadRequestException('quantity must be at least 1');
@@ -101,6 +109,7 @@ export class CartService {
       bespokePerfumeId,
       sizeMl,
       desiredQuantity,
+      existing ? undefined : position,
     );
 
     const pricePaise = this.bespokePricing.unitPricePaise(sizeMl);
@@ -114,6 +123,7 @@ export class CartService {
         variantId: null,
         bespokePerfumeId,
         sizeMl,
+        position: item.position,
       },
       view,
     );
@@ -128,6 +138,11 @@ export class CartService {
     const owned = await this.cartRepository.findOwnedItem(customerId, itemId);
     if (owned?.bespokePerfumeId && quantity > 0) {
       this.bespokePricing.assertLineQuantity(quantity);
+    }
+    // Catalog stock is enforced atomically in the UPDATE below, but the
+    // per-order cap has no stock row to hang off — so it is checked here.
+    if (owned?.productVariantId && quantity > 0) {
+      this.productService.assertWithinLineLimit(quantity);
     }
 
     const row = await this.cartRepository.updateOwnedItemQuantity(
@@ -156,7 +171,23 @@ export class CartService {
     const row = await this.cartRepository.deleteOwnedItem(customerId, itemId);
 
     if (!row) {
-      throw new NotFoundException(`Cart item with id "${itemId}" not found`);
+      const cartId = await this.cartRepository.findOrCreateCartId(customerId);
+      if (view === 'summary') {
+        const itemCount = await this.cartRepository.sumItemQuantities(cartId);
+        const summary: CartMutationSummary = {
+          cartId,
+          itemId,
+          quantity: 0,
+          itemCount,
+          lineTotalPaise: null,
+          stockQty: null,
+          variantId: null,
+          bespokePerfumeId: null,
+          sizeMl: null,
+        };
+        return summary;
+      }
+      return this.reloadCart(cartId);
     }
 
     if (view === 'summary') {
@@ -227,13 +258,18 @@ export class CartService {
         guestItem.variantId,
       );
       const desiredQuantity = (existing?.quantity ?? 0) + normalizedQuantity;
-      let finalQuantity = desiredQuantity;
       const available = this.productService.availableQty(variant);
+      // Clamp rather than throw: signing in must not fail over a guest cart.
+      const finalQuantity = clampCatalogLineQuantity(
+        desiredQuantity,
+        available,
+      );
 
-      if (desiredQuantity > available) {
-        finalQuantity = available;
+      if (finalQuantity < desiredQuantity) {
         warnings.push(
-          `Quantity for variant ${guestItem.variantId} reduced to ${available} (stock limit)`,
+          desiredQuantity > available
+            ? `Quantity for variant ${guestItem.variantId} reduced to ${finalQuantity} (stock limit)`
+            : `Quantity for variant ${guestItem.variantId} reduced to ${finalQuantity} (per-order limit)`,
         );
       }
 
@@ -404,6 +440,7 @@ export class CartService {
       variantId: string | null;
       bespokePerfumeId?: string | null;
       sizeMl?: number | null;
+      position?: number | null;
     },
     view: CartMutationView,
   ): Promise<CartMutationResult> {
@@ -421,6 +458,7 @@ export class CartService {
         variantId: fields.variantId,
         bespokePerfumeId: fields.bespokePerfumeId ?? null,
         sizeMl: fields.sizeMl ?? null,
+        position: fields.position ?? null,
       };
     }
 

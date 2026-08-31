@@ -1,8 +1,14 @@
 import type { CartMutationSummary } from "@ishraqparfums/shared";
+import {
+  compareCartLinePosition,
+  isCartLinePosition,
+  nextCartLinePosition,
+} from "@ishraqparfums/shared";
 import { SHIPPING_PAISE } from "@/lib/cart/shipping";
 import type { GuestCartSnapshot } from "@/lib/cart/guest-cart";
 import {
   withLineQuantity,
+  cartLineKey,
   type CartView,
   type CartViewLine,
 } from "@/lib/cart/cart-view";
@@ -16,6 +22,24 @@ export type BespokeCartLineSeed = {
   productName: string;
 };
 
+function lineKeyFromSummary(summary: CartMutationSummary): string | null {
+  if (summary.bespokePerfumeId && summary.sizeMl != null) {
+    return cartLineKey({
+      kind: "bespoke",
+      bespokePerfumeId: summary.bespokePerfumeId,
+      sizeMl: summary.sizeMl,
+    });
+  }
+  if (summary.variantId) {
+    return cartLineKey({
+      kind: "catalog",
+      variantId: summary.variantId,
+      sizeMl: 0,
+    });
+  }
+  return null;
+}
+
 /**
  * Merge a slim mutation ack into local cart state (PDP / optimistic clients).
  * Optional `seed` supplies display fields when a catalog line is new.
@@ -27,13 +51,20 @@ export function applyCartMutationSummary(
   seed?: CartLineSeed,
   bespokeSeed?: BespokeCartLineSeed,
 ): CartView {
+  const stableKey = lineKeyFromSummary(summary);
+  const existingByKey = stableKey
+    ? view.lines.find((line) => line.key === stableKey)
+    : null;
   const existing = view.lines.find((line) => line.itemId === summary.itemId);
   const existingByVariant =
-    !existing && summary.variantId
+    !existing &&
+    !existingByKey &&
+    summary.variantId
       ? view.lines.find((line) => line.variantId === summary.variantId)
       : null;
   const existingByBespoke =
     !existing &&
+    !existingByKey &&
     !existingByVariant &&
     summary.bespokePerfumeId &&
     summary.sizeMl != null
@@ -43,7 +74,8 @@ export function applyCartMutationSummary(
             line.sizeMl === summary.sizeMl,
         )
       : null;
-  const target = existing ?? existingByVariant ?? existingByBespoke ?? null;
+  const target =
+    existing ?? existingByKey ?? existingByVariant ?? existingByBespoke ?? null;
 
   if (summary.quantity <= 0) {
     if (!target) {
@@ -80,6 +112,9 @@ export function applyCartMutationSummary(
               : line.isAvailable,
           bespokePerfumeId:
             summary.bespokePerfumeId ?? line.bespokePerfumeId,
+          position: isCartLinePosition(summary.position)
+            ? summary.position
+            : line.position,
         };
       }),
     };
@@ -88,7 +123,11 @@ export function applyCartMutationSummary(
 
   if (bespokeSeed && summary.bespokePerfumeId) {
     const line: CartViewLine = {
-      key: summary.itemId,
+      key: cartLineKey({
+        kind: "bespoke",
+        bespokePerfumeId: bespokeSeed.bespokePerfumeId,
+        sizeMl: bespokeSeed.sizeMl,
+      }),
       kind: "bespoke",
       itemId: summary.itemId,
       variantId: null,
@@ -108,6 +147,9 @@ export function applyCartMutationSummary(
       lineTotalPaise:
         summary.lineTotalPaise ??
         bespokeSeed.pricePaise * summary.quantity,
+      position: isCartLinePosition(summary.position)
+        ? summary.position
+        : nextCartLinePosition(view.lines.map((item) => item.position)),
     };
 
     return recomputeView({
@@ -129,7 +171,11 @@ export function applyCartMutationSummary(
   }
 
   const line: CartViewLine = {
-    key: summary.itemId,
+    key: cartLineKey({
+      kind: "catalog",
+      variantId: summary.variantId,
+      sizeMl: seed.sizeMl,
+    }),
     kind: "catalog",
     itemId: summary.itemId,
     variantId: summary.variantId,
@@ -149,6 +195,9 @@ export function applyCartMutationSummary(
     primaryImageUrl: seed.primaryImageUrl,
     lineTotalPaise:
       summary.lineTotalPaise ?? seed.pricePaise * summary.quantity,
+    position: isCartLinePosition(summary.position)
+      ? summary.position
+      : nextCartLinePosition(view.lines.map((item) => item.position)),
   };
 
   return recomputeView({
@@ -161,16 +210,20 @@ export function applyCartMutationSummary(
 }
 
 function recomputeView(view: CartView): CartView {
-  const subtotalPaise = view.lines
+  const lines = [...view.lines].sort((a, b) =>
+    compareCartLinePosition(a.position, b.position),
+  );
+  const subtotalPaise = lines
     .filter((line) => line.isAvailable)
     .reduce((sum, line) => sum + line.lineTotalPaise, 0);
-  const hasSellable = view.lines.some(
+  const hasSellable = lines.some(
     (line) => line.isAvailable && line.quantity > 0,
   );
   const shippingPaise = hasSellable ? SHIPPING_PAISE : 0;
 
   return {
     ...view,
+    lines,
     subtotalPaise,
     shippingPaise,
     totalPaise: subtotalPaise + shippingPaise,

@@ -5,7 +5,6 @@ import { AddressComposerPanel } from "@/components/checkout/address-choice";
 import { AddressForm } from "@/components/address/address-form";
 import { AddressList } from "@/components/checkout/address-list";
 import { CheckoutSection } from "@/components/checkout/checkout-section";
-import { Button } from "@/components/ui/button";
 import {
   isAddressDraftPristine,
   type AddressDraft,
@@ -75,7 +74,7 @@ export function AddressSection({
       ) : null}
 
       {error ? (
-        <p className="mt-3 text-sm text-rose-deep" role="alert">
+        <p className="mt-3 text-sm text-terra" role="alert">
           {error}
         </p>
       ) : null}
@@ -88,28 +87,32 @@ export function AddressSection({
           actions={
             <>
               {canClear ? (
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
                   disabled={disabled}
-                  className="cursor-pointer text-ink-soft"
                   onClick={onClearDraft}
+                  className={cn(
+                    "cursor-pointer font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint",
+                    "transition-colors duration-200 hover:text-terra",
+                    "disabled:cursor-not-allowed disabled:opacity-55",
+                  )}
                 >
                   Clear
-                </Button>
+                </button>
               ) : null}
               {hasSaved ? (
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
                   disabled={disabled}
-                  className="cursor-pointer text-ink-soft"
                   onClick={onHideForm}
+                  className={cn(
+                    "cursor-pointer font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint",
+                    "transition-colors duration-200 hover:text-terra",
+                    "disabled:cursor-not-allowed disabled:opacity-55",
+                  )}
                 >
                   Cancel
-                </Button>
+                </button>
               ) : null}
             </>
           }
@@ -128,9 +131,9 @@ export function AddressSection({
           disabled={disabled}
           onClick={onShowForm}
           className={cn(
-            "mt-3 inline-flex cursor-pointer items-center gap-2 font-mono text-label-sm uppercase text-ink-faint",
-            "transition-colors duration-200 hover:text-ink",
-            "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink/30",
+            "mt-3 inline-flex cursor-pointer items-center gap-2 font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint",
+            "transition-colors duration-200 hover:text-terra",
+            "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-graphite/30",
             "disabled:cursor-not-allowed disabled:opacity-55",
           )}
         >
