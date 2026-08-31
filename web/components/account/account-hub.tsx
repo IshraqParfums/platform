@@ -156,7 +156,7 @@ export function AccountHubView({
           />
           {!me.email?.trim() || !displayName ? (
             <p className="mt-4 text-sm text-graphite-faint">
-              Add these so order confirmations reach you — or we’ll ask at
+              Add these so order confirmations reach you, or we’ll ask at
               checkout.
             </p>
           ) : null}
@@ -217,7 +217,7 @@ export function AccountHubView({
           }}
         >
           <AccountEmpty>
-            Formulas from the bespoke consultation live here — open, size, and
+            Formulas from the bespoke consultation live here. Open, size, and
             add to cart when you&apos;re ready.
           </AccountEmpty>
           <div className="mt-6 flex flex-wrap gap-3">

@@ -60,7 +60,7 @@ export function Hero() {
           />
 
           <p className="mx-auto mt-5 max-w-lg text-lead text-cream/80">
-            Browse compositions built from a real perfumer&apos;s palette — or
+            Browse compositions built from a real perfumer&apos;s palette, or
             answer ten questions and we&apos;ll compose a bespoke formula around
             you.
           </p>

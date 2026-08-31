@@ -41,7 +41,7 @@ export function LoginAtmosphere({ step }: { step: "phone" | "code" }) {
         </Urdu>
 
         <p className="mt-6 max-w-[26ch] font-editorial text-[22px] italic leading-[1.3] text-paper">
-          Ishraq — radiance, dawn.
+          Ishraq · radiance, dawn.
         </p>
 
         <span aria-hidden className="mt-8 h-px w-10 bg-brass/40" />

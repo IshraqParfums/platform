@@ -27,13 +27,13 @@ export const privacyContent: LegalDocumentContent = {
         "We collect only what we need to run the shop and serve you:",
       ],
       bullets: [
-        "Phone number — used as your account identity and for WhatsApp OTP sign-in",
-        "Name and email — when you add them to your profile or checkout",
-        "Delivery addresses — when you save or use them for an order",
-        "Order and payment records — products, amounts, shipping, and status",
-        "Reviews you submit — rating, optional title and body, linked to your account",
-        "Bespoke answers and formulas — when you use the questionnaire",
-        "Technical basics — cookies for signed-in sessions, and standard server logs",
+        "Phone number: used as your account identity and for WhatsApp OTP sign-in",
+        "Name and email: when you add them to your profile or checkout",
+        "Delivery addresses: when you save or use them for an order",
+        "Order and payment records: products, amounts, shipping, and status",
+        "Reviews you submit: rating, optional title and body, linked to your account",
+        "Bespoke answers and formulas: when you use the questionnaire",
+        "Technical basics: cookies for signed-in sessions, and standard server logs",
       ],
     },
     {
@@ -59,7 +59,7 @@ export const privacyContent: LegalDocumentContent = {
       id: "share",
       title: "Sharing",
       paragraphs: [
-        "We do not sell your personal information. We share data only with providers who help us operate the service — for example payment processing (Razorpay), hosting, and database infrastructure — and only as needed for those purposes, or when the law requires it.",
+        "We do not sell your personal information. We share data only with providers who help us operate the service: payment processing (Razorpay), hosting, and database infrastructure. We share it only as needed for those purposes, or when the law requires it.",
       ],
     },
     {

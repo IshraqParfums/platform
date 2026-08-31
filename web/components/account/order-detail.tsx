@@ -278,7 +278,7 @@ export function OrderLoadFailedScreen({
         Couldn’t load order
       </h1>
       <p className="mt-3 text-[15px] leading-relaxed text-graphite-soft">
-        Something went wrong on our side. Your order is safe — please try again
+        Something went wrong on our side. Your order is safe. Please try again
         in a moment.
       </p>
       <Button

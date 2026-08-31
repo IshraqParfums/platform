@@ -334,7 +334,7 @@ export function CheckoutPageClient() {
             Complete your order.
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-graphite-soft">
-            Confirm where this goes, then pay — securely, in one step.
+            Confirm where this goes, then pay securely, in one step.
           </p>
           <CheckoutInvoiceNotice email={email} />
         </header>

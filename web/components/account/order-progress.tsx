@@ -79,7 +79,7 @@ export function OrderProgress({
                 )}
               >
                 {label}
-                {done ? <span className="sr-only"> — done</span> : null}
+                {done ? <span className="sr-only">, done</span> : null}
               </span>
             </li>
           );

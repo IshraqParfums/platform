@@ -117,7 +117,7 @@ export function AccountOrders() {
           <div className="mt-6">
             {orders.length === 0 ? (
               <AccountEmpty>
-                No {filterLabel} orders — everything is under All.
+                No {filterLabel} orders. Everything is under All.
               </AccountEmpty>
             ) : (
               <OrderCards orders={orders} />

@@ -10,7 +10,7 @@ export function BrandStory() {
       <Container size="narrow">
         <Reveal>
           <div className="text-center">
-            <Eyebrow className="mx-auto">Ishraq — إشراق — radiance, dawn</Eyebrow>
+            <Eyebrow className="mx-auto">Ishraq · إشراق · radiance, dawn</Eyebrow>
 
             <p className="font-display mt-7 text-subsection font-semibold text-ink">
               We started with one stubborn idea: that a good perfume should feel
@@ -23,7 +23,7 @@ export function BrandStory() {
             <p className="mt-6 text-[15.5px] leading-relaxed text-ink-soft">
               Everything is composed and bottled here in India, in batches small
               enough that we still smell every one. Each fragrance is drawn from
-              the same closed palette of raw materials — nothing borrowed,
+              the same closed palette of raw materials, nothing borrowed,
               nothing outsourced. And if none of them is quite you, the bespoke
               quiz exists precisely for that.
             </p>

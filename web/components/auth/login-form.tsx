@@ -36,7 +36,7 @@ const STEP_COPY = {
   phone: {
     kicker: "Welcome back",
     title: "Sign in.",
-    lead: "We’ll text a one-time code to your phone. No password needed — your orders and delivery addresses stay with your number.",
+    lead: "We’ll text a one-time code to your phone. No password needed. Your orders and delivery addresses stay with your number.",
   },
   code: {
     kicker: "Verify it’s you",
@@ -206,7 +206,7 @@ export function LoginForm() {
         {signedIn || !sessionChecked ? (
           <p className="font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint">
             {signedIn
-              ? "Already signed in — taking you through…"
+              ? "Already signed in. Taking you through…"
               : "Checking your session…"}
           </p>
         ) : (

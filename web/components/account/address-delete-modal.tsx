@@ -74,7 +74,7 @@ export function AddressDeleteModal({
     >
       <p className="text-[15px] leading-relaxed text-graphite-soft">
         {address
-          ? `${address.name} — ${address.line1}, ${address.city} will be removed from your account.`
+          ? `${address.name} · ${address.line1}, ${address.city} will be removed from your account.`
           : null}
       </p>
     </Modal>

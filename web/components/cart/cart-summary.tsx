@@ -101,7 +101,7 @@ export function CartSummary({
           <dt className="text-graphite-soft">Delivery</dt>
           <dd className="tabular-nums text-graphite">
             {view.lines.length === 0
-              ? "—"
+              ? "–"
               : formatPaise(view.shippingPaise)}
           </dd>
         </div>

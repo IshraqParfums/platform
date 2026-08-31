@@ -17,7 +17,7 @@ export default function ContactPage() {
       // URDU: "رابطہ" ("contact / connection") is new and unreviewed, same
       // as the other Urdu lines added across the paper-storefront migration.
       urdu="رابطہ"
-      description="Message the people who compose and bottle every fragrance — not a ticket queue."
+      description="Message the people who compose and bottle every fragrance, not a ticket queue."
     >
       <ContactChannels />
     </StaticPage>

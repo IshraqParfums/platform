@@ -21,7 +21,7 @@ export function CollectionsShowcase({
         <SectionHeading
           eyebrow="Find your corner"
           title="Start with a mood"
-          description="Each collection is a mood — pick one to begin, or browse the full shelf."
+          description="Each collection is a mood. Pick one to begin, or browse the full shelf."
           action={{ href: "/collections", label: "Explore all collections" }}
         />
 

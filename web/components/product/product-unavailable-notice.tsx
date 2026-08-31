@@ -15,7 +15,7 @@ export function ProductUnavailableNotice({
         </p>
         <p className="mt-2 text-sm leading-relaxed text-graphite-soft">
           This fragrance isn&apos;t for sale right now. You can still view the
-          sizes and details below — check back soon, or explore other scents in
+          sizes and details below. Check back soon, or explore other scents in
           the shop.
         </p>
       </div>
@@ -27,7 +27,7 @@ export function ProductUnavailableNotice({
       <p className="font-editorial text-lg text-graphite">Out of stock</p>
       <p className="mt-2 text-sm leading-relaxed text-graphite-soft">
         Every size is sold out at the moment. Size options below stay visible so
-        you can see what&apos;s usually offered — none can be added to cart until
+        you can see what&apos;s usually offered, but none can be added to cart until
         stock returns.
       </p>
     </div>
