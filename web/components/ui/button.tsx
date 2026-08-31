@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
+export type ButtonVariant = Variant;
+
 type Variant =
   | "primary"
   | "emphasis"
