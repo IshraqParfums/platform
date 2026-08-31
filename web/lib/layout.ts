@@ -18,7 +18,9 @@ export const HEADER_HEIGHT_PX = 68;
  * (`/account/orders/[id]`) lands right after payment, so the chrome must
  * already be paper by the time a customer arrives there. `/login` closes
  * the loop: it's the one page every one of the above can redirect *to*
- * (`loginPath()`), so the door has to match the house.
+ * (`loginPath()`), so the door has to match the house. `/privacy`, `/terms`
+ * and `/contact` round it out — footer links reachable from every page
+ * above, so they can't be the one tab that still flashes espresso.
  */
 export function isPaperStorefrontPath(pathname: string): boolean {
   return (
@@ -28,6 +30,9 @@ export function isPaperStorefrontPath(pathname: string): boolean {
     pathname === "/checkout" ||
     pathname === "/collections" ||
     pathname === "/login" ||
+    pathname === "/privacy" ||
+    pathname === "/terms" ||
+    pathname === "/contact" ||
     pathname.startsWith("/products/") ||
     pathname.startsWith("/bespoke") ||
     pathname.startsWith("/account")

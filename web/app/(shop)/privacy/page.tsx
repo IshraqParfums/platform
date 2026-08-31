@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <StaticPage
-      eyebrow="Legal"
+      kicker="Legal"
       title={privacyContent.title}
       meta={privacyContent.effectiveLabel}
     >
