@@ -1,12 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import {
-  indianMobileNationalDigits,
-  normalizeIndianMobile,
-} from "@ishraqparfums/shared";
-import { FormField, fieldControlClassName } from "@/components/ui/field";
+import { FormField } from "@/components/ui/field";
 import { FormInput } from "@/components/ui/form-input";
+import { PhoneField } from "@/components/ui/phone-field";
 import { lookupPincode } from "@/lib/address/pincode-lookup";
 import type {
   AddressDraft,
@@ -40,11 +37,6 @@ export function AddressForm({
     onChange({ ...draft, ...partial });
   }
 
-  function setNationalMobile(national: string) {
-    const digits = national.replace(/\D/g, "").slice(0, 10);
-    patch({ phone: normalizeIndianMobile(digits.length > 0 ? digits : "") });
-  }
-
   async function onPincodeChange(raw: string) {
     const pincode = raw.replace(/\D/g, "").slice(0, 6);
     const cityAtStart = draft.city;
@@ -70,8 +62,6 @@ export function AddressForm({
         !stateAtStart.trim() || overwriteAutofill ? result.state : next.state,
     });
   }
-
-  const nationalPhone = indianMobileNationalDigits(draft.phone);
 
   return (
     <div className="space-y-3">
@@ -99,34 +89,16 @@ export function AddressForm({
           htmlFor="checkout-address-phone"
           error={errors?.phone}
         >
-          <div
-            className={cn(
-              fieldControlClassName(Boolean(errors?.phone)),
-              "flex items-center gap-2",
-            )}
-          >
-            <span
-              className="shrink-0 tabular-nums text-graphite-soft"
-              aria-hidden
-            >
-              +91
-            </span>
-            <input
-              id="checkout-address-phone"
-              name="shipping-phone"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="shipping tel-national"
-              required
-              disabled={disabled}
-              value={nationalPhone}
-              placeholder="98765 43210"
-              maxLength={10}
-              aria-invalid={Boolean(errors?.phone) || undefined}
-              className="min-w-0 flex-1 bg-transparent text-[15px] text-graphite outline-none placeholder:text-graphite-faint disabled:cursor-not-allowed"
-              onChange={(event) => setNationalMobile(event.target.value)}
-            />
-          </div>
+          <PhoneField
+            id="checkout-address-phone"
+            name="shipping-phone"
+            autoComplete="shipping tel-national"
+            required
+            disabled={disabled}
+            value={draft.phone}
+            invalid={Boolean(errors?.phone)}
+            onChange={(phone) => patch({ phone })}
+          />
         </FormField>
       </div>
 

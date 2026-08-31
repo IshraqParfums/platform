@@ -12,9 +12,14 @@ import { cn } from "@/lib/cn";
 export function fieldControlClassName(invalid?: boolean): string {
   return cn(
     "w-full min-h-11 rounded-[3px] border bg-paper px-3.5 py-2.5 mt-1.5",
-    "text-[15px] text-graphite outline-none transition-colors",
+    "text-[15px] text-graphite transition-colors",
     "placeholder:text-graphite-faint",
-    "focus-visible:border-graphite/45",
+    // `focus-ring-quiet` (see globals.css) opts this field out of the
+    // sitewide gold focus ring — a Tailwind `outline-none` utility can't do
+    // that on its own, since that ring is deliberately unlayered CSS and
+    // always beats a layered Tailwind utility. The border colour change
+    // below is this field's own focus indicator instead.
+    "focus-ring-quiet focus-visible:border-graphite/45",
     "disabled:cursor-not-allowed disabled:opacity-55",
     invalid ? "border-terra/60" : "border-graphite/20",
   );
