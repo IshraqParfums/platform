@@ -49,6 +49,7 @@ export class CartController {
       body.variantId,
       body.quantity,
       query.view ?? DEFAULT_CART_MUTATION_VIEW,
+      body.position,
     );
   }
 
@@ -65,6 +66,7 @@ export class CartController {
       body.quantity,
       query.view ?? DEFAULT_CART_MUTATION_VIEW,
       body.sessionTokens ?? [],
+      body.position,
     );
   }
 

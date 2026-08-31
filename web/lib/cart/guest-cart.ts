@@ -1,6 +1,9 @@
 import {
   clampBespokeLineQuantity,
   clampCatalogLineQuantity,
+  compareCartLinePosition,
+  isCartLinePosition,
+  nextCartLinePosition,
 } from "@ishraqparfums/shared";
 
 export const GUEST_CART_STORAGE_KEY = "ishraq_guest_cart_v1";
@@ -22,6 +25,7 @@ export type GuestCatalogLine = GuestCartSnapshot & {
   kind?: "catalog";
   variantId: string;
   quantity: number;
+  position: number;
 };
 
 export type GuestBespokeLine = {
@@ -31,6 +35,7 @@ export type GuestBespokeLine = {
   sizeMl: number;
   pricePaise: number;
   productName: string;
+  position: number;
 };
 
 export type GuestCartLine = GuestCatalogLine | GuestBespokeLine;
@@ -87,6 +92,20 @@ function isValidSnapshotLine(line: unknown): line is GuestCatalogLine {
   );
 }
 
+function guestLinePosition(line: { position?: unknown }): number {
+  return isCartLinePosition(line.position) ? line.position : 0;
+}
+
+function hydrateGuestItems(items: GuestCartLine[]): GuestCartLine[] {
+  const allHave = items.every((item) => isCartLinePosition(item.position));
+  if (!allHave) {
+    return items.map((item, index) => ({ ...item, position: index }));
+  }
+  return [...items].sort((a, b) =>
+    compareCartLinePosition(a.position, b.position),
+  );
+}
+
 function normalizeCatalogLine(line: GuestCatalogLine): GuestCatalogLine {
   return {
     ...line,
@@ -130,7 +149,7 @@ export function readGuestCart(): GuestCart {
       else if (isValidSnapshotLine(line)) items.push(normalizeCatalogLine(line));
     }
     return {
-      items,
+      items: hydrateGuestItems(items),
       updatedAt: parsed.updatedAt ?? new Date().toISOString(),
     };
   } catch {
@@ -140,10 +159,12 @@ export function readGuestCart(): GuestCart {
 
 export function writeGuestCart(cart: GuestCart): void {
   if (typeof window === "undefined") return;
+  const items = hydrateGuestItems(cart.items);
   window.localStorage.setItem(
     GUEST_CART_STORAGE_KEY,
     JSON.stringify({
       ...cart,
+      items,
       updatedAt: new Date().toISOString(),
     }),
   );
@@ -151,7 +172,7 @@ export function writeGuestCart(cart: GuestCart): void {
 
 /** Merge quantity into an existing line (refresh snapshot) or append. */
 export function addGuestCartItem(
-  snapshot: GuestCartSnapshot & { variantId: string },
+  snapshot: GuestCartSnapshot & { variantId: string; position?: number },
   quantity = 1,
 ): GuestCart {
   const qty = Number.isInteger(quantity) && quantity > 0 ? quantity : 1;
@@ -178,6 +199,9 @@ export function addGuestCartItem(
       ...snapshot,
       kind: "catalog",
       quantity: Math.max(1, clampCatalogLineQuantity(qty, snapshot.stockQty)),
+      position: isCartLinePosition(snapshot.position)
+        ? snapshot.position
+        : nextCartLinePosition(cart.items.map(guestLinePosition)),
     });
   }
   writeGuestCart(cart);
@@ -185,7 +209,9 @@ export function addGuestCartItem(
 }
 
 export function addGuestBespokeItem(
-  snapshot: Omit<GuestBespokeLine, "kind" | "quantity">,
+  snapshot: Omit<GuestBespokeLine, "kind" | "quantity" | "position"> & {
+    position?: number;
+  },
   quantity = 1,
 ): GuestCart {
   const qty = Number.isInteger(quantity) && quantity > 0 ? quantity : 1;
@@ -208,6 +234,9 @@ export function addGuestBespokeItem(
       ...snapshot,
       kind: "bespoke",
       quantity: Math.max(1, clampBespokeLineQuantity(qty)),
+      position: isCartLinePosition(snapshot.position)
+        ? snapshot.position
+        : nextCartLinePosition(cart.items.map(guestLinePosition)),
     });
   }
   writeGuestCart(cart);

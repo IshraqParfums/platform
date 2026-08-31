@@ -28,8 +28,10 @@ import {
 } from "@/lib/cart/cart-copy";
 import { emitCartChanged, subscribeCartChanged } from "@/lib/cart/cart-events";
 import { toastRemovedFromCart } from "@/lib/cart/cart-toast";
+import { createLineMutationQueue } from "@/lib/cart/line-mutation-queue";
 import {
   cartUnavailableLines,
+  findCartLineByKey,
   withLineQuantity,
   withLineRestored,
   type CartView,
@@ -52,21 +54,42 @@ export function CartPageClient() {
   const [isPending, startTransition] = useTransition();
   const viewRef = useRef<CartView | null>(null);
   const reconciledLoadRef = useRef(false);
-  const removeJobsRef = useRef(
-    new Map<
-      string,
-      { promise: Promise<CartView>; superseded: boolean }
-    >(),
-  );
+  const queueRef = useRef(createLineMutationQueue());
+  const itemIdByKeyRef = useRef(new Map<string, string>());
 
   viewRef.current = view;
 
-  /** Set cart UI and notify listeners — never call emit from inside a setState updater. */
-  const publishView = useCallback((next: CartView) => {
-    viewRef.current = next;
-    setView(next);
-    emitCartChanged({ itemCount: next.itemCount, view: next });
+  const rememberItemIds = useCallback((next: CartView) => {
+    for (const line of next.lines) {
+      if (line.itemId) itemIdByKeyRef.current.set(line.key, line.itemId);
+    }
   }, []);
+
+  /** Set cart UI and notify listeners — never call emit from inside a setState updater. */
+  const publishView = useCallback(
+    (next: CartView) => {
+      rememberItemIds(next);
+      viewRef.current = next;
+      setView(next);
+      emitCartChanged({ itemCount: next.itemCount, view: next });
+    },
+    [rememberItemIds],
+  );
+
+  function resolveQueuedLine(snapshot: CartViewLine): CartViewLine {
+    const live = viewRef.current
+      ? findCartLineByKey(viewRef.current, snapshot.key)
+      : null;
+    const itemId =
+      live?.itemId ??
+      itemIdByKeyRef.current.get(snapshot.key) ??
+      snapshot.itemId;
+    return { ...(live ?? snapshot), itemId };
+  }
+
+  function mutationBase(mode: CartView["mode"]): CartView {
+    return viewRef.current ?? emptyCartView(mode);
+  }
 
   const reconcileLoadedCart = useCallback(
     async (next: CartView): Promise<CartView> => {
@@ -112,6 +135,7 @@ export function CartPageClient() {
           : await reconcileLoadedCart(loaded);
         reconciledLoadRef.current = true;
         setAuthenticated(auth || next.mode === "server");
+        rememberItemIds(next);
         viewRef.current = next;
         setView(next);
         setError(null);
@@ -122,12 +146,13 @@ export function CartPageClient() {
         setError("Could not load your cart.");
       }
     });
-  }, [reconcileLoadedCart]);
+  }, [reconcileLoadedCart, rememberItemIds]);
 
   useEffect(() => {
     refresh();
     return subscribeCartChanged((detail) => {
       if (detail.view) {
+        rememberItemIds(detail.view);
         viewRef.current = detail.view;
         setView(detail.view);
         if (detail.view.mode === "server") setAuthenticated(true);
@@ -135,6 +160,7 @@ export function CartPageClient() {
       }
       void loadCart()
         .then((next) => {
+          rememberItemIds(next);
           viewRef.current = next;
           setView(next);
           if (next.mode === "server") setAuthenticated(true);
@@ -145,7 +171,7 @@ export function CartPageClient() {
           setView(empty);
         });
     });
-  }, [refresh]);
+  }, [refresh, rememberItemIds]);
 
   /** Silent refresh when returning to this tab — catches admin availability changes. */
   useEffect(() => {
@@ -154,6 +180,7 @@ export function CartPageClient() {
       if (!reconciledLoadRef.current) return;
       void loadCart()
         .then((next) => {
+          rememberItemIds(next);
           viewRef.current = next;
           setView(next);
           emitCartChanged({ itemCount: next.itemCount, view: next });
@@ -167,37 +194,6 @@ export function CartPageClient() {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
-  function runMutation(
-    key: string,
-    optimisticView: CartView,
-    work: () => Promise<CartView>,
-  ) {
-    setPendingKey(key);
-    setError(null);
-    publishView(optimisticView);
-
-    startTransition(async () => {
-      try {
-        const next = await work();
-        viewRef.current = next;
-        setView(next);
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Update failed";
-        setError(message);
-        toast.error("Could not update cart", message);
-        refresh();
-      } finally {
-        setPendingKey(null);
-      }
-    });
-  }
-
-  function restoreRemovedLine(line: CartViewLine, fallback: CartView) {
-    const base = viewRef.current ?? fallback;
-    publishView(withLineRestored(base, line));
-  }
-
   function failCartWrite(err: unknown) {
     const message = err instanceof Error ? err.message : "Update failed";
     setError(message);
@@ -205,69 +201,73 @@ export function CartPageClient() {
     refresh();
   }
 
-  function removeLine(line: CartViewLine, current: CartView) {
-    const optimistic = withLineQuantity(current, line.key, 0);
+  function enqueueLineWork(key: string, work: () => Promise<void>) {
+    setPendingKey(key);
     setError(null);
-    setPendingKey(line.key);
-    publishView(optimistic);
-
-    const job = {
-      promise: removeCartLine(line, current.mode, { emit: false }),
-      superseded: false,
-    };
-    removeJobsRef.current.set(line.key, job);
-
-    toastRemovedFromCart({
-      productName: line.productName,
-      onUndo: () => {
-        void undoRemove(line, current.mode, optimistic);
-      },
+    void queueRef.current.enqueue(key, work).finally(() => {
+      setPendingKey((current) => (current === key ? null : current));
     });
+  }
 
-    startTransition(async () => {
+  function changeQuantity(line: CartViewLine, quantity: number) {
+    const current = viewRef.current;
+    if (!current) return;
+    publishView(withLineQuantity(current, line.key, quantity));
+
+    enqueueLineWork(line.key, async () => {
       try {
-        const next = await job.promise;
-        if (job.superseded) return;
+        const mode = viewRef.current?.mode ?? current.mode;
+        const live = resolveQueuedLine(line);
+        const next = await setCartLineQuantity(live, quantity, mode, {
+          emit: false,
+          base: mutationBase(mode),
+        });
         publishView(next);
       } catch (err) {
-        if (job.superseded) return;
         failCartWrite(err);
-      } finally {
-        if (!job.superseded) {
-          removeJobsRef.current.delete(line.key);
-          setPendingKey(null);
-        }
       }
     });
   }
 
-  async function undoRemove(
-    line: CartViewLine,
-    mode: CartView["mode"],
-    fallback: CartView,
-  ) {
-    const job = removeJobsRef.current.get(line.key);
-    if (job) job.superseded = true;
+  function removeLine(line: CartViewLine, current: CartView) {
+    if (line.itemId) itemIdByKeyRef.current.set(line.key, line.itemId);
 
-    restoreRemovedLine(line, fallback);
+    const optimistic = withLineQuantity(current, line.key, 0);
+    publishView(optimistic);
 
-    try {
-      if (job) {
-        try {
-          await job.promise;
-        } catch {
-          refresh();
-          return;
-        }
+    toastRemovedFromCart({
+      productName: line.productName,
+      onUndo: () => {
+        const fallback = viewRef.current ?? optimistic;
+        publishView(withLineRestored(fallback, line));
+        enqueueLineWork(line.key, async () => {
+          try {
+            const mode = viewRef.current?.mode ?? current.mode;
+            const next = await restoreCartLine(line, mode, {
+              emit: false,
+              base: mutationBase(mode),
+            });
+            publishView(next);
+          } catch (err) {
+            failCartWrite(err);
+          }
+        });
+      },
+    });
+
+    enqueueLineWork(line.key, async () => {
+      try {
+        const mode = viewRef.current?.mode ?? current.mode;
+        const live = resolveQueuedLine(line);
+        const next = await removeCartLine(live, mode, {
+          emit: false,
+          base: mutationBase(mode),
+        });
+        publishView(next);
+      } catch (err) {
+        failCartWrite(err);
       }
-      const next = await restoreCartLine(line, mode);
-      publishView(next);
-    } catch (err) {
-      failCartWrite(err);
-    } finally {
-      removeJobsRef.current.delete(line.key);
-      setPendingKey(null);
-    }
+    });
   }
 
   function removeUnavailable(current: CartView) {
@@ -276,29 +276,31 @@ export function CartPageClient() {
 
     let optimistic = current;
     for (const line of unavailable) {
+      if (line.itemId) itemIdByKeyRef.current.set(line.key, line.itemId);
       optimistic = withLineQuantity(optimistic, line.key, 0);
     }
     publishView(optimistic);
 
     startTransition(async () => {
       try {
-        let working = current;
         for (const line of unavailable) {
-          working = await removeCartLine(line, working.mode);
+          await queueRef.current.enqueue(line.key, async () => {
+            const mode = viewRef.current?.mode ?? current.mode;
+            const live = resolveQueuedLine(line);
+            const next = await removeCartLine(live, mode, {
+              emit: false,
+              base: mutationBase(mode),
+            });
+            publishView(next);
+          });
         }
-        viewRef.current = working;
-        setView(working);
         toast.success(
           unavailable.length === 1
             ? "Unavailable item removed"
             : "Unavailable items removed",
         );
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Update failed";
-        setError(message);
-        toast.error("Could not update cart", message);
-        refresh();
+        failCartWrite(err);
       }
     });
   }
@@ -343,13 +345,9 @@ export function CartPageClient() {
             <CartLine
               key={line.key}
               line={line}
-              pending={isPending && pendingKey === line.key}
+              pending={pendingKey === line.key}
               onQuantityChange={(quantity) => {
-                runMutation(
-                  line.key,
-                  withLineQuantity(view, line.key, quantity),
-                  () => setCartLineQuantity(line, quantity, view.mode),
-                );
+                changeQuantity(line, quantity);
               }}
               onRemove={() => removeLine(line, view)}
             />

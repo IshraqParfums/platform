@@ -1,5 +1,5 @@
 import type { CartMutationResult } from '@ishraqparfums/shared';
-import { isCartMutationView } from '@ishraqparfums/shared';
+import { isCartLinePosition, isCartMutationView } from '@ishraqparfums/shared';
 import { NextResponse } from 'next/server';
 import { shopAuthFetch } from '@/lib/api/auth-fetch';
 import { jsonFromNestError, unauthorizedResponse } from '@/lib/api/route-response';
@@ -30,6 +30,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     typeof record.quantity === 'number' && Number.isInteger(record.quantity)
       ? record.quantity
       : 1;
+  const position = isCartLinePosition(record.position)
+    ? record.position
+    : undefined;
 
   if (!bespokePerfumeId || sizeMl == null) {
     return NextResponse.json(
@@ -48,6 +51,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           sizeMl,
           quantity,
           sessionTokens: await listBespokeSessionTokens(),
+          ...(position !== undefined ? { position } : {}),
         },
       },
     );

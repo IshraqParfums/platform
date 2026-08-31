@@ -21,6 +21,7 @@ import {
   setGuestBespokeQuantity,
   setGuestCartQuantity,
 } from "@/lib/cart/guest-cart";
+import { applyCartMutationSummary } from "@/lib/cart/apply-cart-mutation-summary";
 import {
   cartViewFromGuest,
   cartViewFromServer,
@@ -92,46 +93,116 @@ export async function mutateCartItemRemove(
   return (await response.json()) as CartMutationResult;
 }
 
-/** Cart page / callers that want a full `CartView` after the write. */
+export type CartLineWriteOptions = {
+  emit?: boolean;
+  /**
+   * Local cart to merge a `view=summary` ack into. Cart-page writes pass this
+   * so we skip the full cart graph. Omit for a full reload.
+   */
+  base?: CartView;
+};
+
+function catalogSeedFromLine(line: CartViewLine) {
+  if (line.kind !== "catalog" || !line.variantId) return undefined;
+  return {
+    variantId: line.variantId,
+    productName: line.productName,
+    productSlug: line.productSlug,
+    collectionName: line.collectionName,
+    shortDescription: line.shortDescription,
+    sizeMl: line.sizeMl,
+    pricePaise: line.pricePaise,
+    compareAtPricePaise: line.compareAtPricePaise,
+    primaryImageUrl: line.primaryImageUrl,
+    stockQty: line.stockQty ?? 0,
+  };
+}
+
+function bespokeSeedFromLine(line: CartViewLine) {
+  if (line.kind !== "bespoke" || !line.bespokePerfumeId) return undefined;
+  return {
+    bespokePerfumeId: line.bespokePerfumeId,
+    sizeMl: line.sizeMl,
+    pricePaise: line.pricePaise,
+    productName: line.productName,
+  };
+}
+
+function mergeServerResult(
+  result: CartMutationResult,
+  options: CartLineWriteOptions | undefined,
+  line: CartViewLine,
+): CartView {
+  if (isCartMutationSummary(result)) {
+    if (!options?.base) {
+      throw new Error("Summary mutation requires a base cart view");
+    }
+    return applyCartMutationSummary(
+      options.base,
+      result,
+      catalogSeedFromLine(line),
+      bespokeSeedFromLine(line),
+    );
+  }
+  if (!isCartResponse(result)) {
+    throw new Error("Unexpected cart mutation response");
+  }
+  return cartViewFromServer(result);
+}
+
+function publishIfNeeded(
+  view: CartView,
+  options?: CartLineWriteOptions,
+): CartView {
+  return options?.emit === false ? view : publishCart(view);
+}
+
+/** Cart page / callers that want a `CartView` after the write. */
 export async function setCartLineQuantity(
   line: CartViewLine,
   quantity: number,
   mode: CartView["mode"],
+  options?: CartLineWriteOptions,
 ): Promise<CartView> {
   if (mode === "guest") {
     if (line.kind === "bespoke" && line.bespokePerfumeId) {
       setGuestBespokeQuantity(line.bespokePerfumeId, line.sizeMl, quantity);
-      return publishCart(cartViewFromGuest(readGuestCart().items));
+      return publishIfNeeded(
+        cartViewFromGuest(readGuestCart().items),
+        options,
+      );
     }
     if (!line.variantId) return cartViewFromGuest(readGuestCart().items);
     setGuestCartQuantity(line.variantId, quantity);
-    return publishCart(cartViewFromGuest(readGuestCart().items));
+    return publishIfNeeded(cartViewFromGuest(readGuestCart().items), options);
   }
 
   if (!line.itemId) {
     throw new Error("Missing cart item id");
   }
 
-  const result = await mutateCartItemQuantity(line.itemId, quantity, "full");
-  if (!isCartResponse(result)) {
-    throw new Error("Expected full cart response");
-  }
-  return publishCart(cartViewFromServer(result));
+  const mutationView = options?.base ? "summary" : "full";
+  const result = await mutateCartItemQuantity(
+    line.itemId,
+    quantity,
+    mutationView,
+  );
+  return publishIfNeeded(mergeServerResult(result, options, line), options);
 }
 
 export async function removeCartLine(
   line: CartViewLine,
   mode: CartView["mode"],
-  options?: { emit?: boolean },
+  options?: CartLineWriteOptions,
 ): Promise<CartView> {
-  const emit = options?.emit !== false;
-  const view = await deleteCartLine(line, mode);
-  return emit ? publishCart(view) : view;
+  const view = await deleteCartLine(line, mode, options);
+  return publishIfNeeded(view, options);
 }
 
 async function deleteCartLine(
   line: CartViewLine,
   mode: CartView["mode"],
+  options?: CartLineWriteOptions,
 ): Promise<CartView> {
   if (mode === "guest") {
     if (line.kind === "bespoke" && line.bespokePerfumeId) {
@@ -147,18 +218,25 @@ async function deleteCartLine(
     throw new Error("Missing cart item id");
   }
 
-  const result = await mutateCartItemRemove(line.itemId, "full");
-  if (!isCartResponse(result)) {
-    throw new Error("Expected full cart response");
-  }
-  return cartViewFromServer(result);
+  const mutationView = options?.base ? "summary" : "full";
+  const result = await mutateCartItemRemove(line.itemId, mutationView);
+  return mergeServerResult(result, options, line);
 }
 
-async function postFullCart(
+async function postCartItem(
   path: string,
   body: Record<string, unknown>,
+  options: CartLineWriteOptions | undefined,
+  line: CartViewLine,
 ): Promise<CartView> {
-  const response = await shopFetch(path, {
+  const mutationView = options?.base ? "summary" : "full";
+  const separator = path.includes("?") ? "&" : "?";
+  const url =
+    mutationView === "summary"
+      ? `${path}${separator}view=summary`
+      : `${path}${separator}view=full`;
+
+  const response = await shopFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -169,10 +247,7 @@ async function postFullCart(
   }
 
   const result = (await response.json()) as CartMutationResult;
-  if (!isCartResponse(result)) {
-    throw new Error("Expected full cart response");
-  }
-  return publishCart(cartViewFromServer(result));
+  return publishIfNeeded(mergeServerResult(result, options, line), options);
 }
 
 /**
@@ -183,6 +258,7 @@ async function postFullCart(
 export async function restoreCartLine(
   line: CartViewLine,
   mode: CartView["mode"],
+  options?: CartLineWriteOptions,
 ): Promise<CartView> {
   if (mode === "guest") {
     if (line.kind === "bespoke") {
@@ -195,10 +271,14 @@ export async function restoreCartLine(
           sizeMl: line.sizeMl,
           pricePaise: line.pricePaise,
           productName: line.productName,
+          position: line.position,
         },
         line.quantity,
       );
-      return publishCart(cartViewFromGuest(readGuestCart().items));
+      return publishIfNeeded(
+        cartViewFromGuest(readGuestCart().items),
+        options,
+      );
     }
 
     if (!line.variantId) {
@@ -216,30 +296,43 @@ export async function restoreCartLine(
         compareAtPricePaise: line.compareAtPricePaise,
         primaryImageUrl: line.primaryImageUrl,
         stockQty: line.stockQty ?? 0,
+        position: line.position,
       },
       line.quantity,
     );
-    return publishCart(cartViewFromGuest(readGuestCart().items));
+    return publishIfNeeded(cartViewFromGuest(readGuestCart().items), options);
   }
 
   if (line.kind === "bespoke") {
     if (!line.bespokePerfumeId) {
       throw new Error("Missing bespoke perfume id");
     }
-    return postFullCart("/api/cart/items/bespoke?view=full", {
-      bespokePerfumeId: line.bespokePerfumeId,
-      sizeMl: line.sizeMl,
-      quantity: line.quantity,
-    });
+    return postCartItem(
+      "/api/cart/items/bespoke",
+      {
+        bespokePerfumeId: line.bespokePerfumeId,
+        sizeMl: line.sizeMl,
+        quantity: line.quantity,
+        position: line.position,
+      },
+      options,
+      line,
+    );
   }
 
   if (!line.variantId) {
     throw new Error("Missing variant id");
   }
-  return postFullCart("/api/cart/items?view=full", {
-    variantId: line.variantId,
-    quantity: line.quantity,
-  });
+  return postCartItem(
+    "/api/cart/items",
+    {
+      variantId: line.variantId,
+      quantity: line.quantity,
+      position: line.position,
+    },
+    options,
+    line,
+  );
 }
 
 export function readLocalCartCount(): number {

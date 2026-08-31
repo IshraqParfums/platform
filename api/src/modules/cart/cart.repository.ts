@@ -29,7 +29,7 @@ const cartInclude = {
       },
       bespokePerfume: true,
     },
-    orderBy: { createdAt: 'asc' as const },
+    orderBy: { position: 'asc' as const },
   },
 };
 
@@ -150,25 +150,37 @@ export class CartRepository {
     });
   }
 
+  async nextPosition(cartId: string): Promise<number> {
+    const aggregate = await this.prisma.cartItem.aggregate({
+      where: { cartId },
+      _max: { position: true },
+    });
+    return (aggregate._max.position ?? -1) + 1;
+  }
+
   async upsertItem(
     cartId: string,
     productVariantId: string,
     quantity: number,
+    position?: number,
   ): Promise<CartItem> {
-    return this.prisma.cartItem.upsert({
-      where: {
-        cartId_productVariantId: {
-          cartId,
-          productVariantId,
-        },
-      },
-      create: {
+    const existing = await this.findItemByCartAndVariant(
+      cartId,
+      productVariantId,
+    );
+    if (existing) {
+      return this.prisma.cartItem.update({
+        where: { id: existing.id },
+        data: { quantity },
+      });
+    }
+
+    return this.prisma.cartItem.create({
+      data: {
         cartId,
         productVariantId,
         quantity,
-      },
-      update: {
-        quantity,
+        position: position ?? (await this.nextPosition(cartId)),
       },
     });
   }
@@ -178,23 +190,27 @@ export class CartRepository {
     bespokePerfumeId: string,
     bespokeSizeMl: number,
     quantity: number,
+    position?: number,
   ): Promise<CartItem> {
-    return this.prisma.cartItem.upsert({
-      where: {
-        cartId_bespokePerfumeId_bespokeSizeMl: {
-          cartId,
-          bespokePerfumeId,
-          bespokeSizeMl,
-        },
-      },
-      create: {
+    const existing = await this.findItemByCartBespokeSize(
+      cartId,
+      bespokePerfumeId,
+      bespokeSizeMl,
+    );
+    if (existing) {
+      return this.prisma.cartItem.update({
+        where: { id: existing.id },
+        data: { quantity },
+      });
+    }
+
+    return this.prisma.cartItem.create({
+      data: {
         cartId,
         bespokePerfumeId,
         bespokeSizeMl,
         quantity,
-      },
-      update: {
-        quantity,
+        position: position ?? (await this.nextPosition(cartId)),
       },
     });
   }
