@@ -162,7 +162,9 @@ export class OrderService {
     }
 
     const sellable = cart.items.filter(isCheckoutLinePurchasable);
-    const skipped = cart.items.filter((item) => !isCheckoutLinePurchasable(item));
+    const skipped = cart.items.filter(
+      (item) => !isCheckoutLinePurchasable(item),
+    );
 
     if (sellable.length === 0) {
       throw new BadRequestException(
@@ -324,16 +326,33 @@ export class OrderService {
     }
   }
 
-  async finalizePaidOrder(input: {
-    razorpayOrderId: string;
-    razorpayPaymentId: string;
-    rawPayload: unknown;
-  }): Promise<OrderDetail> {
+  async finalizePaidOrder(
+    input: {
+      razorpayOrderId: string;
+      razorpayPaymentId: string;
+      rawPayload: unknown;
+    },
+    expectedCustomerId?: string,
+  ): Promise<OrderDetail> {
     const order = await this.orderRepository.findByRazorpayOrderId(
       input.razorpayOrderId,
     );
 
     if (!order) {
+      throw new NotFoundException(
+        `Order for Razorpay order "${input.razorpayOrderId}" not found`,
+      );
+    }
+
+    // Only enforced for the customer-facing verify path — the webhook and
+    // internal reconciliation callers finalize with no customer context and
+    // must keep working unchanged. Same "not found" shape as a genuinely
+    // missing order (never `Forbidden`), so this can't be used to enumerate
+    // which order ids exist.
+    if (
+      expectedCustomerId !== undefined &&
+      order.customerId !== expectedCustomerId
+    ) {
       throw new NotFoundException(
         `Order for Razorpay order "${input.razorpayOrderId}" not found`,
       );
@@ -546,7 +565,9 @@ export class OrderService {
 
     const filters = {
       status: query.status,
-      statuses: groupStatuses ? ([...groupStatuses] as OrderStatus[]) : undefined,
+      statuses: groupStatuses
+        ? ([...groupStatuses] as OrderStatus[])
+        : undefined,
       customerId: query.customerId,
     };
 

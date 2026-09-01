@@ -50,14 +50,14 @@ export function indianMobileNationalDigits(e164OrPartial: string): string {
     return "";
   }
 
-  const normalized = normalizeIndianMobile(e164OrPartial);
-  if (normalized === "+91") {
-    return "";
-  }
-  if (normalized.startsWith("+91")) {
-    return normalized.slice(3).replace(/\D/g, "").slice(0, 10);
-  }
-  return digits.slice(0, 10);
+  // Every caller passes a value that already came out of
+  // `normalizeIndianMobile` (or is empty), so it's already `+91`/`91`
+  // prefixed — strip that prefix once rather than re-normalizing. Re-running
+  // it through `normalizeIndianMobile` here used to misread "91" + an
+  // 8-digit partial (10 stripped digits, starting with 9) as a bare 10-digit
+  // number, corrupting the value and locking the input after 8 keystrokes.
+  const national = digits.startsWith("91") ? digits.slice(2) : digits;
+  return national.slice(0, 10);
 }
 
 /**

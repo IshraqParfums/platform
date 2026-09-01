@@ -509,6 +509,17 @@ export class ProductService {
     this.assertQuantityAvailable(variant, quantity);
   }
 
+  /**
+   * Read-then-write on `stockQty`/`reservedQty` is not safe under concurrent
+   * checkouts — two requests can both read the same `available` and both
+   * pass, oversubscribing the last unit. The actual write is therefore a
+   * single atomic `UPDATE ... WHERE` that re-checks the same condition it
+   * writes against, matching `CartRepository.updateOwnedItemQuantity`'s
+   * pattern for computed comparisons (no `SELECT ... FOR UPDATE` anywhere in
+   * this codebase; atomic conditional writes are the established style).
+   * The `findUnique` above the write is kept only to produce the existing
+   * "Only N units in stock" message before attempting the write.
+   */
   async reserveStock(
     variantId: string,
     quantity: number,
@@ -534,12 +545,24 @@ export class ProductService {
       );
     }
 
-    await db.productVariant.update({
-      where: { id: variantId },
-      data: { reservedQty: { increment: quantity } },
-    });
+    const reserved = await db.$queryRaw<{ id: string }[]>`
+      UPDATE product_variants
+      SET "reservedQty" = "reservedQty" + ${quantity}
+      WHERE id = ${variantId}
+        AND ("stockQty" - "reservedQty") >= ${quantity}
+      RETURNING id
+    `;
+
+    if (reserved.length === 0) {
+      // Lost the race between the check above and this write — stock moved
+      // in between. Same message shape as the upfront check.
+      throw new BadRequestException(
+        `Only ${available} unit(s) of ${variant.sizeMl}ml in stock`,
+      );
+    }
   }
 
+  /** Atomic — see the note on `reserveStock`. Preserves the previous clamp-to-zero behaviour. */
   async releaseReservation(
     variantId: string,
     quantity: number,
@@ -549,22 +572,24 @@ export class ProductService {
       return;
     }
 
-    const variant = await db.productVariant.findUnique({
-      where: { id: variantId },
-    });
+    const released = await db.$queryRaw<{ id: string }[]>`
+      UPDATE product_variants
+      SET "reservedQty" = GREATEST(0, "reservedQty" - ${quantity})
+      WHERE id = ${variantId}
+      RETURNING id
+    `;
 
-    if (!variant) {
+    if (released.length === 0) {
       throw new NotFoundException(`Variant with id "${variantId}" not found`);
     }
-
-    const nextReserved = Math.max(0, variant.reservedQty - quantity);
-
-    await db.productVariant.update({
-      where: { id: variantId },
-      data: { reservedQty: nextReserved },
-    });
   }
 
+  /**
+   * Atomic — see the note on `reserveStock`. The guard here is a simple
+   * (non-computed) comparison, so `updateMany`'s `where` expresses it
+   * directly rather than needing raw SQL, matching
+   * `OrderRepository.tryClaimPendingAsExpired`'s pattern.
+   */
   async commitReservation(
     variantId: string,
     quantity: number,
@@ -574,27 +599,23 @@ export class ProductService {
       throw new BadRequestException('Quantity must be at least 1');
     }
 
-    const variant = await db.productVariant.findUnique({
-      where: { id: variantId },
-    });
-
-    if (!variant) {
-      throw new NotFoundException(`Variant with id "${variantId}" not found`);
-    }
-
-    if (variant.reservedQty < quantity || variant.stockQty < quantity) {
-      throw new BadRequestException(
-        `Cannot commit reservation for variant ${variantId}`,
-      );
-    }
-
-    await db.productVariant.update({
-      where: { id: variantId },
+    const result = await db.productVariant.updateMany({
+      where: {
+        id: variantId,
+        reservedQty: { gte: quantity },
+        stockQty: { gte: quantity },
+      },
       data: {
         stockQty: { decrement: quantity },
         reservedQty: { decrement: quantity },
       },
     });
+
+    if (result.count === 0) {
+      throw new BadRequestException(
+        `Cannot commit reservation for variant ${variantId}`,
+      );
+    }
   }
 
   // --- Admin: products ---
