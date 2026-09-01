@@ -5,6 +5,7 @@ import {
   isCartLinePosition,
   nextCartLinePosition,
 } from "@ishraqparfums/shared";
+import { safeStorageSet } from "@/lib/storage/safe-storage";
 
 export const GUEST_CART_STORAGE_KEY = "ishraq_guest_cart_v1";
 
@@ -158,9 +159,9 @@ export function readGuestCart(): GuestCart {
 }
 
 export function writeGuestCart(cart: GuestCart): void {
-  if (typeof window === "undefined") return;
   const items = hydrateGuestItems(cart.items);
-  window.localStorage.setItem(
+  safeStorageSet(
+    "local",
     GUEST_CART_STORAGE_KEY,
     JSON.stringify({
       ...cart,

@@ -17,9 +17,14 @@ import {
   ScentSillage,
 } from '@prisma/client';
 
-const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+// `bespoke` is excluded: order/cart lines for a bespoke formula are given
+// the literal `productSlug: 'bespoke'` sentinel (see order.service.ts /
+// cart.mapper.ts) to mean "not a catalog product" — a real product with
+// that exact slug would be indistinguishable from the sentinel and would
+// silently lose its own order-line link (order-item-href.ts).
+const SLUG_PATTERN = /^(?!bespoke$)[a-z0-9]+(-[a-z0-9]+)*$/;
 const SLUG_MESSAGE =
-  'slug must be lowercase, kebab-case (e.g. "citrus-atelier")';
+  'slug must be lowercase, kebab-case (e.g. "citrus-atelier"), and not "bespoke"';
 
 /**
  * PDP content fields, shared by both create/update DTOs. `@IsOptional()`

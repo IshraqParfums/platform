@@ -13,6 +13,7 @@ import { BandInner } from "@/components/home-v2/ui/band";
 import { Urdu } from "@/components/home-v2/ui/urdu";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import { shopFetch } from "@/lib/auth/shop-fetch";
 import { cn } from "@/lib/cn";
 
 export function BespokeSavedClient() {
@@ -26,7 +27,7 @@ export function BespokeSavedClient() {
   const [removing, setRemoving] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/bespoke?pageSize=50");
+    const res = await shopFetch("/api/bespoke?pageSize=50");
     if (res.status === 401) {
       router.push("/login?next=/bespoke/saved");
       return;
@@ -52,7 +53,7 @@ export function BespokeSavedClient() {
     setRemoving(true);
     setError(null);
     try {
-      const res = await fetch(`/api/bespoke/${toRemove.id}`, {
+      const res = await shopFetch(`/api/bespoke/${toRemove.id}`, {
         method: "DELETE",
       });
       if (!res.ok && res.status !== 204) {

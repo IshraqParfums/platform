@@ -13,6 +13,7 @@ import { BespokeBrewSkeleton } from "@/components/bespoke/bespoke-skeletons";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { shopFetch } from "@/lib/auth/shop-fetch";
 
 export function BespokeBrewClient() {
   const params = useParams<{ id: string }>();
@@ -24,7 +25,7 @@ export function BespokeBrewClient() {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const res = await fetch(`/api/bespoke/${id}`);
+      const res = await shopFetch(`/api/bespoke/${id}`);
       if (res.status === 401) {
         router.push(`/login?next=${encodeURIComponent(`/bespoke/brews/${id}`)}`);
         return;

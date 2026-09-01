@@ -11,18 +11,19 @@
  */
 
 import type { AtelierAccordSummary, AtelierLoadedAccord } from "@ishraqparfums/shared";
+import { adminFetch } from "@/lib/auth/admin-fetch";
 
 export type AccordSummary = AtelierAccordSummary;
 export type LoadedAccord = AtelierLoadedAccord;
 
 export async function searchAccords(query: string): Promise<AccordSummary[]> {
-  const res = await fetch(`/api/admin/bespoke/atelier/accords?q=${encodeURIComponent(query)}`);
+  const res = await adminFetch(`/api/admin/bespoke/atelier/accords?q=${encodeURIComponent(query)}`);
   if (!res.ok) return [];
   return (await res.json()) as AccordSummary[];
 }
 
 export async function loadAccord(id: string): Promise<LoadedAccord | null> {
-  const res = await fetch(`/api/admin/bespoke/atelier/accords/${encodeURIComponent(id)}`);
+  const res = await adminFetch(`/api/admin/bespoke/atelier/accords/${encodeURIComponent(id)}`);
   if (!res.ok) return null;
   return (await res.json()) as LoadedAccord;
 }

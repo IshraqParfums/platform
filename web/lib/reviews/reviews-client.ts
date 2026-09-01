@@ -38,7 +38,7 @@ export type CreateReviewResult =
 export async function createProductReview(
   draft: ReviewDraft,
 ): Promise<CreateReviewResult> {
-  const response = await fetch(
+  const response = await shopFetch(
     `/api/products/${encodeURIComponent(draft.slug)}/reviews`,
     {
       method: "POST",
