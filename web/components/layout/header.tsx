@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { AccountMenu } from "@/components/layout/account-menu";
 import { BespokeSavedNavLink } from "@/components/layout/bespoke-saved-nav-link";
 import { CartNavLink } from "@/components/layout/cart-nav-link";
 import { Logo } from "@/components/layout/logo";
 import { Container } from "@/components/ui/container";
+import { DismissScrim } from "@/components/ui/dismiss-scrim";
 import { ACCOUNT_HOME } from "@/lib/auth/account-routes";
 import { cn } from "@/lib/cn";
 import { HEADER_HEIGHT_PX, isPaperStorefrontPath } from "@/lib/layout";
+import { useMobileNav } from "@/lib/ui/use-mobile-nav";
 
 const NAV = [
   { href: "/shop", label: "Shop" },
@@ -37,24 +38,27 @@ const NAV = [
 export function Header() {
   const pathname = usePathname();
   const light = isPaperStorefrontPath(pathname);
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+  const { open, close, toggle, rootRef } = useMobileNav();
 
   return (
-    <header
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 border-b backdrop-blur-md",
-        light
-          ? "border-graphite/[0.07] bg-paper/70"
-          : "border-gold/15 bg-deep/92",
-      )}
-    >
+    <>
+      {open ? (
+        <DismissScrim
+          onDismiss={close}
+          className={
+            light ? "bg-graphite/25 md:hidden" : "bg-deep/60 md:hidden"
+          }
+        />
+      ) : null}
+      <header
+        ref={rootRef}
+        className={cn(
+          "fixed inset-x-0 top-0 z-50 border-b backdrop-blur-md",
+          light
+            ? "border-graphite/[0.07] bg-paper/70"
+            : "border-gold/15 bg-deep/92",
+        )}
+      >
       <Container size="wide">
         <div
           className="flex items-center justify-between gap-6"
@@ -63,7 +67,7 @@ export function Header() {
           <Link
             href="/"
             className="flex items-center gap-3"
-            onClick={() => setOpen(false)}
+            onClick={close}
           >
             <Logo tone={light ? "light" : "dark"} priority />
           </Link>
@@ -94,7 +98,7 @@ export function Header() {
               type="button"
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
+              onClick={toggle}
               className={cn(
                 "flex h-10 w-10 items-center justify-center rounded-full transition-colors md:hidden",
                 light
@@ -141,7 +145,7 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setOpen(false)}
+                  onClick={close}
                   className={cn(
                     "border-b py-4 text-lg last:border-0",
                     light
@@ -157,5 +161,6 @@ export function Header() {
         </nav>
       ) : null}
     </header>
+    </>
   );
 }

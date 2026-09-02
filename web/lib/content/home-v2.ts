@@ -1,18 +1,14 @@
 import type { ProductListItem } from "@ishraqparfums/shared";
 
 /**
- * The Urdu line and the English headline are the same sentence, which is why
- * the hero sets them as a matched pair either side of a rule rather than
- * stacking a small Urdu label above an unrelated headline.
- *
- * No eyebrow. It used to carry "Small-batch perfumery · Made in India", which
- * pushed the hero to five stacked text elements and said nothing that Belief's
- * body copy at the foot of the page doesn't already say in a full sentence.
+ * Arrival copy for the house, not the consultation. The quiz pitch lives
+ * in the bespoke band below; the old Urdu co-headline and the
+ * "Small-batch perfumery · Made in India" eyebrow were both dropped.
  */
 export const HOME_HERO = {
-  urdu: "خوشبو جو صرف تمہاری ہے",
+  eyebrow: "A perfume house.",
   headline: ["A scent that’s", "unmistakably yours."],
-  lead: "Composed from real perfumery materials, one question at a time.",
+  lead: "Composed from real woods, resins, spices and flowers. Bottled in small runs.",
   primaryCta: { label: "Discover your scent", href: "/bespoke" },
   secondaryCta: { label: "Explore the collection", href: "/shop" },
   image: {

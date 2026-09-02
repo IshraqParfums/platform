@@ -5,6 +5,9 @@ import { useEffect, useRef } from "react";
  * lines were already hand-rolled independently in `ui/select.tsx` and
  * `ui/help-tip.tsx`; this is the third occurrence, so it's a shared hook
  * instead of a third copy. Returns the ref to attach to the popover's root.
+ *
+ * Listens to `pointerdown` (not `mousedown`) so a mobile tap dismisses on
+ * the first contact, not a delayed compatibility mouse event.
  */
 export function useDismissable<T extends HTMLElement>(
   open: boolean,
@@ -15,7 +18,7 @@ export function useDismissable<T extends HTMLElement>(
   useEffect(() => {
     if (!open) return;
 
-    function onPointerDown(event: MouseEvent) {
+    function onPointerDown(event: PointerEvent) {
       if (
         rootRef.current &&
         !rootRef.current.contains(event.target as Node)
@@ -28,10 +31,10 @@ export function useDismissable<T extends HTMLElement>(
       if (event.key === "Escape") onDismiss();
     }
 
-    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
     return () => {
-      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [open, onDismiss]);
