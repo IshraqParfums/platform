@@ -1,13 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import type { ProductDetailImage } from "@ishraqparfums/shared";
 import { cn } from "@/lib/cn";
 import { shouldUnoptimizeImageSrc } from "@/lib/media/unoptimize-image-src";
-
-/** Below this, a horizontal drag is a scroll, not a swipe. */
-const SWIPE_THRESHOLD_PX = 40;
+import { useHorizontalSwipe } from "@/lib/ui/use-horizontal-swipe";
 
 /**
  * The arrival's photography — and the only place a product's images appear.
@@ -36,30 +34,19 @@ export function ProductHeroPlate({
   className?: string;
 }) {
   const [index, setIndex] = useState(0);
-  const touchStartX = useRef<number | null>(null);
 
   const count = images.length;
   const active = images[index] ?? null;
   const hasMultiple = count > 1;
 
-  function step(delta: number) {
-    setIndex((current) => (current + delta + count) % count);
-  }
+  const step = useCallback(
+    (delta: number) => {
+      setIndex((current) => (current + delta + count) % count);
+    },
+    [count],
+  );
 
-  function onTouchStart(event: React.TouchEvent) {
-    touchStartX.current = event.touches[0]?.clientX ?? null;
-  }
-
-  function onTouchEnd(event: React.TouchEvent) {
-    const start = touchStartX.current;
-    touchStartX.current = null;
-    if (start === null || !hasMultiple) return;
-
-    const end = event.changedTouches[0]?.clientX ?? start;
-    const distance = end - start;
-    if (Math.abs(distance) < SWIPE_THRESHOLD_PX) return;
-    step(distance < 0 ? 1 : -1);
-  }
+  const { onTouchStart, onTouchEnd } = useHorizontalSwipe(hasMultiple, step);
 
   return (
     <div
