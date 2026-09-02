@@ -18,6 +18,8 @@ export interface ProductListItem {
   openingNotes: string[];
   collectionSlug: string;
   primaryImage: ProductListPrimaryImage | null;
+  /** Gallery in display order. `primaryImage` is `images[0]` when present. */
+  images: ProductListPrimaryImage[];
   fromSizeMl: number | null;
   fromPricePaise: number | null;
   fromCompareAtPricePaise: number | null;

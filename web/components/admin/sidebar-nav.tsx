@@ -20,6 +20,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { DismissScrim } from "@/components/ui/dismiss-scrim";
 import { Modal } from "@/components/ui/modal";
 import { cn } from "@/lib/cn";
 
@@ -164,11 +165,9 @@ export function SidebarNav() {
       </div>
 
       {open ? (
-        <button
-          type="button"
-          aria-label="Close menu"
-          className="fixed inset-0 z-40 bg-deep/60 md:hidden"
-          onClick={() => setOpen(false)}
+        <DismissScrim
+          onDismiss={() => setOpen(false)}
+          className="bg-deep/60 md:hidden"
         />
       ) : null}
 

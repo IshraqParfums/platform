@@ -12,10 +12,10 @@ import { BandInner } from "@/components/home-v2/ui/band";
  *
  * Two compositions, switching at `sm`:
  *
- *   below sm — one viewport, centred. The type is the whole hero: the Urdu
- *     line and its English twin either side of a short rule, and the
- *     photograph dissolved into the parchment behind them with no edges at
- *     all. Nothing here is a panel, so nothing has to be fitted around one.
+ *   below sm — one viewport, centred. The type is the whole hero: kicker,
+ *     headline, lead, CTAs, and the photograph dissolved into the parchment
+ *     behind them with no edges at all. Nothing here is a panel, so nothing
+ *     has to be fitted around one.
  *   sm+ — 100dvh, left-aligned. The photograph becomes the arch: flush right
  *     against the container's own rail, standing on the section floor and
  *     rising past the header's line, with the type beside it.
