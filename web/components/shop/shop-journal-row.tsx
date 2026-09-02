@@ -1,10 +1,10 @@
 import type { ProductListItem } from "@ishraqparfums/shared";
-import Image from "next/image";
 import Link from "next/link";
 import { Urdu } from "@/components/home-v2/ui/urdu";
+import { ProductCatalogStill } from "@/components/product/product-catalog-still";
 import { HOME_COLLECTION } from "@/lib/content/home-v2";
+import { catalogStillImages } from "@/lib/catalog/still-images";
 import { formatPaise } from "@/lib/format/money";
-import { shouldUnoptimizeImageSrc } from "@/lib/media/unoptimize-image-src";
 
 function JournalRating({
   slug,
@@ -61,8 +61,6 @@ export function ShopJournalRow({
   product: ProductListItem;
   priority?: boolean;
 }) {
-  const imageSrc = product.primaryImage?.url ?? null;
-  const imageAlt = product.primaryImage?.altText?.trim() || product.name;
   const openingNotes = product.openingNotes ?? [];
 
   return (
@@ -71,17 +69,12 @@ export function ShopJournalRow({
       className="group flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] sm:items-stretch sm:gap-6"
     >
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper-deep">
-        {imageSrc ? (
-          <Image
-            src={imageSrc}
-            alt={imageAlt}
-            fill
-            sizes="(min-width: 768px) 22vw, 100vw"
-            unoptimized={shouldUnoptimizeImageSrc(imageSrc)}
-            priority={priority}
-            className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,0.8,0.28,1)] group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-          />
-        ) : null}
+        <ProductCatalogStill
+          name={product.name}
+          images={catalogStillImages(product)}
+          sizes="(min-width: 768px) 22vw, 100vw"
+          priority={priority}
+        />
       </div>
 
       <div className="flex min-h-0 min-w-0 flex-col sm:h-full sm:justify-between">

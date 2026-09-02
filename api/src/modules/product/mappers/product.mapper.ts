@@ -49,19 +49,18 @@ export function displayCompareAtPricePaise(
   return compareAtPricePaise;
 }
 
-function toPrimaryImage(
-  images: ProductImage[],
-): ProductListPrimaryImage | null {
-  const image = images[0];
-
-  if (!image) {
-    return null;
-  }
-
+function toListImage(image: ProductImage): ProductListPrimaryImage {
   return {
     url: image.url,
     altText: image.altText,
   };
+}
+
+function toPrimaryImage(
+  images: ProductImage[],
+): ProductListPrimaryImage | null {
+  const image = images[0];
+  return image ? toListImage(image) : null;
 }
 
 function toDetailVariant(variant: ProductVariant): ProductDetailVariant {
@@ -256,6 +255,7 @@ export function toProductListItem(
     openingNotes: toOpeningNotesPreview(product.notesPyramidJson),
     collectionSlug: product.collection.slug,
     primaryImage: toPrimaryImage(product.images),
+    images: product.images.map(toListImage),
     fromSizeMl: cheapest?.sizeMl ?? null,
     fromPricePaise: cheapest?.pricePaise ?? null,
     fromCompareAtPricePaise: cheapest
