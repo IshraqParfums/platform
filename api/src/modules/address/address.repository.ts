@@ -6,6 +6,8 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AddressRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  // Unbounded by design: creation is capped at MAX_ADDRESSES_PER_CUSTOMER in
+  // AddressService, so this list can never grow unbounded.
   findByCustomerId(customerId: string): Promise<CustomerAddress[]> {
     return this.prisma.customerAddress.findMany({
       where: { customerId },

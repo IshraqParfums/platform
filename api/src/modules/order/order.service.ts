@@ -19,6 +19,7 @@ import type {
   PaginatedResponse,
 } from '@ishraqparfums/shared';
 import {
+  SHIPPING_PAISE,
   countsFromStatusRows,
   statusesForAdminOrderGroup,
   statusesForCustomerOrderGroup,
@@ -43,7 +44,8 @@ import {
 } from './mappers/order.mapper';
 import {
   CHECKOUT_RESERVATION_TTL_SECONDS,
-  SHIPPING_PAISE,
+  ORDER_EXPIRY_SWEEP_BATCH_SIZE,
+  ORDER_EXPIRY_SWEEP_MAX_PAGES,
 } from './order.constants';
 import { OrderRepository, type OrderWithRelations } from './order.repository';
 import { assertValidOrderStatusTransition } from './order-status-transitions';
@@ -122,6 +124,17 @@ export class OrderService {
     return new Set(rows.map((row) => row.customerId));
   }
 
+  findPurchasedProductIds(
+    customerId: string,
+    productIds: string[],
+  ): Promise<Set<string>> {
+    return this.orderRepository.findPurchasedProductIds(
+      customerId,
+      productIds,
+      VERIFIED_BUYER_ORDER_STATUSES,
+    );
+  }
+
   async getForCustomer(
     customerId: string,
     orderId: string,
@@ -162,7 +175,9 @@ export class OrderService {
     }
 
     const sellable = cart.items.filter(isCheckoutLinePurchasable);
-    const skipped = cart.items.filter((item) => !isCheckoutLinePurchasable(item));
+    const skipped = cart.items.filter(
+      (item) => !isCheckoutLinePurchasable(item),
+    );
 
     if (sellable.length === 0) {
       throw new BadRequestException(
@@ -188,12 +203,22 @@ export class OrderService {
 
     let subtotalPaise = 0;
 
+    const variantIds = sellable
+      .filter((item) => item.kind !== 'bespoke')
+      .map((item) => item.variantId);
+    const bespokeIds = sellable
+      .filter((item) => item.kind === 'bespoke')
+      .map((item) => item.bespokePerfumeId);
+
+    const [variantsById, perfumesById] = await Promise.all([
+      this.productService.findPurchasableVariants(variantIds),
+      this.bespokeService.requireManyOwned(customerId, bespokeIds),
+    ]);
+
     for (const item of sellable) {
       if (item.kind === 'bespoke') {
-        const perfume = await this.bespokeService.requireOwned(
-          customerId,
-          item.bespokePerfumeId,
-        );
+        // Guaranteed present — requireManyOwned already threw otherwise.
+        const perfume = perfumesById.get(item.bespokePerfumeId)!;
         this.bespokePricing.assertAllowedSize(item.sizeMl);
         const unitPricePaise = this.bespokePricing.unitPricePaise(item.sizeMl);
         const lineTotalPaise = unitPricePaise * item.quantity;
@@ -213,9 +238,8 @@ export class OrderService {
         continue;
       }
 
-      const variant = await this.productService.findPurchasableVariant(
-        item.variantId,
-      );
+      // Guaranteed present — findPurchasableVariants already threw otherwise.
+      const variant = variantsById.get(item.variantId)!;
       this.productService.assertQuantityAvailable(variant, item.quantity);
 
       const lineTotalPaise = variant.pricePaise * item.quantity;
@@ -240,6 +264,9 @@ export class OrderService {
     const totalPaise = subtotalPaise + shippingPaise;
 
     const order = await this.orderRepository.client.$transaction(async (tx) => {
+      // Per-row atomic conditional decrement — the stock guard threshold differs
+      // per variant/quantity, so this can't be safely expressed as one batched
+      // UPDATE without raw multi-row SQL. Deliberately left as N statements.
       for (const line of lineSnapshots) {
         if (!line.productVariantId) {
           continue;
@@ -324,16 +351,33 @@ export class OrderService {
     }
   }
 
-  async finalizePaidOrder(input: {
-    razorpayOrderId: string;
-    razorpayPaymentId: string;
-    rawPayload: unknown;
-  }): Promise<OrderDetail> {
+  async finalizePaidOrder(
+    input: {
+      razorpayOrderId: string;
+      razorpayPaymentId: string;
+      rawPayload: unknown;
+    },
+    expectedCustomerId?: string,
+  ): Promise<OrderDetail> {
     const order = await this.orderRepository.findByRazorpayOrderId(
       input.razorpayOrderId,
     );
 
     if (!order) {
+      throw new NotFoundException(
+        `Order for Razorpay order "${input.razorpayOrderId}" not found`,
+      );
+    }
+
+    // Only enforced for the customer-facing verify path — the webhook and
+    // internal reconciliation callers finalize with no customer context and
+    // must keep working unchanged. Same "not found" shape as a genuinely
+    // missing order (never `Forbidden`), so this can't be used to enumerate
+    // which order ids exist.
+    if (
+      expectedCustomerId !== undefined &&
+      order.customerId !== expectedCustomerId
+    ) {
       throw new NotFoundException(
         `Order for Razorpay order "${input.razorpayOrderId}" not found`,
       );
@@ -368,6 +412,8 @@ export class OrderService {
             return null;
           }
 
+          // Per-row atomic conditional decrement — same reasoning as the
+          // reservation loop in `checkout()`; deliberately left as N statements.
           for (const item of order.items) {
             if (!item.productVariantId) {
               continue;
@@ -420,18 +466,55 @@ export class OrderService {
   }
 
   async reconcileExpiredPendingOrders(): Promise<void> {
-    const expired = await this.orderRepository.findExpiredPending(new Date());
+    const now = new Date();
+    const failedIds: string[] = [];
+    let page: OrderWithRelations[];
+    let pages = 0;
 
-    for (const order of expired) {
-      try {
-        await this.reconcilePendingCheckout(order);
-      } catch (error) {
-        this.logger.error(
-          `Failed reconciling order ${order.id}`,
-          error instanceof Error ? error.stack : undefined,
-        );
+    do {
+      page = await this.orderRepository.findExpiredPending(
+        now,
+        ORDER_EXPIRY_SWEEP_BATCH_SIZE,
+        failedIds,
+      );
+      pages += 1;
+
+      let resolved = 0;
+      for (const order of page) {
+        try {
+          await this.reconcilePendingCheckout(order);
+          resolved += 1;
+        } catch (error) {
+          failedIds.push(order.id);
+          this.logger.error(
+            `Failed reconciling order ${order.id}`,
+            error instanceof Error ? error.stack : undefined,
+          );
+        }
       }
-    }
+
+      // Failures stay PENDING_PAYMENT, so they would otherwise sit at the
+      // front of every subsequent page. Exclude them (not skip/offset — a
+      // skip would jump past orders that *did* resolve and drop out). If a
+      // whole page threw, Razorpay (or the DB) is not making progress; stop
+      // rather than walking the rest of the backlog with the same error.
+      if (page.length > 0 && resolved === 0) {
+        this.logger.warn(
+          `Order expiry sweep made no progress on ${page.length} order(s); deferring remainder to next tick`,
+        );
+        break;
+      }
+
+      if (
+        page.length === ORDER_EXPIRY_SWEEP_BATCH_SIZE &&
+        pages >= ORDER_EXPIRY_SWEEP_MAX_PAGES
+      ) {
+        this.logger.warn(
+          `Order expiry backlog exceeds ${pages * ORDER_EXPIRY_SWEEP_BATCH_SIZE} orders; deferring remainder to next tick`,
+        );
+        break;
+      }
+    } while (page.length === ORDER_EXPIRY_SWEEP_BATCH_SIZE);
   }
 
   /**
@@ -546,7 +629,9 @@ export class OrderService {
 
     const filters = {
       status: query.status,
-      statuses: groupStatuses ? ([...groupStatuses] as OrderStatus[]) : undefined,
+      statuses: groupStatuses
+        ? ([...groupStatuses] as OrderStatus[])
+        : undefined,
       customerId: query.customerId,
     };
 

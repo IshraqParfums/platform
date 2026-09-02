@@ -43,6 +43,7 @@ import type {
   BespokeSessionCreateResponse,
   BespokeSessionResultResponse,
   BespokeSessionViewResponse,
+  BespokeStartNodePreviewResponse,
 } from '@ishraqparfums/shared';
 import { BespokeDataService } from './bespoke-data.service';
 import { nodeText, toPublicNode } from './bespoke-node-sanitizer';
@@ -209,6 +210,20 @@ export class BespokeSessionService {
       node: this.publicNode(state),
       progress: this.progress(state),
       expiresAt: session.expiresAt.toISOString(),
+    };
+  }
+
+  /**
+   * Read-only preview of the start node a fresh `create()` would land on —
+   * no session, no DB write. Reuses `freshState()`/`publicNode()` so the
+   * homepage teaser is guaranteed to show exactly what a real session sees.
+   */
+  previewStartNode(): BespokeStartNodePreviewResponse {
+    const state = this.freshState();
+    return {
+      nodeId: state.currentNodeId,
+      graphVersion: this.data.graphVersion(),
+      node: this.publicNode(state),
     };
   }
 

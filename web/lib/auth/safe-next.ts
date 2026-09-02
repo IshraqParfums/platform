@@ -13,5 +13,9 @@ export function safeNext(raw: string | null | undefined): string | null {
   if (!decoded.startsWith("/")) return null;
   if (decoded.startsWith("//")) return null;
   if (decoded.includes("://")) return null;
+  // Browsers normalize a backslash to a forward slash when resolving an
+  // http(s) URL, so `/\evil.com` would otherwise slip past the `//` check
+  // above and resolve to the protocol-relative `//evil.com`.
+  if (decoded.includes("\\")) return null;
   return decoded;
 }

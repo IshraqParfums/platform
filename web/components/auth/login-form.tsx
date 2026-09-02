@@ -123,6 +123,9 @@ export function LoginForm() {
 
         if (!response.ok) {
           setError(formatApiMessage(data.message) ?? "Could not send code");
+          if (data.retryAfterSeconds) {
+            setResendCooldown(data.retryAfterSeconds);
+          }
           return;
         }
 
@@ -358,7 +361,7 @@ async function mergeGuestCartAfterLogin(): Promise<void> {
       itemCount:
         typeof data.cart?.itemCount === "number"
           ? data.cart.itemCount
-          : guestCartItemCount(),
+          : guestCartItemCount(guest),
     });
   } catch {
     /* Keep guest cart if merge fails; user can retry next login. */

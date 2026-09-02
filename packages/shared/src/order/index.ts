@@ -24,3 +24,4 @@ export {
   statusesForCustomerOrderGroup,
 } from "./customer-order-filters.js";
 export type { CustomerOrderListResponse } from "./customer-order-list.js";
+export { SHIPPING_PAISE } from "./shipping.js";

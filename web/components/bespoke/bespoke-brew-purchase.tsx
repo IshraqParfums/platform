@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   BESPOKE_ALLOWED_SIZES_ML,
   BESPOKE_MAX_LINE_QUANTITY,
-  BESPOKE_PAISE_PER_ML,
+  pricePaiseForSize,
 } from "@ishraqparfums/shared";
 import { CartGuestSavedModal } from "@/components/cart/cart-guest-saved-modal";
 import { CartQuantityStepper } from "@/components/cart/cart-quantity-stepper";
@@ -68,7 +68,7 @@ export function BespokeBrewPurchase({
                   : "border-graphite/20 text-graphite hover:border-terra/45",
               )}
             >
-              {size} ml · {formatPaise(size * BESPOKE_PAISE_PER_ML)}
+              {size} ml · {formatPaise(pricePaiseForSize(size))}
               {badge > 0 ? (
                 <span
                   className={cn(

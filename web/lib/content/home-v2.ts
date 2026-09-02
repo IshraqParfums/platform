@@ -131,23 +131,6 @@ export const HOME_BESPOKE = {
      * correct if the card ever opens on a different question.
      */
     progressAnswered: 2 / 15,
-    // Mirrors the bespoke engine's real start node ("I-fluency"). Keep
-    // option ids in sync with packages/bespoke-engine/data/questions.json if
-    // that node's options ever change — these are submitted to the API
-    // verbatim by /api/bespoke/quick-start.
-    question:
-      "Before we go further: how much do you want me to explain as we go?",
-    options: [
-      {
-        id: "if-lover",
-        label: "Just make me something beautiful. I don’t need the details.",
-      },
-      {
-        id: "if-enthusiast",
-        label: "I’m curious. Tell me what things are as you use them.",
-      },
-      { id: "if-perfumer", label: "Talk to me properly. I know my materials." },
-    ],
   },
 } as const;
 

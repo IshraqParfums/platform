@@ -28,22 +28,28 @@ export class PaymentService {
     return this.razorpayClient.createOrder(input);
   }
 
-  async verifyAndFinalize(input: {
-    razorpayOrderId: string;
-    razorpayPaymentId: string;
-    razorpaySignature: string;
-  }): Promise<OrderDetail> {
+  async verifyAndFinalize(
+    input: {
+      razorpayOrderId: string;
+      razorpayPaymentId: string;
+      razorpaySignature: string;
+    },
+    customerId: string,
+  ): Promise<OrderDetail> {
     const valid = this.razorpayClient.verifyPaymentSignature(input);
 
     if (!valid) {
       throw new BadRequestException('Invalid Razorpay payment signature');
     }
 
-    return this.orderService.finalizePaidOrder({
-      razorpayOrderId: input.razorpayOrderId,
-      razorpayPaymentId: input.razorpayPaymentId,
-      rawPayload: input,
-    });
+    return this.orderService.finalizePaidOrder(
+      {
+        razorpayOrderId: input.razorpayOrderId,
+        razorpayPaymentId: input.razorpayPaymentId,
+        rawPayload: input,
+      },
+      customerId,
+    );
   }
 
   async handleWebhook(

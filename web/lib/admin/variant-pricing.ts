@@ -1,3 +1,5 @@
+import { discountPercentFromRatio } from "@/lib/format/money";
+
 /**
  * Selling price vs compare-at (MRP) helpers for admin variant forms/tables.
  * Discount % = (compareAt − price) / compareAt × 100 when compareAt > price.
@@ -20,7 +22,7 @@ export function discountPercentFromPrices(
 ): number | null {
   if (compareAtRupees <= 0 || compareAtRupees < priceRupees) return null;
   if (compareAtRupees === priceRupees) return 0;
-  return Math.round(((compareAtRupees - priceRupees) / compareAtRupees) * 100);
+  return discountPercentFromRatio(priceRupees, compareAtRupees);
 }
 
 export function compareAtFromDiscountPercent(

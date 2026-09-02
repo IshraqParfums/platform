@@ -49,9 +49,6 @@ export type CartWithItems = Cart & {
   items: CartItemWithRelations[];
 };
 
-/** @deprecated Prefer CartItemWithRelations */
-export type CartItemWithVariant = CartItemWithRelations;
-
 @Injectable()
 export class CartRepository {
   constructor(private readonly prisma: PrismaService) {}

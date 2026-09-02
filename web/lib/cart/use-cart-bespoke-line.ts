@@ -1,23 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useRef } from "react";
 import {
-  BESPOKE_PAISE_PER_ML,
   clampBespokeLineQuantity,
   isCartMutationSummary,
+  pricePaiseForSize,
 } from "@ishraqparfums/shared";
 import { toast } from "@/components/ui/toaster";
 import {
   applyCartMutationSummary,
   type BespokeCartLineSeed,
 } from "@/lib/cart/apply-cart-mutation-summary";
-import {
-  emptyCartView,
-  loadCart,
-  mutateCartItemQuantity,
-  mutateCartItemRemove,
-} from "@/lib/cart/cart-client";
-import { emitCartChanged, subscribeCartChanged } from "@/lib/cart/cart-events";
+import { emptyCartView, mutateCartItemQuantity, mutateCartItemRemove } from "@/lib/cart/cart-client";
+import { emitCartChanged } from "@/lib/cart/cart-events";
 import {
   addGuestBespokeItem,
   guestCartItemCount,
@@ -29,9 +24,9 @@ import {
   cartViewFromGuest,
   findCartLineByBespokeSize,
   withLineQuantity,
-  type CartView,
 } from "@/lib/cart/cart-view";
 import { shopFetch } from "@/lib/auth/shop-fetch";
+import { useCartLineViewState } from "@/lib/cart/use-cart-line-view-state";
 
 /**
  * Tracks cart lines for one owned bespoke brew across bottle sizes.
@@ -42,38 +37,10 @@ export function useCartBespokeLine(
   productName: string,
   options?: { onGuestAdd?: () => void },
 ) {
-  const [view, setView] = useState<CartView | null>(null);
-  const [ready, setReady] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const viewRef = useRef<CartView | null>(null);
-  viewRef.current = view;
+  const { view, setView, ready, isPending, startTransition, viewRef, refresh } =
+    useCartLineViewState();
   const onGuestAddRef = useRef(options?.onGuestAdd);
   onGuestAddRef.current = options?.onGuestAdd;
-
-  const refresh = useCallback(() => {
-    startTransition(async () => {
-      try {
-        setView(await loadCart());
-      } catch {
-        setView(emptyCartView());
-      } finally {
-        setReady(true);
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    refresh();
-    return subscribeCartChanged((detail) => {
-      if (detail.view) {
-        setView(detail.view);
-        return;
-      }
-      void loadCart()
-        .then(setView)
-        .catch(() => setView(emptyCartView()));
-    });
-  }, [refresh]);
 
   const sizeQuantities = bespokePerfumeId
     ? bespokeSizeQuantitiesInCart(view, bespokePerfumeId)
@@ -118,7 +85,7 @@ export function useCartBespokeLine(
               {
                 bespokePerfumeId,
                 sizeMl,
-                pricePaise: sizeMl * BESPOKE_PAISE_PER_ML,
+                pricePaise: pricePaiseForSize(sizeMl),
                 productName,
               },
               addQty,
@@ -146,7 +113,7 @@ export function useCartBespokeLine(
           const seed: BespokeCartLineSeed = {
             bespokePerfumeId,
             sizeMl,
-            pricePaise: sizeMl * BESPOKE_PAISE_PER_ML,
+            pricePaise: pricePaiseForSize(sizeMl),
             productName,
           };
           const next = applyCartMutationSummary(
@@ -167,7 +134,7 @@ export function useCartBespokeLine(
         }
       });
     },
-    [bespokePerfumeId, productName, refresh],
+    [bespokePerfumeId, productName, refresh, setView, startTransition, viewRef],
   );
 
   const setSizeQuantity = useCallback(
@@ -222,7 +189,7 @@ export function useCartBespokeLine(
         }
       });
     },
-    [bespokePerfumeId, view, addSize, refresh],
+    [bespokePerfumeId, view, addSize, refresh, setView, startTransition, viewRef],
   );
 
   return {

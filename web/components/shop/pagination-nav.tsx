@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
+import { computePaginationSummary } from "@/lib/pagination/page-range";
 
 /**
  * Prev/Next + numbered links, all plain `<Link>`s — a page change is a
@@ -24,9 +25,8 @@ export function PaginationNav({
     return null;
   }
 
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const rangeStart = (page - 1) * pageSize + 1;
-  const rangeEnd = Math.min(total, page * pageSize);
+  const { totalPages, rangeStart, rangeEnd, showAllPages } =
+    computePaginationSummary(page, pageSize, total);
 
   return (
     <nav
@@ -47,7 +47,7 @@ export function PaginationNav({
             label="Previous"
           />
 
-          {totalPages <= 7 ? (
+          {showAllPages ? (
             Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
               <PageLink
                 key={n}

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { BESPOKE_PAISE_PER_ML } from "@ishraqparfums/shared";
+import { pricePaiseForSize } from "@ishraqparfums/shared";
 import { BandInner } from "@/components/home-v2/ui/band";
 import { Urdu } from "@/components/home-v2/ui/urdu";
 import { ButtonLink } from "@/components/ui/button";
@@ -77,7 +77,7 @@ export default function BespokeLandingPage() {
             </div>
 
             <p className="mt-5 font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-mute">
-              From {formatPaise(BESPOKE_PAISE_PER_ML * 30)} · 30 / 50 / 100 ml
+              From {formatPaise(pricePaiseForSize(30))} · 30 / 50 / 100 ml
             </p>
 
             <ol className="mt-12 space-y-7 border-t border-graphite/12 pt-9">

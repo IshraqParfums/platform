@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
-  BESPOKE_PAISE_PER_ML,
   BESPOKE_TEASER_MATERIALS,
+  pricePaiseForSize,
 } from "@ishraqparfums/shared";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -24,7 +24,7 @@ const STEPS = [
   },
   {
     title: "Name it, save it, or buy it",
-    body: `Bottled at 100 ml for ${formatPaise(BESPOKE_PAISE_PER_ML * 100)}. Save the blend and order when you're ready.`,
+    body: `Bottled at 100 ml for ${formatPaise(pricePaiseForSize(100))}. Save the blend and order when you're ready.`,
   },
 ];
 
@@ -143,7 +143,7 @@ export function BespokeTeaser() {
                     Begin the quiz
                   </ButtonLink>
                   <span className="font-mono text-label uppercase text-cream/55">
-                    100 ml · {formatPaise(BESPOKE_PAISE_PER_ML * 100)}
+                    100 ml · {formatPaise(pricePaiseForSize(100))}
                   </span>
                 </div>
               </div>

@@ -1,3 +1,9 @@
+import {
+  safeStorageGet,
+  safeStorageRemove,
+  safeStorageSet,
+} from "@/lib/storage/safe-storage";
+
 export type ReviewDraft = {
   slug: string;
   rating: number;
@@ -11,13 +17,11 @@ function keyFor(slug: string): string {
 }
 
 export function saveReviewDraft(draft: ReviewDraft): void {
-  if (typeof window === "undefined") return;
-  sessionStorage.setItem(keyFor(draft.slug), JSON.stringify(draft));
+  safeStorageSet("session", keyFor(draft.slug), JSON.stringify(draft));
 }
 
 export function readReviewDraft(slug: string): ReviewDraft | null {
-  if (typeof window === "undefined") return null;
-  const raw = sessionStorage.getItem(keyFor(slug));
+  const raw = safeStorageGet("session", keyFor(slug));
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as ReviewDraft;
@@ -39,6 +43,5 @@ export function readReviewDraft(slug: string): ReviewDraft | null {
 }
 
 export function clearReviewDraft(slug: string): void {
-  if (typeof window === "undefined") return;
-  sessionStorage.removeItem(keyFor(slug));
+  safeStorageRemove("session", keyFor(slug));
 }

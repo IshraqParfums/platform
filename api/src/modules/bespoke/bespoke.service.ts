@@ -109,6 +109,29 @@ export class BespokeService {
     return row;
   }
 
+  /** Batched `requireOwned` for checkout — one query instead of one per line. */
+  async requireManyOwned(
+    customerId: string,
+    ids: string[],
+  ): Promise<Map<string, BespokePerfume>> {
+    const uniqueIds = [...new Set(ids)];
+    const rows = await this.bespokeRepository.findManyLiveOwned(
+      customerId,
+      uniqueIds,
+    );
+    const byId = new Map(rows.map((row) => [row.id, row]));
+
+    for (const id of uniqueIds) {
+      if (!byId.has(id)) {
+        throw new NotFoundException(
+          `Bespoke perfume with id "${id}" not found`,
+        );
+      }
+    }
+
+    return byId;
+  }
+
   /**
    * Own it already, or attach an unowned guest brew when a matching session
    * token proves this device minted it. Does not claim into the locker.

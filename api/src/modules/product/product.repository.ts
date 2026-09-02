@@ -281,6 +281,25 @@ export class ProductRepository {
     });
   }
 
+  findVariantsByIdsWithProduct(
+    variantIds: string[],
+  ): Promise<PurchasableVariantWithProduct[]> {
+    if (variantIds.length === 0) {
+      return Promise.resolve([]);
+    }
+
+    return this.prisma.productVariant.findMany({
+      where: { id: { in: variantIds } },
+      include: {
+        product: {
+          include: {
+            images: { orderBy: { displayOrder: 'asc' } },
+          },
+        },
+      },
+    });
+  }
+
   private adminWhere(filters?: AdminProductFilters): Prisma.ProductWhereInput {
     return {
       ...(filters?.status ? { status: filters.status } : {}),

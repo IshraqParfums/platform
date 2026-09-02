@@ -9,6 +9,14 @@ export function formatPaise(paise: number): string {
   return INR.format(paise / 100);
 }
 
+/** Pure ratio math — unit-agnostic (paise or rupees), no null-handling. */
+export function discountPercentFromRatio(
+  price: number,
+  compareAt: number,
+): number {
+  return Math.round(((compareAt - price) / compareAt) * 100);
+}
+
 /** Percentage saved when a compare-at price is present and higher. */
 export function discountPercent(
   pricePaise: number,
@@ -17,5 +25,5 @@ export function discountPercent(
   if (!compareAtPaise || compareAtPaise <= pricePaise) {
     return null;
   }
-  return Math.round(((compareAtPaise - pricePaise) / compareAtPaise) * 100);
+  return discountPercentFromRatio(pricePaise, compareAtPaise);
 }

@@ -2,6 +2,7 @@
 
 import { useAdminListPending } from "@/components/admin/admin-list-pending";
 import { cn } from "@/lib/cn";
+import { computePaginationSummary } from "@/lib/pagination/page-range";
 
 /**
  * Build a list URL from serializable pieces (safe to pass RSC → client).
@@ -46,9 +47,8 @@ export function AdminPaginationNav({
     return null;
   }
 
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const rangeStart = (page - 1) * pageSize + 1;
-  const rangeEnd = Math.min(total, page * pageSize);
+  const { totalPages, rangeStart, rangeEnd, showAllPages } =
+    computePaginationSummary(page, pageSize, total);
 
   function goTo(targetPage: number) {
     push(adminListHref(pathname, query, targetPage));
@@ -74,7 +74,7 @@ export function AdminPaginationNav({
             onClick={() => goTo(page - 1)}
           />
 
-          {totalPages <= 7 ? (
+          {showAllPages ? (
             Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
               <PageControl
                 key={n}
