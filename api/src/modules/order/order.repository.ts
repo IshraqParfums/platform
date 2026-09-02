@@ -163,13 +163,18 @@ export class OrderRepository {
     });
   }
 
-  findExpiredPending(now: Date, limit: number): Promise<OrderWithRelations[]> {
+  findExpiredPending(
+    now: Date,
+    limit: number,
+    excludeIds: string[] = [],
+  ): Promise<OrderWithRelations[]> {
     return this.prisma.order.findMany({
       where: {
         status: OrderStatus.PENDING_PAYMENT,
         expiresAt: { lt: now },
+        ...(excludeIds.length > 0 ? { id: { notIn: excludeIds } } : {}),
       },
-      orderBy: { expiresAt: 'asc' },
+      orderBy: [{ expiresAt: 'asc' }, { id: 'asc' }],
       take: limit,
       include: {
         items: { orderBy: { createdAt: 'asc' } },

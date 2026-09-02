@@ -608,6 +608,8 @@ export class ProductService {
    * (non-computed) comparison, so `updateMany`'s `where` expresses it
    * directly rather than needing raw SQL, matching
    * `OrderRepository.tryClaimPendingAsExpired`'s pattern.
+   * count === 0 is ambiguous (missing row vs insufficient reservation);
+   * a follow-up lookup restores NotFound vs BadRequest.
    */
   async commitReservation(
     variantId: string,
@@ -631,6 +633,15 @@ export class ProductService {
     });
 
     if (result.count === 0) {
+      const exists = await db.productVariant.findUnique({
+        where: { id: variantId },
+        select: { id: true },
+      });
+      if (!exists) {
+        throw new NotFoundException(
+          `Variant with id "${variantId}" not found`,
+        );
+      }
       throw new BadRequestException(
         `Cannot commit reservation for variant ${variantId}`,
       );

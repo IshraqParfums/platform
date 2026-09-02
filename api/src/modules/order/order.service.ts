@@ -467,6 +467,7 @@ export class OrderService {
 
   async reconcileExpiredPendingOrders(): Promise<void> {
     const now = new Date();
+    const failedIds: string[] = [];
     let page: OrderWithRelations[];
     let pages = 0;
 
@@ -474,18 +475,34 @@ export class OrderService {
       page = await this.orderRepository.findExpiredPending(
         now,
         ORDER_EXPIRY_SWEEP_BATCH_SIZE,
+        failedIds,
       );
       pages += 1;
 
+      let resolved = 0;
       for (const order of page) {
         try {
           await this.reconcilePendingCheckout(order);
+          resolved += 1;
         } catch (error) {
+          failedIds.push(order.id);
           this.logger.error(
             `Failed reconciling order ${order.id}`,
             error instanceof Error ? error.stack : undefined,
           );
         }
+      }
+
+      // Failures stay PENDING_PAYMENT, so they would otherwise sit at the
+      // front of every subsequent page. Exclude them (not skip/offset — a
+      // skip would jump past orders that *did* resolve and drop out). If a
+      // whole page threw, Razorpay (or the DB) is not making progress; stop
+      // rather than walking the rest of the backlog with the same error.
+      if (page.length > 0 && resolved === 0) {
+        this.logger.warn(
+          `Order expiry sweep made no progress on ${page.length} order(s); deferring remainder to next tick`,
+        );
+        break;
       }
 
       if (
