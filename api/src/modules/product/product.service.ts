@@ -380,6 +380,25 @@ export class ProductService {
     return variant;
   }
 
+  async findPurchasableVariants(
+    variantIds: string[],
+  ): Promise<Map<string, PurchasableVariantWithProduct>> {
+    const uniqueIds = [...new Set(variantIds)];
+    const variants =
+      await this.productRepository.findVariantsByIdsWithProduct(uniqueIds);
+    const byId = new Map(variants.map((variant) => [variant.id, variant]));
+
+    for (const id of uniqueIds) {
+      const variant = byId.get(id);
+      if (!variant) {
+        throw new NotFoundException(`Variant with id "${id}" not found`);
+      }
+      this.assertVariantPurchasable(variant);
+    }
+
+    return byId;
+  }
+
   /**
    * Stock + price gate for cart writes — no images.
    */

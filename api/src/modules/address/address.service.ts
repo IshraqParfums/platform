@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { AddressResponse } from '@ishraqparfums/shared';
 import type { CustomerAddress } from '@prisma/client';
 import { AddressRepository } from './address.repository';
+import { MAX_ADDRESSES_PER_CUSTOMER } from './address.constants';
 import { toAddressResponse } from './mappers/address.mapper';
 
 @Injectable()
@@ -40,6 +45,12 @@ export class AddressService {
     },
   ): Promise<AddressResponse> {
     const count = await this.addressRepository.countByCustomer(customerId);
+    if (count >= MAX_ADDRESSES_PER_CUSTOMER) {
+      throw new BadRequestException(
+        `You can save up to ${MAX_ADDRESSES_PER_CUSTOMER} addresses. Remove one before adding another.`,
+      );
+    }
+
     const isDefault = input.isDefault === true || count === 0;
 
     if (isDefault) {

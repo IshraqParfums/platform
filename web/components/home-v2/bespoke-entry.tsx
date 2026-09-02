@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { BespokeStartNodePreviewResponse } from "@ishraqparfums/shared";
 import { BandInner } from "@/components/home-v2/ui/band";
+import { ButtonLink } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { HOME_BESPOKE } from "@/lib/content/home-v2";
 
@@ -12,10 +14,27 @@ const { card } = HOME_BESPOKE;
  * The bespoke pitch, with the engine's real opening question beside it.
  * Unlike the mock this replaced, choosing an option here actually answers it
  * — the visitor lands on the quiz's real second question, not a restart.
+ *
+ * The question/options are never hardcoded here — they come live from
+ * `startNode` (fetched server-side in the homepage, straight from the graph
+ * the real quiz reads), so this card can't drift out of sync the way a
+ * hand-copied snapshot of the graph would. When the fetch failed or the
+ * start node isn't a plain single-select, this degrades to a static CTA
+ * instead of showing stale or broken copy.
  */
-export function BespokeEntry() {
+export function BespokeEntry({
+  startNode,
+}: {
+  startNode: BespokeStartNodePreviewResponse | null;
+}) {
   const router = useRouter();
   const [pendingId, setPendingId] = useState<string | null>(null);
+
+  const liveNode = startNode?.node;
+  const liveQuiz =
+    liveNode?.type === "single_select" && liveNode.text && liveNode.options?.length
+      ? { question: liveNode.text, options: liveNode.options }
+      : null;
 
   async function choose(optionId: string) {
     if (pendingId) return;
@@ -105,111 +124,137 @@ export function BespokeEntry() {
               this section that the visitor can act on, and a hairline box
               reads as a container; a shadow toned to the paper underneath
               reads as something lying on it. */}
-          <div className="rounded-[4px] border border-graphite/10 bg-shell p-7 shadow-[0_18px_44px_-30px_rgba(22,19,16,0.42)] sm:p-10 lg:px-10 lg:py-11">
-            <div className="flex items-baseline justify-between font-ui text-micro font-semibold uppercase text-graphite-mute">
-              <span>{card.label}</span>
-              <span>{card.step}</span>
-            </div>
+          {liveQuiz ? (
+            <div className="rounded-[4px] border border-graphite/10 bg-shell p-7 shadow-[0_18px_44px_-30px_rgba(22,19,16,0.42)] sm:p-10 lg:px-10 lg:py-11">
+              <div className="flex items-baseline justify-between font-ui text-micro font-semibold uppercase text-graphite-mute">
+                <span>{card.label}</span>
+                <span>{card.step}</span>
+              </div>
 
-            {/* The bar advances the moment an option is taken. It is the
-                card's only moving part, and it earns it: the answer really
-                does start a session and open question two, so this shows
-                the choice registering instead of leaving the card frozen
-                while the route changes underneath it. */}
-            <div
-              aria-hidden="true"
-              className="mt-3.5 h-0.5 rounded-sm bg-graphite/[0.09]"
-            >
+              {/* The bar advances the moment an option is taken. It is the
+                  card's only moving part, and it earns it: the answer really
+                  does start a session and open question two, so this shows
+                  the choice registering instead of leaving the card frozen
+                  while the route changes underneath it. */}
               <div
-                className="h-full rounded-sm bg-terra transition-[width] duration-700 ease-[cubic-bezier(0.22,0.8,0.28,1)]"
-                style={{
-                  width: `${((pendingId ? card.progressAnswered : card.progress) * 100).toFixed(1)}%`,
-                }}
-              />
-            </div>
+                aria-hidden="true"
+                className="mt-3.5 h-0.5 rounded-sm bg-graphite/[0.09]"
+              >
+                <div
+                  className="h-full rounded-sm bg-terra transition-[width] duration-700 ease-[cubic-bezier(0.22,0.8,0.28,1)]"
+                  style={{
+                    width: `${((pendingId ? card.progressAnswered : card.progress) * 100).toFixed(1)}%`,
+                  }}
+                />
+              </div>
 
-            <p className="mt-8 font-editorial text-h3-editorial text-graphite">
-              {card.question}
-            </p>
+              <p className="mt-8 font-editorial text-h3-editorial text-graphite">
+                {liveQuiz.question}
+              </p>
 
-            {/*
-              Hover, as this page draws it. The old state was
-              `border-graphite/30` over a 2% graphite wash, which is below
-              the threshold of being noticed at all — three answers that
-              looked like disabled form rows. The replacement is built from
-              the surface's own vocabulary rather than from a component
-              library: a terra rule rising up the left edge (the Materials
-              elbow, straightened), the answer stepping aside to make room
-              for it, and a warm wash in the one accent colour this page
-              actually uses. No chevron: nothing else on the paper surface
-              uses an icon set, and importing one for three rows would
-              break that.
+              {/*
+                Hover, as this page draws it. The old state was
+                `border-graphite/30` over a 2% graphite wash, which is below
+                the threshold of being noticed at all — three answers that
+                looked like disabled form rows. The replacement is built from
+                the surface's own vocabulary rather than from a component
+                library: a terra rule rising up the left edge (the Materials
+                elbow, straightened), the answer stepping aside to make room
+                for it, and a warm wash in the one accent colour this page
+                actually uses. No chevron: nothing else on the paper surface
+                uses an icon set, and importing one for three rows would
+                break that.
 
-              Every conflicting pair below is a ternary, never two classes
-              appended. `cn()` is a plain join with no conflict resolution,
-              so `scale-y-0` and `scale-y-100` in one string would be
-              settled by stylesheet order rather than by state — the same
-              trap that collapsed the hero's arch.
-            */}
-            <div className="mt-8 flex flex-col gap-3">
-              {card.options.map((option, i) => {
-                const isPending = pendingId === option.id;
-                const isBlocked = pendingId !== null && !isPending;
-                return (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => choose(option.id)}
-                    disabled={pendingId !== null}
-                    aria-busy={isPending}
-                    className={cn(
-                      "group relative grid w-full cursor-pointer grid-cols-[20px_1fr] items-start gap-3 overflow-hidden rounded-[3px] border px-4 py-4 text-left transition-[background-color,border-color] duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] disabled:pointer-events-none sm:px-[18px] sm:py-5",
-                      isPending
-                        ? "border-terra/45 bg-terra/[0.07]"
-                        : "border-graphite/[0.14] hover:border-terra/35 hover:bg-terra/[0.045]",
-                      isBlocked && "opacity-50",
-                    )}
-                  >
-                    {/* Origin bottom, so it draws upward like the elbow in
-                        Materials rather than dropping in from the top. */}
-                    <span
-                      aria-hidden="true"
+                Every conflicting pair below is a ternary, never two classes
+                appended. `cn()` is a plain join with no conflict resolution,
+                so `scale-y-0` and `scale-y-100` in one string would be
+                settled by stylesheet order rather than by state — the same
+                trap that collapsed the hero's arch.
+              */}
+              <div className="mt-8 flex flex-col gap-3">
+                {liveQuiz.options.map((option, i) => {
+                  const isPending = pendingId === option.id;
+                  const isBlocked = pendingId !== null && !isPending;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => choose(option.id)}
+                      disabled={pendingId !== null}
+                      aria-busy={isPending}
                       className={cn(
-                        "pointer-events-none absolute inset-y-0 left-0 w-[2px] origin-bottom bg-terra transition-transform duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)]",
-                        isPending ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100",
-                      )}
-                    />
-
-                    <span
-                      className={cn(
-                        "font-ui text-[11px] font-semibold transition-[color,transform] duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] group-hover:translate-x-[3px]",
-                        isPending ? "text-terra" : "text-graphite-faint group-hover:text-terra",
+                        "group relative grid w-full cursor-pointer grid-cols-[20px_1fr] items-start gap-3 overflow-hidden rounded-[3px] border px-4 py-4 text-left transition-[background-color,border-color] duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] disabled:pointer-events-none sm:px-[18px] sm:py-5",
+                        isPending
+                          ? "border-terra/45 bg-terra/[0.07]"
+                          : "border-graphite/[0.14] hover:border-terra/35 hover:bg-terra/[0.045]",
+                        isBlocked && "opacity-50",
                       )}
                     >
-                      {i + 1}
-                    </span>
+                      {/* Origin bottom, so it draws upward like the elbow in
+                          Materials rather than dropping in from the top. */}
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "pointer-events-none absolute inset-y-0 left-0 w-[2px] origin-bottom bg-terra transition-transform duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)]",
+                          isPending ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100",
+                        )}
+                      />
 
-                    {/*
-                      The label stays put while the request is in flight. It
-                      used to be swapped for "Starting…", which threw away
-                      the thing the visitor had just chosen at the exact
-                      moment they were confirming it. The locked terra rule,
-                      the wash and the advancing progress bar all say the
-                      same thing without destroying the answer, and the
-                      status below carries it to screen readers.
-                    */}
-                    <span className="text-[15px] leading-[1.45] text-graphite transition-transform duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] group-hover:translate-x-[3px]">
-                      {option.label}
-                    </span>
-                  </button>
-                );
-              })}
+                      <span
+                        className={cn(
+                          "font-ui text-[11px] font-semibold transition-[color,transform] duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] group-hover:translate-x-[3px]",
+                          isPending ? "text-terra" : "text-graphite-faint group-hover:text-terra",
+                        )}
+                      >
+                        {i + 1}
+                      </span>
+
+                      {/*
+                        The label stays put while the request is in flight. It
+                        used to be swapped for "Starting…", which threw away
+                        the thing the visitor had just chosen at the exact
+                        moment they were confirming it. The locked terra rule,
+                        the wash and the advancing progress bar all say the
+                        same thing without destroying the answer, and the
+                        status below carries it to screen readers.
+                      */}
+                      <span className="text-[15px] leading-[1.45] text-graphite transition-transform duration-300 ease-[cubic-bezier(0.22,0.8,0.28,1)] group-hover:translate-x-[3px]">
+                        {option.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p role="status" className="sr-only">
+                {pendingId ? "Starting your consultation" : ""}
+              </p>
             </div>
-
-            <p role="status" className="sr-only">
-              {pendingId ? "Starting your consultation" : ""}
-            </p>
-          </div>
+          ) : (
+            // The graph wasn't reachable (or the start node ever isn't a
+            // plain single-select) — a static CTA beats showing stale or
+            // broken hardcoded copy pretending to be live.
+            <div className="flex flex-col justify-center rounded-[4px] border border-graphite/10 bg-shell p-7 shadow-[0_18px_44px_-30px_rgba(22,19,16,0.42)] sm:p-10 lg:px-10 lg:py-11">
+              <p className="font-ui text-micro font-semibold uppercase text-graphite-mute">
+                {card.label}
+              </p>
+              <p className="mt-3.5 font-editorial text-h3-editorial text-graphite">
+                Start the consultation
+              </p>
+              <p className="mt-4 max-w-[40ch] text-[15px] leading-[1.6] text-graphite-soft">
+                Answer a few questions about mood and memory, and we’ll match
+                your fingerprint.
+              </p>
+              <ButtonLink
+                href="/bespoke"
+                variant="ink"
+                size="pill"
+                className="mt-7 self-start"
+              >
+                Begin
+              </ButtonLink>
+            </div>
+          )}
         </div>
       </BandInner>
     </section>

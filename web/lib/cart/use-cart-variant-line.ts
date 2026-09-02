@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback } from "react";
 import { toast } from "@/components/ui/toaster";
 import {
   applyCartMutationSummary,
@@ -9,20 +9,19 @@ import {
 import {
   emptyCartView,
   isCartMutationSummary,
-  loadCart,
   mutateCartItemQuantity,
   mutateCartItemRemove,
   removeCartLine,
   setCartLineQuantity,
 } from "@/lib/cart/cart-client";
-import { emitCartChanged, subscribeCartChanged } from "@/lib/cart/cart-events";
+import { emitCartChanged } from "@/lib/cart/cart-events";
 import {
   findCartLineByVariantId,
   variantQuantitiesInCart,
   withLineQuantity,
-  type CartView,
   type CartViewLine,
 } from "@/lib/cart/cart-view";
+import { useCartLineViewState } from "@/lib/cart/use-cart-line-view-state";
 
 /**
  * Tracks the cart line for a catalog variant (guest or server).
@@ -30,36 +29,8 @@ import {
  * Qty mutations use `view=summary` — no fat cart reload on the PDP.
  */
 export function useCartVariantLine(variantId: string | null) {
-  const [view, setView] = useState<CartView | null>(null);
-  const [ready, setReady] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const viewRef = useRef<CartView | null>(null);
-  viewRef.current = view;
-
-  const refresh = useCallback(() => {
-    startTransition(async () => {
-      try {
-        setView(await loadCart());
-      } catch {
-        setView(emptyCartView());
-      } finally {
-        setReady(true);
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    refresh();
-    return subscribeCartChanged((detail) => {
-      if (detail.view) {
-        setView(detail.view);
-        return;
-      }
-      void loadCart()
-        .then(setView)
-        .catch(() => setView(emptyCartView()));
-    });
-  }, [refresh]);
+  const { view, setView, ready, isPending, startTransition, viewRef, refresh } =
+    useCartLineViewState();
 
   const line: CartViewLine | null =
     variantId && view ? findCartLineByVariantId(view, variantId) : null;
@@ -88,7 +59,7 @@ export function useCartVariantLine(variantId: string | null) {
       setView(next);
       emitCartChanged({ itemCount: next.itemCount, view: next });
     },
-    [],
+    [setView, viewRef],
   );
 
   const setQuantity = useCallback(
@@ -152,7 +123,7 @@ export function useCartVariantLine(variantId: string | null) {
         }
       });
     },
-    [view, line, refresh],
+    [view, line, refresh, setView, startTransition, viewRef],
   );
 
   return {

@@ -217,23 +217,13 @@ export class ReviewService {
     ]);
 
     const productIds = [...new Set(reviews.map((review) => review.productId))];
-    const verifiedByProduct = new Map<string, boolean>();
-
-    await Promise.all(
-      productIds.map(async (productId) => {
-        const purchasers = await this.orderService.findPurchasersOfProduct(
-          productId,
-          [customerId],
-        );
-        verifiedByProduct.set(productId, purchasers.has(customerId));
-      }),
+    const purchasedProductIds = await this.orderService.findPurchasedProductIds(
+      customerId,
+      productIds,
     );
 
     const items = reviews.map((review) =>
-      toMyReviewResponse(
-        review,
-        verifiedByProduct.get(review.productId) ?? false,
-      ),
+      toMyReviewResponse(review, purchasedProductIds.has(review.productId)),
     );
 
     return toPaginatedResponse(items, total, safePage, safePageSize);

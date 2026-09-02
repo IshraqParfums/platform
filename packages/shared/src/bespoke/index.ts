@@ -163,5 +163,6 @@ export type {
   BespokeSessionProgress,
   BespokeSessionResultResponse,
   BespokeSessionViewResponse,
+  BespokeStartNodePreviewResponse,
   RenameBespokeBody,
 } from "./contracts.js";

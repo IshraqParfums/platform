@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/cn";
+import { computePaginationSummary } from "@/lib/pagination/page-range";
 
 /**
  * In-section numbered pagination for client-fetched lists (reviews, etc.).
@@ -24,14 +25,12 @@ export function PaginationControls({
   onPageChange: (page: number) => void;
   className?: string;
 }) {
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const { totalPages, rangeStart, rangeEnd, showAllPages } =
+    computePaginationSummary(page, pageSize, total);
 
   if (totalPages <= 1 || total === 0) {
     return null;
   }
-
-  const rangeStart = (page - 1) * pageSize + 1;
-  const rangeEnd = Math.min(total, page * pageSize);
 
   return (
     <nav
@@ -52,7 +51,7 @@ export function PaginationControls({
           onClick={() => onPageChange(page - 1)}
         />
 
-        {totalPages <= 7 ? (
+        {showAllPages ? (
           Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
             <PageButton
               key={n}

@@ -110,6 +110,31 @@ export class OrderRepository {
     });
   }
 
+  async findPurchasedProductIds(
+    customerId: string,
+    productIds: string[],
+    statuses: OrderStatus[],
+  ): Promise<Set<string>> {
+    if (productIds.length === 0) {
+      return new Set();
+    }
+
+    const items = await this.prisma.orderItem.findMany({
+      where: {
+        order: { customerId, status: { in: statuses } },
+        productVariant: { productId: { in: productIds } },
+      },
+      select: { productVariant: { select: { productId: true } } },
+      distinct: ['productVariantId'],
+    });
+
+    return new Set(
+      items
+        .map((item) => item.productVariant?.productId)
+        .filter((id): id is string => Boolean(id)),
+    );
+  }
+
   findPendingByCustomer(
     customerId: string,
   ): Promise<OrderWithRelations | null> {
@@ -138,12 +163,14 @@ export class OrderRepository {
     });
   }
 
-  findExpiredPending(now: Date): Promise<OrderWithRelations[]> {
+  findExpiredPending(now: Date, limit: number): Promise<OrderWithRelations[]> {
     return this.prisma.order.findMany({
       where: {
         status: OrderStatus.PENDING_PAYMENT,
         expiresAt: { lt: now },
       },
+      orderBy: { expiresAt: 'asc' },
+      take: limit,
       include: {
         items: { orderBy: { createdAt: 'asc' } },
         payment: true,

@@ -19,6 +19,7 @@ import type {
   PaginatedResponse,
 } from '@ishraqparfums/shared';
 import {
+  SHIPPING_PAISE,
   countsFromStatusRows,
   statusesForAdminOrderGroup,
   statusesForCustomerOrderGroup,
@@ -43,7 +44,8 @@ import {
 } from './mappers/order.mapper';
 import {
   CHECKOUT_RESERVATION_TTL_SECONDS,
-  SHIPPING_PAISE,
+  ORDER_EXPIRY_SWEEP_BATCH_SIZE,
+  ORDER_EXPIRY_SWEEP_MAX_PAGES,
 } from './order.constants';
 import { OrderRepository, type OrderWithRelations } from './order.repository';
 import { assertValidOrderStatusTransition } from './order-status-transitions';
@@ -122,6 +124,17 @@ export class OrderService {
     return new Set(rows.map((row) => row.customerId));
   }
 
+  findPurchasedProductIds(
+    customerId: string,
+    productIds: string[],
+  ): Promise<Set<string>> {
+    return this.orderRepository.findPurchasedProductIds(
+      customerId,
+      productIds,
+      VERIFIED_BUYER_ORDER_STATUSES,
+    );
+  }
+
   async getForCustomer(
     customerId: string,
     orderId: string,
@@ -190,12 +203,22 @@ export class OrderService {
 
     let subtotalPaise = 0;
 
+    const variantIds = sellable
+      .filter((item) => item.kind !== 'bespoke')
+      .map((item) => item.variantId);
+    const bespokeIds = sellable
+      .filter((item) => item.kind === 'bespoke')
+      .map((item) => item.bespokePerfumeId);
+
+    const [variantsById, perfumesById] = await Promise.all([
+      this.productService.findPurchasableVariants(variantIds),
+      this.bespokeService.requireManyOwned(customerId, bespokeIds),
+    ]);
+
     for (const item of sellable) {
       if (item.kind === 'bespoke') {
-        const perfume = await this.bespokeService.requireOwned(
-          customerId,
-          item.bespokePerfumeId,
-        );
+        // Guaranteed present — requireManyOwned already threw otherwise.
+        const perfume = perfumesById.get(item.bespokePerfumeId)!;
         this.bespokePricing.assertAllowedSize(item.sizeMl);
         const unitPricePaise = this.bespokePricing.unitPricePaise(item.sizeMl);
         const lineTotalPaise = unitPricePaise * item.quantity;
@@ -215,9 +238,8 @@ export class OrderService {
         continue;
       }
 
-      const variant = await this.productService.findPurchasableVariant(
-        item.variantId,
-      );
+      // Guaranteed present — findPurchasableVariants already threw otherwise.
+      const variant = variantsById.get(item.variantId)!;
       this.productService.assertQuantityAvailable(variant, item.quantity);
 
       const lineTotalPaise = variant.pricePaise * item.quantity;
@@ -242,6 +264,9 @@ export class OrderService {
     const totalPaise = subtotalPaise + shippingPaise;
 
     const order = await this.orderRepository.client.$transaction(async (tx) => {
+      // Per-row atomic conditional decrement — the stock guard threshold differs
+      // per variant/quantity, so this can't be safely expressed as one batched
+      // UPDATE without raw multi-row SQL. Deliberately left as N statements.
       for (const line of lineSnapshots) {
         if (!line.productVariantId) {
           continue;
@@ -387,6 +412,8 @@ export class OrderService {
             return null;
           }
 
+          // Per-row atomic conditional decrement — same reasoning as the
+          // reservation loop in `checkout()`; deliberately left as N statements.
           for (const item of order.items) {
             if (!item.productVariantId) {
               continue;
@@ -439,18 +466,38 @@ export class OrderService {
   }
 
   async reconcileExpiredPendingOrders(): Promise<void> {
-    const expired = await this.orderRepository.findExpiredPending(new Date());
+    const now = new Date();
+    let page: OrderWithRelations[];
+    let pages = 0;
 
-    for (const order of expired) {
-      try {
-        await this.reconcilePendingCheckout(order);
-      } catch (error) {
-        this.logger.error(
-          `Failed reconciling order ${order.id}`,
-          error instanceof Error ? error.stack : undefined,
-        );
+    do {
+      page = await this.orderRepository.findExpiredPending(
+        now,
+        ORDER_EXPIRY_SWEEP_BATCH_SIZE,
+      );
+      pages += 1;
+
+      for (const order of page) {
+        try {
+          await this.reconcilePendingCheckout(order);
+        } catch (error) {
+          this.logger.error(
+            `Failed reconciling order ${order.id}`,
+            error instanceof Error ? error.stack : undefined,
+          );
+        }
       }
-    }
+
+      if (
+        page.length === ORDER_EXPIRY_SWEEP_BATCH_SIZE &&
+        pages >= ORDER_EXPIRY_SWEEP_MAX_PAGES
+      ) {
+        this.logger.warn(
+          `Order expiry backlog exceeds ${pages * ORDER_EXPIRY_SWEEP_BATCH_SIZE} orders; deferring remainder to next tick`,
+        );
+        break;
+      }
+    } while (page.length === ORDER_EXPIRY_SWEEP_BATCH_SIZE);
   }
 
   /**

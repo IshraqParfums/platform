@@ -1,2 +1,1 @@
-/** Flat India shipping — mirrors Nest `SHIPPING_PAISE` at checkout. */
-export const SHIPPING_PAISE = 5000;
+export { SHIPPING_PAISE } from "@ishraqparfums/shared";

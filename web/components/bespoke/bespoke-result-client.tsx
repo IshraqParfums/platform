@@ -15,6 +15,7 @@ import { BespokeBrewSkeleton } from "@/components/bespoke/bespoke-skeletons";
 import { BandInner } from "@/components/home-v2/ui/band";
 import { Urdu } from "@/components/home-v2/ui/urdu";
 import { Button, ButtonLink } from "@/components/ui/button";
+import { shopFetch } from "@/lib/auth/shop-fetch";
 import { loadBespokeSessionResult } from "@/lib/bespoke/complete-session";
 
 /**
@@ -53,7 +54,7 @@ export function BespokeResultClient() {
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch(`/api/bespoke/sessions/${sessionId}/claim`, {
+      const res = await shopFetch(`/api/bespoke/sessions/${sessionId}/claim`, {
         method: "POST",
       });
       if (res.status === 401) {

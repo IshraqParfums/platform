@@ -20,6 +20,7 @@ import type {
   BespokeSessionCreateResponse,
   BespokeSessionResultResponse,
   BespokeSessionViewResponse,
+  BespokeStartNodePreviewResponse,
   PaginatedResponse,
 } from '@ishraqparfums/shared';
 import { PaginationQueryDto } from '../../common/dto/pagination.query.dto';
@@ -154,6 +155,16 @@ export class BespokeController {
   @Get('reference-products')
   referenceProducts(): Promise<BespokeReferenceProduct[]> {
     return this.sessionService.referenceProducts();
+  }
+
+  /**
+   * Public, no-session preview of the graph's start node — the homepage
+   * teaser's source of truth so its copy can never drift from `create()`.
+   * Registered above `:id` so it isn't swallowed as a literal id.
+   */
+  @Get('start-node')
+  startNode(): BespokeStartNodePreviewResponse {
+    return this.sessionService.previewStartNode();
   }
 
   @Get()

@@ -35,6 +35,19 @@ export class BespokeRepository {
     });
   }
 
+  findManyLiveOwned(
+    customerId: string,
+    ids: string[],
+  ): Promise<BespokePerfume[]> {
+    if (ids.length === 0) {
+      return Promise.resolve([]);
+    }
+
+    return this.prisma.bespokePerfume.findMany({
+      where: { id: { in: ids }, customerId, deletedAt: null },
+    });
+  }
+
   findByCustomerAndClientKey(
     customerId: string,
     clientKey: string,

@@ -227,6 +227,18 @@ export interface BespokeSessionCreateResponse {
   expiresAt: string;
 }
 
+/**
+ * Read-only preview of the engine's live start node — no session is
+ * created. Used by the homepage teaser so its copy can never drift from
+ * the graph the real quiz reads.
+ */
+export interface BespokeStartNodePreviewResponse {
+  nodeId: string;
+  /** Engine graph version (semver-ish string), not a session's optimistic-concurrency int. */
+  graphVersion: string;
+  node: BespokePublicNode;
+}
+
 export interface BespokeSessionViewResponse {
   sessionId: string;
   status: string;

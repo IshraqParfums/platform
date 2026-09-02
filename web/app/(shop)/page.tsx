@@ -3,6 +3,7 @@ import { BespokeEntry } from "@/components/home-v2/bespoke-entry";
 import { Collection } from "@/components/home-v2/collection";
 import { HeroV2 } from "@/components/home-v2/hero-v2";
 import { getProducts } from "@/lib/api/catalog";
+import { getBespokeStartNode } from "@/lib/bespoke/start-node";
 import { pickCollection } from "@/lib/content/home-v2";
 import { HEADER_HEIGHT_PX } from "@/lib/layout";
 
@@ -20,7 +21,10 @@ import { HEADER_HEIGHT_PX } from "@/lib/layout";
  * Materials still exists under home-v2/materials — it is just not mounted.
  */
 export default async function HomePage() {
-  const { items } = await getProducts({ pageSize: 24 });
+  const [{ items }, bespokeStartNode] = await Promise.all([
+    getProducts({ pageSize: 24 }),
+    getBespokeStartNode(),
+  ]);
   const collection = pickCollection(items, 4);
 
   return (
@@ -30,7 +34,7 @@ export default async function HomePage() {
     >
       <HeroV2 />
       <Collection products={collection} />
-      <BespokeEntry />
+      <BespokeEntry startNode={bespokeStartNode} />
       <Belief />
     </div>
   );
