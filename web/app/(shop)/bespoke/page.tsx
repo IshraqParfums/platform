@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { pricePaiseForSize } from "@ishraqparfums/shared";
+import { BespokeLandingBottle } from "@/components/bespoke/bespoke-landing-bottle";
 import { BandInner } from "@/components/home-v2/ui/band";
-import { Urdu } from "@/components/home-v2/ui/urdu";
 import { ButtonLink } from "@/components/ui/button";
 import { formatPaise } from "@/lib/format/money";
 
@@ -29,22 +28,18 @@ const STEPS = [
 ] as const;
 
 /**
- * The bespoke pitch, restaged in the v2 parchment theme this page had not
- * yet moved to.
+ * The bespoke pitch, restaged in the v2 parchment theme.
  *
  * One CTA label, not two. The page this replaces said "Take the quiz" in
- * the header and "Begin the quiz" in the photo panel — the same intent
+ * the header and "Begin the quiz" beside the visual — the same intent
  * twice in different words, which the rest of the v2 home page is careful
- * never to do. "Begin the quiz" survives because it reads better beside a
- * still of the materials than a flatter "Take" does.
+ * never to do. "Begin the quiz" survives because it reads better beside
+ * the bottle than a flatter "Take" does.
  *
- * The right column is a real photograph, not the CSS vial illustration this
- * page used to open with. That vial is real brand furniture (see
- * `components/ui/vial.tsx`) and still appears inside the quiz itself once a
- * formula starts filling — it belongs to a state that has something to
- * show, and a blank vial before a single question has been asked had
- * nothing to be full of. This still is the same table the hero's doorway
- * looks into.
+ * The right column is the same bottle glyph the result page uses once a
+ * match exists. Before a question has been answered there is no personal
+ * colour yet, so the juice steps through the family accents the match
+ * will eventually pick from — not an empty vial, and not a catalog still.
  */
 export default function BespokeLandingPage() {
   return (
@@ -52,9 +47,9 @@ export default function BespokeLandingPage() {
       <BandInner>
         <div className="grid items-start gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
           <div>
-            <Urdu size="md" tone="brass" align="start">
-              {"ایک صلاح مشورہ"}
-            </Urdu>
+            <p className="font-ui text-micro-sm font-semibold uppercase tracking-[0.24em] text-terra">
+              A consultation.
+            </p>
             <h1 className="mt-3 max-w-[14ch] font-editorial text-h1-editorial text-graphite">
               A consultation that becomes a bottle.
             </h1>
@@ -99,19 +94,11 @@ export default function BespokeLandingPage() {
             </ol>
           </div>
 
-          <div>
-            <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper-deep">
-              <Image
-                src="/products/oud-ishraq-1.webp"
-                alt="Oud chips, saffron threads and resin on parchment, lit low"
-                fill
-                sizes="(min-width: 1024px) 45vw, 100vw"
-                className="object-cover"
-              />
-            </div>
-            <p className="mt-4 max-w-[38ch] text-[13px] leading-[1.5] text-graphite-soft">
-              Every consultation is composed against a real palette, the same
-              woods, resins and spices the collection is bottled from.
+          <div className="min-w-0 w-full">
+            <BespokeLandingBottle />
+            <p className="mt-4 w-full text-center text-[13px] leading-[1.5] text-graphite-soft">
+              The juice takes the family colour of the match: woody, floral,
+              spicy, and the rest. The consultation picks which one is yours.
             </p>
           </div>
         </div>
