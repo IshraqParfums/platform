@@ -3,10 +3,12 @@ import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { HeroPlate } from "@/components/hero/hero-plate";
+import { SHIPPING_PAISE } from "@/lib/cart/shipping";
+import { formatPaise } from "@/lib/format/money";
 
 const MICRO = [
   "Handcrafted in small batches",
-  "Flat ₹50 shipping",
+  `Flat ${formatPaise(SHIPPING_PAISE)} shipping`,
   "2-minute scent quiz, no sign-up",
 ];
 

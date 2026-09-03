@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { CollectionTile } from "@/components/collections/collection-tile";
 import { BandInner } from "@/components/home-v2/ui/band";
-import { Urdu } from "@/components/home-v2/ui/urdu";
 import { COLLECTIONS } from "@/lib/content/collections";
 import { getCollections } from "@/lib/api/catalog";
 
@@ -27,14 +26,9 @@ export default async function CollectionsPage() {
           <p className="text-[12px] text-terra md:text-[13px]">
             {COLLECTIONS.kicker}
           </p>
-          <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h1 className="font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
-              {COLLECTIONS.heading}
-            </h1>
-            <Urdu size="sm" tone="brass" align="start" leading="tight" as="span">
-              {COLLECTIONS.urdu}
-            </Urdu>
-          </div>
+          <h1 className="mt-1 font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
+            {COLLECTIONS.heading}
+          </h1>
           <p className="mt-4 text-[15.5px] leading-relaxed text-graphite-soft">
             {COLLECTIONS.lead}
           </p>

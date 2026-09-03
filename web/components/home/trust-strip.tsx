@@ -9,6 +9,8 @@ import {
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
 import { cn } from "@/lib/cn";
+import { SHIPPING_PAISE } from "@/lib/cart/shipping";
+import { formatPaise } from "@/lib/format/money";
 
 const ITEMS: Array<{
   icon: ComponentType<SVGProps<SVGSVGElement>>;
@@ -17,7 +19,7 @@ const ITEMS: Array<{
 }> = [
   {
     icon: TruckIcon,
-    label: "Flat ₹50 shipping",
+    label: `Flat ${formatPaise(SHIPPING_PAISE)} shipping`,
     detail: "Anywhere in India, no surprises at checkout",
   },
   {

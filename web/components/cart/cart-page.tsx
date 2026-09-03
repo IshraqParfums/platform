@@ -11,7 +11,6 @@ import { CartEmpty } from "@/components/cart/cart-empty";
 import { CartLine } from "@/components/cart/cart-line";
 import { CartSkeleton } from "@/components/cart/cart-skeleton";
 import { CartSummary } from "@/components/cart/cart-summary";
-import { Urdu } from "@/components/home-v2/ui/urdu";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toaster";
 import { ensureShopSession } from "@/lib/auth/shop-session";
@@ -42,10 +41,6 @@ import {
 /**
  * Client cart orchestrator — loads guest or server cart and handles mutations.
  * On load: auto-removes DISCONTINUED lines, toasts unavailable lines.
- *
- * URDU: "آپ کی ٹوکری" ("your basket") is new and unreviewed — check with a
- * native reader before shipping, same as the other Urdu lines added across
- * this pass.
  */
 export function CartPageClient() {
   const [view, setView] = useState<CartView | null>(null);
@@ -361,10 +356,7 @@ export function CartPageClient() {
     <div className="grid gap-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(17rem,21rem)] lg:items-start lg:gap-14 xl:gap-20">
       <div className="min-w-0">
         <header className="max-w-xl">
-          <Urdu size="sm" tone="brass" align="start">
-            {"آپ کی ٹوکری"}
-          </Urdu>
-          <h1 className="mt-3 font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
+          <h1 className="font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
             Your cart.
           </h1>
           <p className="mt-3 font-editorial text-[17px] italic leading-snug text-graphite-soft">
