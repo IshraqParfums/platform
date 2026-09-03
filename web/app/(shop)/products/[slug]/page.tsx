@@ -178,7 +178,7 @@ export default async function ProductDetailPage({
         {/* `id="reviews"` lives on the section itself (with its own
             scroll-margin), so the band must not repeat it. */}
         {reviews ? (
-          <Band tone="paper" space="compact">
+          <Band tone="paper" space="compact" className="border-t border-graphite/10">
             <BandInner>
               <ProductReviewsSection slug={slug} initial={reviews} />
             </BandInner>

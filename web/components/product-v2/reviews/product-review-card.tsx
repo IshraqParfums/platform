@@ -27,7 +27,7 @@ function ReviewAvatar({ name }: { name: string }) {
   const initials = initialsFromName(name);
   return (
     <span
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-terra/35 bg-paper-deep text-[12px] font-semibold tracking-wide text-terra"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-terra/35 bg-paper text-[12px] font-semibold tracking-wide text-terra"
       aria-hidden
     >
       {initials}
@@ -58,14 +58,7 @@ function Stars({ rating }: { rating: number }) {
 }
 
 /**
- * Review card:
- * [AB] Name · date
- * Stars
- * Body
- * Verified buyer
- *
- * `mine` uses a distinct surface so the shopper’s review doesn’t blend into
- * the public list.
+ * Who, then what they said — name and stars introduce the quote.
  */
 export function ProductReviewCard({
   review,
@@ -79,70 +72,59 @@ export function ProductReviewCard({
   onDelete?: () => void;
 }) {
   return (
-    <article
-      className={cn(
-        "px-4 py-4 sm:px-5 sm:py-5",
-        mine
-          ? "border border-terra/30 bg-shell"
-          : "border border-graphite/10 bg-paper",
-      )}
-    >
-      <div className="flex items-center gap-2.5">
+    <article className={cn("py-6 md:py-7", mine && "bg-shell -mx-4 px-4 sm:-mx-5 sm:px-5")}>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <ReviewAvatar name={review.reviewerName} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-graphite">
             {review.reviewerName}
+            {mine ? (
+              <span className="ml-2 font-normal text-terra">Your review</span>
+            ) : null}
           </p>
-          {mine ? (
-            <p className="text-[13px] text-terra">
-              Your review
-            </p>
-          ) : null}
+          <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            <Stars rating={review.rating} />
+            <span className="sr-only">{review.rating} out of 5 stars</span>
+            <time
+              dateTime={review.createdAt}
+              className="text-[13px] text-graphite-soft"
+            >
+              {formatReviewDate(review.createdAt)}
+            </time>
+            {review.isVerifiedBuyer ? (
+              <p className="text-[13px] text-terra">Verified buyer</p>
+            ) : null}
+          </div>
         </div>
-        <time
-          dateTime={review.createdAt}
-          className="shrink-0 text-[13px] text-graphite-soft"
-        >
-          {formatReviewDate(review.createdAt)}
-        </time>
-      </div>
-
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-        <Stars rating={review.rating} />
-        <span className="sr-only">{review.rating} out of 5 stars</span>
+        {mine && (onEdit || onDelete) ? (
+          <div className="flex shrink-0 gap-3">
+            {onEdit ? (
+              <button
+                type="button"
+                onClick={onEdit}
+                className="cursor-pointer text-[13px] text-graphite-soft transition-colors hover:text-graphite"
+              >
+                Edit
+              </button>
+            ) : null}
+            {onDelete ? (
+              <button
+                type="button"
+                onClick={onDelete}
+                className="cursor-pointer text-[13px] text-graphite-soft transition-colors hover:text-graphite"
+              >
+                Remove
+              </button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       {review.body ? (
-        <p className="mt-1.5 text-[15px] leading-relaxed text-graphite-soft">
+        <p className="mt-4 font-editorial text-[17px] italic leading-[1.6] text-graphite">
           {review.body}
         </p>
       ) : null}
-
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-        {review.isVerifiedBuyer ? (
-          <p className="text-[13px] text-terra">
-            Verified buyer
-          </p>
-        ) : null}
-        {mine && onEdit ? (
-          <button
-            type="button"
-            onClick={onEdit}
-            className="cursor-pointer text-[13px] text-graphite-soft transition-colors hover:text-graphite"
-          >
-            Edit
-          </button>
-        ) : null}
-        {mine && onDelete ? (
-          <button
-            type="button"
-            onClick={onDelete}
-            className="cursor-pointer text-[13px] text-graphite-soft transition-colors hover:text-graphite"
-          >
-            Remove
-          </button>
-        ) : null}
-      </div>
     </article>
   );
 }

@@ -26,12 +26,15 @@ export function Rating({
   count,
   className,
   showEmpty = false,
+  showValue = true,
 }: {
   average: number | null;
   count: number;
   className?: string;
   /** Render a muted placeholder instead of nothing when a product has no reviews. */
   showEmpty?: boolean;
+  /** Hide the numeric “4.3 (18)” when the score already sits next to the stars. */
+  showValue?: boolean;
 }) {
   if (average === null || count === 0) {
     if (!showEmpty) return null;
@@ -54,9 +57,11 @@ export function Rating({
           <Star key={i} fill={Math.max(0, Math.min(1, average - i))} />
         ))}
       </span>
-      <span className="font-mono text-label-sm text-ink-faint">
-        {average.toFixed(1)} ({count})
-      </span>
+      {showValue ? (
+        <span className="font-mono text-label-sm text-ink-faint">
+          {average.toFixed(1)} ({count})
+        </span>
+      ) : null}
       <span className="sr-only">
         Rated {average.toFixed(1)} out of 5 from {count} review
         {count === 1 ? "" : "s"}

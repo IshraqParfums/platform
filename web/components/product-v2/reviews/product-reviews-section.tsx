@@ -180,12 +180,18 @@ export function ProductReviewsSection({
   return (
     <section id="reviews" className="scroll-mt-28">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-[13px] text-terra">In their words</p>
-          <h2 className="mt-3 font-editorial text-h3-editorial text-graphite">
-            Reviews
+        {hasReviews ? (
+          <ProductReviewSummary
+            average={ratingAverage}
+            count={ratingCount}
+            breakdown={breakdown}
+            className="min-w-0 flex-1"
+          />
+        ) : (
+          <h2 className="font-editorial text-h3-editorial text-graphite">
+            Be the first to review
           </h2>
-        </div>
+        )}
         {mineReady ? (
           <Button
             type="button"
@@ -198,13 +204,6 @@ export function ProductReviewsSection({
           </Button>
         ) : null}
       </div>
-
-      <ProductReviewSummary
-        average={ratingAverage}
-        count={ratingCount}
-        breakdown={breakdown}
-        className="mt-6 max-w-md"
-      />
 
       {resumeError ? (
         <p className="mt-4 text-sm text-rose-deep">{resumeError}</p>
