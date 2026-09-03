@@ -90,46 +90,8 @@ function requireUrduIfPresent(
   return value;
 }
 
-function requireUrduListIfPresent(
-  value: string[] | null,
-  label: string,
-): string[] | null {
-  if (!value || value.length === 0) return value;
-  for (const item of value) {
-    if (item.trim() && !isUrduScript(item)) {
-      throw new BadRequestException(`${label} must be written in Urdu.`);
-    }
-  }
-  return value;
-}
-
-function assertPdpUrdu(input: {
-  nameUrdu?: string | null;
-  taglineTranslation?: string | null;
-  meaningStory?: ProductMeaningStory | null;
-  notesPyramid?: ProductNotesPyramid | null;
-}) {
-  requireUrduIfPresent(input.nameUrdu ?? null, "Urdu name");
-  requireUrduIfPresent(input.taglineTranslation ?? null, "Tagline Urdu");
-  requireUrduListIfPresent(
-    input.meaningStory?.bodyTranslation ?? null,
-    "Story translation",
-  );
-  const pyramid = input.notesPyramid;
-  if (pyramid) {
-    requireUrduListIfPresent(
-      pyramid.opening?.notesTranslation ?? null,
-      "Opening notes Urdu",
-    );
-    requireUrduListIfPresent(
-      pyramid.heart?.notesTranslation ?? null,
-      "Heart notes Urdu",
-    );
-    requireUrduListIfPresent(
-      pyramid.base?.notesTranslation ?? null,
-      "Base notes Urdu",
-    );
-  }
+function assertPdpUrdu(input: { nameUrdu?: string | null }) {
+  requireUrduIfPresent(input.nameUrdu ?? null, 'Urdu name');
 }
 
 /**
@@ -146,7 +108,6 @@ function normalizeOptionalString(value: string | undefined): string | null {
 const normalizePronunciation = normalizeOptionalString;
 const normalizeMeaning = normalizeOptionalString;
 const normalizeTaglinePrimary = normalizeOptionalString;
-const normalizeTaglineTranslation = normalizeOptionalString;
 const normalizeScentFamily = normalizeOptionalString;
 const normalizeFormatLabel = normalizeOptionalString;
 const normalizeConcentration = normalizeOptionalString;
@@ -186,7 +147,7 @@ function asNoteList(value: unknown): ProductNoteList | null {
   if (!isRecord(value)) return null;
   const notes = asStringArray(value.notes);
   if (!notes) return null;
-  return { notes, notesTranslation: asStringArray(value.notesTranslation) };
+  return { notes };
 }
 
 function asMeaningStory(value: unknown): ProductMeaningStory | null {
@@ -194,11 +155,7 @@ function asMeaningStory(value: unknown): ProductMeaningStory | null {
   if (typeof value.heading !== 'string') return null;
   const body = asStringArray(value.body);
   if (!body) return null;
-  return {
-    heading: value.heading,
-    body,
-    bodyTranslation: asStringArray(value.bodyTranslation),
-  };
+  return { heading: value.heading, body };
 }
 
 function asNotesPyramid(value: unknown): ProductNotesPyramid | null {
@@ -711,12 +668,7 @@ export class ProductService {
       this.assertActivatable([], 0);
     }
 
-    assertPdpUrdu({
-      nameUrdu: normalizeNameUrdu(input.nameUrdu),
-      taglineTranslation: normalizeTaglineTranslation(input.taglineTranslation),
-      meaningStory: asMeaningStory(input.meaningStory),
-      notesPyramid: asNotesPyramid(input.notesPyramid),
-    });
+    assertPdpUrdu({ nameUrdu: normalizeNameUrdu(input.nameUrdu) });
 
     try {
       const product = await this.productRepository.create({
@@ -730,9 +682,6 @@ export class ProductService {
         pronunciation: normalizePronunciation(input.pronunciation),
         meaning: normalizeMeaning(input.meaning),
         taglinePrimary: normalizeTaglinePrimary(input.taglinePrimary),
-        taglineTranslation: normalizeTaglineTranslation(
-          input.taglineTranslation,
-        ),
         meaningStoryJson: toJsonColumn(asMeaningStory(input.meaningStory)),
         notesPyramidJson: toJsonColumn(asNotesPyramid(input.notesPyramid)),
         scentFamily: normalizeScentFamily(input.scentFamily),
@@ -814,12 +763,7 @@ export class ProductService {
 
     this.assertCanPlaceActiveProduct(destinationCollection.status, nextStatus);
 
-    assertPdpUrdu({
-      nameUrdu: normalizeNameUrdu(input.nameUrdu),
-      taglineTranslation: normalizeTaglineTranslation(input.taglineTranslation),
-      meaningStory: asMeaningStory(input.meaningStory),
-      notesPyramid: asNotesPyramid(input.notesPyramid),
-    });
+    assertPdpUrdu({ nameUrdu: normalizeNameUrdu(input.nameUrdu) });
 
     try {
       const product = await this.productRepository.update(id, {
@@ -844,13 +788,6 @@ export class ProductService {
           : {}),
         ...(input.taglinePrimary !== undefined
           ? { taglinePrimary: normalizeTaglinePrimary(input.taglinePrimary) }
-          : {}),
-        ...(input.taglineTranslation !== undefined
-          ? {
-              taglineTranslation: normalizeTaglineTranslation(
-                input.taglineTranslation,
-              ),
-            }
           : {}),
         ...(input.meaningStory !== undefined
           ? {

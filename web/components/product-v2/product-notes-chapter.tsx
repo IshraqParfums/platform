@@ -2,7 +2,6 @@ import type {
   ProductNoteList,
   ProductNotesPyramid,
 } from "@ishraqparfums/shared";
-import { Urdu } from "@/components/home-v2/ui/urdu";
 import { RecordSection } from "@/components/product-v2/ui/record";
 
 const TIERS = [
@@ -41,7 +40,7 @@ export function ProductNotesChapter({
       kicker="The notes"
       support="First spray, then the heart, then what stays."
     >
-      <dl className="max-w-[620px]">
+      <dl className="max-w-[46rem]">
         {tiers.map(({ key, label, list }) => (
           <div
             key={key}
@@ -54,16 +53,6 @@ export function ProductNotesChapter({
               <span className="text-[17px] leading-[1.6] text-graphite">
                 {list.notes.join(", ")}
               </span>
-              {list.notesTranslation && list.notesTranslation.length > 0 ? (
-                <Urdu
-                  size="sm"
-                  tone="brass-deep"
-                  leading="loose"
-                  className="mt-1"
-                >
-                  {list.notesTranslation.join("، ")}
-                </Urdu>
-              ) : null}
             </dd>
           </div>
         ))}

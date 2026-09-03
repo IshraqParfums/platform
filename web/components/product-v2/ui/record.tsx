@@ -50,7 +50,9 @@ export function RecordSection({
   children,
   className,
 }: {
-  kicker: string;
+  /** Omit when the section's own title is already shown elsewhere — e.g. a
+   *  chapter reused inside a menu row whose button label is the only title. */
+  kicker?: string;
   /** One plain-English line under the kicker, for sections that need framing. */
   support?: string;
   children: ReactNode;
@@ -58,13 +60,13 @@ export function RecordSection({
 }) {
   return (
     <section className={cn(className)}>
-      <RecordKicker>{kicker}</RecordKicker>
+      {kicker ? <RecordKicker>{kicker}</RecordKicker> : null}
       {support ? (
         <p className="mt-3 max-w-[54ch] text-[16px] leading-[1.6] text-graphite-soft">
           {support}
         </p>
       ) : null}
-      <div className="mt-7">{children}</div>
+      <div className={kicker ? "mt-7" : undefined}>{children}</div>
     </section>
   );
 }

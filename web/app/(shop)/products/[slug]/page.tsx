@@ -3,25 +3,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Band, BandInner } from "@/components/home-v2/ui/band";
 import { ProductArrival } from "@/components/product-v2/product-arrival";
-import { ProductBackLabel } from "@/components/product-v2/product-back-label";
 import { ProductBuyBarSentinel } from "@/components/product-v2/product-buy-bar-sentinel";
 import { ProductClosingBuy } from "@/components/product-v2/product-closing-buy";
 import { ProductFaq } from "@/components/product-v2/product-faq";
+import { ProductInfoMenu } from "@/components/product-v2/product-info-menu";
 import { ProductMobileBuyBar } from "@/components/product-v2/product-mobile-buy-bar";
 import { ProductNameChapter } from "@/components/product-v2/product-name-chapter";
 import { ProductNotesChapter } from "@/components/product-v2/product-notes-chapter";
 import { ProductRelated } from "@/components/product-v2/product-related";
 import { ProductReviewsSection } from "@/components/product-v2/reviews/product-reviews-section";
-import { ProductSmellsChapter } from "@/components/product-v2/product-smells-chapter";
-import { ProductWearingChapter } from "@/components/product-v2/product-wearing-chapter";
 import { ProductPurchaseProvider } from "@/components/product-v2/purchase-context";
-import {
-  hasBackLabel,
-  hasMeaning,
-  hasNotes,
-  hasSmells,
-  pdpSplitPairClass,
-} from "@/components/product-v2/chapters";
+import { hasMeaning, hasNotes } from "@/components/product-v2/chapters";
 import { getProductBySlug } from "@/lib/api/catalog";
 import { getProductReviews } from "@/lib/api/reviews";
 import { getRelatedProducts } from "@/lib/catalog/related-products";
@@ -52,16 +44,21 @@ export async function generateMetadata({
 /**
  * PDP v2.
  *
- * Ordered for a shopper rather than a perfumer: what it smells like in plain
- * English, then the note pyramid, then where the name comes from — not the
- * reverse. Every band alternates tone (paper → paper-deep → paper → shell →
- * …) because that's how the homepage separates sections; hairlines between
- * blocks were doing that job badly.
+ * Only basic details, the notes, and the story stay on the page by default —
+ * "how it smells", "wearing & care", and "on the label" live behind
+ * `ProductInfoMenu`, a menu of independently-openable rows, so the page reads
+ * short and the reader chooses how much more to see. Every band still
+ * alternates tone (paper → paper-deep → paper → shell → …) because that's how
+ * the homepage separates sections; hairlines between blocks were doing that
+ * job badly.
  *
  * Bands are gated on the presence predicates in `chapters.ts` so a sparse
  * product never renders an empty stripe of parchment. The sections still
  * self-null on their own — that's the real guard, this just avoids the
- * empty frame around it.
+ * empty frame around it. `ProductInfoMenu` renders unconditionally: its
+ * "Wearing & care" row has no presence predicate (static copy, always has
+ * content), so the band it lives in must always be reachable even on a
+ * sparse product.
  *
  * `ProductPurchaseProvider` wraps everything so the arrival panel, the
  * sticky mobile bar and the closing row share one selected variant and one
@@ -133,29 +130,16 @@ export default async function ProductDetailPage({
           </BandInner>
         </Band>
 
-        {hasSmells(product) || hasNotes(product) ? (
-          <Band
-            tone="paper-deep"
-            space="none"
-            className="py-[3.75rem] md:py-[5.25rem]"
-          >
+        {hasNotes(product) ? (
+          <Band tone="paper-deep" space="none" className="py-12 md:py-16">
             <BandInner>
-              <div className={pdpSplitPairClass}>
-                <ProductSmellsChapter
-                  olfactoryProfile={product.olfactoryProfile}
-                />
-                <ProductNotesChapter notesPyramid={product.notesPyramid} />
-              </div>
+              <ProductNotesChapter notesPyramid={product.notesPyramid} />
             </BandInner>
           </Band>
         ) : null}
 
         {hasMeaning(product) ? (
-          <Band
-            tone="paper"
-            space="none"
-            className="py-[3.75rem] md:py-[5.25rem]"
-          >
+          <Band tone="paper" space="none" className="py-12 md:py-16">
             <BandInner>
               <ProductNameChapter
                 identity={product.identity}
@@ -165,26 +149,16 @@ export default async function ProductDetailPage({
           </Band>
         ) : null}
 
-        <Band
-          tone="shell"
-          space="none"
-          className="py-[3.75rem] md:py-[5.25rem]"
-        >
+        <Band tone="shell" space="none" className="py-12 md:py-16">
           <BandInner>
-            <ProductWearingChapter />
+            <ProductInfoMenu product={product} />
           </BandInner>
         </Band>
 
-        {hasBackLabel(product) || showClosingBuy ? (
-          <Band tone="paper" space="default">
+        {showClosingBuy ? (
+          <Band tone="paper" space="default" className="hidden lg:block">
             <BandInner>
-              <div className="flex flex-col gap-14">
-                <ProductBackLabel
-                  format={product.format}
-                  olfactoryProfile={product.olfactoryProfile}
-                />
-                <ProductClosingBuy />
-              </div>
+              <ProductClosingBuy />
             </BandInner>
           </Band>
         ) : null}

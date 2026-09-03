@@ -113,10 +113,9 @@ model Product {
   pronunciation       String?
   meaning             String?
   taglinePrimary      String?
-  taglineTranslation  String?
-  /// { heading: string; body: string[]; bodyTranslation: string[] | null }
+  /// { heading: string; body: string[] }
   meaningStoryJson    Json?
-  /// { opening, heart, base }, each: { notes: string[]; notesTranslation: string[] | null } | null
+  /// { opening, heart, base }, each: { notes: string[] } | null
   notesPyramidJson    Json?
   scentFamily         String?
   characterTags       String[]              @default([])

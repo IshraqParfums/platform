@@ -28,7 +28,7 @@ export function ProductClosingBuy() {
   if (!selected) return null;
 
   return (
-    <div className="hidden border-t border-graphite/10 pt-8 lg:flex lg:items-end lg:justify-between lg:gap-10">
+    <div className="flex items-end justify-between gap-10 border-t border-graphite/10 pt-8">
       <div className="min-w-0 space-y-4">
         <p className="font-editorial text-h4-editorial text-graphite">
           {product.name}
