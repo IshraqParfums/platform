@@ -4,7 +4,6 @@ import {
   type ProductListSort,
 } from "@ishraqparfums/shared";
 import Link from "next/link";
-import { Urdu } from "@/components/home-v2/ui/urdu";
 import { SHOP } from "@/lib/content/shop";
 import { buildShopHref } from "@/lib/shop-query";
 
@@ -24,7 +23,6 @@ export function ShopMasthead({
   sort: ProductListSort;
 }) {
   const query = q?.trim() || undefined;
-  const unfiltered = !collection && !query;
   const searchMeta = query
     ? `${total} result${total === 1 ? "" : "s"} for "${query}"`
     : undefined;
@@ -66,11 +64,6 @@ export function ShopMasthead({
         <h1 className="font-editorial text-[28px] leading-[1.1] text-graphite md:text-[32px]">
           {title}
         </h1>
-        {unfiltered ? (
-          <Urdu size="sm" tone="brass" align="start" leading="tight" as="span">
-            {SHOP.urdu}
-          </Urdu>
-        ) : null}
         {searchMeta ? (
           <p className="text-[13px] text-graphite-soft">{searchMeta}</p>
         ) : null}

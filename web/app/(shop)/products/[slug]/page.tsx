@@ -107,7 +107,7 @@ export default async function ProductDetailPage({
           <BandInner>
             <nav
               aria-label="Breadcrumb"
-              className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-graphite-faint"
+              className="mb-6 hidden flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-graphite-faint md:flex"
             >
               <Link
                 href="/shop"

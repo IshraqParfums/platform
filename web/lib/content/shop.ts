@@ -1,5 +1,4 @@
 export const SHOP = {
-  urdu: "سب خوشبوئیں",
   kicker: "The catalogue",
   heading: "All Perfumes",
   emptyLead: "Clear the search, or browse the full shelf.",

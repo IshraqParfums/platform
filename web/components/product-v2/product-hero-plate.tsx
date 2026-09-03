@@ -7,6 +7,10 @@ import { cn } from "@/lib/cn";
 import { shouldUnoptimizeImageSrc } from "@/lib/media/unoptimize-image-src";
 import { useHorizontalSwipe } from "@/lib/ui/use-horizontal-swipe";
 
+/** Laptop+ only — phones swipe. Hidden until `lg`, then always on. */
+const ARROW =
+  "absolute top-1/2 z-[2] hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center bg-paper/90 text-graphite transition-colors hover:bg-paper lg:flex";
+
 /**
  * The arrival's photography — and the only place a product's images appear.
  *
@@ -82,7 +86,7 @@ export function ProductHeroPlate({
             type="button"
             aria-label="Previous image"
             onClick={() => step(-1)}
-            className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center bg-paper/90 text-graphite transition-colors hover:bg-paper"
+            className={cn(ARROW, "left-3")}
           >
             <span aria-hidden="true" className="text-[18px] leading-none">
               ‹
@@ -92,7 +96,7 @@ export function ProductHeroPlate({
             type="button"
             aria-label="Next image"
             onClick={() => step(1)}
-            className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center bg-paper/90 text-graphite transition-colors hover:bg-paper"
+            className={cn(ARROW, "right-3")}
           >
             <span aria-hidden="true" className="text-[18px] leading-none">
               ›
