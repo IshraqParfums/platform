@@ -61,9 +61,9 @@ export async function generateMetadata({
  * sparse product.
  *
  * `ProductPurchaseProvider` wraps everything so the arrival panel, the
- * sticky mobile bar and the closing row share one selected variant and one
- * add-to-cart path. Media never pins; the only sticky element is the mobile
- * bar, and it retires at the sentinel so it never covers the footer.
+ * phone buy strip and the closing row share one selected variant and one
+ * add-to-cart path. Media never pins. The phone strip is price + add only,
+ * and it retires at the sentinel so it never covers the footer.
  */
 export default async function ProductDetailPage({
   params,

@@ -104,7 +104,7 @@ export function ProductHeroPlate({
           </button>
 
           <div className="absolute inset-x-0 bottom-4 flex justify-center">
-            <div className="flex items-center gap-2 rounded-full bg-paper/90 px-3 py-2">
+            <div className="flex items-center gap-1.5 rounded-full bg-paper/55 px-2 py-1 backdrop-blur-[2px]">
               {images.map((image, dotIndex) => (
                 <button
                   key={image.url}
@@ -113,7 +113,7 @@ export function ProductHeroPlate({
                   aria-current={dotIndex === index}
                   onClick={() => setIndex(dotIndex)}
                   className={cn(
-                    "h-2 w-2 cursor-pointer rounded-full transition-colors",
+                    "h-1.5 w-1.5 cursor-pointer rounded-full transition-colors",
                     dotIndex === index
                       ? "bg-graphite"
                       : "bg-graphite/30 hover:bg-graphite/50",

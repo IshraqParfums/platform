@@ -1,9 +1,9 @@
 "use client";
 
+import { CartQuantityStepper } from "@/components/cart/cart-quantity-stepper";
 import { ProductPrice } from "@/components/product-v2/product-price";
 import { ProductSizeSelect } from "@/components/product-v2/product-size-select";
 import { useProductPurchase } from "@/components/product-v2/purchase-context";
-import { ViewCartLink } from "@/components/cart/view-cart-link";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -17,9 +17,13 @@ export function ProductClosingBuy() {
     selectVariant,
     purchasable,
     inCart,
+    cartQty,
+    setCartQty,
+    cartPending,
     isPending,
     cartReady,
     variantQuantities,
+    maxQty,
     ctaState,
     addSelectedToCart,
     product,
@@ -45,12 +49,19 @@ export function ProductClosingBuy() {
       <div className="flex shrink-0 items-center gap-6">
         <ProductPrice
           pricePaise={selected.pricePaise}
-          compareAtPaise={selected.compareAtPricePaise}
           size="sm"
         />
 
         {purchasable && inCart ? (
-          <ViewCartLink />
+          <CartQuantityStepper
+            quantity={cartQty}
+            pending={cartPending}
+            min={0}
+            max={maxQty}
+            size="md"
+            aria-label={`Quantity in cart for ${product.name}`}
+            onChange={setCartQty}
+          />
         ) : purchasable ? (
           <Button
             type="button"

@@ -5,6 +5,8 @@ import { ProductPurchasePanel } from "@/components/product-v2/product-purchase-p
 import { ProductRating } from "@/components/product-v2/product-rating";
 import { ProductUnavailableNotice } from "@/components/product-v2/product-unavailable-notice";
 import { ProductShare } from "@/components/product/product-share";
+import { WishlistHeartButton } from "@/components/wishlist/wishlist-heart-button";
+import { productDetailToListItem } from "@/lib/catalog/product-detail-to-list-item";
 
 /**
  * The arrival — identity and commerce in one composition.
@@ -42,11 +44,26 @@ export function ProductArrival({ product }: { product: ProductDetail }) {
       />
 
       <div className="pt-8 lg:col-start-1 lg:row-start-1 lg:flex lg:flex-col lg:justify-center lg:pt-0 lg:pr-8">
-        {product.nameUrdu ? (
-          <Urdu size="md" tone="brass-deep" leading="tight">
-            {product.nameUrdu}
-          </Urdu>
-        ) : null}
+        <div className="flex items-center justify-between gap-3">
+          {product.nameUrdu ? (
+            <Urdu
+              size="md"
+              tone="brass-deep"
+              leading="tight"
+              as="span"
+              className="min-w-0"
+            >
+              {product.nameUrdu}
+            </Urdu>
+          ) : (
+            <span />
+          )}
+          <WishlistHeartButton
+            product={productDetailToListItem(product)}
+            variant="inline"
+            className="-me-1.5"
+          />
+        </div>
 
         <div className="mt-2 flex items-start justify-between gap-4">
           <h1 className="min-w-0 font-editorial text-[clamp(34px,5vw,56px)] leading-[1.04] tracking-[-0.02em] text-graphite">
@@ -61,7 +78,7 @@ export function ProductArrival({ product }: { product: ProductDetail }) {
         </div>
 
         {lead ? (
-          <p className="mt-5 max-w-[46ch] text-[17px] leading-[1.6] text-graphite">
+          <p className="mt-1 max-w-[46ch] text-[17px] leading-[1.6] text-graphite">
             {lead}
           </p>
         ) : null}
@@ -69,7 +86,7 @@ export function ProductArrival({ product }: { product: ProductDetail }) {
         {product.ratingAverage !== null && product.reviewCount > 0 ? (
           <a
             href="#reviews"
-            className="mt-6 inline-flex transition-opacity hover:opacity-80"
+            className="mt-1 inline-flex transition-opacity hover:opacity-80"
           >
             <ProductRating
               average={product.ratingAverage}
@@ -90,8 +107,8 @@ export function ProductArrival({ product }: { product: ProductDetail }) {
           </div>
         ) : null}
 
-        <div className="mt-8">
-          <ProductPurchasePanel product={product} />
+        <div className="mt-1.5">
+          <ProductPurchasePanel />
         </div>
       </div>
     </div>
