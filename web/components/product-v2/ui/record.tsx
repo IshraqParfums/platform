@@ -62,11 +62,16 @@ export function RecordSection({
     <section className={cn(className)}>
       {kicker ? <RecordKicker>{kicker}</RecordKicker> : null}
       {support ? (
-        <p className="mt-3 max-w-[54ch] text-[16px] leading-[1.6] text-graphite-soft">
+        <p
+          className={cn(
+            "max-w-[54ch] text-[16px] leading-[1.6] text-graphite-soft",
+            kicker && "mt-3",
+          )}
+        >
           {support}
         </p>
       ) : null}
-      <div className={kicker ? "mt-7" : undefined}>{children}</div>
+      <div className={kicker || support ? "mt-7" : undefined}>{children}</div>
     </section>
   );
 }
