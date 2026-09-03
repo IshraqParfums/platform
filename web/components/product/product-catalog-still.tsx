@@ -13,6 +13,10 @@ const TAKEOVER_RESUME_MS = 5000;
 const HOVER_SCALE =
   "object-cover transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,0.8,0.28,1)] group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100";
 
+/** Laptop+ only — phones swipe. Hidden until `lg`, then on hover. */
+const ARROW =
+  "absolute top-1/2 z-[2] hidden h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center bg-paper/90 text-graphite transition-opacity hover:bg-paper lg:flex lg:opacity-0 lg:group-hover:opacity-100";
+
 /**
  * Auto-advancing catalog still for shop journal + home collection.
  * One photo stays a still. Several photos cycle on this card only. A swipe

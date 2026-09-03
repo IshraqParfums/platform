@@ -2,10 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  FooterMobileNav,
-  type FooterNavColumn,
-} from "@/components/layout/footer-mobile-nav";
+import { type FooterNavColumn } from "@/components/layout/footer-mobile-nav";
 import { Logo } from "@/components/layout/logo";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -15,15 +12,15 @@ import { isPaperStorefrontPath } from "@/lib/layout";
 /**
  * Palette fork for the shared footer. Structure and links stay in Footer;
  * this reads the path and paints parchment on v2 routes, espresso elsewhere.
+ * Phone chrome is wordmark + line + legal strip — link columns and WhatsApp
+ * are md+. `FooterMobileNav` is unused until we want a sitemap on small screens again.
  */
 export function FooterFrame({
   whatsappUrl,
   desktopColumns,
-  mobileColumns,
 }: {
   whatsappUrl: string;
   desktopColumns: FooterNavColumn[];
-  mobileColumns: FooterNavColumn[];
 }) {
   const paper = isPaperStorefrontPath(usePathname());
 
@@ -42,7 +39,7 @@ export function FooterFrame({
       )}
 
       <Container size="wide">
-        <div className="max-w-sm pt-12 md:hidden">
+        <div className="max-w-sm pt-[1.6rem] pb-6 md:hidden">
           <BrandMark paper={paper} />
           <p
             className={cn(
@@ -53,14 +50,9 @@ export function FooterFrame({
             Small-batch perfumery built from a real perfumer&apos;s palette.
             Composed and bottled in India.
           </p>
-          <WhatsAppPill href={whatsappUrl} paper={paper} className="mt-6 min-h-11" />
         </div>
 
-        <div className="mt-8 md:hidden">
-          <FooterMobileNav columns={mobileColumns} tone={paper ? "paper" : "espresso"} />
-        </div>
-
-        <div className="hidden gap-12 py-16 md:grid md:grid-cols-[1.4fr_repeat(3,1fr)] md:py-20">
+        <div className="hidden gap-10 py-10 md:grid md:grid-cols-[1.4fr_repeat(3,1fr)] md:py-12">
           <div className="max-w-sm">
             <BrandMark paper={paper} />
             <p
@@ -78,13 +70,13 @@ export function FooterFrame({
           {desktopColumns.map((col) => (
             <div key={col.title}>
               {paper ? (
-                <p className="mb-5 text-[13px] text-terra">{col.title}</p>
+                <p className="mb-3 text-[13px] text-terra">{col.title}</p>
               ) : (
-                <Eyebrow tone="gold" className="mb-5">
+                <Eyebrow tone="gold" className="mb-3">
                   {col.title}
                 </Eyebrow>
               )}
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-2">
                 {col.links.map((link) => (
                   <li key={link.href}>
                     <Link
@@ -107,24 +99,24 @@ export function FooterFrame({
 
         <div
           className={cn(
-            "flex flex-col gap-5 border-t py-7 sm:flex-row sm:items-center sm:justify-between",
+            "flex flex-row items-center justify-between gap-x-3 border-t py-3.5",
             paper ? "border-graphite/10" : "border-cream/10 md:border-cream/10",
           )}
         >
           <p
             className={cn(
-              "font-mono text-label-sm uppercase",
+              "shrink-0 whitespace-nowrap font-mono text-label-sm uppercase",
               paper ? "text-graphite-faint" : "text-cream/50",
             )}
           >
             © {new Date().getFullYear()} Ishraq Parfums
           </p>
 
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <div className="flex min-w-0 flex-nowrap items-center gap-x-3 md:gap-x-6">
             <Link
               href="/privacy"
               className={cn(
-                "text-meta transition-colors",
+                "shrink-0 text-meta transition-colors",
                 paper
                   ? "text-graphite-soft hover:text-graphite"
                   : "text-cream/60 hover:text-cream-soft",
@@ -135,7 +127,7 @@ export function FooterFrame({
             <Link
               href="/terms"
               className={cn(
-                "text-meta transition-colors",
+                "shrink-0 text-meta transition-colors",
                 paper
                   ? "text-graphite-soft hover:text-graphite"
                   : "text-cream/60 hover:text-cream-soft",
@@ -146,7 +138,7 @@ export function FooterFrame({
             <Link
               href="/contact"
               className={cn(
-                "text-meta transition-colors",
+                "hidden text-meta transition-colors md:inline",
                 paper
                   ? "text-graphite-soft hover:text-graphite"
                   : "text-cream/60 hover:text-cream-soft",
@@ -156,7 +148,7 @@ export function FooterFrame({
             </Link>
             <span
               className={cn(
-                "flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-label-sm uppercase",
+                "hidden items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-label-sm uppercase md:inline-flex",
                 paper
                   ? "border-graphite/20 text-graphite-faint"
                   : "border-cream/12 text-cream/55",
