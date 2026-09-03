@@ -11,7 +11,7 @@ import { Logo } from "@/components/layout/logo";
 import { WishlistNavLink } from "@/components/layout/wishlist-nav-link";
 import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/cn";
-import { HEADER_HEIGHT_PX, isPaperStorefrontPath } from "@/lib/layout";
+import { HEADER_HEIGHT_PX } from "@/lib/layout";
 import { useMobileNav } from "@/lib/ui/use-mobile-nav";
 
 const NAV = [
@@ -39,7 +39,7 @@ const NAV = [
  */
 export function Header() {
   const pathname = usePathname();
-  const light = isPaperStorefrontPath(pathname);
+  const light = !pathname.startsWith("/admin");
   const { open, close, toggle, rootRef } = useMobileNav();
 
   return (

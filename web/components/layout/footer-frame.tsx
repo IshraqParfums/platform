@@ -7,7 +7,6 @@ import { Logo } from "@/components/layout/logo";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { cn } from "@/lib/cn";
-import { isPaperStorefrontPath } from "@/lib/layout";
 
 /**
  * Palette fork for the shared footer. Structure and links stay in Footer;
@@ -22,7 +21,7 @@ export function FooterFrame({
   whatsappUrl: string;
   desktopColumns: FooterNavColumn[];
 }) {
-  const paper = isPaperStorefrontPath(usePathname());
+  const paper = !usePathname().startsWith("/admin");
 
   return (
     <footer
