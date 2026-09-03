@@ -26,6 +26,11 @@ import {
   guestCatalogItems,
   readGuestCart,
 } from "@/lib/cart/guest-cart";
+import {
+  clearGuestWishlist,
+  readGuestWishlist,
+} from "@/lib/wishlist/guest-wishlist";
+import { setWishlistedSlugsCache } from "@/lib/wishlist/wishlist-client";
 
 type Step = "phone" | "code";
 
@@ -185,6 +190,7 @@ export function LoginForm() {
         }
 
         await mergeGuestCartAfterLogin();
+        await mergeGuestWishlistAfterLogin();
 
         router.replace(destination());
         router.refresh();
@@ -365,5 +371,36 @@ async function mergeGuestCartAfterLogin(): Promise<void> {
     });
   } catch {
     /* Keep guest cart if merge fails; user can retry next login. */
+  }
+}
+
+/** Soft-merge guest wishlist slugs into the Nest wishlist after OTP verify. */
+async function mergeGuestWishlistAfterLogin(): Promise<void> {
+  const guest = readGuestWishlist();
+  if (guest.items.length === 0) return;
+
+  try {
+    const response = await shopFetch("/api/wishlist/merge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        slugs: guest.items.map((item) => item.slug),
+      }),
+    });
+
+    if (!response.ok) return;
+
+    const data = (await response.json()) as {
+      wishlist?: { items?: { slug: string }[] };
+    };
+    clearGuestWishlist();
+    setWishlistedSlugsCache(
+      new Set(
+        data.wishlist?.items?.map((item) => item.slug) ??
+          guest.items.map((item) => item.slug),
+      ),
+    );
+  } catch {
+    /* Keep guest wishlist if merge fails; user can retry next login. */
   }
 }

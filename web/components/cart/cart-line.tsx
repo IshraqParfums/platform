@@ -19,11 +19,14 @@ export function CartLine({
   pending,
   onQuantityChange,
   onRemove,
+  onMoveToWishlist,
 }: {
   line: CartViewLine;
   pending: boolean;
   onQuantityChange: (quantity: number) => void;
   onRemove: () => void;
+  /** Catalog lines only — bespoke already has its own saved-blends locker. */
+  onMoveToWishlist?: () => void;
 }) {
   const maxQty =
     line.kind === "bespoke"
@@ -134,6 +137,20 @@ export function CartLine({
               aria-label={`Quantity for ${line.productName}`}
               onChange={onQuantityChange}
             />
+          ) : null}
+
+          {onMoveToWishlist && line.kind === "catalog" ? (
+            <button
+              type="button"
+              className={cn(
+                "cursor-pointer font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-faint",
+                "transition-colors duration-300 hover:text-terra disabled:cursor-default disabled:opacity-40",
+              )}
+              disabled={pending}
+              onClick={onMoveToWishlist}
+            >
+              Move to wishlist
+            </button>
           ) : null}
 
           <button

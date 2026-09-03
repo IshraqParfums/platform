@@ -10,6 +10,7 @@ import {
   HeaderWhatsAppLink,
 } from "@/components/layout/header-mobile-shortcuts";
 import { Logo } from "@/components/layout/logo";
+import { WishlistNavLink } from "@/components/layout/wishlist-nav-link";
 import { Container } from "@/components/ui/container";
 import { DismissScrim } from "@/components/ui/dismiss-scrim";
 import { ACCOUNT_HOME } from "@/lib/auth/account-routes";
@@ -100,6 +101,9 @@ export function Header() {
             />
             <AccountMenu tone={light ? "light" : "dark"} />
             <div className="hidden md:block">
+              <WishlistNavLink tone={light ? "light" : "dark"} />
+            </div>
+            <div className="hidden md:block">
               <BespokeSavedNavLink tone={light ? "light" : "dark"} />
             </div>
             <CartNavLink tone={light ? "light" : "dark"} />
@@ -149,6 +153,7 @@ export function Header() {
               {[
                 ...NAV,
                 { href: "/bespoke/saved", label: "Saved blends" },
+                { href: "/wishlist", label: "Wishlist" },
                 { href: "/cart", label: "Cart" },
                 { href: ACCOUNT_HOME, label: "Account" },
               ].map((item) => (

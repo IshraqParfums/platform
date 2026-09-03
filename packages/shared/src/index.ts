@@ -328,3 +328,9 @@ export type {
   TechniqueNote,
   VolatilityModel,
 } from "./bespoke/index.js";
+export type {
+  WishlistIdsResponse,
+  WishlistItemResponse,
+  WishlistMergeResponse,
+  WishlistResponse,
+} from "./wishlist/index.js";

@@ -27,6 +27,7 @@ export function isPaperStorefrontPath(pathname: string): boolean {
     pathname === "/" ||
     pathname === "/shop" ||
     pathname === "/cart" ||
+    pathname === "/wishlist" ||
     pathname === "/checkout" ||
     pathname === "/collections" ||
     pathname === "/login" ||
