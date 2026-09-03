@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Heart } from "lucide-react";
 import { getWishlistedSlugs } from "@/lib/wishlist/wishlist-client";
 import { subscribeWishlistChanged } from "@/lib/wishlist/wishlist-events";
 import { cn } from "@/lib/cn";
@@ -57,20 +58,11 @@ export function WishlistNavLink({ tone = "dark" }: { tone?: WishlistNavTone }) {
         CONTROL[tone],
       )}
     >
-      <svg
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        fill="none"
-        className="h-[19px] w-[19px]"
-        aria-hidden="true"
-      >
-        <path
-          d="M12 20.3s-7.3-4.5-9.8-9C.8 7.8 2.3 4.5 5.4 4.5c1.9 0 3.5 1.1 4.6 2.7 1.1-1.6 2.7-2.7 4.6-2.7 3.1 0 4.6 3.3 3.2 6.8-2.5 4.5-9.8 9-9.8 9z"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-      </svg>
+      <Heart
+        aria-hidden
+        strokeWidth={1.75}
+        className={cn("h-[19px] w-[19px]", count > 0 && "fill-current")}
+      />
       {count > 0 ? (
         <span
           className={cn(

@@ -1,5 +1,6 @@
 import type { ComponentType, SVGProps } from "react";
 import Link from "next/link";
+import { Heart } from "lucide-react";
 import type { NavLinkTone } from "@/components/layout/bespoke-saved-nav-link";
 import { HeaderWhatsAppLink } from "@/components/layout/header-mobile-shortcuts";
 import { ACCOUNT_HOME } from "@/lib/auth/account-routes";
@@ -7,7 +8,7 @@ import { cn } from "@/lib/cn";
 
 type IconProps = SVGProps<SVGSVGElement>;
 
-/** Same 24px stroke as the header bag / shop / heart — not lucide. */
+/** Same 24px stroke as the header bag / shop. */
 function NavIcon({ children, ...props }: IconProps) {
   return (
     <svg
@@ -70,9 +71,12 @@ function SavedBlendsIcon(props: IconProps) {
 
 function WishlistIcon(props: IconProps) {
   return (
-    <NavIcon {...props}>
-      <path d="M12 20.3s-7.3-4.5-9.8-9C.8 7.8 2.3 4.5 5.4 4.5c1.9 0 3.5 1.1 4.6 2.7 1.1-1.6 2.7-2.7 4.6-2.7 3.1 0 4.6 3.3 3.2 6.8-2.5 4.5-9.8 9-9.8 9z" />
-    </NavIcon>
+    <Heart
+      aria-hidden
+      strokeWidth={1.6}
+      className="h-5 w-5 shrink-0"
+      {...props}
+    />
   );
 }
 

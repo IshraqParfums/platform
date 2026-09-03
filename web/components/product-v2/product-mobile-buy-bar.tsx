@@ -1,32 +1,30 @@
 "use client";
 
-import { ProductPrice } from "@/components/product-v2/product-price";
+import { CartQuantityStepper } from "@/components/cart/cart-quantity-stepper";
 import { useProductPurchase } from "@/components/product-v2/purchase-context";
-import { ViewCartLink } from "@/components/cart/view-cart-link";
 import { Button } from "@/components/ui/button";
+import { formatPaise } from "@/lib/format/money";
 
 /**
- * Sticky buy bar — mobile only, and the only sticky element on the page.
+ * Phone-only buy strip. It exists for one job: you have scrolled into the
+ * story and should not have to climb back to the arrival to buy.
  *
- * The v1 PDP pinned the *gallery* for the entire scroll, which kept the page
- * in shop-mode the whole way down. This inverts that: media never pins, and
- * the thing that follows you is the one thing you might actually want at any
- * point — the ability to buy.
- *
- * Deliberately minimal: name, price, one action. No size selection here —
- * it acts on the same variant already selected in the arrival (shared via
- * `purchase-context`), so there is exactly one selected size on the page and
- * no second add-to-cart path. Hidden entirely when the product isn't
- * buyable, and while the arrival's own CTA is still on screen.
+ * Price + add, or price + quantity once that size is already in the cart.
+ * No name, no strike-through, no "View cart" — the header bag covers that.
+ * Hidden on first view (even when Add to cart is below the fold), while
+ * the arrival CTA is on screen, and again past the end sentinel.
  */
 export function ProductMobileBuyBar() {
   const {
     selected,
     purchasable,
     inCart,
+    cartQty,
+    setCartQty,
+    cartPending,
+    maxQty,
     isPending,
     cartReady,
-    ctaState,
     addSelectedToCart,
     product,
     buyBarSuppressed,
@@ -37,39 +35,40 @@ export function ProductMobileBuyBar() {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-graphite/10 bg-paper/95 backdrop-blur-md lg:hidden"
+      role="region"
+      aria-label={`Buy ${product.name}`}
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-graphite/10 bg-paper lg:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="flex items-center justify-between gap-4 px-5 py-3">
-        <div className="min-w-0">
-          <p className="truncate font-editorial text-[16px] leading-tight text-graphite">
-            {product.name}
-          </p>
-          <ProductPrice
-            pricePaise={selected.pricePaise}
-            compareAtPaise={selected.compareAtPricePaise}
-            sizeMl={selected.sizeMl}
-            size="sm"
-            className="mt-0.5"
-          />
-        </div>
-
+      <div className="flex items-center justify-between gap-4 px-5 py-2.5">
+        <p className="min-w-0 font-editorial text-[18px] leading-none text-graphite">
+          {formatPaise(selected.pricePaise)}
+          {selected.sizeMl != null ? (
+            <span className="ml-2 text-[13px] text-graphite-soft">
+              {selected.sizeMl} ml
+            </span>
+          ) : null}
+        </p>
         {inCart ? (
-          <ViewCartLink />
+          <CartQuantityStepper
+            quantity={cartQty}
+            pending={cartPending}
+            min={0}
+            max={maxQty}
+            size="sm"
+            aria-label={`Quantity in cart for ${product.name}`}
+            onChange={setCartQty}
+          />
         ) : (
           <Button
             type="button"
             variant="ink"
-            size="md"
+            size="sm"
             className="shrink-0 cursor-pointer"
             disabled={isPending || !cartReady}
             onClick={addSelectedToCart}
           >
-            {isPending
-              ? "Adding…"
-              : ctaState === "added"
-                ? "Added"
-                : "Add to cart"}
+            {isPending ? "Adding…" : "Add to cart"}
           </Button>
         )}
       </div>

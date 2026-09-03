@@ -1,15 +1,11 @@
 "use client";
 
-import type { ProductDetail } from "@ishraqparfums/shared";
 import { CartQuantityStepper } from "@/components/cart/cart-quantity-stepper";
-import { ViewCartLink } from "@/components/cart/view-cart-link";
 import { ProductPrice } from "@/components/product-v2/product-price";
 import { ProductSizeSelect } from "@/components/product-v2/product-size-select";
 import { ProductTrustLine } from "@/components/product-v2/product-trust-line";
 import { useProductPurchase } from "@/components/product-v2/purchase-context";
 import { Button } from "@/components/ui/button";
-import { WishlistHeartButton } from "@/components/wishlist/wishlist-heart-button";
-import { productDetailToListItem } from "@/lib/catalog/product-detail-to-list-item";
 import { cn } from "@/lib/cn";
 
 /**
@@ -19,18 +15,8 @@ import { cn } from "@/lib/cn";
  * path live in `purchase-context.tsx`, shared with the sticky mobile bar and
  * the closing row. Sizes stay visible for OUT_OF_STOCK and UNAVAILABLE; the
  * CTA only appears when the selected size is actually buyable.
- *
- * The wishlist heart takes the full `ProductDetail` (not the context's
- * minimal `PurchaseProductMeta`) because it's product-level, orthogonal to
- * which size is selected — it lives here as a sibling of the buy state
- * rather than inside `purchase-context.tsx`, which stays scoped to
- * variant/cart concerns.
  */
-export function ProductPurchasePanel({
-  product: fullProduct,
-}: {
-  product: ProductDetail;
-}) {
+export function ProductPurchasePanel() {
   const {
     ordered,
     selected,
@@ -73,7 +59,6 @@ export function ProductPurchasePanel({
       <div>
         <ProductPrice
           pricePaise={selected.pricePaise}
-          compareAtPaise={selected.compareAtPricePaise}
           sizeMl={selected.sizeMl}
         />
         {stock ? (
@@ -88,22 +73,19 @@ export function ProductPurchasePanel({
         ) : null}
       </div>
 
-      {/* The sticky bar watches this block — it appears once this scrolls away. */}
+      {/* The phone strip watches this block — it appears once this scrolls away. */}
       <div ref={setBuyAnchor} className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
           {purchasable && inCart ? (
-            <div className="flex flex-wrap items-center gap-3">
-              <CartQuantityStepper
-                quantity={cartQty}
-                pending={cartPending}
-                min={0}
-                max={maxQty}
-                size="md"
-                aria-label={`Quantity in cart for ${product.name}`}
-                onChange={setCartQty}
-              />
-              <ViewCartLink />
-            </div>
+            <CartQuantityStepper
+              quantity={cartQty}
+              pending={cartPending}
+              min={0}
+              max={maxQty}
+              size="md"
+              aria-label={`Quantity in cart for ${product.name}`}
+              onChange={setCartQty}
+            />
           ) : purchasable ? (
             <Button
               type="button"
@@ -128,11 +110,6 @@ export function ProductPurchasePanel({
               This size is currently unavailable.
             </p>
           )}
-
-          <WishlistHeartButton
-            product={productDetailToListItem(fullProduct)}
-            variant="inline"
-          />
         </div>
 
         {purchasable ? <ProductTrustLine /> : null}

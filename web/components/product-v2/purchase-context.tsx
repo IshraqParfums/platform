@@ -46,7 +46,7 @@ export type PurchaseProductMeta = {
  *
  * The v1 PDP kept all of this inside the purchase panel, which was fine when
  * the panel was the only place you could buy. v2 has three: the panel in the
- * arrival, the sticky mobile bar, and the closing row at the end of the craft
+ * arrival, the phone buy strip, and the closing row at the end of the craft
  * chapter — and they sit in different bands, far apart in the tree. Giving
  * each its own `addToCart` would mean three copies of the money path and
  * three selected-variant states that could disagree, so the state lives here
@@ -75,12 +75,12 @@ type PurchaseValue = {
   errorMessage: string | null;
   addSelectedToCart: () => void;
   product: PurchaseProductMeta;
-  /** The arrival's CTA block registers itself here; the sticky bar watches it. */
+  /** The arrival's CTA block registers itself here; the phone strip watches it. */
   setBuyAnchor: (element: HTMLElement | null) => void;
   /**
-   * True while the sticky bar should stay out of the way — either the
-   * arrival's own CTA is still on screen, or the reader has reached the end
-   * of the product content and the footer is coming up.
+   * True while the phone buy strip should stay out of the way — the arrival
+   * CTA has not been scrolled past yet (including first view, when it is
+   * still below the fold), the CTA is on screen, or the footer is coming up.
    */
   buyBarSuppressed: boolean;
   /** The end-of-content sentinel registers itself here. */
@@ -133,9 +133,14 @@ export function ProductPurchaseProvider({
   const [guestModalOpen, setGuestModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  // The arrival's CTA is on screen at mount by definition, so this starts
-  // true and the bar never flashes in before the first observer callback.
-  const { setNode: setBuyAnchor, inView: buyInView } = useInView(true);
+  // First view on a phone is the gallery — the arrival CTA is often still
+  // below the fold. Do not treat "not intersecting" as "already passed";
+  // the strip waits until that block has gone off the top of the screen.
+  const {
+    setNode: setBuyAnchor,
+    inView: buyInView,
+    hasPassed: buyPassed,
+  } = useInView(false);
   // The end sentinel sits below the fold at mount, so it starts false. It
   // latches past (`includePassed`) so the bar stays retired while the footer
   // is on screen instead of reappearing over it.
@@ -252,7 +257,7 @@ export function ProductPurchaseProvider({
         product,
         setBuyAnchor,
         setEndAnchor,
-        buyBarSuppressed: buyInView || endReached,
+        buyBarSuppressed: !buyPassed || buyInView || endReached,
       }}
     >
       {children}
