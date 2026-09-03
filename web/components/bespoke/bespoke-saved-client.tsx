@@ -10,7 +10,6 @@ import {
 } from "@ishraqparfums/shared";
 import { BespokeSavedSkeleton } from "@/components/bespoke/bespoke-skeletons";
 import { BandInner } from "@/components/home-v2/ui/band";
-import { Urdu } from "@/components/home-v2/ui/urdu";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { shopFetch } from "@/lib/auth/shop-fetch";
@@ -74,10 +73,7 @@ export function BespokeSavedClient() {
   return (
     <section className="bg-paper py-16 md:py-24">
       <BandInner className="max-w-[760px]">
-        <Urdu size="sm" tone="brass" align="start">
-          {"محفوظ شدہ"}
-        </Urdu>
-        <h1 className="mt-3 font-editorial text-h2-editorial text-graphite">
+        <h1 className="font-editorial text-h2-editorial text-graphite">
           Your bespoke formulas.
         </h1>
 

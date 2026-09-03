@@ -5,15 +5,11 @@ import { usePathname } from "next/navigation";
 import { AccountMenu } from "@/components/layout/account-menu";
 import { BespokeSavedNavLink } from "@/components/layout/bespoke-saved-nav-link";
 import { CartNavLink } from "@/components/layout/cart-nav-link";
-import {
-  HeaderShopLink,
-  HeaderWhatsAppLink,
-} from "@/components/layout/header-mobile-shortcuts";
+import { HeaderMobileNav } from "@/components/layout/header-mobile-nav";
+import { HeaderShopLink } from "@/components/layout/header-mobile-shortcuts";
 import { Logo } from "@/components/layout/logo";
 import { WishlistNavLink } from "@/components/layout/wishlist-nav-link";
 import { Container } from "@/components/ui/container";
-import { DismissScrim } from "@/components/ui/dismiss-scrim";
-import { ACCOUNT_HOME } from "@/lib/auth/account-routes";
 import { cn } from "@/lib/cn";
 import { HEADER_HEIGHT_PX, isPaperStorefrontPath } from "@/lib/layout";
 import { useMobileNav } from "@/lib/ui/use-mobile-nav";
@@ -26,9 +22,10 @@ const NAV = [
 
 /**
  * Surface modes:
- * - light glass bar on the home page (graphite/indigo on paper), from scroll
- *   position zero
- * - solid espresso bar on every other route, and when the mobile menu is open
+ * - light glass bar on paper routes (graphite on parchment)
+ * - solid espresso bar on every other route
+ * - when the phone menu is open, the bar + list become one opaque sheet
+ *   so the page underneath (cart lines, etc.) does not show through a wash
  *
  * The home branch used to be the transparent one: the old hero was a full-bleed
  * espresso plate and the nav floated over it, going solid past 40px of scroll.
@@ -46,24 +43,23 @@ export function Header() {
   const { open, close, toggle, rootRef } = useMobileNav();
 
   return (
-    <>
-      {open ? (
-        <DismissScrim
-          onDismiss={close}
-          className={
-            light ? "bg-graphite/25 md:hidden" : "bg-deep/60 md:hidden"
-          }
-        />
-      ) : null}
-      <header
-        ref={rootRef}
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 border-b backdrop-blur-md",
-          light
-            ? "border-graphite/[0.07] bg-paper/70"
-            : "border-gold/15 bg-deep/92",
-        )}
-      >
+    <header
+      ref={rootRef}
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 overflow-visible border-b",
+        open && "bottom-0 flex flex-col md:bottom-auto md:block",
+        open
+          ? light
+            ? "border-graphite/[0.07] bg-paper"
+            : "border-gold/15 bg-deep"
+          : cn(
+              "backdrop-blur-md",
+              light
+                ? "border-graphite/[0.07] bg-paper/70"
+                : "border-gold/15 bg-deep/92",
+            ),
+      )}
+    >
       <Container size="wide">
         <div
           className="flex items-center justify-between gap-6"
@@ -94,7 +90,7 @@ export function Header() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-1 md:gap-2">
+          <div className="flex items-center gap-1 overflow-visible md:gap-2">
             <HeaderShopLink
               tone={light ? "light" : "dark"}
               onNavigate={close}
@@ -142,44 +138,20 @@ export function Header() {
       {open ? (
         <nav
           className={cn(
-            "border-t backdrop-blur-md md:hidden",
+            "min-h-0 flex-1 overflow-y-auto border-t md:hidden",
             light
-              ? "border-graphite/[0.07] bg-paper/[0.97]"
-              : "border-gold/15 bg-deep/97",
+              ? "border-graphite/[0.07] bg-paper"
+              : "border-gold/15 bg-deep",
           )}
         >
           <Container size="wide">
-            <div className="flex flex-col py-3">
-              {[
-                ...NAV,
-                { href: "/bespoke/saved", label: "Saved blends" },
-                { href: "/wishlist", label: "Wishlist" },
-                { href: "/cart", label: "Cart" },
-                { href: ACCOUNT_HOME, label: "Account" },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={close}
-                  className={cn(
-                    "border-b py-4 text-lg",
-                    light
-                      ? "border-graphite/10 font-editorial text-graphite"
-                      : "border-cream/8 font-display text-cream-soft",
-                  )}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <HeaderWhatsAppLink
-                tone={light ? "light" : "dark"}
-                onNavigate={close}
-              />
-            </div>
+            <HeaderMobileNav
+              tone={light ? "light" : "dark"}
+              onNavigate={close}
+            />
           </Container>
         </nav>
       ) : null}
     </header>
-    </>
   );
 }

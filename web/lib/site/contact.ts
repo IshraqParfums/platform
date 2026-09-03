@@ -5,7 +5,7 @@
  * These are brand details, not secrets — keep them here, not in env.
  * WhatsApp: E.164 digits only (country code included, no + or spaces).
  */
-const WHATSAPP_E164_DIGITS = "919000000000";
+const WHATSAPP_E164_DIGITS = "919060775270";
 const SUPPORT_EMAIL = "hello@ishraqparfums.com";
 
 export type SiteContact = {
@@ -33,6 +33,12 @@ export function getSiteContact(): SiteContact {
     mailtoUrl: `mailto:${SUPPORT_EMAIL}`,
   };
 }
+
+/**
+ * Flip on when a public support address is settled. The address itself
+ * stays in `SUPPORT_EMAIL` so we don't re-thread it later.
+ */
+export const SHOW_CONTACT_EMAIL = false;
 
 export const CONTACT_CHANNELS = {
   whatsapp: {

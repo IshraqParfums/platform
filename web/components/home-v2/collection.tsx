@@ -4,6 +4,7 @@ import { BandInner } from "@/components/home-v2/ui/band";
 import { Urdu } from "@/components/home-v2/ui/urdu";
 import { ButtonLink } from "@/components/ui/button";
 import { ProductCatalogStill } from "@/components/product/product-catalog-still";
+import { WishlistHeartButton } from "@/components/wishlist/wishlist-heart-button";
 import { HOME_COLLECTION } from "@/lib/content/home-v2";
 import { catalogStillImages } from "@/lib/catalog/still-images";
 import { formatPaise } from "@/lib/format/money";
@@ -62,20 +63,32 @@ function CollectionCard({
   const openingNotes = product.openingNotes ?? [];
 
   return (
-    <Link
-      href={`/products/${product.slug}`}
-      className="group flex flex-col gap-5 sm:grid sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] sm:items-stretch sm:gap-7"
-    >
+    <div className="group flex flex-col gap-5 sm:grid sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] sm:items-stretch sm:gap-7">
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper-deep">
-        <ProductCatalogStill
-          name={product.name}
-          images={catalogStillImages(product)}
-          sizes="(min-width: 1024px) 260px, (min-width: 640px) 300px, 100vw"
-          priority={index === 0}
+        <Link
+          href={`/products/${product.slug}`}
+          className="absolute inset-0 block"
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          <ProductCatalogStill
+            name={product.name}
+            images={catalogStillImages(product)}
+            sizes="(min-width: 1024px) 260px, (min-width: 640px) 300px, 100vw"
+            priority={index === 0}
+          />
+        </Link>
+        <WishlistHeartButton
+          product={product}
+          variant="overlay"
+          className="absolute right-3 top-3 z-10"
         />
       </div>
 
-      <div className="flex min-h-0 min-w-0 flex-col sm:h-full sm:justify-between">
+      <Link
+        href={`/products/${product.slug}`}
+        className="flex min-h-0 min-w-0 flex-col sm:h-full sm:justify-between"
+      >
         <div>
           <div className="flex items-baseline justify-between gap-3 sm:block">
             <h3 className="font-editorial text-[26px] leading-[1.1] text-graphite transition-colors duration-200 group-hover:text-terra sm:text-[30px]">
@@ -130,8 +143,8 @@ function CollectionCard({
             </p>
           ) : null}
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 

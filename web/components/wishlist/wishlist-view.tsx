@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { ProductListItem } from "@ishraqparfums/shared";
-import { Urdu } from "@/components/home-v2/ui/urdu";
 import { ShopJournalRow } from "@/components/shop/shop-journal-row";
 import { Skeleton, SkeletonScreen, SkeletonStack } from "@/components/ui/skeleton";
 import { ButtonLink, Button } from "@/components/ui/button";
@@ -45,10 +44,7 @@ function WishlistSkeleton() {
 function WishlistEmpty() {
   return (
     <div className="mx-auto max-w-lg py-10 text-center sm:py-14 md:py-16">
-      <Urdu size="sm" tone="brass" align="center">
-        {"ابھی خالی ہے"}
-      </Urdu>
-      <h1 className="mt-4 font-editorial text-[clamp(32px,4.6vw,44px)] leading-[1.04] text-graphite">
+      <h1 className="font-editorial text-[clamp(32px,4.6vw,44px)] leading-[1.04] text-graphite">
         Nothing saved yet.
       </h1>
       <p className="mx-auto mt-5 max-w-sm text-[15px] leading-relaxed text-graphite-soft">
@@ -134,10 +130,7 @@ export function WishlistView() {
   return (
     <div>
       <header className="max-w-xl">
-        <Urdu size="sm" tone="brass" align="start">
-          {"آپ کی پسندیدہ فہرست"}
-        </Urdu>
-        <h1 className="mt-3 font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
+        <h1 className="font-editorial text-[clamp(30px,4.2vw,42px)] leading-[1.04] text-graphite">
           Your wishlist.
         </h1>
         <p className="mt-3 font-ui text-[11px] uppercase tracking-[0.14em] text-graphite-mute">

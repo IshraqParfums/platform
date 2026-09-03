@@ -1,19 +1,25 @@
 import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
-import { CONTACT_CHANNELS, getSiteContact } from "@/lib/site/contact";
+import { CONTACT_CHANNELS, SHOW_CONTACT_EMAIL, getSiteContact } from "@/lib/site/contact";
 import { cn } from "@/lib/cn";
 
 /**
- * Two equal channel cards — WhatsApp primary, email secondary. Borders and a
- * quiet shadow only; no fills that read as a SaaS pricing table.
+ * WhatsApp is the live channel. Email is kept in the same file and
+ * gated by `SHOW_CONTACT_EMAIL` until the public address is decided.
  */
 export function ContactChannels() {
   const contact = getSiteContact();
   const { whatsapp, email } = CONTACT_CHANNELS;
 
   return (
-    <div className="grid gap-5 md:grid-cols-2 md:gap-6 lg:gap-8">
+    <div
+      className={
+        SHOW_CONTACT_EMAIL
+          ? "grid gap-5 md:grid-cols-2 md:gap-6 lg:gap-8"
+          : "grid max-w-xl gap-5"
+      }
+    >
       <Reveal delay={60}>
         <ChannelCard>
           <ChannelHeader label={whatsapp.label} blurb={whatsapp.blurb} uses={whatsapp.uses} />
@@ -35,22 +41,24 @@ export function ContactChannels() {
         </ChannelCard>
       </Reveal>
 
-      <Reveal delay={120}>
-        <ChannelCard>
-          <ChannelHeader label={email.label} blurb={email.blurb} uses={email.uses} />
-          <div className="mt-auto flex flex-col items-start gap-3 pt-8">
-            <ButtonLink href={contact.mailtoUrl} variant="outline-paper" size="lg">
-              {email.cta}
-            </ButtonLink>
-            <a
-              href={contact.mailtoUrl}
-              className="text-[14.5px] text-graphite-soft underline decoration-graphite/20 underline-offset-4 transition-colors hover:text-terra hover:decoration-terra/50"
-            >
-              {contact.email}
-            </a>
-          </div>
-        </ChannelCard>
-      </Reveal>
+      {SHOW_CONTACT_EMAIL ? (
+        <Reveal delay={120}>
+          <ChannelCard>
+            <ChannelHeader label={email.label} blurb={email.blurb} uses={email.uses} />
+            <div className="mt-auto flex flex-col items-start gap-3 pt-8">
+              <ButtonLink href={contact.mailtoUrl} variant="outline-paper" size="lg">
+                {email.cta}
+              </ButtonLink>
+              <a
+                href={contact.mailtoUrl}
+                className="text-[14.5px] text-graphite-soft underline decoration-graphite/20 underline-offset-4 transition-colors hover:text-terra hover:decoration-terra/50"
+              >
+                {contact.email}
+              </a>
+            </div>
+          </ChannelCard>
+        </Reveal>
+      ) : null}
     </div>
   );
 }

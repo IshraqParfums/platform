@@ -23,30 +23,63 @@ const BADGE: Record<CartNavTone, string> = {
   light: "bg-indigo text-shell",
 };
 
+const HEADER_CART_COUNT_KEY = "ishraq_header_cart_count";
+
+function readHeaderCartCount(): number {
+  const local = readLocalCartCount();
+  if (local > 0) return local;
+  try {
+    const raw = sessionStorage.getItem(HEADER_CART_COUNT_KEY);
+    const n = raw == null ? 0 : Number(raw);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function rememberHeaderCartCount(n: number) {
+  try {
+    sessionStorage.setItem(HEADER_CART_COUNT_KEY, String(n));
+  } catch {
+    /* private mode */
+  }
+}
+
 export function CartNavLink({ tone = "dark" }: { tone?: CartNavTone }) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+    const seed = readHeaderCartCount();
+    setCount(seed);
 
     async function refresh() {
       try {
         const response = await shopFetch("/api/cart", { cache: "no-store" });
+        if (cancelled) return;
         if (response.ok) {
           const data = (await response.json()) as { itemCount?: number };
-          if (!cancelled) {
-            setCount(typeof data.itemCount === "number" ? data.itemCount : 0);
+          if (typeof data.itemCount === "number") {
+            rememberHeaderCartCount(data.itemCount);
+            setCount(data.itemCount);
+            return;
           }
-          return;
         }
-        if (!cancelled) setCount(readLocalCartCount());
+        const local = readLocalCartCount();
+        rememberHeaderCartCount(local);
+        setCount(local);
       } catch {
-        if (!cancelled) setCount(readLocalCartCount());
+        if (!cancelled) {
+          const local = readLocalCartCount();
+          rememberHeaderCartCount(local);
+          setCount(local);
+        }
       }
     }
 
     void refresh();
     const unsubscribe = subscribeCartChanged((detail) => {
+      rememberHeaderCartCount(detail.itemCount);
       setCount(detail.itemCount);
     });
 
@@ -64,7 +97,7 @@ export function CartNavLink({ tone = "dark" }: { tone?: CartNavTone }) {
       href="/cart"
       aria-label={label}
       className={cn(
-        "relative flex h-10 w-10 items-center justify-center rounded-full transition-colors",
+        "relative z-10 flex h-10 w-10 shrink-0 items-center justify-center overflow-visible rounded-full transition-colors",
         CONTROL[tone],
       )}
     >
@@ -86,7 +119,7 @@ export function CartNavLink({ tone = "dark" }: { tone?: CartNavTone }) {
       {count > 0 ? (
         <span
           className={cn(
-            "absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 font-mono text-[10px] font-semibold leading-none",
+            "pointer-events-none absolute right-0.5 top-0.5 z-10 flex h-4 min-w-4 items-center justify-center rounded-full px-1 font-mono text-[10px] font-semibold leading-none",
             BADGE[tone],
           )}
         >

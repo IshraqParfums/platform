@@ -95,7 +95,7 @@ export function pickCollection(
 
 export const HOME_COLLECTION = {
   kicker: "The collection",
-  heading: "Four perfumes, ready to wear.",
+  heading: "Ready to wear.",
   lead: "Composed and bottled in small runs. Wear one as it is, or start from it.",
   soldOut: "Sold out",
   cta: { label: "View all perfumes", href: "/shop" },
