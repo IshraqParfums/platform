@@ -121,7 +121,7 @@ export function ProductReviewCard({
       </div>
 
       {review.body ? (
-        <p className="mt-4 font-editorial text-[17px] italic leading-[1.6] text-graphite">
+        <p className="mt-4 text-[16px] leading-[1.65] text-graphite">
           {review.body}
         </p>
       ) : null}

@@ -5,6 +5,10 @@ import { usePathname } from "next/navigation";
 import { AccountMenu } from "@/components/layout/account-menu";
 import { BespokeSavedNavLink } from "@/components/layout/bespoke-saved-nav-link";
 import { CartNavLink } from "@/components/layout/cart-nav-link";
+import {
+  HeaderShopLink,
+  HeaderWhatsAppLink,
+} from "@/components/layout/header-mobile-shortcuts";
 import { Logo } from "@/components/layout/logo";
 import { Container } from "@/components/ui/container";
 import { DismissScrim } from "@/components/ui/dismiss-scrim";
@@ -89,9 +93,15 @@ export function Header() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
+            <HeaderShopLink
+              tone={light ? "light" : "dark"}
+              onNavigate={close}
+            />
             <AccountMenu tone={light ? "light" : "dark"} />
-            <BespokeSavedNavLink tone={light ? "light" : "dark"} />
+            <div className="hidden md:block">
+              <BespokeSavedNavLink tone={light ? "light" : "dark"} />
+            </div>
             <CartNavLink tone={light ? "light" : "dark"} />
 
             <button
@@ -147,7 +157,7 @@ export function Header() {
                   href={item.href}
                   onClick={close}
                   className={cn(
-                    "border-b py-4 text-lg last:border-0",
+                    "border-b py-4 text-lg",
                     light
                       ? "border-graphite/10 font-editorial text-graphite"
                       : "border-cream/8 font-display text-cream-soft",
@@ -156,6 +166,10 @@ export function Header() {
                   {item.label}
                 </Link>
               ))}
+              <HeaderWhatsAppLink
+                tone={light ? "light" : "dark"}
+                onNavigate={close}
+              />
             </div>
           </Container>
         </nav>
