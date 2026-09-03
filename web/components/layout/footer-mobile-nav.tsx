@@ -12,8 +12,9 @@ export type FooterNavColumn = {
 export type FooterNavTone = "paper" | "espresso";
 
 /**
- * Mobile-only accordion for footer link groups.
- * Desktop columns stay in Footer — this is purpose-built for thumbs.
+ * Mobile-only accordion for footer link groups. Not mounted today — phone
+ * footer is brand + WhatsApp + legal. Keep this for a later sitemap if needed.
+ * Desktop columns stay in FooterFrame.
  */
 export function FooterMobileNav({
   columns,

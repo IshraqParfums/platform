@@ -9,7 +9,7 @@ import { ProductReviewCard } from "@/components/product-v2/reviews/product-revie
 import { PaginationControls } from "@/components/ui/pagination-controls";
 
 /**
- * Community reviews in two columns. Page changes replace the list.
+ * Community reviews as a single column of quotes. Page changes replace the list.
  */
 export function ProductReviewList({
   slug,
@@ -62,7 +62,7 @@ export function ProductReviewList({
 
   return (
     <div>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="divide-y divide-graphite/10 border-t border-graphite/10">
         {showMine && mine ? (
           <ProductReviewCard
             review={mine}

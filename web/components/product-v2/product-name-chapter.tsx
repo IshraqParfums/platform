@@ -1,5 +1,4 @@
 import type { ProductIdentity, ProductMeaningStory } from "@ishraqparfums/shared";
-import { Urdu } from "@/components/home-v2/ui/urdu";
 import { RecordSection } from "@/components/product-v2/ui/record";
 
 /**
@@ -43,16 +42,6 @@ export function ProductNameChapter({
           <p key={i}>{paragraph}</p>
         ))}
       </div>
-
-      {meaningStory.bodyTranslation && meaningStory.bodyTranslation.length > 0 ? (
-        <div className="mt-5 space-y-3">
-          {meaningStory.bodyTranslation.map((paragraph, i) => (
-            <Urdu key={i} size="sm" tone="brass-deep" leading="loose">
-              {paragraph}
-            </Urdu>
-          ))}
-        </div>
-      ) : null}
     </RecordSection>
   );
 }

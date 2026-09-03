@@ -117,10 +117,7 @@ function toTagline(
   product: ProductWithCatalogRelations,
 ): ProductDetail['tagline'] {
   if (!product.taglinePrimary) return null;
-  return {
-    primary: product.taglinePrimary,
-    translation: product.taglineTranslation,
-  };
+  return { primary: product.taglinePrimary };
 }
 
 function toMeaningStory(value: unknown): ProductDetail['meaningStory'] {
@@ -128,11 +125,7 @@ function toMeaningStory(value: unknown): ProductDetail['meaningStory'] {
   if (typeof value.heading !== 'string') return null;
   const body = asStringArray(value.body);
   if (!body) return null;
-  return {
-    heading: value.heading,
-    body,
-    bodyTranslation: asStringArray(value.bodyTranslation),
-  };
+  return { heading: value.heading, body };
 }
 
 function toNoteList(
@@ -141,7 +134,7 @@ function toNoteList(
   if (!isRecord(value)) return null;
   const notes = asStringArray(value.notes);
   if (!notes) return null;
-  return { notes, notesTranslation: asStringArray(value.notesTranslation) };
+  return { notes };
 }
 
 function toNotesPyramid(value: unknown): ProductDetail['notesPyramid'] {
@@ -363,7 +356,6 @@ export function toAdminProductDetail(
     pronunciation: product.pronunciation,
     meaning: product.meaning,
     taglinePrimary: product.taglinePrimary,
-    taglineTranslation: product.taglineTranslation,
     meaningStory: toMeaningStory(product.meaningStoryJson),
     notesPyramid: toNotesPyramid(product.notesPyramidJson),
     scentFamily: product.scentFamily,

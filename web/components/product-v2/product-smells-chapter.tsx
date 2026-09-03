@@ -22,8 +22,11 @@ function humanize(value: string): string {
  */
 export function ProductSmellsChapter({
   olfactoryProfile,
+  hideKicker,
 }: {
   olfactoryProfile: ProductOlfactoryProfile | null;
+  /** Omit the "How it smells" title when a wrapping row already shows it. */
+  hideKicker?: boolean;
 }) {
   if (!olfactoryProfile) return null;
 
@@ -50,7 +53,7 @@ export function ProductSmellsChapter({
   if (!family && character.length === 0 && facts.length === 0) return null;
 
   return (
-    <RecordSection kicker="How it smells">
+    <RecordSection kicker={hideKicker ? undefined : "How it smells"}>
       {family ? (
         <p className="font-editorial text-[clamp(24px,3vw,32px)] leading-[1.15] text-graphite">
           {family}

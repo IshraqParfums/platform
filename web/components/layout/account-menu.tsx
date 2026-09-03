@@ -70,7 +70,7 @@ export function AccountMenu({ tone = "dark" }: { tone?: AccountMenuTone }) {
   }, [open]);
 
   return (
-    <div ref={rootRef} className="relative hidden sm:block">
+    <div ref={rootRef} className="relative hidden md:block">
       <button
         type="button"
         aria-haspopup="menu"

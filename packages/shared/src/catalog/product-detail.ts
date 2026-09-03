@@ -46,18 +46,15 @@ export interface ProductTagline {
   /** The leading line — whichever language leads is a content choice, not
    *  fixed by this type. */
   primary: string;
-  translation: string | null;
 }
 
 export interface ProductMeaningStory {
   heading: string;
   body: string[];
-  bodyTranslation: string[] | null;
 }
 
 export interface ProductNoteList {
   notes: string[];
-  notesTranslation: string[] | null;
 }
 
 export interface ProductNotesPyramid {

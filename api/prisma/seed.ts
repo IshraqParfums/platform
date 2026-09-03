@@ -43,11 +43,9 @@ async function upsertCollection(input: {
   });
 }
 
-/** { notes: string[]; notesTranslation: string[] | null } — one tier of the
- *  fragrance notes pyramid. English notes plus optional Urdu names. */
+/** { notes: string[] } — one tier of the fragrance notes pyramid. */
 type NoteList = {
   notes: string[];
-  notesTranslation: string[] | null;
 };
 
 /** Shape of `Product.notesPyramidJson`. */
@@ -61,7 +59,6 @@ type NotesPyramid = {
 type MeaningStory = {
   heading: string;
   body: string[];
-  bodyTranslation: string[] | null;
 };
 
 /** One entry of `Product.faqJson`. */
@@ -89,11 +86,10 @@ async function upsertProductWithDetails(input: {
   // --- PDP content -------------------------------------------------------
   // Seeded values are placeholder-quality (not final client copy) but
   // structurally complete, so every product PDP section renders with
-  // real-looking content. Translation fields are Urdu (Nastaliq) placeholders.
+  // real-looking content.
   pronunciation: string;
   meaning: string;
   taglinePrimary: string;
-  taglineTranslation: string;
   meaningStory: MeaningStory;
   notesPyramid: NotesPyramid;
   scentFamily: string;
@@ -114,7 +110,6 @@ async function upsertProductWithDetails(input: {
     pronunciation: input.pronunciation,
     meaning: input.meaning,
     taglinePrimary: input.taglinePrimary,
-    taglineTranslation: input.taglineTranslation,
     meaningStoryJson: input.meaningStory as unknown as Prisma.InputJsonValue,
     notesPyramidJson: input.notesPyramid as unknown as Prisma.InputJsonValue,
     scentFamily: input.scentFamily,
@@ -322,30 +317,22 @@ async function main() {
     pronunciation: 'SIT-russ AT-uhl-yay',
     meaning: 'Citrus workshop',
     taglinePrimary: 'Sunlight, bottled.',
-    taglineTranslation: 'دھوپ کی خوشبو',
     meaningStory: {
       heading: 'A workshop built on light',
       body: [
         "Citrus Atelier began as a study in brightness — how far a composition can lean into freshness without turning thin. The name borrows the idea of an atelier, a working studio, because that's what this scent feels like: citrus oils tested and retested until the balance felt right.",
         "It's the kind of fragrance you reach for on a morning that needs a lift — not loud, not complicated, just clean sunlight rendered as a scent.",
       ],
-      bodyTranslation: [
-        'نکہتِ ترنج روشنی کے مطالعے سے شروع ہوا — تازگی کو اس حد تک لے جانا کہ وہ پتلی نہ لگے۔ نام اٹیلیے سے آیا ہے، ایک کام کرنے والی ورکشاپ، کیونکہ یہ خوشبو ویسی ہی ہے: کھٹی تیل بار بار آزمائی گئیں جب تک توازن ٹھیک نہ لگا۔',
-        'یہ وہ خوشبو ہے جو ایسے صبح کے لیے ہے جسے اٹھان چاہیے — نہ شور، نہ پیچیدگی، صرف صاف دھوپ جو خوشبو بن گئی۔',
-      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Sicilian bergamot', 'Lemon peel', 'Mandarin'],
-        notesTranslation: ['برگاموٹ', 'لیموں کا چھلکا', 'سنترہ'],
       },
       heart: {
         notes: ['Neroli', 'White petals', 'Green tea accord'],
-        notesTranslation: ['نرولی', 'سفید پنکھڑیاں', 'سبز چائے'],
       },
       base: {
         notes: ['White musk', 'Soft cedar', 'Ambrette'],
-        notesTranslation: ['سفید مشک', 'نرم دیودار', 'امبریٹ'],
       },
     },
     scentFamily: 'Citrus Aromatic',
@@ -404,30 +391,22 @@ async function main() {
     pronunciation: 'nwahr VEL-vit',
     meaning: 'Black velvet',
     taglinePrimary: 'The velvet hush of night.',
-    taglineTranslation: 'رات کی مخملی خاموشی',
     meaningStory: {
       heading: 'What the dark holds',
       body: [
         "Noir Velvet takes its name literally: noir for the hour it's built for, velvet for the way it sits on skin — soft-edged, warm, without a single sharp note to interrupt it.",
         "It's a composition for after the sun is down — spice at the opening giving way to something resinous and slow, built to linger rather than announce itself.",
       ],
-      bodyTranslation: [
-        'سیاہ مخمل کا نام لفظی ہے: نوآر اس گھڑی کے لیے جس کے لیے یہ بنایا گیا، مخمل اس انداز کے لیے جس سے یہ جلد پر بیٹھتا ہے — نرم کنارے، گرم، بغیر کسی تیز نوٹ کے جو اسے توڑ دے۔',
-        'یہ سورج ڈھلنے کے بعد کی ترکیب ہے — شروع میں مصالحہ، پھر رال اور سست گرمی، جو اعلان کرنے کے بجائے ٹھہر جاتی ہے۔',
-      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Pink pepper', 'Cardamom', 'Bergamot'],
-        notesTranslation: ['گل مرچ', 'الائچی', 'برگاموٹ'],
       },
       heart: {
         notes: ['Amber resin', 'Rose absolute', 'Incense'],
-        notesTranslation: ['عنبر رال', 'گلاب', 'لوبان'],
       },
       base: {
         notes: ['Sandalwood', 'Dark musk', 'Tonka bean'],
-        notesTranslation: ['چندن', 'سیاہ مشک', 'ٹونکا'],
       },
     },
     scentFamily: 'Woody Amber',
@@ -486,30 +465,22 @@ async function main() {
     pronunciation: 'SEE-der SESH-uns',
     meaning: 'Wood, in the moment',
     taglinePrimary: 'Dry wood, held steady.',
-    taglineTranslation: 'خشک لکڑی، سیدھی اور سنجیدہ۔',
     meaningStory: {
       heading: 'No sweetness to hide behind',
       body: [
         'Cedar Sessions is named for exactly what it is — a session spent with raw materials, cedar chief among them, with nothing added to soften the edges. No vanilla, no sugar, no shortcut to likability.',
         "It's a composition that trusts dryness: pepper and petitgrain at the top, cedarwood carrying the middle, vetiver holding everything down. Quiet, composed, and confident enough not to need embellishment.",
       ],
-      bodyTranslation: [
-        'دیودار کی محفل کا نام وہی ہے جو یہ ہے — خام مواد کے ساتھ ایک نشست، سب سے پہلے دیودار، بغیر کسی چیز کے جو کنارے نرم کر دے۔ نہ ونیلا، نہ شکر، نہ پسندیدگی کا شارٹ کٹ۔',
-        'یہ خشکی پر بھروسہ کرتی ہے: اوپر مرچ اور پیٹیگرین، درمیان میں دیودار، نیچے ویٹیور۔ خاموش، سنجیدہ، اور اتنی پُراعتماد کہ سجاوٹ کی ضرورت نہیں۔',
-      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Black pepper', 'Petitgrain', 'Bergamot'],
-        notesTranslation: ['کالی مرچ', 'پیٹیگرین', 'برگاموٹ'],
       },
       heart: {
         notes: ['Cedarwood', 'Iso E Super', 'Cypress'],
-        notesTranslation: ['دیودار', 'آئسو ای', 'سرو'],
       },
       base: {
         notes: ['Vetiver', 'Dry amber', 'Oakmoss'],
-        notesTranslation: ['ویٹیور', 'خشک عنبر', 'اوک ماس'],
       },
     },
     scentFamily: 'Woody Aromatic',
@@ -564,30 +535,22 @@ async function main() {
     pronunciation: 'MON-soon LET-erz',
     meaning: 'Letters written in the rain',
     taglinePrimary: 'The scent that comes after rain.',
-    taglineTranslation: 'بارش کے بعد کی خوشبو',
     meaningStory: {
       heading: 'The smell of a letter you kept',
       body: [
         "Monsoon Letters is built around a very specific memory: rain on warm ground, tea going cold on a windowsill, an old letter re-read for no particular reason. It isn't trying to be a grand fragrance — it's trying to be a familiar one.",
         'The composition stays close to skin on purpose. This is a scent meant to be discovered by someone standing near you, not announced across a room.',
       ],
-      bodyTranslation: [
-        'برسات کے خطوط ایک خاص یاد کے گرد بنائے گئے: گرم زمین پر بارش، کھڑکی پر ٹھنڈی ہوتی چائے، ایک پرانا خط بغیر کسی وجہ کے دوبارہ پڑھا ہوا۔ یہ بڑی خوشبو بننے کی کوشش نہیں — مانوس ہونے کی کوشش ہے۔',
-        'ترکیب جان بوجھ کر جلد کے قریب رہتی ہے۔ یہ وہ خوشبو ہے جو پاس کھڑے کسی کو معلوم ہو، کمرے کے اس پار اعلان نہ ہو۔',
-      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Petrichor accord', 'Bergamot', 'Green tea'],
-        notesTranslation: ['مٹی کی خوشبو', 'برگاموٹ', 'سبز چائے'],
       },
       heart: {
         notes: ['Wet paper accord', 'Fig leaf', 'Violet'],
-        notesTranslation: ['گیلا کاغذ', 'انجیر کا پتہ', 'بنفشہ'],
       },
       base: {
         notes: ['Soft woods', 'White musk', 'Amber'],
-        notesTranslation: ['نرم لکڑیاں', 'سفید مشک', 'عنبر'],
       },
     },
     scentFamily: 'Green Aromatic',
@@ -646,30 +609,22 @@ async function main() {
     pronunciation: 'AT-tar of SUN-dayz',
     meaning: "A Sunday's fragrance",
     taglinePrimary: 'The scent of slow mornings.',
-    taglineTranslation: 'اتوار کی خوشبو',
     meaningStory: {
       heading: 'A dressing table, remembered',
       body: [
         "Attar of Sundays is built around one image: a dressing table on a slow Sunday morning, rose and powder in the air before anyone else is awake. It's a fragrance about unhurried time, not about being anywhere in particular.",
         'Rose leads, violet powders it, and a soft musk sits underneath — close, familiar, the kind of scent that feels like it was already part of the room before you walked in.',
       ],
-      bodyTranslation: [
-        'اتوار کا عطر ایک تصویر کے گرد ہے: اتوار کی سست صبح، کوئی جاگا نہیں، میز پر گلاب اور پاؤڈر کی ہوا۔ یہ بے تابی کی خوشبو نہیں — بے جلدی وقت کی ہے۔',
-        'گلاب آگے ہے، بنفشہ اسے پاؤڈر کرتا ہے، اور نیچے نرم مشک — قریب، مانوس، جیسی خوشبو کمرے میں تم سے پہلے سے تھی۔',
-      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Rose otto', 'Pink pepper'],
-        notesTranslation: ['گلاب اٹو', 'گل مرچ'],
       },
       heart: {
         notes: ['Violet', 'Iris powder', 'Geranium'],
-        notesTranslation: ['بنفشہ', 'آئرس', 'جیرانیم'],
       },
       base: {
         notes: ['White musk', 'Sandalwood'],
-        notesTranslation: ['سفید مشک', 'چندن'],
       },
     },
     scentFamily: 'Powdery Floral',
@@ -728,30 +683,22 @@ async function main() {
     pronunciation: 'AM-ber muh-RID-ee-un',
     meaning: 'Amber at high noon',
     taglinePrimary: 'Gold at its slowest hour.',
-    taglineTranslation: 'سنہری دوپہر',
     meaningStory: {
       heading: 'The hour the light turns gold',
       body: [
         'Amber Meridian is named for the meridian line — the point where the day is at its fullest — reimagined as a scent rather than a time. It is warm without being heavy, sweet without tipping into dessert.',
         'Cardamom and pink pepper open it brightly before labdanum and benzoin take over, honeyed and unhurried. Built less for any one moment than for the long stretch of an evening that is in no rush to end.',
       ],
-      bodyTranslation: [
-        'عنبرِ نیم روز نصف النہار کی لکیر کے نام پر ہے — دن کی سب سے بھری گھڑی — وقت نہیں، خوشبو۔ گرم ہے مگر بھاری نہیں، میٹھی ہے مگر میٹھی ڈش نہیں بنتی۔',
-        'الائچی اور گل مرچ اسے روشن کھولتی ہیں، پھر لبدانم اور بینزوائن سنہری اور بے جلدی لے لیتے ہیں۔ کسی ایک لمحے کے لیے نہیں، ایک لمبی شام کے لیے جو ختم ہونے کو جلدی نہیں۔',
-      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Cardamom', 'Pink pepper', 'Bergamot'],
-        notesTranslation: ['الائچی', 'گل مرچ', 'برگاموٹ'],
       },
       heart: {
         notes: ['Labdanum', 'Benzoin', 'Cinnamon'],
-        notesTranslation: ['لبدانم', 'بینزوائن', 'دارچینی'],
       },
       base: {
         notes: ['Amber', 'Vanilla', 'Soft musk'],
-        notesTranslation: ['عنبر', 'ونیلا', 'نرم مشک'],
       },
     },
     scentFamily: 'Oriental Amber',
@@ -815,30 +762,22 @@ async function main() {
     pronunciation: 'ood ish-RAAK',
     meaning: 'Oud of the dawn light',
     taglinePrimary: 'Radiance, before the world wakes.',
-    taglineTranslation: 'اشراق کی روشنی',
     meaningStory: {
       heading: 'The light before sunrise',
       body: [
         'Ishraq means radiance — the particular light of early morning, just before the sun fully clears the horizon. Pairing it with oud is deliberate: our most concentrated, most serious composition, named for a moment of quiet brilliance rather than volume.',
         'It opens smoky and animalic, a genuine oud base, before spiced suede and a thread of frankincense lift it toward something closer to warmth than darkness. Made in strictly limited batches — when a batch is gone, it is gone.',
       ],
-      bodyTranslation: [
-        'اشراق کا مطلب چمک ہے — وہ خاص روشنی جو سورج افق سے پہلے آتی ہے۔ اسے عود کے ساتھ جوڑنا جان بوجھ کر ہے: ہماری سب سے گہری، سنجیدہ ترکیب، شور کے بجائے خاموش چمک کے نام پر۔',
-        'شروع میں دھواں اور حیوانی عود، پھر مصالحہ سوئڈ اور لوبان کی ایک لکیڑ اسے اندھیرے سے زیادہ گرمی کی طرف اٹھاتی ہے۔ محدود بیچ — بیچ ختم تو ختم۔',
-      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Smoked oud', 'Saffron', 'Black pepper'],
-        notesTranslation: ['دھواں دار عود', 'زعفران', 'کالی مرچ'],
       },
       heart: {
         notes: ['Spiced suede', 'Frankincense', 'Rose'],
-        notesTranslation: ['مصالحہ سوئڈ', 'لوبان', 'گلاب'],
       },
       base: {
         notes: ['Dark resin', 'Agarwood', 'Musk'],
-        notesTranslation: ['گہری رال', 'اگر', 'مشک'],
       },
     },
     scentFamily: 'Oriental Woody',
@@ -901,30 +840,22 @@ async function main() {
     pronunciation: 'smohk and SAF-run',
     meaning: 'Ember and spice',
     taglinePrimary: 'Ember and gold, side by side.',
-    taglineTranslation: 'دھواں اور زعفران',
     meaningStory: {
       heading: 'Warm without turning sweet',
       body: [
         'Smoke & Saffron sits right at the edge of edible without ever crossing it — saffron and cinnamon bark warmed over a base of labdanum, with just a whisper of campfire smoke threaded through.',
         'It is a composition built for cooler months and low light: resinous, a little smoky, closer to sitting near a fire than to a bakery. Part of the same limited-batch philosophy as the rest of this collection.',
       ],
-      bodyTranslation: [
-        'دھواں و زعفران کھانے کی حد کے بالکل کنارے پر ہے مگر پار نہیں جاتا — زعفران اور دارچینی کی چھال، لبدانم کے اوپر گرم، اور آگ کے دھوئیں کی ایک سرگوشی۔',
-        'ٹھنڈے مہینوں اور کم روشنی کے لیے: رال، تھوڑا دھواں، بیکری سے زیادہ آگ کے پاس بیٹھنے جیسا۔ اسی محدود بیچ کے فلسفے کا حصہ۔',
-      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Saffron', 'Cinnamon bark', 'Cardamom'],
-        notesTranslation: ['زعفران', 'دارچینی کی چھال', 'الائچی'],
       },
       heart: {
         notes: ['Labdanum', 'Campfire smoke accord', 'Clove'],
-        notesTranslation: ['لبدانم', 'آگ کا دھواں', 'لونگ'],
       },
       base: {
         notes: ['Dry amber', 'Guaiac wood', 'Musk'],
-        notesTranslation: ['خشک عنبر', 'گائیک لکڑی', 'مشک'],
       },
     },
     scentFamily: 'Spicy Woody',
@@ -982,30 +913,22 @@ async function main() {
     pronunciation: 'VEL-vit ri-ZERV',
     meaning: 'Held back, kept dark',
     taglinePrimary: 'Kept for those who wait.',
-    taglineTranslation: 'جو انتظار کرتے ہیں ان کے لیے۔',
     meaningStory: {
       heading: 'The last word in the collection',
       body: [
         'Velvet Reserve closes out the Limited Edition line the way a reserve bottling should — patchouli and dark musk laid over vetiver and ambrette, deep, unhurried, and slow to let go.',
         'The name is literal: this is the one we held back, released only in small numbers, meant for whoever is patient enough to seek it out rather than whoever finds it first.',
       ],
-      bodyTranslation: [
-        'مخملی ذخیرہ لمیٹڈ لائن کو ویسے بند کرتا ہے جیسے ایک ریزرو بوتل کو ہونا چاہیے — پیچولی اور سیاہ مشک، ویٹیور اور امبریٹ پر، گہری، بے جلدی، چھوڑنے میں سست۔',
-        'نام لفظی ہے: یہ وہ ہے جسے ہم نے روک کر رکھا، چھوٹی تعداد میں، اس کے لیے جو پہلے ملنے والے کے بجائے ڈھونڈنے کا انتظار کرے۔',
-      ],
     },
     notesPyramid: {
       opening: {
         notes: ['Dark plum', 'Bergamot'],
-        notesTranslation: ['آلو بخارا', 'برگاموٹ'],
       },
       heart: {
         notes: ['Patchouli', 'Rose', 'Ambrette'],
-        notesTranslation: ['پیچولی', 'گلاب', 'امبریٹ'],
       },
       base: {
         notes: ['Vetiver', 'Dark musk', 'Oakmoss'],
-        notesTranslation: ['ویٹیور', 'سیاہ مشک', 'اوک ماس'],
       },
     },
     scentFamily: 'Chypre Woody',

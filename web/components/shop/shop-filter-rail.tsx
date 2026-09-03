@@ -4,6 +4,12 @@ import { ShopSearch } from "@/components/shop/shop-search";
 import { ShopSortSelect } from "@/components/shop/shop-sort-select";
 
 /**
+ * Flip on to put search + sort back beside the masthead. Query params still
+ * work while this is off; only the chrome is hidden.
+ */
+export const SHOP_FILTER_RAIL_VISIBLE = false;
+
+/**
  * Catalogue index: title beside search/sort on md+; one tools row on the phone.
  */
 export function ShopFilterRail({
@@ -17,6 +23,10 @@ export function ShopFilterRail({
   q?: string;
   sort: ProductListSort;
 }) {
+  if (!SHOP_FILTER_RAIL_VISIBLE) {
+    return title;
+  }
+
   return (
     <div className="border-b border-graphite/10 pb-4">
       <div className="flex flex-col gap-3.5 md:grid md:grid-cols-[minmax(0,1fr)_minmax(16rem,1.1fr)] md:items-end md:gap-x-10 md:gap-y-0">

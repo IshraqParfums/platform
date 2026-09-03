@@ -63,7 +63,6 @@ export interface AdminProductPdpFields {
   pronunciation: string | null;
   meaning: string | null;
   taglinePrimary: string | null;
-  taglineTranslation: string | null;
   meaningStory: ProductMeaningStory | null;
   notesPyramid: ProductNotesPyramid | null;
   scentFamily: string | null;
@@ -103,7 +102,6 @@ export interface WriteProductPdpFields {
   pronunciation?: string;
   meaning?: string;
   taglinePrimary?: string;
-  taglineTranslation?: string;
   meaningStory?: ProductMeaningStory;
   notesPyramid?: ProductNotesPyramid;
   scentFamily?: string;

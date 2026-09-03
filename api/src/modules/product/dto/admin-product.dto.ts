@@ -55,11 +55,6 @@ class ProductPdpFieldsDto {
   taglinePrimary?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(300)
-  taglineTranslation?: string;
-
-  @IsOptional()
   @IsObject()
   meaningStory?: unknown;
 

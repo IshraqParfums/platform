@@ -4,7 +4,6 @@ import { ProductHeroPlate } from "@/components/product-v2/product-hero-plate";
 import { ProductPurchasePanel } from "@/components/product-v2/product-purchase-panel";
 import { ProductRating } from "@/components/product-v2/product-rating";
 import { ProductUnavailableNotice } from "@/components/product-v2/product-unavailable-notice";
-import { isUrduScript } from "@/components/product-v2/urdu-script";
 import { ProductShare } from "@/components/product/product-share";
 
 /**
@@ -32,8 +31,6 @@ export function ProductArrival({ product }: { product: ProductDetail }) {
     (a, b) => a.displayOrder - b.displayOrder,
   );
   const lead = product.tagline?.primary ?? product.shortDescription;
-  const leadIsUrdu = isUrduScript(lead);
-  const translation = product.tagline?.translation ?? null;
   const unavailable = product.availability !== "AVAILABLE";
 
   return (
@@ -64,31 +61,9 @@ export function ProductArrival({ product }: { product: ProductDetail }) {
         </div>
 
         {lead ? (
-          leadIsUrdu ? (
-            <Urdu
-              size="md"
-              tone="brass-deep"
-              leading="loose"
-              className="mt-4 max-w-[46ch]"
-            >
-              {lead}
-            </Urdu>
-          ) : (
-            <p className="mt-5 max-w-[46ch] text-[17px] leading-[1.6] text-graphite">
-              {lead}
-            </p>
-          )
-        ) : null}
-
-        {translation ? (
-          <Urdu
-            size="md"
-            tone="brass-deep"
-            leading="loose"
-            className="mt-3 max-w-[46ch]"
-          >
-            {translation}
-          </Urdu>
+          <p className="mt-5 max-w-[46ch] text-[17px] leading-[1.6] text-graphite">
+            {lead}
+          </p>
         ) : null}
 
         {product.ratingAverage !== null && product.reviewCount > 0 ? (

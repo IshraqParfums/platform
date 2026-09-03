@@ -2,6 +2,7 @@ import type {
   ProductFormatInfo,
   ProductOlfactoryProfile,
 } from "@ishraqparfums/shared";
+import { cn } from "@/lib/cn";
 
 /** "UNISEX" → "Unisex". */
 function humanize(value: string): string {
@@ -29,9 +30,13 @@ function humanize(value: string): string {
 export function ProductBackLabel({
   format,
   olfactoryProfile,
+  hideKicker,
 }: {
   format: ProductFormatInfo | null;
   olfactoryProfile: ProductOlfactoryProfile | null;
+  /** Drop the "On the label" title and the specification-plate tint when a
+   *  wrapping row already shows the title (avoids a card-in-a-card look). */
+  hideKicker?: boolean;
 }) {
   const rows = [
     format?.formatLabel ? { label: "Format", value: format.formatLabel } : null,
@@ -51,8 +56,12 @@ export function ProductBackLabel({
   if (rows.length === 0 && !bottle) return null;
 
   return (
-    <div className="bg-paper-deep px-6 py-7 sm:px-9 sm:py-9">
-      <p className="text-[13px] text-terra">On the label</p>
+    <div
+      className={cn(!hideKicker && "bg-paper-deep px-6 py-7 sm:px-9 sm:py-9")}
+    >
+      {hideKicker ? null : (
+        <p className="text-[13px] text-terra">On the label</p>
+      )}
 
       {rows.length > 0 ? (
         <dl className="mt-6 grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4">

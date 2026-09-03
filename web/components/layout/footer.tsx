@@ -26,7 +26,8 @@ const STATIC_COLUMNS: FooterNavColumn[] = [
 /**
  * Server component, so the Shop column can be built from the live collection
  * list rather than hardcoded slugs. Surface (paper vs espresso) lives in
- * FooterFrame so it can follow the route.
+ * FooterFrame so it can follow the route. Link columns and WhatsApp are
+ * desktop-only; phone shows wordmark, the India line, and the legal strip.
  */
 export async function Footer() {
   const collections = await getCollections();
@@ -46,41 +47,10 @@ export async function Footer() {
     ...STATIC_COLUMNS,
   ];
 
-  const mobileColumns: FooterNavColumn[] = [
-    {
-      title: "Quick links",
-      links: [
-        { href: "/shop", label: "All perfumes" },
-        { href: "/collections", label: "Collections" },
-        { href: "/bespoke", label: "Bespoke" },
-        { href: "/bespoke/quiz", label: "Take the quiz" },
-      ],
-    },
-    {
-      title: "Collections",
-      links:
-        collections.length > 0
-          ? collections.map((collection) => ({
-              href: `/shop?collection=${collection.slug}`,
-              label: collection.name,
-            }))
-          : [{ href: "/collections", label: "Browse collections" }],
-    },
-    {
-      title: "Account",
-      links: [
-        { href: ACCOUNT_HOME, label: "Account" },
-        { href: ACCOUNT_ORDERS, label: "Order history" },
-        { href: "/cart", label: "Cart" },
-      ],
-    },
-  ];
-
   return (
     <FooterFrame
       whatsappUrl={contact.whatsappUrl}
       desktopColumns={desktopColumns}
-      mobileColumns={mobileColumns}
     />
   );
 }

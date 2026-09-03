@@ -45,7 +45,7 @@ import {
   type CreateSizeDraftMap,
 } from "@/lib/admin/product-create";
 import { isValidSlug } from "@/lib/admin/slugify";
-import { urduIfPresent, URDU_FIELD_PROPS } from "@/lib/admin/urdu-field";
+import { urduIfPresent } from "@/lib/admin/urdu-field";
 import { useAutoSlug } from "@/lib/admin/use-auto-slug";
 import { adminFetch } from "@/lib/auth/admin-fetch";
 
@@ -66,17 +66,10 @@ function parseLines(value: string): string[] {
     .filter((line) => line.length > 0);
 }
 
-function buildNoteList(
-  notes: string,
-  translation: string,
-): { notes: string[]; notesTranslation: string[] | null } | null {
+function buildNoteList(notes: string): { notes: string[] } | null {
   const parsedNotes = parseCommaList(notes);
   if (parsedNotes.length === 0) return null;
-  const parsedTranslation = parseCommaList(translation);
-  return {
-    notes: parsedNotes,
-    notesTranslation: parsedTranslation.length > 0 ? parsedTranslation : null,
-  };
+  return { notes: parsedNotes };
 }
 
 const INTENSITY_OPTIONS = [
@@ -123,18 +116,13 @@ export function ProductCreateForm({
   const [pronunciation, setPronunciation] = useState("");
   const [meaning, setMeaning] = useState("");
   const [taglinePrimary, setTaglinePrimary] = useState("");
-  const [taglineTranslation, setTaglineTranslation] = useState("");
 
   const [storyHeading, setStoryHeading] = useState("");
   const [storyBody, setStoryBody] = useState("");
-  const [storyBodyTranslation, setStoryBodyTranslation] = useState("");
 
   const [openingNotes, setOpeningNotes] = useState("");
-  const [openingNotesTranslation, setOpeningNotesTranslation] = useState("");
   const [heartNotes, setHeartNotes] = useState("");
-  const [heartNotesTranslation, setHeartNotesTranslation] = useState("");
   const [baseNotes, setBaseNotes] = useState("");
-  const [baseNotesTranslation, setBaseNotesTranslation] = useState("");
 
   const [scentFamily, setScentFamily] = useState("");
   const [characterTags, setCharacterTags] = useState("");
@@ -272,13 +260,7 @@ export function ProductCreateForm({
       return;
     }
 
-    const urduError =
-      urduIfPresent(nameUrdu, "Urdu name") ??
-      urduIfPresent(taglineTranslation, "Tagline Urdu") ??
-      urduIfPresent(storyBodyTranslation, "Story translation") ??
-      urduIfPresent(openingNotesTranslation, "Opening notes Urdu") ??
-      urduIfPresent(heartNotesTranslation, "Heart notes Urdu") ??
-      urduIfPresent(baseNotesTranslation, "Base notes Urdu");
+    const urduError = urduIfPresent(nameUrdu, "Urdu name");
     if (urduError) {
       toast.error(urduError);
       return;
@@ -319,19 +301,12 @@ export function ProductCreateForm({
     const parsedBody = parseLines(storyBody);
     const meaningStory =
       parsedHeading || parsedBody.length > 0
-        ? {
-            heading: parsedHeading,
-            body: parsedBody,
-            bodyTranslation:
-              parseLines(storyBodyTranslation).length > 0
-                ? parseLines(storyBodyTranslation)
-                : null,
-          }
+        ? { heading: parsedHeading, body: parsedBody }
         : undefined;
 
-    const openingTier = buildNoteList(openingNotes, openingNotesTranslation);
-    const heartTier = buildNoteList(heartNotes, heartNotesTranslation);
-    const baseTier = buildNoteList(baseNotes, baseNotesTranslation);
+    const openingTier = buildNoteList(openingNotes);
+    const heartTier = buildNoteList(heartNotes);
+    const baseTier = buildNoteList(baseNotes);
     const notesPyramid =
       openingTier || heartTier || baseTier
         ? { opening: openingTier, heart: heartTier, base: baseTier }
@@ -367,9 +342,6 @@ export function ProductCreateForm({
           ...(meaning.trim() ? { meaning: meaning.trim() } : {}),
           ...(taglinePrimary.trim()
             ? { taglinePrimary: taglinePrimary.trim() }
-            : {}),
-          ...(taglineTranslation.trim()
-            ? { taglineTranslation: taglineTranslation.trim() }
             : {}),
           ...(meaningStory ? { meaningStory } : {}),
           ...(notesPyramid ? { notesPyramid } : {}),
@@ -683,18 +655,6 @@ export function ProductCreateForm({
               onChange={(event) => setTaglinePrimary(event.target.value)}
             />
           </label>
-
-          <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Tagline Urdu (optional)
-            </span>
-            <Input
-              value={taglineTranslation}
-              onChange={(event) => setTaglineTranslation(event.target.value)}
-              {...URDU_FIELD_PROPS}
-              className="text-right"
-            />
-          </label>
         </div>
       </div>
 
@@ -728,21 +688,6 @@ export function ProductCreateForm({
               One paragraph per line.
             </span>
           </label>
-
-          <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-              Body Urdu (optional)
-            </span>
-            <Textarea
-              value={storyBodyTranslation}
-              onChange={(event) => setStoryBodyTranslation(event.target.value)}
-              {...URDU_FIELD_PROPS}
-              className="text-right"
-            />
-            <span className="text-xs text-ink-faint">
-              One paragraph per line, matching the body above. Optional.
-            </span>
-          </label>
         </div>
       </div>
 
@@ -754,83 +699,38 @@ export function ProductCreateForm({
           The fragrance&apos;s opening, heart, and base notes. Comma-separated.
         </p>
         <div className="mt-4 flex flex-col gap-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5">
-              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Opening notes
-              </span>
-              <Input
-                value={openingNotes}
-                onChange={(event) => setOpeningNotes(event.target.value)}
-                placeholder="Bergamot, Pink pepper"
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Opening notes Urdu (optional)
-              </span>
-              <Input
-                value={openingNotesTranslation}
-                onChange={(event) =>
-                  setOpeningNotesTranslation(event.target.value)
-                }
-                {...URDU_FIELD_PROPS}
-                className="text-right"
-              />
-            </label>
-          </div>
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Opening notes
+            </span>
+            <Input
+              value={openingNotes}
+              onChange={(event) => setOpeningNotes(event.target.value)}
+              placeholder="Bergamot, Pink pepper"
+            />
+          </label>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5">
-              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Heart notes
-              </span>
-              <Input
-                value={heartNotes}
-                onChange={(event) => setHeartNotes(event.target.value)}
-                placeholder="Rose, Saffron"
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Heart notes Urdu (optional)
-              </span>
-              <Input
-                value={heartNotesTranslation}
-                onChange={(event) =>
-                  setHeartNotesTranslation(event.target.value)
-                }
-                {...URDU_FIELD_PROPS}
-                className="text-right"
-              />
-            </label>
-          </div>
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Heart notes
+            </span>
+            <Input
+              value={heartNotes}
+              onChange={(event) => setHeartNotes(event.target.value)}
+              placeholder="Rose, Saffron"
+            />
+          </label>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5">
-              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Base notes
-              </span>
-              <Input
-                value={baseNotes}
-                onChange={(event) => setBaseNotes(event.target.value)}
-                placeholder="Oud, Amber"
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
-                Base notes Urdu (optional)
-              </span>
-              <Input
-                value={baseNotesTranslation}
-                onChange={(event) =>
-                  setBaseNotesTranslation(event.target.value)
-                }
-                {...URDU_FIELD_PROPS}
-                className="text-right"
-              />
-            </label>
-          </div>
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-label-sm uppercase tracking-wide text-ink-faint">
+              Base notes
+            </span>
+            <Input
+              value={baseNotes}
+              onChange={(event) => setBaseNotes(event.target.value)}
+              placeholder="Oud, Amber"
+            />
+          </label>
         </div>
       </div>
 
