@@ -2,6 +2,7 @@ import type { ProductListItem } from "@ishraqparfums/shared";
 import Link from "next/link";
 import { Urdu } from "@/components/home-v2/ui/urdu";
 import { ProductCatalogStill } from "@/components/product/product-catalog-still";
+import { WishlistHeartButton } from "@/components/wishlist/wishlist-heart-button";
 import { HOME_COLLECTION } from "@/lib/content/home-v2";
 import { catalogStillImages } from "@/lib/catalog/still-images";
 import { formatPaise } from "@/lib/format/money";
@@ -64,20 +65,34 @@ export function ShopJournalRow({
   const openingNotes = product.openingNotes ?? [];
 
   return (
-    <Link
-      href={`/products/${product.slug}`}
-      className="group flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] sm:items-stretch sm:gap-6"
-    >
+    <div className="group flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] sm:items-stretch sm:gap-6">
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper-deep">
-        <ProductCatalogStill
-          name={product.name}
-          images={catalogStillImages(product)}
-          sizes="(min-width: 768px) 22vw, 100vw"
-          priority={priority}
+        {/* Decorative — the text Link below is the one accessible route to
+            the product, so this image link doesn't need its own tab stop. */}
+        <Link
+          href={`/products/${product.slug}`}
+          className="absolute inset-0 block"
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          <ProductCatalogStill
+            name={product.name}
+            images={catalogStillImages(product)}
+            sizes="(min-width: 768px) 22vw, 100vw"
+            priority={priority}
+          />
+        </Link>
+        <WishlistHeartButton
+          product={product}
+          variant="overlay"
+          className="absolute right-3 top-3 z-10"
         />
       </div>
 
-      <div className="flex min-h-0 min-w-0 flex-col sm:h-full sm:justify-between">
+      <Link
+        href={`/products/${product.slug}`}
+        className="flex min-h-0 min-w-0 flex-col sm:h-full sm:justify-between"
+      >
         <div>
           <div className="flex items-baseline justify-between gap-3 sm:block">
             <h3 className="font-editorial text-[22px] leading-[1.1] text-graphite transition-colors duration-200 group-hover:text-terra sm:text-[26px]">
@@ -131,7 +146,7 @@ export function ShopJournalRow({
             </p>
           ) : null}
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

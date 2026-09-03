@@ -266,6 +266,40 @@ export class ProductRepository {
     });
   }
 
+  /** Id-only, no `catalogInclude` — for callers that just need to resolve
+   *  slugs to ids (e.g. wishlist merge), not render a catalog card. */
+  findVisibleIdsBySlugs(
+    slugs: string[],
+  ): Promise<{ id: string; slug: string }[]> {
+    if (slugs.length === 0) {
+      return Promise.resolve([]);
+    }
+
+    return this.prisma.product.findMany({
+      where: {
+        slug: { in: slugs },
+        status: { in: [ProductStatus.ACTIVE, ProductStatus.ARCHIVED] },
+      },
+      select: { id: true, slug: true },
+    });
+  }
+
+  /** Visible (ACTIVE or ARCHIVED), not active-listable — a wishlist keeps
+   *  showing an archived product the shop shelf no longer lists. */
+  findManyVisibleByIds(ids: string[]): Promise<ProductWithCatalogRelations[]> {
+    if (ids.length === 0) {
+      return Promise.resolve([]);
+    }
+
+    return this.prisma.product.findMany({
+      where: {
+        id: { in: ids },
+        status: { in: [ProductStatus.ACTIVE, ProductStatus.ARCHIVED] },
+      },
+      include: catalogInclude,
+    });
+  }
+
   findVariantByIdWithProduct(
     variantId: string,
   ): Promise<PurchasableVariantWithProduct | null> {

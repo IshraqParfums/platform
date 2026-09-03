@@ -138,6 +138,7 @@ model Product {
   variants            ProductVariant[]
   images              ProductImage[]
   reviews             Review[]
+  wishlistItems       WishlistItem[]
 
   @@index([status])
   @@index([collectionId])
@@ -190,6 +191,7 @@ model Customer {
   createdAt       DateTime               @default(now())
   updatedAt       DateTime               @updatedAt
   cart            Cart?
+  wishlist        Wishlist?
   addresses       CustomerAddress[]
   orders          Order[]
   reviews         Review[]
@@ -263,6 +265,31 @@ model CartItem {
   @@index([cartId])
   @@index([bespokePerfumeId])
   @@map("cart_items")
+}
+
+model Wishlist {
+  id         String         @id @default(uuid())
+  customerId String         @unique
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  customer   Customer       @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  items      WishlistItem[]
+
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id         String   @id @default(uuid())
+  wishlistId String
+  productId  String
+  createdAt  DateTime @default(now())
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, productId])
+  @@index([wishlistId])
+  @@index([productId])
+  @@map("wishlist_items")
 }
 
 model Order {

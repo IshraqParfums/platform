@@ -91,7 +91,7 @@ export function ProductArrival({ product }: { product: ProductDetail }) {
         ) : null}
 
         <div className="mt-8">
-          <ProductPurchasePanel />
+          <ProductPurchasePanel product={product} />
         </div>
       </div>
     </div>

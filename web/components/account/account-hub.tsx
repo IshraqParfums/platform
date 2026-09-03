@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type {
   AddressResponse,
@@ -28,6 +28,8 @@ import {
 } from "@/lib/auth/use-guarded-load";
 import { getMe } from "@/lib/customers/me-client";
 import { listOrders } from "@/lib/orders/orders-client";
+import { getWishlistedSlugs } from "@/lib/wishlist/wishlist-client";
+import { subscribeWishlistChanged } from "@/lib/wishlist/wishlist-events";
 
 /** Enough recent orders to recognise the account; the rest live on the list. */
 const RECENT_ORDERS = 3;
@@ -98,6 +100,24 @@ export function AccountHubView({
   >(null);
   const [addressToDelete, setAddressToDelete] =
     useState<AddressResponse | null>(null);
+
+  // A count only — not `loadWishlist()`, which fetches full display data the
+  // hub never renders. Independent of `useGuardedLoad` above: a wishlist
+  // hiccup shouldn't gate or error the rest of the account page.
+  const [wishlistCount, setWishlistCount] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getWishlistedSlugs().then((slugs) => {
+      if (!cancelled) setWishlistCount(slugs.size);
+    });
+    const unsubscribe = subscribeWishlistChanged(({ slugs }) => {
+      if (!cancelled) setWishlistCount(slugs.size);
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <div>
@@ -206,6 +226,23 @@ export function AccountHubView({
           ) : (
             <OrderCards orders={orders} />
           )}
+        </AccountSection>
+
+        <AccountSection
+          title="Wishlist"
+          surface="muted"
+          action={{
+            href: "/wishlist",
+            label: "View wishlist",
+          }}
+        >
+          <AccountEmpty>
+            {wishlistCount === null
+              ? "Loading…"
+              : wishlistCount === 0
+                ? "Nothing saved yet. Heart a scent while you browse."
+                : `${wishlistCount} ${wishlistCount === 1 ? "scent" : "scents"} saved.`}
+          </AccountEmpty>
         </AccountSection>
 
         <AccountSection

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ComponentType } from "react";
-import { LogOut, Package, User } from "lucide-react";
+import { Heart, LogOut, Package, User } from "lucide-react";
 import { SignOutDialog } from "@/components/account/sign-out-dialog";
 import { ButtonLink } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -114,6 +114,12 @@ export function AccountMenu({ tone = "dark" }: { tone?: AccountMenuTone }) {
                   href={ACCOUNT_ORDERS}
                   icon={Package}
                   label="Orders"
+                  onSelect={() => setOpen(false)}
+                />
+                <MenuRow
+                  href="/wishlist"
+                  icon={Heart}
+                  label="Wishlist"
                   onSelect={() => setOpen(false)}
                 />
                 <MenuRow

@@ -14,6 +14,7 @@ import { PaymentModule } from './modules/payment/payment.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { ProductModule } from './modules/product/product.module';
 import { ReviewModule } from './modules/review/review.module';
+import { WishlistModule } from './modules/wishlist/wishlist.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ReviewModule } from './modules/review/review.module';
     ProductModule,
     BespokeModule,
     CartModule,
+    WishlistModule,
     CustomerModule,
     AddressModule,
     AuthModule,

@@ -323,6 +323,20 @@ export class ProductService {
     return product;
   }
 
+  /**
+   * Batched slug → id resolution, no catalog joins — for callers (wishlist
+   * merge) that only need the id, not display data. A slug that doesn't
+   * resolve to a visible product is simply absent from the map rather than
+   * throwing, so a caller merging many slugs at once can skip bad ones
+   * without a per-slug try/catch.
+   */
+  async findManyVisibleIdsBySlugs(
+    slugs: string[],
+  ): Promise<Map<string, string>> {
+    const rows = await this.productRepository.findVisibleIdsBySlugs(slugs);
+    return new Map(rows.map((row) => [row.slug, row.id]));
+  }
+
   async findPurchasableVariant(
     variantId: string,
   ): Promise<PurchasableVariantWithProduct> {
@@ -354,6 +368,22 @@ export class ProductService {
     }
 
     return byId;
+  }
+
+  /**
+   * Batched, visible-only product lookup for the wishlist page. Unlike
+   * `findPurchasableVariants`, a missing id is not an error — a wishlist item
+   * whose product has since gone fully invisible (reverted to DRAFT, an
+   * unusual admin action) is silently omitted from the result rather than
+   * failing the whole page load.
+   */
+  async findManyVisibleForWishlist(
+    productIds: string[],
+  ): Promise<Map<string, ProductWithCatalogRelations>> {
+    const uniqueIds = [...new Set(productIds)];
+    const products =
+      await this.productRepository.findManyVisibleByIds(uniqueIds);
+    return new Map(products.map((product) => [product.id, product]));
   }
 
   /**

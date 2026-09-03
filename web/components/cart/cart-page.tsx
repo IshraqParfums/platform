@@ -29,6 +29,7 @@ import {
 import { emitCartChanged, subscribeCartChanged } from "@/lib/cart/cart-events";
 import { toastRemovedFromCart } from "@/lib/cart/cart-toast";
 import { createLineMutationQueue } from "@/lib/cart/line-mutation-queue";
+import { addWishlistItem } from "@/lib/wishlist/wishlist-client";
 import {
   cartUnavailableLines,
   findCartLineByKey,
@@ -270,6 +271,47 @@ export function CartPageClient() {
     });
   }
 
+  /**
+   * Adds to the wishlist before removing from the cart — a failed second
+   * call duplicates the item rather than losing it, same failure direction
+   * checkout already prefers when pruning unsellable lines.
+   */
+  async function moveToWishlist(line: CartViewLine, current: CartView) {
+    if (line.kind !== "catalog") return;
+
+    try {
+      await addWishlistItem({
+        slug: line.productSlug,
+        name: line.productName,
+        nameUrdu: null,
+        shortDescription: line.shortDescription ?? "",
+        openingNotes: [],
+        collectionSlug: "",
+        primaryImage: line.primaryImageUrl
+          ? { url: line.primaryImageUrl, altText: null }
+          : null,
+        images: line.primaryImageUrl
+          ? [{ url: line.primaryImageUrl, altText: null }]
+          : [],
+        fromSizeMl: line.sizeMl,
+        fromPricePaise: line.pricePaise,
+        fromCompareAtPricePaise: line.compareAtPricePaise,
+        availability: line.isAvailable ? "AVAILABLE" : "OUT_OF_STOCK",
+        ratingAverage: null,
+        reviewCount: 0,
+      });
+    } catch (err) {
+      toast.error(
+        "Could not save to wishlist",
+        err instanceof Error ? err.message : undefined,
+      );
+      return;
+    }
+
+    toast.success(`${line.productName} moved to wishlist`);
+    removeLine(line, current);
+  }
+
   function removeUnavailable(current: CartView) {
     const unavailable = cartUnavailableLines(current);
     if (unavailable.length === 0) return;
@@ -350,6 +392,7 @@ export function CartPageClient() {
                 changeQuantity(line, quantity);
               }}
               onRemove={() => removeLine(line, view)}
+              onMoveToWishlist={() => void moveToWishlist(line, view)}
             />
           ))}
         </div>
